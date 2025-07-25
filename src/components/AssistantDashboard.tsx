@@ -59,6 +59,7 @@ const AssistantDashboard = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [taskNote, setTaskNote] = useState('');
+  const [patientsToday, setPatientsToday] = useState(0);
 
   useEffect(() => {
     if (session && user && (userProfile?.role === 'assistant' || userProfile?.role === 'admin')) {
@@ -197,8 +198,80 @@ const AssistantDashboard = () => {
   const before1PM = myTasks.filter(task => task['due-type'] === 'Before 1PM');
   const endOfDay = myTasks.filter(task => task['due-type'] === 'EoD');
 
-  // Mock patient count (in real app this would come from patient_logs)
-  const patientsToday = Math.floor(Math.random() * 15) + 5;
+  // Fetch patient count for today
+  useEffect(() => {
+    fetchPatientsToday();
+  }, [session, user]);
+
+  const fetchPatientsToday = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('patient_logs')
+        .select('patient_count')
+        .eq('assistant_id', user.id)
+        .eq('date', today)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      setPatientsToday(data?.patient_count || 0);
+    } catch (error) {
+      console.error('Error fetching patient count:', error);
+    }
+  };
+
+  const incrementPatientCount = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data: existing, error: fetchError } = await supabase
+        .from('patient_logs')
+        .select('id, patient_count')
+        .eq('assistant_id', user.id)
+        .eq('date', today)
+        .maybeSingle();
+
+      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+      if (existing) {
+        const { error } = await supabase
+          .from('patient_logs')
+          .update({ patient_count: existing.patient_count + 1 })
+          .eq('id', existing.id);
+        
+        if (error) throw error;
+        setPatientsToday(existing.patient_count + 1);
+      } else {
+        const { error } = await supabase
+          .from('patient_logs')
+          .insert({
+            assistant_id: user.id,
+            clinic_id: userProfile?.clinic_id,
+            date: today,
+            patient_count: 1
+          });
+        
+        if (error) throw error;
+        setPatientsToday(1);
+      }
+
+      toast({
+        title: "Patient Added",
+        description: "Patient count updated successfully"
+      });
+    } catch (error) {
+      console.error('Error updating patient count:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update patient count",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Weekly completion data for chart
   const weeklyData = [
@@ -321,7 +394,20 @@ const AssistantDashboard = () => {
               <CheckCircle2 className="h-3 w-3 mr-1" />
               Done
             </Button>
-          ) : null}
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                updateTaskStatus(task.id, 'To Do');
+              }}
+              className="text-xs"
+            >
+              <Clock className="h-3 w-3 mr-1" />
+              Undo
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -410,14 +496,20 @@ const AssistantDashboard = () => {
           </Card>
 
           {/* Patients Today */}
-          <Card className="hover:shadow-lg transition-shadow duration-300">
+          <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer" onClick={incrementPatientCount}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Patients Today</CardTitle>
               <Users className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{patientsToday}</div>
-              <p className="text-xs text-muted-foreground">Patients assisted</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">Patients assisted</p>
+                <Button size="sm" variant="outline" className="text-xs">
+                  <User className="h-3 w-3 mr-1" />
+                  Add Patient
+                </Button>
+              </div>
             </CardContent>
           </Card>
 

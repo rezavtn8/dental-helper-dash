@@ -85,7 +85,7 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
     priority: 'medium' as const,
     'due-type': 'EoD',
     category: '',
-    assigned_to: '',
+    assigned_to: 'unassigned',
     recurrence: 'none',
     owner_notes: ''
   });
@@ -101,7 +101,7 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
       priority: 'medium',
       'due-type': 'EoD',
       category: '',
-      assigned_to: '',
+      assigned_to: 'unassigned',
       recurrence: 'none',
       owner_notes: ''
     });
@@ -391,7 +391,7 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
                         <SelectValue placeholder="Select assignee" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">🔓 Leave Unassigned</SelectItem>
+                        <SelectItem value="unassigned">🔓 Leave Unassigned</SelectItem>
                         {assistants.map((assistant) => (
                           <SelectItem key={assistant.id} value={assistant.id}>
                             👤 {assistant.name}

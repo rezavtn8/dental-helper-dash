@@ -77,7 +77,7 @@ const OwnerDashboard = () => {
     priority: 'medium' as const,
     'due-type': 'EoD',
     category: '',
-    assigned_to: '',
+    assigned_to: 'unassigned',
     recurrence: 'none',
     owner_notes: '',
     custom_due_date: undefined as Date | undefined
@@ -147,7 +147,7 @@ const OwnerDashboard = () => {
     try {
       const taskData = {
         ...newTask,
-        assigned_to: newTask.assigned_to || null,
+        assigned_to: newTask.assigned_to === 'unassigned' ? null : newTask.assigned_to,
         clinic_id: userProfile?.clinic_id,
         created_by: user?.id,
         status: 'To Do',
@@ -172,7 +172,7 @@ const OwnerDashboard = () => {
         priority: 'medium',
         'due-type': 'EoD',
         category: '',
-        assigned_to: '',
+        assigned_to: 'unassigned',
         recurrence: 'none',
         owner_notes: '',
         custom_due_date: undefined
@@ -355,7 +355,7 @@ const OwnerDashboard = () => {
                           <SelectValue placeholder="Select assignee" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">🔓 Leave Unassigned</SelectItem>
+                          <SelectItem value="unassigned">🔓 Leave Unassigned</SelectItem>
                           {assistants.map((assistant) => (
                             <SelectItem key={assistant.id} value={assistant.id}>
                               👤 {assistant.name}

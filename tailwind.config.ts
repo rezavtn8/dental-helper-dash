@@ -59,6 +59,21 @@ export default {
 					600: 'hsl(var(--blue-600))',
 					900: 'hsl(var(--blue-900))'
 				},
+				clinical: {
+					mint: 'hsl(var(--clinical-mint))',
+					'mint-foreground': 'hsl(var(--clinical-mint-foreground))',
+					sky: 'hsl(var(--clinical-sky))',
+					'sky-foreground': 'hsl(var(--clinical-sky-foreground))',
+					orange: 'hsl(var(--clinical-orange))',
+					'orange-foreground': 'hsl(var(--clinical-orange-foreground))',
+					green: 'hsl(var(--clinical-green))',
+					'green-foreground': 'hsl(var(--clinical-green-foreground))'
+				},
+				status: {
+					completed: 'hsl(var(--status-completed))',
+					pending: 'hsl(var(--status-pending))',
+					overdue: 'hsl(var(--status-overdue))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

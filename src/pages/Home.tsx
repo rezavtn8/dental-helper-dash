@@ -1,20 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Building2, Users, ArrowRight, Plus } from 'lucide-react';
+import { Building2, Users, ArrowRight, Plus, Clock } from 'lucide-react';
 
 export default function Home() {
   const [clinicCode, setClinicCode] = useState('');
+  const [recentClinics, setRecentClinics] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Load recent clinics from localStorage
+    const recent = localStorage.getItem('recentClinics');
+    if (recent) {
+      setRecentClinics(JSON.parse(recent));
+    }
+  }, []);
 
   const handleClinicAccess = (e: React.FormEvent) => {
     e.preventDefault();
     if (clinicCode.trim()) {
-      navigate(`/clinic/${clinicCode.trim().toLowerCase()}`);
+      const code = clinicCode.trim().toLowerCase();
+      // Save to recent clinics
+      const updated = [code, ...recentClinics.filter(c => c !== code)].slice(0, 3);
+      setRecentClinics(updated);
+      localStorage.setItem('recentClinics', JSON.stringify(updated));
+      navigate(`/clinic/${code}`);
     }
+  };
+
+  const handleRecentClinicAccess = (code: string) => {
+    navigate(`/clinic/${code}`);
   };
 
   return (
@@ -26,9 +44,36 @@ export default function Home() {
             DentalFlow
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Streamline your dental clinic's assistant tasks and workflow
+            Practice management made simple - access your clinic or create a new one
           </p>
         </div>
+
+        {/* Recent Clinics */}
+        {recentClinics.length > 0 && (
+          <div className="max-w-2xl mx-auto mb-8">
+            <Card className="bg-white/80 backdrop-blur-sm">
+              <CardHeader className="text-center pb-4">
+                <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
+                <CardTitle className="text-lg">Recent Clinics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {recentClinics.map((code) => (
+                    <Button
+                      key={code}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRecentClinicAccess(code)}
+                      className="text-sm"
+                    >
+                      {code}
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
@@ -50,9 +95,12 @@ export default function Home() {
                       id="clinicCode"
                       value={clinicCode}
                       onChange={(e) => setClinicCode(e.target.value)}
-                      placeholder="e.g., irvine123"
+                      placeholder="e.g., irvine123, smith-dental"
                       className="text-center"
                     />
+                    <p className="text-xs text-muted-foreground text-center">
+                      Enter your clinic's unique code to access your portal
+                    </p>
                   </div>
                   <Button type="submit" className="w-full" disabled={!clinicCode.trim()}>
                     Access Clinic

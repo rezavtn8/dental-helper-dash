@@ -31,7 +31,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!session) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -56,7 +56,7 @@ const RoleBasedRedirect = () => {
   } else if (userProfile?.role === 'assistant') {
     return <Navigate to="/assistant" replace />;
   } else {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 };
 
@@ -72,7 +72,7 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/clinic/:clinicCode" element={<ClinicLogin />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<Navigate to="/" replace />} />
               <Route 
                 path="/assistant" 
                 element={

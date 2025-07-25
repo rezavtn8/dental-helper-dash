@@ -30,24 +30,24 @@ interface Task {
 }
 
 const AssistantDashboard = () => {
-  const { session, signOut } = useAuth();
+  const { session, user, userProfile, signOut } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [patientCount, setPatientCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.role === 'assistant') {
+    if (session && user && userProfile?.role === 'assistant') {
       fetchTasks();
       fetchTodayPatientCount();
     }
-  }, [session]);
+  }, [session, user, userProfile]);
 
   const fetchTasks = async () => {
     try {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .or(`assigned_to.eq.${session?.id},assigned_to.is.null`)
+        .or(`assigned_to.eq.${user?.id},assigned_to.is.null`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -70,7 +70,7 @@ const AssistantDashboard = () => {
       const { data, error } = await supabase
         .from('patient_logs')
         .select('patient_count')
-        .eq('assistant_id', session?.id)
+        .eq('assistant_id', user?.id)
         .eq('date', today)
         .single();
 
@@ -86,7 +86,7 @@ const AssistantDashboard = () => {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ assigned_to: session?.id })
+        .update({ assigned_to: user?.id })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -140,10 +140,10 @@ const AssistantDashboard = () => {
       const { error } = await supabase
         .from('patient_logs')
         .upsert({
-          assistant_id: session?.id,
+          assistant_id: user?.id,
           date: today,
           patient_count: newCount,
-          clinic_id: session?.clinic_id
+          clinic_id: userProfile?.clinic_id
         });
 
       if (error) throw error;
@@ -167,7 +167,7 @@ const AssistantDashboard = () => {
     }
   };
 
-  const myTasks = tasks.filter(task => task.assigned_to === session?.id);
+  const myTasks = tasks.filter(task => task.assigned_to === user?.id);
   const unassignedTasks = tasks.filter(task => !task.assigned_to);
 
   if (loading) {
@@ -187,7 +187,7 @@ const AssistantDashboard = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Welcome, {session?.role === 'assistant' ? session.name : 'User'}</h1>
+            <h1 className="text-3xl font-bold">Welcome, {userProfile?.name || 'User'}</h1>
             <p className="text-muted-foreground">Assistant Dashboard</p>
           </div>
           <Button variant="outline" onClick={signOut}>

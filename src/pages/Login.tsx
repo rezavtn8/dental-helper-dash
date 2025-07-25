@@ -1,251 +1,272 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Stethoscope, User, Mail, ChevronDown } from 'lucide-react';
+import { Loader2, Stethoscope } from 'lucide-react';
 
-const Login = () => {
-  const { signInWithPin, signInWithEmail } = useAuth();
+export default function Login() {
   const navigate = useNavigate();
+  const { signInWithEmail, signUp } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   
-  const [assistantForm, setAssistantForm] = useState({
-    selectedUser: '',
-    pin: ''
-  });
-  
-  const [ownerForm, setOwnerForm] = useState({
+  // Login form state
+  const [loginForm, setLoginForm] = useState({
     email: '',
     password: ''
   });
+  
+  // Signup form state
+  const [signupForm, setSignupForm] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    name: '',
+    role: 'assistant' as 'owner' | 'assistant'
+  });
 
-  const [loading, setLoading] = useState(false);
-  const [assistants, setAssistants] = useState<{ id: string; name: string }[]>([]);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  useEffect(() => {
-    fetchAssistants();
-  }, []);
-
-  const fetchAssistants = async () => {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, name')
-        .eq('role', 'assistant')
-        .order('name');
-
-      if (error) throw error;
-      setAssistants(data || []);
+      const { error } = await signInWithEmail(loginForm.email, loginForm.password);
+      
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "Successfully logged in.",
+        });
+        
+        // Navigate to appropriate dashboard (we'll determine this from user role)
+        navigate('/owner'); // Default navigation - will be redirected based on role
+      }
     } catch (error) {
-      console.error('Error fetching assistants:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleAssistantLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!assistantForm.selectedUser || assistantForm.pin.length !== 4) {
+    setIsLoading(true);
+
+    if (signupForm.password !== signupForm.confirmPassword) {
       toast({
-        title: "Invalid Input",
-        description: "Please select your name and enter a 4-digit PIN",
-        variant: "destructive"
+        title: "Password Mismatch",
+        description: "Passwords do not match.",
+        variant: "destructive",
       });
+      setIsLoading(false);
       return;
     }
 
-    setLoading(true);
-    const { error } = await signInWithPin(assistantForm.selectedUser, assistantForm.pin);
-    
-    if (error) {
-      toast({
-        title: "Login Failed",
-        description: error,
-        variant: "destructive"
+    try {
+      const { error } = await signUp(signupForm.email, signupForm.password, {
+        name: signupForm.name,
+        role: signupForm.role
       });
-    } else {
+      
+      if (error) {
+        toast({
+          title: "Registration Failed",
+          description: error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Registration Successful",
+          description: "Please check your email to verify your account.",
+        });
+        
+        // Switch to login tab after successful signup
+        setSignupForm({
+          email: '',
+          password: '',
+          confirmPassword: '',
+          name: '',
+          role: 'assistant'
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Welcome back!",
-        description: "You've been logged in successfully"
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
       });
-      navigate('/assistant');
+    } finally {
+      setIsLoading(false);
     }
-    setLoading(false);
-  };
-
-  const handleOwnerLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    const { error } = await signInWithEmail(ownerForm.email, ownerForm.password);
-    
-    if (error) {
-      toast({
-        title: "Login Failed",
-        description: error,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You've been logged in successfully"
-      });
-      navigate('/owner');
-    }
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-primary to-blue-600 p-4 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-primary/80 to-blue-600/90"></div>
-      <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-      
-      <Card className="w-full max-w-md backdrop-blur-xl bg-card/90 border-border/50 shadow-2xl relative z-10">
-        <CardHeader className="text-center pb-6">
-          <div className="mx-auto mb-6 p-4 bg-primary/15 rounded-full w-fit ring-2 ring-primary/20">
-            <Stethoscope className="h-10 w-10 text-primary" />
-          </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-            Dental Assistant Platform
-          </CardTitle>
-          <CardDescription className="text-muted-foreground mt-2 text-base">
-            Choose your login method to access the platform
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="assistant" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="assistant" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Assistant
-              </TabsTrigger>
-              <TabsTrigger value="owner" className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Owner
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="assistant" className="space-y-6 mt-6">
-              <form onSubmit={handleAssistantLogin} className="space-y-6">
-                <div className="space-y-3">
-                  <Label htmlFor="assistant-select" className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <User className="h-4 w-4 text-primary" />
-                    Select Your Name
-                  </Label>
-                  <Select 
-                    value={assistantForm.selectedUser} 
-                    onValueChange={(value) => setAssistantForm({ ...assistantForm, selectedUser: value })}
-                  >
-                    <SelectTrigger className="w-full h-12 bg-background/80 border-2 border-border/50 hover:border-primary/50 focus:border-primary transition-colors shadow-sm">
-                      <SelectValue placeholder="Choose your name..." className="text-muted-foreground" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl z-50">
-                      {assistants.map((assistant) => (
-                        <SelectItem 
-                          key={assistant.id} 
-                          value={assistant.id}
-                          className="hover:bg-primary/10 focus:bg-primary/10 cursor-pointer py-3"
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-primary rounded-full"></div>
-                            {assistant.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-3">
-                  <Label htmlFor="pin" className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-primary rounded-sm flex items-center justify-center">
-                      <div className="w-1 h-1 bg-primary rounded-full"></div>
-                    </div>
-                    4-Digit PIN
-                  </Label>
-                  <div className="relative">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/50 to-primary/10 p-4">
+      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
+      <div className="relative w-full max-w-md">
+        <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/20 rounded-full blur-xl" />
+        <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-accent/20 rounded-full blur-xl" />
+        
+        <Card className="backdrop-blur-sm border-white/10 shadow-2xl">
+          <CardHeader className="text-center space-y-4">
+            <div className="mx-auto p-3 bg-primary/15 rounded-full w-fit">
+              <Stethoscope className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Medical Clinic Portal
+            </CardTitle>
+            <CardDescription>
+              Access your clinic management system
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent>
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
                     <Input
-                      id="pin"
-                      type="password"
-                      placeholder="••••"
-                      maxLength={4}
-                      value={assistantForm.pin}
-                      onChange={(e) => setAssistantForm({ ...assistantForm, pin: e.target.value.replace(/\D/g, '') })}
-                      className="text-center text-2xl tracking-[0.5em] font-bold h-14 bg-background/80 border-2 border-border/50 hover:border-primary/50 focus:border-primary transition-colors shadow-sm pl-8"
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
                       required
                     />
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex gap-1">
-                      {[...Array(4)].map((_, i) => (
-                        <div 
-                          key={i} 
-                          className={`w-2 h-2 rounded-full transition-colors ${
-                            i < assistantForm.pin.length ? 'bg-primary' : 'bg-muted'
-                          }`}
-                        ></div>
-                      ))}
-                    </div>
                   </div>
-                </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 shadow-lg hover:shadow-xl transition-all duration-200" 
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Logging in...
-                    </div>
-                  ) : (
-                    'Login as Assistant'
-                  )}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="owner" className="space-y-4">
-              <form onSubmit={handleOwnerLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="owner@clinic.com"
-                    value={ownerForm.email}
-                    onChange={(e) => setOwnerForm({ ...ownerForm, email: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={ownerForm.password}
-                    onChange={(e) => setOwnerForm({ ...ownerForm, password: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Logging in...' : 'Login as Owner'}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
+                    ) : (
+                      'Sign In'
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="signup">
+                <form onSubmit={handleSignup} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Input
+                      id="signup-name"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={signupForm.name}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={signupForm.email}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <select
+                      id="role"
+                      className="w-full p-2 border border-input bg-background rounded-md"
+                      value={signupForm.role}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, role: e.target.value as 'owner' | 'assistant' }))}
+                    >
+                      <option value="assistant">Assistant</option>
+                      <option value="owner">Owner</option>
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      placeholder="Create a password"
+                      value={signupForm.password}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="Confirm your password"
+                      value={signupForm.confirmPassword}
+                      onChange={(e) => setSignupForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      'Create Account'
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-};
-
-export default Login;
+}

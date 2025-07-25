@@ -7,12 +7,13 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Login from "./pages/Login";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import ClinicManagement from "./pages/ClinicManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children, allowedRole }: { children: React.ReactNode; allowedRole: 'assistant' | 'owner' }) => {
-  const { session, loading } = useAuth();
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, loading, userProfile } = useAuth();
 
   if (loading) {
     return (
@@ -29,11 +30,30 @@ const ProtectedRoute = ({ children, allowedRole }: { children: React.ReactNode; 
     return <Navigate to="/login" replace />;
   }
 
-  if (session.role !== allowedRole) {
-    return <Navigate to={session.role === 'assistant' ? '/assistant' : '/owner'} replace />;
+  return <>{children}</>;
+};
+
+const RoleBasedRedirect = () => {
+  const { userProfile, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
   }
 
-  return <>{children}</>;
+  if (userProfile?.role === 'owner') {
+    return <Navigate to="/owner" replace />;
+  } else if (userProfile?.role === 'assistant') {
+    return <Navigate to="/assistant" replace />;
+  } else {
+    return <Navigate to="/login" replace />;
+  }
 };
 
 const App = () => (
@@ -48,7 +68,7 @@ const App = () => (
             <Route 
               path="/assistant" 
               element={
-                <ProtectedRoute allowedRole="assistant">
+                <ProtectedRoute>
                   <AssistantDashboard />
                 </ProtectedRoute>
               } 
@@ -56,12 +76,20 @@ const App = () => (
             <Route 
               path="/owner" 
               element={
-                <ProtectedRoute allowedRole="owner">
+                <ProtectedRoute>
                   <OwnerDashboard />
                 </ProtectedRoute>
               } 
             />
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route 
+              path="/clinic" 
+              element={
+                <ProtectedRoute>
+                  <ClinicManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/" element={<RoleBasedRedirect />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

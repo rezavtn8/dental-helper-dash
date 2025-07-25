@@ -41,7 +41,7 @@ interface Assistant {
 }
 
 const OwnerDashboard = () => {
-  const { session, signOut } = useAuth();
+  const { session, user, userProfile, signOut } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -58,11 +58,11 @@ const OwnerDashboard = () => {
   });
 
   useEffect(() => {
-    if (session?.role === 'owner') {
+    if (session && user && userProfile?.role === 'owner') {
       fetchTasks();
       fetchAssistants();
     }
-  }, [session]);
+  }, [session, user, userProfile]);
 
   const fetchTasks = async () => {
     try {
@@ -108,8 +108,8 @@ const OwnerDashboard = () => {
         .insert({
           ...newTask,
           assigned_to: newTask.assigned_to || null,
-          clinic_id: session?.clinic_id,
-          created_by: session?.id,
+          clinic_id: userProfile?.clinic_id,
+          created_by: user?.id,
           status: 'To Do'
         });
 

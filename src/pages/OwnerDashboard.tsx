@@ -13,8 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { 
+import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import {
   Plus, 
   LogOut,
   Calendar,
@@ -595,7 +595,7 @@ const OwnerDashboard = () => {
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Tooltip />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>

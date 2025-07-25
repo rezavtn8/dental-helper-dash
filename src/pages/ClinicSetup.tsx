@@ -101,8 +101,8 @@ export default function ClinicSetup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 p-4">
+      <Card className="w-full max-w-md bg-card/95 backdrop-blur-sm border shadow-lg">
         <CardHeader className="text-center">
           <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
           <CardTitle>Create Your Clinic</CardTitle>

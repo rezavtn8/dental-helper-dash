@@ -36,9 +36,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl">
+        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
             DentalFlow
@@ -51,7 +51,7 @@ export default function Home() {
         {/* Recent Clinics */}
         {recentClinics.length > 0 && (
           <div className="max-w-2xl mx-auto mb-8">
-            <Card className="bg-white/80 backdrop-blur-sm">
+            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
               <CardHeader className="text-center pb-4">
                 <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
                 <CardTitle className="text-lg">Recent Clinics</CardTitle>
@@ -77,14 +77,14 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {/* Clinic Access */}
-            <Card className="transform hover:scale-105 transition-transform">
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Access Clinic */}
+            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
               <CardHeader className="text-center">
-                <Building2 className="w-16 h-16 mx-auto mb-4 text-primary" />
-                <CardTitle>Access Your Clinic</CardTitle>
+                <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
+                <CardTitle className="text-2xl">Access Your Clinic</CardTitle>
                 <CardDescription>
-                  Enter your clinic code to access your portal
+                  Enter your clinic code to access the portal
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -96,109 +96,72 @@ export default function Home() {
                       value={clinicCode}
                       onChange={(e) => setClinicCode(e.target.value)}
                       placeholder="e.g., irvine123, smith-dental"
-                      className="text-center"
+                      className="text-center text-lg h-12"
                     />
                     <p className="text-xs text-muted-foreground text-center">
                       Enter your clinic's unique code to access your portal
                     </p>
                   </div>
-                  <Button type="submit" className="w-full" disabled={!clinicCode.trim()}>
+                  <Button type="submit" className="w-full h-12 text-lg" disabled={!clinicCode.trim()}>
                     Access Clinic
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </form>
               </CardContent>
             </Card>
 
             {/* Create New Clinic */}
-            <Card className="transform hover:scale-105 transition-transform">
+            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
               <CardHeader className="text-center">
-                <Plus className="w-16 h-16 mx-auto mb-4 text-primary" />
-                <CardTitle>Create New Clinic</CardTitle>
+                <Plus className="w-12 h-12 mx-auto mb-4 text-primary" />
+                <CardTitle className="text-2xl">Create New Clinic</CardTitle>
                 <CardDescription>
-                  Set up a new clinic and start managing your team
+                  Set up a new clinic and invite your team
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent>
                 <Button 
-                  onClick={() => navigate('/setup')} 
-                  className="w-full"
+                  className="w-full h-12 text-lg" 
                   variant="outline"
+                  onClick={() => navigate('/setup')}
                 >
                   Create Clinic
-                  <Plus className="w-4 h-4 ml-2" />
+                  <Plus className="ml-2 w-5 h-5" />
                 </Button>
               </CardContent>
             </Card>
           </div>
 
           {/* Features */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="text-center p-6 bg-white/60 rounded-lg backdrop-blur-sm">
-              <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">Team Management</h3>
-              <p className="text-sm text-muted-foreground">
-                Manage assistants with secure PIN access
-              </p>
-            </div>
-            
-            <div className="text-center p-6 bg-white/60 rounded-lg backdrop-blur-sm">
-              <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">Multi-Clinic Support</h3>
-              <p className="text-sm text-muted-foreground">
-                Scale across multiple clinic locations
-              </p>
-            </div>
-            
-            <div className="text-center p-6 bg-white/60 rounded-lg backdrop-blur-sm">
-              <ArrowRight className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">Fast Access</h3>
-              <p className="text-sm text-muted-foreground">
-                Quick login for busy clinic environments
-              </p>
-            </div>
-          </div>
+          <div className="mt-16 grid md:grid-cols-2 gap-8">
+            <Card className="bg-card/90 backdrop-blur-sm border shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Users className="w-6 h-6 mr-2 text-primary" />
+                  Multi-Role Access
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Owners and assistants have different dashboards tailored to their needs
+                </p>
+              </CardContent>
+            </Card>
 
-          {/* How it Works */}
-          <Card className="mb-8">
-            <CardHeader className="text-center">
-              <CardTitle>How It Works</CardTitle>
-              <CardDescription>Get started in three simple steps</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-3 gap-6 text-center">
-                <div>
-                  <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
-                    1
-                  </div>
-                  <h4 className="font-semibold mb-2">Create Your Clinic</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Set up your clinic with a unique code
-                  </p>
-                </div>
-                
-                <div>
-                  <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
-                    2
-                  </div>
-                  <h4 className="font-semibold mb-2">Add Your Team</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Invite assistants and assign PINs
-                  </p>
-                </div>
-                
-                <div>
-                  <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center mx-auto mb-3 font-bold">
-                    3
-                  </div>
-                  <h4 className="font-semibold mb-2">Start Managing</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Track tasks and patient flow
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            <Card className="bg-card/90 backdrop-blur-sm border shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Building2 className="w-6 h-6 mr-2 text-primary" />
+                  Easy Setup
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Quick clinic setup with unique codes for secure access
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

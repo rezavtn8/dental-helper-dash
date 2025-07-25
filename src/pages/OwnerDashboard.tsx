@@ -192,6 +192,95 @@ const OwnerDashboard = () => {
     }
   };
 
+  const addAssistant = async (assistantData: { name: string; email: string; pin: string }) => {
+    try {
+      const { error } = await supabase
+        .from('users')
+        .insert({
+          name: assistantData.name,
+          email: assistantData.email,
+          pin: assistantData.pin,
+          role: 'assistant',
+          clinic_id: userProfile?.clinic_id,
+          is_active: true
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Assistant Added",
+        description: `${assistantData.name} has been added to your team`
+      });
+
+      fetchAssistants();
+    } catch (error) {
+      console.error('Error adding assistant:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add assistant",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const removeAssistant = async (assistantId: string) => {
+    try {
+      // First, reassign their tasks to unassigned
+      await supabase
+        .from('tasks')
+        .update({ assigned_to: null })
+        .eq('assigned_to', assistantId);
+
+      // Then delete the assistant
+      const { error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', assistantId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Assistant Removed",
+        description: "The assistant has been permanently removed from your team"
+      });
+
+      fetchAssistants();
+      fetchTasks(); // Refresh tasks to show reassignments
+    } catch (error) {
+      console.error('Error removing assistant:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove assistant",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const toggleAssistantStatus = async (assistantId: string, isActive: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ is_active: isActive })
+        .eq('id', assistantId);
+
+      if (error) throw error;
+
+      toast({
+        title: isActive ? "Assistant Activated" : "Assistant Deactivated",
+        description: `The assistant has been ${isActive ? 'activated' : 'deactivated'}`
+      });
+
+      fetchAssistants();
+    } catch (error) {
+      console.error('Error toggling assistant status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update assistant status",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Calculate dashboard metrics
   const today = new Date().toDateString();
   const todayTasks = tasks.filter(task => 
@@ -675,6 +764,9 @@ const OwnerDashboard = () => {
             <TeamPerformanceTab 
               tasks={tasks}
               assistants={assistants}
+              onAddAssistant={addAssistant}
+              onRemoveAssistant={removeAssistant}
+              onToggleAssistantStatus={toggleAssistantStatus}
             />
           </TabsContent>
 

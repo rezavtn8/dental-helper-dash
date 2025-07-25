@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -49,10 +51,67 @@ interface Assistant {
 interface TeamPerformanceTabProps {
   tasks: Task[];
   assistants: Assistant[];
+  onAddAssistant?: (assistantData: { name: string; email: string; pin: string }) => Promise<void>;
+  onRemoveAssistant?: (assistantId: string) => Promise<void>;
+  onToggleAssistantStatus?: (assistantId: string, isActive: boolean) => Promise<void>;
 }
 
-const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ tasks, assistants }) => {
+const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ 
+  tasks, 
+  assistants, 
+  onAddAssistant,
+  onRemoveAssistant,
+  onToggleAssistantStatus
+}) => {
   const [expandedAssistant, setExpandedAssistant] = useState<string | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [assistantToRemove, setAssistantToRemove] = useState<Assistant | null>(null);
+  
+  const [newAssistant, setNewAssistant] = useState({
+    name: '',
+    email: '',
+    pin: ''
+  });
+
+  
+  // Generate random PIN
+  const generateRandomPin = () => {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  };
+
+  const handleAddAssistant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!onAddAssistant) return;
+
+    try {
+      await onAddAssistant(newAssistant);
+      setNewAssistant({ name: '', email: '', pin: '' });
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error('Error adding assistant:', error);
+    }
+  };
+
+  const handleRemoveAssistant = async () => {
+    if (!assistantToRemove || !onRemoveAssistant) return;
+
+    try {
+      await onRemoveAssistant(assistantToRemove.id);
+      setAssistantToRemove(null);
+    } catch (error) {
+      console.error('Error removing assistant:', error);
+    }
+  };
+
+  const handleToggleStatus = async (assistantId: string, currentStatus: boolean) => {
+    if (!onToggleAssistantStatus) return;
+
+    try {
+      await onToggleAssistantStatus(assistantId, !currentStatus);
+    } catch (error) {
+      console.error('Error toggling assistant status:', error);
+    }
+  };
 
   // Mock data for patient loads and performance metrics
   const getAssistantMetrics = (assistantId: string) => {
@@ -149,10 +208,93 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ tasks, assistan
             <h2 className="text-2xl font-bold tracking-tight">Team Performance</h2>
             <p className="text-muted-foreground">Monitor your team's productivity and patient care</p>
           </div>
-          <Badge variant="outline" className="px-3 py-1">
-            <Users className="h-3 w-3 mr-1" />
-            {teamStats.activeAssistants} Active
-          </Badge>
+          <div className="flex items-center space-x-3">
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90">
+                  <Users className="h-4 w-4 mr-2" />
+                  Add Team Member
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Add New Assistant</DialogTitle>
+                  <DialogDescription>
+                    Create a new assistant account for your clinic
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleAddAssistant} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="assistant-name">Full Name</Label>
+                    <Input
+                      id="assistant-name"
+                      value={newAssistant.name}
+                      onChange={(e) => setNewAssistant({ ...newAssistant, name: e.target.value })}
+                      placeholder="Enter assistant's full name"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="assistant-email">Email Address</Label>
+                    <Input
+                      id="assistant-email"
+                      type="email"
+                      value={newAssistant.email}
+                      onChange={(e) => setNewAssistant({ ...newAssistant, email: e.target.value })}
+                      placeholder="assistant@clinic.com"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="assistant-pin">PIN Code</Label>
+                    <div className="flex space-x-2">
+                      <Input
+                        id="assistant-pin"
+                        value={newAssistant.pin}
+                        onChange={(e) => setNewAssistant({ ...newAssistant, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })}
+                        placeholder="4-digit PIN"
+                        maxLength={4}
+                        pattern="[0-9]{4}"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setNewAssistant({ ...newAssistant, pin: generateRandomPin() })}
+                        className="px-3"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      The assistant will use this PIN to log in
+                    </p>
+                  </div>
+
+                  <div className="flex space-x-2 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsAddDialogOpen(false)}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="flex-1">
+                      Add Assistant
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+            
+            <Badge variant="outline" className="px-3 py-1">
+              <Users className="h-3 w-3 mr-1" />
+              {teamStats.activeAssistants} Active
+            </Badge>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -319,6 +461,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ tasks, assistan
                           variant={assistant.is_active !== false ? "outline" : "default"} 
                           size="sm" 
                           className="text-xs"
+                          onClick={() => handleToggleStatus(assistant.id, assistant.is_active !== false)}
                         >
                           {assistant.is_active !== false ? (
                             <>
@@ -332,6 +475,33 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ tasks, assistan
                             </>
                           )}
                         </Button>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" className="text-xs">
+                              <UserX className="h-3 w-3 mr-1" />
+                              Remove
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently remove <strong>{assistant.name}</strong> from your clinic team.
+                                This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => setAssistantToRemove(assistant)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Yes, Remove Assistant
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
@@ -412,6 +582,58 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ tasks, assistan
           </Card>
         </div>
       </div>
+
+      {/* Final Confirmation Dialog for Removing Assistant */}
+      <AlertDialog open={!!assistantToRemove} onOpenChange={() => setAssistantToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">
+              🚨 FINAL WARNING - Are you REALLY sure?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>You are about to <strong>permanently delete</strong> {assistantToRemove?.name} from your clinic system.</p>
+              
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="font-semibold text-destructive">This will:</p>
+                <ul className="list-disc list-inside space-y-1 text-sm mt-2">
+                  <li>Remove all their task assignments</li>
+                  <li>Delete their login access permanently</li>
+                  <li>Remove them from all clinic records</li>
+                  <li>This action <strong>CANNOT BE UNDONE</strong></li>
+                </ul>
+              </div>
+              
+              <p className="text-sm">
+                Type <strong>DELETE</strong> below to confirm this action:
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <input
+              type="text"
+              placeholder="Type DELETE to confirm"
+              className="w-full px-3 py-2 border rounded-md"
+              onChange={(e) => {
+                const deleteButton = document.getElementById('final-delete-button') as HTMLButtonElement;
+                if (deleteButton) {
+                  deleteButton.disabled = e.target.value !== 'DELETE';
+                }
+              }}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel - Keep Assistant</AlertDialogCancel>
+            <AlertDialogAction
+              id="final-delete-button"
+              disabled={true}
+              onClick={handleRemoveAssistant}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+            >
+              🗑️ PERMANENTLY DELETE ASSISTANT
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

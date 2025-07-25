@@ -54,6 +54,7 @@ interface TeamPerformanceTabProps {
   onAddAssistant?: (assistantData: { name: string; email: string; pin: string; role: 'admin' | 'assistant' }) => Promise<void>;
   onRemoveAssistant?: (assistantId: string) => Promise<void>;
   onToggleAssistantStatus?: (assistantId: string, isActive: boolean) => Promise<void>;
+  onResetPin?: (assistantId: string) => Promise<void>;
 }
 
 const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ 
@@ -61,7 +62,8 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
   assistants, 
   onAddAssistant,
   onRemoveAssistant,
-  onToggleAssistantStatus
+  onToggleAssistantStatus,
+  onResetPin
 }) => {
   const [expandedAssistant, setExpandedAssistant] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -335,7 +337,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                       </Avatar>
                       <div>
                         <CardTitle className="text-base">{assistant.name}</CardTitle>
-                        <CardDescription className="text-sm">
+                        <CardDescription className="text-sm flex items-center space-x-2">
                           {assistant.is_active !== false ? (
                             <span className="flex items-center text-green-600">
                               <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
@@ -347,6 +349,9 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                               Inactive
                             </span>
                           )}
+                          <span className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded">
+                            {(assistant as any).role === 'admin' ? 'Admin' : 'Assistant'}
+                          </span>
                         </CardDescription>
                       </div>
                     </div>
@@ -462,12 +467,14 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                             <AlertDialogHeader>
                               <AlertDialogTitle>Reset PIN for {assistant.name}?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This will generate a new PIN and the assistant will need to use the new PIN to log in.
+                                This will generate a new PIN and the team member will need to use the new PIN to log in.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction>Reset PIN</AlertDialogAction>
+                              <AlertDialogAction onClick={() => onResetPin?.(assistant.id)}>
+                                Reset PIN
+                              </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
@@ -509,10 +516,10 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => setAssistantToRemove(assistant)}
+                                onClick={() => onRemoveAssistant?.(assistant.id)}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
-                                Yes, Remove Assistant
+                                Yes, Remove Team Member
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

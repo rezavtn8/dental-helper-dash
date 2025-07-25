@@ -192,7 +192,7 @@ const OwnerDashboard = () => {
     }
   };
 
-  const addAssistant = async (assistantData: { name: string; email: string; pin: string }) => {
+  const addAssistant = async (assistantData: { name: string; email: string; pin: string; role: 'admin' | 'assistant' }) => {
     try {
       const { error } = await supabase
         .from('users')
@@ -200,7 +200,7 @@ const OwnerDashboard = () => {
           name: assistantData.name,
           email: assistantData.email,
           pin: assistantData.pin,
-          role: 'assistant',
+          role: assistantData.role,
           clinic_id: userProfile?.clinic_id,
           is_active: true,
           must_change_pin: true,
@@ -210,49 +210,44 @@ const OwnerDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "Assistant Added",
-        description: `${assistantData.name} has been added to your team`
+        title: `${assistantData.role === 'admin' ? 'Admin' : 'Assistant'} Added`,
+        description: `${assistantData.name} has been added to your team as ${assistantData.role === 'admin' ? 'an admin' : 'an assistant'}`
       });
 
       fetchAssistants();
     } catch (error) {
-      console.error('Error adding assistant:', error);
+      console.error('Error adding team member:', error);
       toast({
         title: "Error",
-        description: "Failed to add assistant",
+        description: `Failed to add ${assistantData.role}`,
         variant: "destructive"
       });
     }
   };
 
-  const addAdmin = async (adminData: { name: string; email: string; pin: string }) => {
+  const resetAssistantPin = async (assistantId: string) => {
     try {
-      const { error } = await supabase
-        .from('users')
-        .insert({
-          name: adminData.name,
-          email: adminData.email,
-          pin: adminData.pin,
-          role: 'admin',
-          clinic_id: userProfile?.clinic_id,
-          is_active: true,
-          must_change_pin: true,
-          created_by: user?.id
-        });
+      // Generate new PIN
+      const newPin = Math.floor(1000 + Math.random() * 9000).toString();
+      
+      const { error } = await supabase.rpc('update_user_pin', {
+        user_id: assistantId,
+        new_pin: newPin
+      });
 
       if (error) throw error;
 
       toast({
-        title: "Admin Added",
-        description: `${adminData.name} has been added as an admin`
+        title: "PIN Reset",
+        description: `New PIN generated: ${newPin}. Please share this with the team member.`
       });
 
-      fetchAssistants(); // This will fetch all users including admins
+      fetchAssistants();
     } catch (error) {
-      console.error('Error adding admin:', error);
+      console.error('Error resetting PIN:', error);
       toast({
         title: "Error",
-        description: "Failed to add admin",
+        description: "Failed to reset PIN",
         variant: "destructive"
       });
     }
@@ -275,17 +270,17 @@ const OwnerDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "Assistant Removed",
-        description: "The assistant has been permanently removed from your team"
+        title: "Team Member Removed",
+        description: "The team member has been permanently removed from your clinic"
       });
 
       fetchAssistants();
       fetchTasks(); // Refresh tasks to show reassignments
     } catch (error) {
-      console.error('Error removing assistant:', error);
+      console.error('Error removing team member:', error);
       toast({
         title: "Error",
-        description: "Failed to remove assistant",
+        description: "Failed to remove team member",
         variant: "destructive"
       });
     }
@@ -301,16 +296,16 @@ const OwnerDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: isActive ? "Assistant Activated" : "Assistant Deactivated",
-        description: `The assistant has been ${isActive ? 'activated' : 'deactivated'}`
+        title: isActive ? "Team Member Activated" : "Team Member Deactivated",
+        description: `The team member has been ${isActive ? 'activated' : 'deactivated'}`
       });
 
       fetchAssistants();
     } catch (error) {
-      console.error('Error toggling assistant status:', error);
+      console.error('Error toggling team member status:', error);
       toast({
         title: "Error",
-        description: "Failed to update assistant status",
+        description: "Failed to update team member status",
         variant: "destructive"
       });
     }
@@ -802,6 +797,7 @@ const OwnerDashboard = () => {
               onAddAssistant={addAssistant}
               onRemoveAssistant={removeAssistant}
               onToggleAssistantStatus={toggleAssistantStatus}
+              onResetPin={resetAssistantPin}
             />
           </TabsContent>
 

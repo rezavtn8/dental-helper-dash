@@ -17,29 +17,41 @@ export type Database = {
       clinics: {
         Row: {
           address: string | null
+          clinic_code: string
           created_at: string
+          domain_slug: string | null
           email: string | null
           id: string
+          is_active: boolean | null
           name: string
           phone: string | null
+          subscription_status: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
+          clinic_code: string
           created_at?: string
+          domain_slug?: string | null
           email?: string | null
           id?: string
+          is_active?: boolean | null
           name: string
           phone?: string | null
+          subscription_status?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
+          clinic_code?: string
           created_at?: string
+          domain_slug?: string | null
           email?: string | null
           id?: string
+          is_active?: boolean | null
           name?: string
           phone?: string | null
+          subscription_status?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -122,32 +134,86 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          device_fingerprint: string | null
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          last_accessed: string | null
+          session_token: string
+          user_id: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          device_fingerprint?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_accessed?: string | null
+          session_token: string
+          user_id: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          device_fingerprint?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_accessed?: string | null
+          session_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           clinic_id: string
           created_at: string
+          display_order: number | null
           email: string | null
           id: string
+          is_active: boolean | null
+          last_login: string | null
           name: string | null
           password_hash: string | null
+          pin: string | null
+          pin_attempts: number | null
+          pin_locked_until: string | null
           role: string | null
         }
         Insert: {
           clinic_id?: string
           created_at?: string
+          display_order?: number | null
           email?: string | null
           id?: string
+          is_active?: boolean | null
+          last_login?: string | null
           name?: string | null
           password_hash?: string | null
+          pin?: string | null
+          pin_attempts?: number | null
+          pin_locked_until?: string | null
           role?: string | null
         }
         Update: {
           clinic_id?: string
           created_at?: string
+          display_order?: number | null
           email?: string | null
           id?: string
+          is_active?: boolean | null
+          last_login?: string | null
           name?: string | null
           password_hash?: string | null
+          pin?: string | null
+          pin_attempts?: number | null
+          pin_locked_until?: string | null
           role?: string | null
         }
         Relationships: [

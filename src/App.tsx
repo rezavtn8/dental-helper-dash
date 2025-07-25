@@ -4,6 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { ClinicProvider } from "@/hooks/useClinic";
+import Home from "./pages/Home";
+import ClinicSetup from "./pages/ClinicSetup";
+import ClinicLogin from "./pages/ClinicLogin";
 import Login from "./pages/Login";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
@@ -61,39 +65,43 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route 
-              path="/assistant" 
-              element={
-                <ProtectedRoute>
-                  <AssistantDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/owner" 
-              element={
-                <ProtectedRoute>
-                  <OwnerDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/clinic" 
-              element={
-                <ProtectedRoute>
-                  <ClinicManagement />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/" element={<RoleBasedRedirect />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+      <ClinicProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/setup" element={<ClinicSetup />} />
+              <Route path="/clinic/:clinicCode" element={<ClinicLogin />} />
+              <Route path="/login" element={<Login />} />
+              <Route 
+                path="/assistant" 
+                element={
+                  <ProtectedRoute>
+                    <AssistantDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/owner" 
+                element={
+                  <ProtectedRoute>
+                    <OwnerDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/clinic" 
+                element={
+                  <ProtectedRoute>
+                    <ClinicManagement />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </ClinicProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

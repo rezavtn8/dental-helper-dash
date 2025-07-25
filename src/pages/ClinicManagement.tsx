@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
-import { Plus, Users, Building2, Mail, Phone } from 'lucide-react';
+import { toast } from 'sonner';
+import { Plus, Users, Building2, Mail, Phone, Key, RotateCcw, Eye, EyeOff } from 'lucide-react';
 
 interface Clinic {
   id: string;
@@ -24,6 +24,7 @@ interface User {
   name: string | null;
   email: string | null;
   role: string;
+  pin?: string;
   created_at: string;
 }
 
@@ -56,11 +57,7 @@ export default function ClinicManagement() {
 
       if (error) {
         console.error('Error fetching clinic:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load clinic information.",
-          variant: "destructive",
-        });
+        toast.error("Failed to load clinic information.");
       } else {
         setClinic(data);
       }
@@ -105,26 +102,15 @@ export default function ClinicManagement() {
         });
 
       if (error) {
-        toast({
-          title: "Invitation Failed",
-          description: error.message,
-          variant: "destructive",
-        });
+        toast.error(`Invitation Failed: ${error.message}`);
       } else {
-        toast({
-          title: "User Invited",
-          description: `${inviteForm.name} has been added to your clinic.`,
-        });
+        toast.success(`${inviteForm.name} has been added to your clinic.`);
         
         setInviteForm({ email: '', name: '', role: 'assistant' });
         fetchUsers(); // Refresh the users list
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to invite user.",
-        variant: "destructive",
-      });
+      toast.error("Failed to invite user.");
     } finally {
       setIsInviting(false);
     }

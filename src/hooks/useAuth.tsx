@@ -2,14 +2,31 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 
+interface UserProfile {
+  id: string;
+  role: string;
+  name: string;
+  clinic_id: string;
+  pin?: string;
+  pin_attempts: number;
+  pin_locked_until?: string;
+  last_login?: string;
+  display_order: number;
+  is_active: boolean;
+}
+
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  userProfile: { role: string; name: string; clinic_id: string } | null;
+  userProfile: UserProfile | null;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant' }) => Promise<{ error?: string }>;
+  signInWithPin: (assistantName: string, pin: string, clinicId: string) => Promise<{ error?: string }>;
+  signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicCode?: string }) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
+  generatePinForAssistant: (assistantId: string) => Promise<{ pin?: string; error?: string }>;
+  resetAssistantPin: (assistantId: string) => Promise<{ pin?: string; error?: string }>;
+  getClinicAssistants: (clinicId: string) => Promise<UserProfile[]>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,7 +42,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<{ role: string; name: string; clinic_id: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('role, name, clinic_id')
+        .select('*')
         .eq('id', userId)
         .single();
 
@@ -78,6 +95,113 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const signInWithPin = async (assistantName: string, pin: string, clinicId: string): Promise<{ error?: string }> => {
+    try {
+      // Check if assistant is locked
+      const { data: assistant, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('name', assistantName)
+        .eq('clinic_id', clinicId)
+        .eq('role', 'assistant')
+        .eq('pin', pin)
+        .single();
+
+      if (fetchError || !assistant) {
+        // Increment pin attempts
+        await supabase
+          .from('users')
+          .update({ 
+            pin_attempts: (assistant?.pin_attempts || 0) + 1,
+            pin_locked_until: (assistant?.pin_attempts || 0) >= 2 ? 
+              new Date(Date.now() + 15 * 60 * 1000).toISOString() : null
+          })
+          .eq('name', assistantName)
+          .eq('clinic_id', clinicId)
+          .eq('role', 'assistant');
+
+        return { error: 'Invalid PIN or assistant name' };
+      }
+
+      // Check if locked
+      if (assistant.pin_locked_until && new Date(assistant.pin_locked_until) > new Date()) {
+        return { error: 'Account temporarily locked. Try again later.' };
+      }
+
+      // Reset pin attempts and update last login
+      await supabase
+        .from('users')
+        .update({ 
+          pin_attempts: 0,
+          pin_locked_until: null,
+          last_login: new Date().toISOString()
+        })
+        .eq('id', assistant.id);
+
+      // Create a session for the assistant (simulate auth session)
+      setUserProfile(assistant);
+      setLoading(false);
+      
+      // Store session in localStorage for persistence
+      localStorage.setItem('assistant_session', JSON.stringify({
+        userId: assistant.id,
+        clinicId: assistant.clinic_id,
+        timestamp: Date.now()
+      }));
+
+      return {};
+    } catch (error) {
+      console.error('PIN sign-in error:', error);
+      return { error: 'Authentication failed' };
+    }
+  };
+
+  const generatePinForAssistant = async (assistantId: string): Promise<{ pin?: string; error?: string }> => {
+    try {
+      const pin = Math.floor(1000 + Math.random() * 9000).toString();
+      
+      const { error } = await supabase
+        .from('users')
+        .update({ pin })
+        .eq('id', assistantId);
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      return { pin };
+    } catch (error) {
+      console.error('PIN generation error:', error);
+      return { error: 'Failed to generate PIN' };
+    }
+  };
+
+  const resetAssistantPin = async (assistantId: string): Promise<{ pin?: string; error?: string }> => {
+    return generatePinForAssistant(assistantId);
+  };
+
+  const getClinicAssistants = async (clinicId: string): Promise<UserProfile[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('clinic_id', clinicId)
+        .eq('role', 'assistant')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching assistants:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching assistants:', error);
+      return [];
     }
   };
 
@@ -161,8 +285,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     userProfile,
     loading,
     signInWithEmail,
+    signInWithPin,
     signUp,
     signOut,
+    generatePinForAssistant,
+    resetAssistantPin,
+    getClinicAssistants,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

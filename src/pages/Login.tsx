@@ -99,14 +99,21 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-background to-secondary/20 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
-            <Stethoscope className="h-8 w-8 text-primary" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-primary to-blue-600 p-4 relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-primary/80 to-blue-600/90"></div>
+      <div className="absolute top-0 left-0 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      
+      <Card className="w-full max-w-md backdrop-blur-xl bg-card/90 border-border/50 shadow-2xl relative z-10">
+        <CardHeader className="text-center pb-6">
+          <div className="mx-auto mb-6 p-4 bg-primary/15 rounded-full w-fit ring-2 ring-primary/20">
+            <Stethoscope className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Dental Assistant Platform</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+            Dental Assistant Platform
+          </CardTitle>
+          <CardDescription className="text-muted-foreground mt-2 text-base">
             Choose your login method to access the platform
           </CardDescription>
         </CardHeader>

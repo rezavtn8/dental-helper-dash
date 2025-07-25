@@ -80,6 +80,57 @@ export type Database = {
         }
         Relationships: []
       }
+      task_templates: {
+        Row: {
+          category: string | null
+          checklist: Json | null
+          clinic_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          "due-type": string | null
+          id: string
+          is_active: boolean | null
+          owner_notes: string | null
+          recurrence: string | null
+          specialty: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          checklist?: Json | null
+          clinic_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          "due-type"?: string | null
+          id?: string
+          is_active?: boolean | null
+          owner_notes?: string | null
+          recurrence?: string | null
+          specialty?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          checklist?: Json | null
+          clinic_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          "due-type"?: string | null
+          id?: string
+          is_active?: boolean | null
+          owner_notes?: string | null
+          recurrence?: string | null
+          specialty?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to: string | null
@@ -89,10 +140,12 @@ export type Database = {
           clinic_id: string | null
           created_at: string | null
           created_by: string | null
+          custom_due_date: string | null
           description: string | null
           "due-date": string | null
           "due-type": string | null
           id: string
+          owner_notes: string | null
           priority: string | null
           recurrence: string | null
           status: string | null
@@ -106,10 +159,12 @@ export type Database = {
           clinic_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          custom_due_date?: string | null
           description?: string | null
           "due-date"?: string | null
           "due-type"?: string | null
           id?: string
+          owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
           status?: string | null
@@ -123,10 +178,12 @@ export type Database = {
           clinic_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          custom_due_date?: string | null
           description?: string | null
           "due-date"?: string | null
           "due-type"?: string | null
           id?: string
+          owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
           status?: string | null

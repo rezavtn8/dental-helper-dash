@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Stethoscope, User, Mail } from 'lucide-react';
+import { Stethoscope, User, Mail, ChevronDown } from 'lucide-react';
 
 const Login = () => {
   const { signInWithPin, signInWithEmail } = useAuth();
@@ -130,42 +131,81 @@ const Login = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="assistant" className="space-y-4">
-              <form onSubmit={handleAssistantLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="assistant-select">Select Your Name</Label>
-                  <select
-                    id="assistant-select"
-                    value={assistantForm.selectedUser}
-                    onChange={(e) => setAssistantForm({ ...assistantForm, selectedUser: e.target.value })}
-                    className="w-full p-2 border border-input rounded-md bg-background"
-                    required
+            <TabsContent value="assistant" className="space-y-6 mt-6">
+              <form onSubmit={handleAssistantLogin} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="assistant-select" className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary" />
+                    Select Your Name
+                  </Label>
+                  <Select 
+                    value={assistantForm.selectedUser} 
+                    onValueChange={(value) => setAssistantForm({ ...assistantForm, selectedUser: value })}
                   >
-                    <option value="">Choose your name...</option>
-                    {assistants.map((assistant) => (
-                      <option key={assistant.id} value={assistant.id}>
-                        {assistant.name}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full h-12 bg-background/80 border-2 border-border/50 hover:border-primary/50 focus:border-primary transition-colors shadow-sm">
+                      <SelectValue placeholder="Choose your name..." className="text-muted-foreground" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl z-50">
+                      {assistants.map((assistant) => (
+                        <SelectItem 
+                          key={assistant.id} 
+                          value={assistant.id}
+                          className="hover:bg-primary/10 focus:bg-primary/10 cursor-pointer py-3"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            {assistant.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="pin">4-Digit PIN</Label>
-                  <Input
-                    id="pin"
-                    type="password"
-                    placeholder="••••"
-                    maxLength={4}
-                    value={assistantForm.pin}
-                    onChange={(e) => setAssistantForm({ ...assistantForm, pin: e.target.value.replace(/\D/g, '') })}
-                    className="text-center text-lg tracking-widest"
-                    required
-                  />
+                <div className="space-y-3">
+                  <Label htmlFor="pin" className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary rounded-sm flex items-center justify-center">
+                      <div className="w-1 h-1 bg-primary rounded-full"></div>
+                    </div>
+                    4-Digit PIN
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="pin"
+                      type="password"
+                      placeholder="••••"
+                      maxLength={4}
+                      value={assistantForm.pin}
+                      onChange={(e) => setAssistantForm({ ...assistantForm, pin: e.target.value.replace(/\D/g, '') })}
+                      className="text-center text-2xl tracking-[0.5em] font-bold h-14 bg-background/80 border-2 border-border/50 hover:border-primary/50 focus:border-primary transition-colors shadow-sm pl-8"
+                      required
+                    />
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex gap-1">
+                      {[...Array(4)].map((_, i) => (
+                        <div 
+                          key={i} 
+                          className={`w-2 h-2 rounded-full transition-colors ${
+                            i < assistantForm.pin.length ? 'bg-primary' : 'bg-muted'
+                          }`}
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Logging in...' : 'Login as Assistant'}
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 shadow-lg hover:shadow-xl transition-all duration-200" 
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Logging in...
+                    </div>
+                  ) : (
+                    'Login as Assistant'
+                  )}
                 </Button>
               </form>
             </TabsContent>

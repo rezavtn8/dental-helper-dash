@@ -319,37 +319,46 @@ const OwnerDashboard = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Before Opening">Before Opening</SelectItem>
-                            <SelectItem value="Before 1PM">Before 1PM</SelectItem>
-                            <SelectItem value="EoD">End of Day</SelectItem>
-                            <SelectItem value="EoW">End of Week</SelectItem>
-                            <SelectItem value="EoM">End of Month</SelectItem>
+                            <SelectItem value="Before Opening">🌅 Before Opening</SelectItem>
+                            <SelectItem value="Before 1PM">🕐 Before 1PM</SelectItem>
+                            <SelectItem value="EoD">🌆 End of Day</SelectItem>
+                            <SelectItem value="EoW">📅 End of Week</SelectItem>
+                            <SelectItem value="EoM">🗓️ End of Month</SelectItem>
+                            <SelectItem value="Custom">⏰ Custom</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="category">Category</Label>
-                      <Input
-                        id="category"
-                        value={newTask.category}
-                        onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
-                        placeholder="e.g., Patient Care, Cleaning, Administrative"
-                      />
+                      <Label>Category</Label>
+                      <Select value={newTask.category} onValueChange={(value) => setNewTask({ ...newTask, category: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Setup">⚙️ Setup</SelectItem>
+                          <SelectItem value="Cleaning">🧼 Cleaning</SelectItem>
+                          <SelectItem value="Sterilization">🔬 Sterilization</SelectItem>
+                          <SelectItem value="Labs">🧪 Labs</SelectItem>
+                          <SelectItem value="Admin">📋 Admin</SelectItem>
+                          <SelectItem value="Patient Care">🏥 Patient Care</SelectItem>
+                          <SelectItem value="Equipment">🔧 Equipment</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="space-y-2">
                       <Label>Assign To</Label>
                       <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask({ ...newTask, assigned_to: value })}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Leave unassigned" />
+                          <SelectValue placeholder="Select assignee" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Unassigned</SelectItem>
+                          <SelectItem value="">🔓 Leave Unassigned</SelectItem>
                           {assistants.map((assistant) => (
                             <SelectItem key={assistant.id} value={assistant.id}>
-                              {assistant.name}
+                              👤 {assistant.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -363,11 +372,11 @@ const OwnerDashboard = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">No recurrence</SelectItem>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="biweekly">Biweekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="none">🚫 None</SelectItem>
+                          <SelectItem value="daily">📅 Daily</SelectItem>
+                          <SelectItem value="weekly">📆 Weekly</SelectItem>
+                          <SelectItem value="biweekly">🗓️ Biweekly</SelectItem>
+                          <SelectItem value="monthly">📝 Monthly</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

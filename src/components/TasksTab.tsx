@@ -323,10 +323,17 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
                   </div>
                   
                   {checklist.length > 0 && (
-                    <div className="space-y-2 max-h-32 overflow-y-auto border rounded-lg p-3">
+                    <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3 bg-muted/20">
                       {checklist.map((item, index) => (
-                        <div key={item.id} className="flex items-center space-x-2">
-                          <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <div key={item.id} className="group flex items-center space-x-2 p-2 rounded-md hover:bg-background/50 transition-colors">
+                          <div className="flex items-center space-x-2 cursor-move" title="Drag to reorder">
+                            <div className="flex flex-col space-y-0.5">
+                              <div className="w-1 h-1 bg-muted-foreground/40 rounded-full"></div>
+                              <div className="w-1 h-1 bg-muted-foreground/40 rounded-full"></div>
+                              <div className="w-1 h-1 bg-muted-foreground/40 rounded-full"></div>
+                            </div>
+                            <CheckSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          </div>
                           <Input
                             value={item.text}
                             onChange={(e) => {
@@ -335,7 +342,7 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
                               setChecklist(updated);
                             }}
                             placeholder={`Step ${index + 1}...`}
-                            className="flex-1 h-8"
+                            className="flex-1 h-8 border-0 bg-transparent focus:bg-background focus:border-input"
                           />
                           <Button
                             type="button"
@@ -344,7 +351,8 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
                             onClick={() => {
                               setChecklist(checklist.filter((_, i) => i !== index));
                             }}
-                            className="p-1 h-8 w-8"
+                            className="p-1 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Remove item"
                           >
                             <X className="h-3 w-3" />
                           </Button>
@@ -364,26 +372,31 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Cleaning">🧼 Cleaning</SelectItem>
                         <SelectItem value="Setup">⚙️ Setup</SelectItem>
+                        <SelectItem value="Cleaning">🧼 Cleaning</SelectItem>
+                        <SelectItem value="Sterilization">🔬 Sterilization</SelectItem>
                         <SelectItem value="Labs">🧪 Labs</SelectItem>
+                        <SelectItem value="Admin">📋 Admin</SelectItem>
                         <SelectItem value="Patient Care">🏥 Patient Care</SelectItem>
-                        <SelectItem value="Administrative">📋 Administrative</SelectItem>
                         <SelectItem value="Equipment">🔧 Equipment</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Priority</Label>
-                    <Select value={newTask.priority} onValueChange={(value: any) => setNewTask({ ...newTask, priority: value })}>
+                    <Label className="text-sm font-medium">Assign To</Label>
+                    <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask({ ...newTask, assigned_to: value })}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <Users className="h-4 w-4 mr-2" />
+                        <SelectValue placeholder="Select assignee" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="low">🟢 Low</SelectItem>
-                        <SelectItem value="medium">🟡 Medium</SelectItem>
-                        <SelectItem value="high">🔴 High</SelectItem>
+                        <SelectItem value="">🔓 Leave Unassigned</SelectItem>
+                        {assistants.map((assistant) => (
+                          <SelectItem key={assistant.id} value={assistant.id}>
+                            👤 {assistant.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -391,7 +404,7 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Due Time</Label>
+                    <Label className="text-sm font-medium">Suggested Due Time</Label>
                     <Select value={newTask['due-type']} onValueChange={(value) => setNewTask({ ...newTask, 'due-type': value })}>
                       <SelectTrigger>
                         <Clock4 className="h-4 w-4 mr-2" />
@@ -403,6 +416,7 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
                         <SelectItem value="EoD">🌆 End of Day</SelectItem>
                         <SelectItem value="EoW">📅 End of Week</SelectItem>
                         <SelectItem value="EoM">🗓️ End of Month</SelectItem>
+                        <SelectItem value="Custom">⏰ Custom</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -415,43 +429,30 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">No recurrence</SelectItem>
-                        <SelectItem value="daily">Daily</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="biweekly">Biweekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="none">🚫 None</SelectItem>
+                        <SelectItem value="daily">📅 Daily</SelectItem>
+                        <SelectItem value="weekly">📆 Weekly</SelectItem>
+                        <SelectItem value="biweekly">🗓️ Biweekly</SelectItem>
+                        <SelectItem value="monthly">📝 Monthly</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
+                {/* Notes Section */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Assign To</Label>
-                  <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask({ ...newTask, assigned_to: value })}>
-                    <SelectTrigger>
-                      <Users className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Leave unassigned (open to claim)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Unassigned (open to claim)</SelectItem>
-                      {assistants.map((assistant) => (
-                        <SelectItem key={assistant.id} value={assistant.id}>
-                          {assistant.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="owner-notes" className="text-sm font-medium">Owner Notes / Tips</Label>
+                  <Label htmlFor="owner-notes" className="text-sm font-medium">🗒️ Notes or Tips</Label>
                   <Textarea
                     id="owner-notes"
                     value={newTask.owner_notes}
                     onChange={(e) => setNewTask({ ...newTask, owner_notes: e.target.value })}
                     placeholder="Add helpful tips or special instructions for your team..."
                     rows={3}
+                    className="resize-none"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Optional guidance that will help your team complete this task successfully
+                  </p>
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-6 border-t">

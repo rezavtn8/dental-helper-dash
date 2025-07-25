@@ -100,13 +100,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithPin = async (assistantName: string, pin: string, clinicId: string): Promise<{ error?: string }> => {
     try {
-      // Check if assistant is locked
+      // Check if user exists and PIN matches
       const { data: assistant, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('name', assistantName)
         .eq('clinic_id', clinicId)
-        .eq('role', 'assistant')
+        .in('role', ['assistant', 'admin'])
         .eq('pin', pin)
         .single();
 
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           })
           .eq('name', assistantName)
           .eq('clinic_id', clinicId)
-          .eq('role', 'assistant');
+          .in('role', ['assistant', 'admin']);
 
         return { error: 'Invalid PIN or assistant name' };
       }
@@ -189,7 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('users')
         .select('*')
         .eq('clinic_id', clinicId)
-        .eq('role', 'assistant')
+        .in('role', ['assistant', 'admin'])
         .eq('is_active', true)
         .order('display_order', { ascending: true });
 

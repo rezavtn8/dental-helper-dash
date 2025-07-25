@@ -51,7 +51,7 @@ interface Assistant {
 interface TeamPerformanceTabProps {
   tasks: Task[];
   assistants: Assistant[];
-  onAddAssistant?: (assistantData: { name: string; email: string; pin: string }) => Promise<void>;
+  onAddAssistant?: (assistantData: { name: string; email: string; pin: string; role: 'admin' | 'assistant' }) => Promise<void>;
   onRemoveAssistant?: (assistantId: string) => Promise<void>;
   onToggleAssistantStatus?: (assistantId: string, isActive: boolean) => Promise<void>;
 }
@@ -70,7 +70,8 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
   const [newAssistant, setNewAssistant] = useState({
     name: '',
     email: '',
-    pin: ''
+    pin: '',
+    role: 'assistant' as 'admin' | 'assistant'
   });
 
   
@@ -85,7 +86,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
 
     try {
       await onAddAssistant(newAssistant);
-      setNewAssistant({ name: '', email: '', pin: '' });
+      setNewAssistant({ name: '', email: '', pin: '', role: 'assistant' });
       setIsAddDialogOpen(false);
     } catch (error) {
       console.error('Error adding assistant:', error);
@@ -218,9 +219,9 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Add New Assistant</DialogTitle>
+                  <DialogTitle>Add Team Member</DialogTitle>
                   <DialogDescription>
-                    Create a new assistant account for your clinic
+                    Create a new team member account for your clinic
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleAddAssistant} className="space-y-4">
@@ -230,7 +231,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                       id="assistant-name"
                       value={newAssistant.name}
                       onChange={(e) => setNewAssistant({ ...newAssistant, name: e.target.value })}
-                      placeholder="Enter assistant's full name"
+                      placeholder="Enter team member's full name"
                       required
                     />
                   </div>
@@ -242,9 +243,23 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                       type="email"
                       value={newAssistant.email}
                       onChange={(e) => setNewAssistant({ ...newAssistant, email: e.target.value })}
-                      placeholder="assistant@clinic.com"
+                      placeholder="teammember@clinic.com"
                       required
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <select
+                      id="role"
+                      value={newAssistant.role}
+                      onChange={(e) => setNewAssistant({ ...newAssistant, role: e.target.value as 'admin' | 'assistant' })}
+                      className="w-full h-10 px-3 py-2 text-sm border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    >
+                      <option value="assistant">Assistant</option>
+                      <option value="admin">Admin</option>
+                    </select>
                   </div>
 
                   <div className="space-y-2">
@@ -269,7 +284,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      The assistant will use this PIN to log in
+                      The team member will use this PIN to log in
                     </p>
                   </div>
 
@@ -283,7 +298,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                       Cancel
                     </Button>
                     <Button type="submit" className="flex-1">
-                      Add Assistant
+                      Add Team Member
                     </Button>
                   </div>
                 </form>

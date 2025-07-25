@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      clinics: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       patient_logs: {
         Row: {
           assistant_id: string | null
@@ -94,33 +124,41 @@ export type Database = {
       }
       users: {
         Row: {
-          clinic_id: string | null
+          clinic_id: string
           created_at: string
           email: string | null
           id: string
           name: string | null
-          pin: number | null
+          password_hash: string | null
           role: string | null
         }
         Insert: {
-          clinic_id?: string | null
+          clinic_id?: string
           created_at?: string
           email?: string | null
           id?: string
           name?: string | null
-          pin?: number | null
+          password_hash?: string | null
           role?: string | null
         }
         Update: {
-          clinic_id?: string | null
+          clinic_id?: string
           created_at?: string
           email?: string | null
           id?: string
           name?: string | null
-          pin?: number | null
+          password_hash?: string | null
           role?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_users_clinic_id"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

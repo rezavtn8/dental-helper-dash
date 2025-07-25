@@ -9,8 +9,9 @@ import Home from "./pages/Home";
 import ClinicSetup from "./pages/ClinicSetup";
 import ClinicLogin from "./pages/ClinicLogin";
 import Login from "./pages/Login";
-import AssistantDashboard from "./pages/AssistantDashboard";
+import AssistantDashboard from "./components/AssistantDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import AdminDashboard from "./components/AdminDashboard";
 import ClinicManagement from "./pages/ClinicManagement";
 import NotFound from "./pages/NotFound";
 
@@ -51,12 +52,15 @@ const RoleBasedRedirect = () => {
     );
   }
 
-  if (userProfile?.role === 'owner') {
-    return <Navigate to="/owner" replace />;
-  } else if (userProfile?.role === 'assistant') {
-    return <Navigate to="/assistant" replace />;
-  } else {
-    return <Navigate to="/" replace />;
+  switch (userProfile?.role) {
+    case 'owner':
+      return <OwnerDashboard />;
+    case 'admin':
+      return <AdminDashboard />;
+    case 'assistant':
+      return <AssistantDashboard />;
+    default:
+      return <Navigate to="/" replace />;
   }
 };
 
@@ -74,10 +78,26 @@ const App = () => (
               <Route path="/clinic/:clinicCode" element={<ClinicLogin />} />
               <Route path="/login" element={<Navigate to="/" replace />} />
               <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <RoleBasedRedirect />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
                 path="/assistant" 
                 element={
                   <ProtectedRoute>
                     <AssistantDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 } 
               />

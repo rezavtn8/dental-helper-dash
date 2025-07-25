@@ -231,45 +231,54 @@ export type Database = {
         Row: {
           clinic_id: string
           created_at: string
+          created_by: string | null
           display_order: number | null
           email: string | null
           id: string
           is_active: boolean | null
           last_login: string | null
+          must_change_pin: boolean | null
           name: string | null
           password_hash: string | null
           pin: string | null
           pin_attempts: number | null
+          pin_changed_at: string | null
           pin_locked_until: string | null
           role: string | null
         }
         Insert: {
           clinic_id?: string
           created_at?: string
+          created_by?: string | null
           display_order?: number | null
           email?: string | null
           id?: string
           is_active?: boolean | null
           last_login?: string | null
+          must_change_pin?: boolean | null
           name?: string | null
           password_hash?: string | null
           pin?: string | null
           pin_attempts?: number | null
+          pin_changed_at?: string | null
           pin_locked_until?: string | null
           role?: string | null
         }
         Update: {
           clinic_id?: string
           created_at?: string
+          created_by?: string | null
           display_order?: number | null
           email?: string | null
           id?: string
           is_active?: boolean | null
           last_login?: string | null
+          must_change_pin?: boolean | null
           name?: string | null
           password_hash?: string | null
           pin?: string | null
           pin_attempts?: number | null
+          pin_changed_at?: string | null
           pin_locked_until?: string | null
           role?: string | null
         }
@@ -281,6 +290,13 @@ export type Database = {
             referencedRelation: "clinics"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "users_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -288,6 +304,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_create_user: {
+        Args: { target_role: string }
+        Returns: boolean
+      }
       get_current_user_clinic_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -295,6 +315,10 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      update_user_pin: {
+        Args: { user_id: string; new_pin: string }
+        Returns: boolean
       }
     }
     Enums: {

@@ -132,8 +132,8 @@ const OwnerDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('id, name, email')
-        .eq('role', 'assistant');
+        .select('id, name, email, role, is_active')
+        .in('role', ['assistant', 'admin']);
 
       if (error) throw error;
       setAssistants(data || []);
@@ -202,7 +202,9 @@ const OwnerDashboard = () => {
           pin: assistantData.pin,
           role: 'assistant',
           clinic_id: userProfile?.clinic_id,
-          is_active: true
+          is_active: true,
+          must_change_pin: true,
+          created_by: user?.id
         });
 
       if (error) throw error;
@@ -218,6 +220,39 @@ const OwnerDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to add assistant",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const addAdmin = async (adminData: { name: string; email: string; pin: string }) => {
+    try {
+      const { error } = await supabase
+        .from('users')
+        .insert({
+          name: adminData.name,
+          email: adminData.email,
+          pin: adminData.pin,
+          role: 'admin',
+          clinic_id: userProfile?.clinic_id,
+          is_active: true,
+          must_change_pin: true,
+          created_by: user?.id
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Admin Added",
+        description: `${adminData.name} has been added as an admin`
+      });
+
+      fetchAssistants(); // This will fetch all users including admins
+    } catch (error) {
+      console.error('Error adding admin:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add admin",
         variant: "destructive"
       });
     }

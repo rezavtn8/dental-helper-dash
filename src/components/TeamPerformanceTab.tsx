@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -93,16 +93,27 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ tasks, assistan
   ];
 
   // Calculate team statistics
-  const teamStats = React.useMemo(() => {
+  const teamStats = useMemo(() => {
+    if (assistants.length === 0) {
+      return {
+        totalOverdue: 0,
+        topAssistant: null,
+        topAssistantRate: 0,
+        avgCompletionRate: 0,
+        totalAssistants: 0,
+        activeAssistants: 0
+      };
+    }
+
     const allMetrics = assistants.map(assistant => ({
       assistant,
       metrics: getAssistantMetrics(assistant.id)
     }));
 
     const totalOverdue = allMetrics.reduce((sum, { metrics }) => sum + metrics.overdueTasks, 0);
-    const topAssistant = allMetrics.reduce((best, current) => 
+    const topAssistant = allMetrics.length > 0 ? allMetrics.reduce((best, current) => 
       current.metrics.completionRate > best.metrics.completionRate ? current : best
-    );
+    ) : null;
 
     const avgCompletionRate = allMetrics.length > 0 
       ? Math.round(allMetrics.reduce((sum, { metrics }) => sum + metrics.completionRate, 0) / allMetrics.length)
@@ -110,7 +121,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({ tasks, assistan
 
     return {
       totalOverdue,
-      topAssistant: topAssistant?.assistant,
+      topAssistant: topAssistant?.assistant || null,
       topAssistantRate: topAssistant?.metrics.completionRate || 0,
       avgCompletionRate,
       totalAssistants: assistants.length,

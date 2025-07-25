@@ -15,6 +15,7 @@ import { toast } from '@/hooks/use-toast';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import TasksTab from '@/components/TasksTab';
+import TeamPerformanceTab from '@/components/TeamPerformanceTab';
 import { 
   Plus, 
   LogOut,
@@ -670,13 +671,11 @@ const OwnerDashboard = () => {
             />
           </TabsContent>
 
-          <TabsContent value="team">
-            <Card>
-              <CardHeader>
-                <CardTitle>Team & Performance</CardTitle>
-                <CardDescription>Team performance metrics coming soon</CardDescription>
-              </CardHeader>
-            </Card>
+          <TabsContent value="team" className="space-y-8">
+            <TeamPerformanceTab 
+              tasks={tasks}
+              assistants={assistants}
+            />
           </TabsContent>
 
           <TabsContent value="insights">

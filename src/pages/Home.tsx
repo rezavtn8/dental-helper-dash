@@ -36,131 +36,106 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            DentalFlow
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Practice management made simple - access your clinic or create a new one
-          </p>
-        </div>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/30">
+      {/* Elegant background effects */}
+      <div className="absolute inset-0">
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-grid-slate-200/60 bg-[size:32px_32px] opacity-40" />
+        
+        {/* Floating orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-200/30 to-indigo-200/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-l from-slate-200/40 to-blue-200/40 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-radial from-indigo-100/20 to-transparent rounded-full blur-2xl" />
+        
+        {/* Subtle moving dots */}
+        <div className="absolute top-1/3 left-1/3 w-2 h-2 bg-blue-300/60 rounded-full animate-pulse" />
+        <div className="absolute top-2/3 right-1/3 w-1 h-1 bg-slate-400/50 rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-1/3 left-2/3 w-1.5 h-1.5 bg-indigo-300/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+      </div>
 
-        {/* Recent Clinics */}
-        {recentClinics.length > 0 && (
-          <div className="max-w-2xl mx-auto mb-8">
-            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
-              <CardHeader className="text-center pb-4">
-                <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
-                <CardTitle className="text-lg">Recent Clinics</CardTitle>
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
+        <div className="w-full max-w-md space-y-8 animate-fade-in">
+          {/* Header */}
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/40 mb-6">
+              <Building2 className="w-8 h-8 text-slate-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+              DentalFlow
+            </h1>
+            <p className="text-sm text-slate-600 font-medium">
+              Access your clinic
+            </p>
+          </div>
+
+          {/* Recent Clinics */}
+          {recentClinics.length > 0 && (
+            <Card className="bg-white/70 backdrop-blur-sm border-white/50 shadow-xl hover:shadow-2xl transition-all duration-300 animate-scale-in">
+              <CardHeader className="text-center pb-3">
+                <div className="inline-flex items-center justify-center w-10 h-10 bg-slate-100/60 rounded-full mb-2">
+                  <Clock className="w-5 h-5 text-slate-600" />
+                </div>
+                <CardTitle className="text-lg font-semibold text-slate-700">Recent</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {recentClinics.map((code) => (
+              <CardContent className="pt-0">
+                <div className="space-y-2">
+                  {recentClinics.slice(0, 3).map((code, index) => (
                     <Button
                       key={code}
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
                       onClick={() => handleRecentClinicAccess(code)}
-                      className="text-sm"
+                      className="w-full justify-start h-auto py-3 px-4 text-left hover:bg-slate-100/60 border border-transparent hover:border-slate-200/60 rounded-lg transition-all duration-200 hover-scale"
                     >
-                      {code}
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-400 rounded-full" />
+                        <span className="text-slate-700 font-medium">{code}</span>
+                      </div>
                     </Button>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </div>
-        )}
+          )}
 
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Access Clinic */}
-            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
-              <CardHeader className="text-center">
-                <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <CardTitle className="text-2xl">Access Your Clinic</CardTitle>
-                <CardDescription>
-                  Enter your clinic code to access the portal
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleClinicAccess} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="clinicCode">Clinic Code</Label>
-                    <Input
-                      id="clinicCode"
-                      value={clinicCode}
-                      onChange={(e) => setClinicCode(e.target.value)}
-                      placeholder="e.g., irvine123, smith-dental"
-                      className="text-center text-lg h-12"
-                    />
-                    <p className="text-xs text-muted-foreground text-center">
-                      Enter your clinic's unique code to access your portal
-                    </p>
-                  </div>
-                  <Button type="submit" className="w-full h-12 text-lg" disabled={!clinicCode.trim()}>
-                    Access Clinic
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Create New Clinic */}
-            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
-              <CardHeader className="text-center">
-                <Plus className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <CardTitle className="text-2xl">Create New Clinic</CardTitle>
-                <CardDescription>
-                  Set up a new clinic and invite your team
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+          {/* Main Access Form */}
+          <Card className="bg-white/80 backdrop-blur-sm border-white/60 shadow-xl hover:shadow-2xl transition-all duration-300">
+            <CardContent className="p-6">
+              <form onSubmit={handleClinicAccess} className="space-y-4">
+                <div className="space-y-3">
+                  <Label htmlFor="clinicCode" className="text-sm font-medium text-slate-700">
+                    Clinic Code
+                  </Label>
+                  <Input
+                    id="clinicCode"
+                    value={clinicCode}
+                    onChange={(e) => setClinicCode(e.target.value)}
+                    placeholder="Enter clinic code"
+                    className="text-center text-lg h-12 bg-white/60 border-slate-200/60 focus:border-slate-400 focus:bg-white/80 transition-all duration-200"
+                  />
+                </div>
                 <Button 
-                  className="w-full h-12 text-lg" 
-                  variant="outline"
-                  onClick={() => navigate('/setup')}
+                  type="submit" 
+                  className="w-full h-12 text-base font-medium bg-slate-700 hover:bg-slate-800 text-white shadow-lg hover:shadow-xl transition-all duration-200" 
+                  disabled={!clinicCode.trim()}
                 >
-                  Create Clinic
-                  <Plus className="ml-2 w-5 h-5" />
+                  Access Clinic
+                  <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
+              </form>
+            </CardContent>
+          </Card>
 
-          {/* Features */}
-          <div className="mt-16 grid md:grid-cols-2 gap-8">
-            <Card className="bg-card/90 backdrop-blur-sm border shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="w-6 h-6 mr-2 text-primary" />
-                  Multi-Role Access
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Owners and assistants have different dashboards tailored to their needs
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/90 backdrop-blur-sm border shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Building2 className="w-6 h-6 mr-2 text-primary" />
-                  Easy Setup
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Quick clinic setup with unique codes for secure access
-                </p>
-              </CardContent>
-            </Card>
+          {/* Create New Option */}
+          <div className="text-center">
+            <Button 
+              variant="ghost"
+              onClick={() => navigate('/setup')}
+              className="text-slate-600 hover:text-slate-800 text-sm font-medium hover:bg-white/40 rounded-lg px-4 py-2 transition-all duration-200"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create new clinic
+            </Button>
           </div>
         </div>
       </div>

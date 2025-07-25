@@ -65,7 +65,7 @@ interface Assistant {
 interface TasksTabProps {
   tasks: Task[];
   assistants: Assistant[];
-  onCreateTask: (taskData: any) => void;
+  onCreateTask: (e: React.FormEvent) => Promise<void>;
   loading: boolean;
 }
 
@@ -90,12 +90,9 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
     owner_notes: ''
   });
 
-  const handleCreateTask = (e: React.FormEvent) => {
+  const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    onCreateTask({
-      ...newTask,
-      checklist: checklist.length > 0 ? checklist : null
-    });
+    await onCreateTask(e);
     
     // Reset form
     setNewTask({

@@ -52,7 +52,7 @@ export default function ClinicSetup() {
         return;
       }
 
-      // Create the owner account
+      // Create the owner account with metadata for the trigger
       const redirectUrl = `${window.location.origin}/clinic/${clinicCode}`;
       
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -60,7 +60,11 @@ export default function ClinicSetup() {
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: { name: ownerName, role: 'owner' }
+          data: { 
+            name: ownerName, 
+            role: 'owner',
+            clinic_id: clinic.id  // Pass clinic_id in metadata for the trigger
+          }
         }
       });
 
@@ -70,27 +74,10 @@ export default function ClinicSetup() {
         return;
       }
 
-      // Create user profile
+      // Profile will be created automatically by the database trigger
       if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: email,
-            name: ownerName,
-            role: 'owner',
-            clinic_id: clinic.id,
-            is_active: true,
-            display_order: 0
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          toast.error('Account created but profile setup failed. Please contact support.');
-        } else {
-          toast.success('Clinic created successfully! Please check your email to verify your account.');
-          navigate(`/clinic/${clinicCode}`);
-        }
+        toast.success('Clinic created successfully! Please check your email to verify your account.');
+        navigate(`/clinic/${clinicCode}`);
       }
     } catch (error) {
       console.error('Setup error:', error);

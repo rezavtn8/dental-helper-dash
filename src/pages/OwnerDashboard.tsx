@@ -89,6 +89,30 @@ const OwnerDashboard = () => {
     if (session && user && userProfile?.role === 'owner') {
       fetchTasks();
       fetchAssistants();
+      
+      // Set up real-time listeners
+      const tasksChannel = supabase
+        .channel('tasks_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'tasks',
+            filter: `clinic_id=eq.${userProfile.clinic_id}`
+          },
+          (payload) => {
+            console.log('Real-time task change:', payload);
+            // Refetch tasks on any change
+            fetchTasks();
+          }
+        )
+        .subscribe();
+
+      // Cleanup function
+      return () => {
+        supabase.removeChannel(tasksChannel);
+      };
     }
   }, [session, user, userProfile]);
 

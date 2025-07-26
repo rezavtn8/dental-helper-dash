@@ -64,6 +64,30 @@ const AssistantDashboard = () => {
   useEffect(() => {
     if (session && user && (userProfile?.role === 'assistant' || userProfile?.role === 'admin')) {
       fetchMyTasks();
+      
+      // Set up real-time listeners for tasks
+      const tasksChannel = supabase
+        .channel('assistant_tasks_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'tasks',
+            filter: `clinic_id=eq.${userProfile.clinic_id}`
+          },
+          (payload) => {
+            console.log('Real-time task change (assistant):', payload);
+            // Refetch tasks on any change
+            fetchMyTasks();
+          }
+        )
+        .subscribe();
+
+      // Cleanup function
+      return () => {
+        supabase.removeChannel(tasksChannel);
+      };
     }
   }, [session, user, userProfile]);
 

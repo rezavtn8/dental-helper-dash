@@ -400,34 +400,6 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                   {/* Expanded Content */}
                   <Collapsible open={isExpanded}>
                     <CollapsibleContent className="space-y-4 pt-4 border-t animate-accordion-down">
-                      {/* Weekly Performance Chart */}
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium flex items-center">
-                          <Activity className="h-3 w-3 mr-1" />
-                          Weekly Performance
-                        </h4>
-                        <div className="h-32">
-                          <ChartContainer config={chartConfig}>
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart data={getWeeklyData(assistant.id)}>
-                                <XAxis 
-                                  dataKey="day" 
-                                  fontSize={10}
-                                  tickLine={false}
-                                  axisLine={false}
-                                />
-                                <YAxis hide />
-                                <ChartTooltip content={<ChartTooltipContent />} />
-                                <Bar 
-                                  dataKey="completed" 
-                                  fill="var(--color-completed)"
-                                  radius={[2, 2, 0, 0]}
-                                />
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </ChartContainer>
-                        </div>
-                      </div>
 
                       {/* Recent Tasks */}
                       <div className="space-y-2">
@@ -456,34 +428,27 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
 
                       {/* Admin Controls */}
                       <div className="flex items-center space-x-2 pt-2 border-t">
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-xs">
-                              <RotateCcw className="h-3 w-3 mr-1" />
-                              Reset PIN
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Reset PIN for {assistant.name}?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will generate a new PIN and the team member will need to use the new PIN to log in.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => onResetPin?.(assistant.id)}>
-                                Reset PIN
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onResetPin?.(assistant.id);
+                          }}
+                        >
+                          <RotateCcw className="h-3 w-3 mr-1" />
+                          Reset PIN
+                        </Button>
 
                         <Button 
                           variant={assistant.is_active !== false ? "outline" : "default"} 
                           size="sm" 
                           className="text-xs"
-                          onClick={() => handleToggleStatus(assistant.id, assistant.is_active !== false)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleStatus(assistant.id, assistant.is_active !== false);
+                          }}
                         >
                           {assistant.is_active !== false ? (
                             <>
@@ -498,32 +463,18 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                           )}
                         </Button>
 
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" className="text-xs">
-                              <UserX className="h-3 w-3 mr-1" />
-                              Remove
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently remove <strong>{assistant.name}</strong> from your clinic team.
-                                This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => onRemoveAssistant?.(assistant.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Yes, Remove Team Member
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          className="text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAssistantToRemove(assistant);
+                          }}
+                        >
+                          <UserX className="h-3 w-3 mr-1" />
+                          Remove
+                        </Button>
                       </div>
                     </CollapsibleContent>
                   </Collapsible>

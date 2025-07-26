@@ -196,21 +196,26 @@ const TemplatesTab: React.FC<TemplatesTabProps> = ({ onCreateTask, userRole }) =
     setAddingTasks(prev => [...prev, template.id]);
     
     try {
-      // Create a task for this template
-      await onCreateTask({
-        title: template.title,
-        description: template.description,
-        category: template.category,
-        priority: 'medium',
-        checklist: template.checklist,
-        specialty: template.specialty,
-        'due-type': 'today',
-        status: 'pending'
+      // Create individual tasks for each checklist item
+      const taskPromises = template.checklist.map(async (checklistItem) => {
+        return onCreateTask({
+          title: checklistItem.task,
+          description: `From template: ${template.title}`,
+          category: template.category,
+          priority: 'medium',
+          checklist: [], // Individual tasks don't need checklists
+          specialty: template.specialty,
+          'due-type': 'today',
+          status: 'pending'
+        });
       });
+
+      // Wait for all tasks to be created
+      await Promise.all(taskPromises);
 
       toast({
         title: "Template Added",
-        description: `"${template.title}" has been added to today's tasks.`,
+        description: `${template.checklist.length} tasks from "${template.title}" have been added to today's tasks.`,
       });
     } catch (error) {
       console.error('Error adding template to tasks:', error);

@@ -17,6 +17,7 @@ import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, 
 import TasksTab from '@/components/TasksTab';
 import TeamPerformanceTab from '@/components/TeamPerformanceTab';
 import TemplatesTab from '@/components/TemplatesTab';
+import InsightsTab from '@/components/InsightsTab';
 import { 
   Plus, 
   LogOut,
@@ -831,12 +832,10 @@ const OwnerDashboard = () => {
           </TabsContent>
 
           <TabsContent value="insights">
-            <Card>
-              <CardHeader>
-                <CardTitle>Insights</CardTitle>
-                <CardDescription>Analytics and insights coming soon</CardDescription>
-              </CardHeader>
-            </Card>
+            <InsightsTab 
+              tasks={tasks}
+              assistants={assistants}
+            />
           </TabsContent>
 
           <TabsContent value="templates">

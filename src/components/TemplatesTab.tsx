@@ -54,7 +54,7 @@ const TemplatesTab: React.FC<TemplatesTabProps> = ({ onCreateTask, userRole }) =
   const templateGroups: TemplateGroup[] = [
     {
       id: 'opening-routine',
-      title: 'Opening Routine',
+      title: 'Opening Routine (Daily)',
       icon: Sunrise,
       color: 'text-amber-600',
       templates: [
@@ -64,91 +64,206 @@ const TemplatesTab: React.FC<TemplatesTabProps> = ({ onCreateTask, userRole }) =
           description: 'Standard checklist before patients arrive',
           category: 'opening',
           checklist: [
-            { id: '1', task: 'Room Setup', completed: false },
-            { id: '2', task: 'Turn on PCs and software', completed: false },
-            { id: '3', task: 'Autoclave ready check', completed: false },
-            { id: '4', task: 'Disinfect countertops', completed: false },
-            { id: '5', task: 'Stock up solutions (NaOCl, EDTA)', completed: false }
+            { id: '1', task: 'Room setup (lights, seats, tray covers)', completed: false },
+            { id: '2', task: 'Turn on computers & dental software', completed: false },
+            { id: '3', task: 'Disinfect counters and operatory handles', completed: false },
+            { id: '4', task: 'Fill ultrasonic, check autoclave water', completed: false },
+            { id: '5', task: 'Turn on suction & compressor', completed: false },
+            { id: '6', task: 'Restock gauze, anesthetic, cotton rolls, bonding', completed: false },
+            { id: '7', task: 'Check solutions (NaOCl, EDTA, CHX)', completed: false },
+            { id: '8', task: 'Load sterilization pouches', completed: false },
+            { id: '9', task: 'Set up microscopes / loupes', completed: false },
+            { id: '10', task: 'Plug in iPads/scanners', completed: false }
+          ]
+        },
+        {
+          id: 'clinical-software-boot',
+          title: 'Clinical Software & Imaging Boot',
+          description: 'Boot up and verify all clinical systems',
+          category: 'opening',
+          checklist: [
+            { id: '1', task: 'Login to practice software', completed: false },
+            { id: '2', task: 'Launch radiograph/CBCT software', completed: false },
+            { id: '3', task: 'Confirm network is active', completed: false },
+            { id: '4', task: 'Label CBCT room sensor(s)', completed: false },
+            { id: '5', task: 'Verify patient schedule sync', completed: false }
           ]
         }
       ]
     },
     {
       id: 'endodontics',
-      title: 'Endodontics',
+      title: 'Endodontics (Daily/Per-Patient)',
       icon: Activity,
       color: 'text-red-600',
       templates: [
         {
           id: 'endo-anterior-setup',
-          title: 'Endo Case Setup (Anterior)',
-          description: 'Standard anterior root canal prep',
+          title: 'Endo Case Setup - Anterior',
+          description: 'Standard anterior root canal preparation',
           category: 'treatment',
           specialty: 'endodontics',
           checklist: [
-            { id: '1', task: 'Patient seated and bib placed', completed: false },
-            { id: '2', task: 'Load x-ray and CBCT if needed', completed: false },
-            { id: '3', task: 'Select and place rubber dam', completed: false },
-            { id: '4', task: 'Prepare syringe with NaOCl', completed: false },
-            { id: '5', task: 'Ready endo tray with explorer, DG-16, cotton rolls, etc.', completed: false },
-            { id: '6', task: 'Microscope cleaned and angled', completed: false }
+            { id: '1', task: 'Patient seated, bib placed', completed: false },
+            { id: '2', task: 'Rubber dam tray & dam sheet out', completed: false },
+            { id: '3', task: 'Select clamp & forceps', completed: false },
+            { id: '4', task: 'Set up: DG-16, Endo explorer, cotton pellets', completed: false },
+            { id: '5', task: 'NaOCl syringe prepared', completed: false },
+            { id: '6', task: 'Microscope cleaned and angled', completed: false },
+            { id: '7', task: 'Operatory tray with sterile setup', completed: false },
+            { id: '8', task: 'Put out bite block, lubricant, measuring ruler', completed: false }
           ]
         },
         {
-          id: 'post-endo-cleanup',
-          title: 'Post-Endo Cleanup',
+          id: 'endo-posterior-setup',
+          title: 'Endo Case Setup - Posterior',
+          description: 'Standard posterior root canal preparation',
+          category: 'treatment',
+          specialty: 'endodontics',
+          checklist: [
+            { id: '1', task: 'Patient seated, bib placed', completed: false },
+            { id: '2', task: 'Larger rubber dam frame', completed: false },
+            { id: '3', task: 'Second suction line', completed: false },
+            { id: '4', task: 'Wedge and matrix on standby', completed: false },
+            { id: '5', task: 'Extra paper points and larger files', completed: false },
+            { id: '6', task: 'NaOCl syringe prepared', completed: false },
+            { id: '7', task: 'Microscope cleaned and angled', completed: false },
+            { id: '8', task: 'Operatory tray with sterile setup', completed: false }
+          ]
+        },
+        {
+          id: 'post-endo-breakdown',
+          title: 'Post-Endo Breakdown',
           description: 'Standard cleanup after endodontic treatment',
           category: 'cleanup',
           specialty: 'endodontics',
           checklist: [
-            { id: '1', task: 'Remove rubber dam', completed: false },
-            { id: '2', task: 'Wipe microscope lenses', completed: false },
-            { id: '3', task: 'Flush suction lines', completed: false },
-            { id: '4', task: 'Empty trash', completed: false },
-            { id: '5', task: 'Sterilize and pack files', completed: false }
+            { id: '1', task: 'Dispose of used cotton and dam', completed: false },
+            { id: '2', task: 'Clean and store microscope lens', completed: false },
+            { id: '3', task: 'Disinfect chair, handles, and monitor', completed: false },
+            { id: '4', task: 'Replace barriers', completed: false },
+            { id: '5', task: 'Run suction cleaner', completed: false },
+            { id: '6', task: 'Place files for sterilization', completed: false },
+            { id: '7', task: 'Wipe operatory tray & barriers', completed: false }
           ]
         }
       ]
     },
     {
       id: 'orthodontics',
-      title: 'Orthodontics',
+      title: 'Orthodontics (Daily/Weekly)',
       icon: Smile,
       color: 'text-blue-600',
       templates: [
         {
-          id: 'ortho-adjustment-prep',
-          title: 'Ortho Adjustment Day Prep',
+          id: 'ortho-adjustment-setup',
+          title: 'Ortho Adjustment Day Setup',
           description: 'Preparation for orthodontic adjustment appointments',
           category: 'preparation',
           specialty: 'orthodontics',
           checklist: [
-            { id: '1', task: 'Stock brackets and wires', completed: false },
-            { id: '2', task: 'Clean and set up bands & separators', completed: false },
-            { id: '3', task: 'Confirm elastic and wax stock', completed: false },
-            { id: '4', task: 'Load last visit notes', completed: false },
-            { id: '5', task: 'Prepare iTero or scanner if used', completed: false }
+            { id: '1', task: 'Stock brackets, wires, elastics', completed: false },
+            { id: '2', task: 'Prepare bands & separators', completed: false },
+            { id: '3', task: 'Load patient recall notes', completed: false },
+            { id: '4', task: 'Ready iTero or scanning tray', completed: false },
+            { id: '5', task: 'Fill bonding agents', completed: false },
+            { id: '6', task: 'Turn on curing light', completed: false },
+            { id: '7', task: 'Label bracket kits (if multiple types used)', completed: false }
+          ]
+        },
+        {
+          id: 'post-ortho-sterilization',
+          title: 'Post-Ortho Sterilization',
+          description: 'Cleanup and sterilization after ortho appointments',
+          category: 'sterilization',
+          specialty: 'orthodontics',
+          checklist: [
+            { id: '1', task: 'Sort and soak pliers', completed: false },
+            { id: '2', task: 'Sterilize bracket kits', completed: false },
+            { id: '3', task: 'Repack ortho trays', completed: false },
+            { id: '4', task: 'Wipe headrest, scanner, mirrors', completed: false },
+            { id: '5', task: 'Restock elastics, wax, mirrors', completed: false }
           ]
         }
       ]
     },
     {
-      id: 'sterilization',
-      title: 'Sterilization & Maintenance',
+      id: 'weekly-maintenance',
+      title: 'Weekly/Biweekly Maintenance',
+      icon: Settings,
+      color: 'text-indigo-600',
+      templates: [
+        {
+          id: 'suction-cleaning',
+          title: 'Suction Line Cleaning (Biweekly)',
+          description: 'Deep cleaning of suction systems',
+          category: 'maintenance',
+          checklist: [
+            { id: '1', task: 'Mix suction cleaning solution', completed: false },
+            { id: '2', task: 'Flush through HVE & SE', completed: false },
+            { id: '3', task: 'Clean filters', completed: false },
+            { id: '4', task: 'Log completion in sheet', completed: false }
+          ]
+        },
+        {
+          id: 'instrument-inventory',
+          title: 'Instrument Inventory Check (Weekly)',
+          description: 'Weekly check of instrument supplies',
+          category: 'inventory',
+          checklist: [
+            { id: '1', task: 'Count explorer, pluggers, mirrors', completed: false },
+            { id: '2', task: 'Restock missing ones', completed: false },
+            { id: '3', task: 'Check if replacements are needed', completed: false },
+            { id: '4', task: 'Submit order if below threshold', completed: false }
+          ]
+        },
+        {
+          id: 'staff-supplies-check',
+          title: 'Staff Supplies Check (Weekly)',
+          description: 'Weekly check of staff protection supplies',
+          category: 'inventory',
+          checklist: [
+            { id: '1', task: 'Gloves (all sizes)', completed: false },
+            { id: '2', task: 'Masks', completed: false },
+            { id: '3', task: 'Gowns', completed: false },
+            { id: '4', task: 'Patient bibs', completed: false },
+            { id: '5', task: 'Surface barriers', completed: false }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'sterilization-cleaning',
+      title: 'Sterilization & Cleaning (Daily/EOD)',
       icon: RotateCcw,
       color: 'text-green-600',
       templates: [
         {
-          id: 'daily-sterilization',
-          title: 'Daily Sterilization Check',
-          description: 'Daily sterilization and maintenance routine',
+          id: 'eod-steri-protocol',
+          title: 'End of Day Steri Protocol',
+          description: 'End of day sterilization routine',
           category: 'sterilization',
           checklist: [
-            { id: '1', task: 'Check autoclave water levels', completed: false },
-            { id: '2', task: 'Run biological indicator test', completed: false },
-            { id: '3', task: 'Clean ultrasonic baths', completed: false },
-            { id: '4', task: 'Check chemical indicators', completed: false },
-            { id: '5', task: 'Maintain sterilization logs', completed: false }
+            { id: '1', task: 'Empty ultrasonic & wipe basin', completed: false },
+            { id: '2', task: 'Run final autoclave cycle', completed: false },
+            { id: '3', task: 'Wipe down trays', completed: false },
+            { id: '4', task: 'Sort used instruments for next-day prep', completed: false },
+            { id: '5', task: 'Clean handpieces with spray/lube', completed: false },
+            { id: '6', task: 'Close sterilization logs', completed: false }
+          ]
+        },
+        {
+          id: 'full-op-cleaning',
+          title: 'Full Op Cleaning (EOD)',
+          description: 'Complete operatory cleaning end of day',
+          category: 'cleaning',
+          checklist: [
+            { id: '1', task: 'Wipe light handles', completed: false },
+            { id: '2', task: 'Disinfect chairs & buttons', completed: false },
+            { id: '3', task: 'Change all tray barriers', completed: false },
+            { id: '4', task: 'Restock drawers', completed: false },
+            { id: '5', task: 'Mop room if needed', completed: false },
+            { id: '6', task: 'Trash out', completed: false }
           ]
         }
       ]
@@ -160,16 +275,61 @@ const TemplatesTab: React.FC<TemplatesTabProps> = ({ onCreateTask, userRole }) =
       color: 'text-purple-600',
       templates: [
         {
-          id: 'monthly-inventory',
-          title: 'Monthly Inventory Check',
-          description: 'Comprehensive monthly inventory and administrative tasks',
+          id: 'monthly-deep-clean',
+          title: 'Monthly Deep Clean',
+          description: 'Comprehensive monthly cleaning tasks',
+          category: 'cleaning',
+          checklist: [
+            { id: '1', task: 'Clean baseboards and wall corners', completed: false },
+            { id: '2', task: 'Wipe cabinet handles', completed: false },
+            { id: '3', task: 'Clean scanner screen', completed: false },
+            { id: '4', task: 'Disinfect keyboards and mice', completed: false },
+            { id: '5', task: 'Replace any stained ceiling tiles', completed: false }
+          ]
+        },
+        {
+          id: 'inventory-order-submission',
+          title: 'Inventory & Order Submission',
+          description: 'Monthly inventory and ordering routine',
           category: 'administrative',
           checklist: [
-            { id: '1', task: 'Count and order dental supplies', completed: false },
-            { id: '2', task: 'Review insurance claims status', completed: false },
-            { id: '3', task: 'Update patient contact information', completed: false },
-            { id: '4', task: 'Backup patient data', completed: false },
-            { id: '5', task: 'Equipment maintenance checks', completed: false }
+            { id: '1', task: 'Full clinic supply count', completed: false },
+            { id: '2', task: 'Submit monthly order form', completed: false },
+            { id: '3', task: 'Organize backroom shelving', completed: false },
+            { id: '4', task: 'Log outdated/expired supplies', completed: false }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'utilities-backoffice',
+      title: 'Utilities & Back Office',
+      icon: Settings,
+      color: 'text-slate-600',
+      templates: [
+        {
+          id: 'gentlewave-maintenance',
+          title: 'GentleWave Maintenance (Weekly)',
+          description: 'Weekly GentleWave system maintenance',
+          category: 'equipment',
+          checklist: [
+            { id: '1', task: 'Prime system', completed: false },
+            { id: '2', task: 'Empty waste', completed: false },
+            { id: '3', task: 'Wipe and polish screen', completed: false },
+            { id: '4', task: 'Refill GentleWave solution', completed: false },
+            { id: '5', task: 'Clean cartridges', completed: false }
+          ]
+        },
+        {
+          id: 'cbct-maintenance',
+          title: 'CBCT Maintenance (Monthly)',
+          description: 'Monthly CBCT system maintenance',
+          category: 'equipment',
+          checklist: [
+            { id: '1', task: 'Wipe sensor and chin rest', completed: false },
+            { id: '2', task: 'Check calibration log', completed: false },
+            { id: '3', task: 'Perform phantom scan (if required)', completed: false },
+            { id: '4', task: 'Notify if any error codes present', completed: false }
           ]
         }
       ]

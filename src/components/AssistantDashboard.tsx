@@ -50,6 +50,8 @@ interface Task {
   checklist?: ChecklistItem[];
   owner_notes?: string;
   custom_due_date?: string;
+  completed_by?: string | null;
+  completed_at?: string | null;
 }
 
 const AssistantDashboard = () => {
@@ -114,7 +116,9 @@ const AssistantDashboard = () => {
         created_at: task.created_at || '',
         checklist: Array.isArray(task.checklist) ? (task.checklist as unknown as ChecklistItem[]) : [],
         owner_notes: task.owner_notes || undefined,
-        custom_due_date: task.custom_due_date || undefined
+        custom_due_date: task.custom_due_date || undefined,
+        completed_by: task.completed_by || null,
+        completed_at: task.completed_at || null
       }));
       setTasks(transformedTasks);
     } catch (error) {
@@ -131,9 +135,21 @@ const AssistantDashboard = () => {
 
   const updateTaskStatus = async (taskId: string, status: string) => {
     try {
+      const updateData: any = { status };
+      
+      // If marking as complete, track who completed it and when
+      if (status === 'Done') {
+        updateData.completed_by = user?.id;
+        updateData.completed_at = new Date().toISOString();
+      } else if (status === 'To Do') {
+        // If unmarking as complete, clear completion tracking
+        updateData.completed_by = null;
+        updateData.completed_at = null;
+      }
+
       const { error } = await supabase
         .from('tasks')
-        .update({ status })
+        .update(updateData)
         .eq('id', taskId);
 
       if (error) throw error;

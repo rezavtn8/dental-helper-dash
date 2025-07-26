@@ -54,6 +54,8 @@ interface Task {
   checklist?: ChecklistItem[];
   owner_notes?: string;
   custom_due_date?: string;
+  completed_by?: string | null;
+  completed_at?: string | null;
 }
 
 interface Assistant {
@@ -500,93 +502,119 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
               </Button>
             </div>
           ) : taskViewMode === 'table' ? (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {filteredTasks.map((task) => (
-                <Card key={task.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="font-semibold">{task.title}</h4>
-                          <Badge 
-                            variant={task.status === 'Done' ? 'default' : task.status === 'To Do' ? 'secondary' : 'outline'}
-                            className="text-xs"
-                          >
-                            {task.status === 'Done' ? '✅' : task.status === 'To Do' ? '⏳' : '🔄'} {task.status}
-                          </Badge>
-                          
-                          {task.category && (
-                            <Badge variant="outline" className="text-xs">
-                              {task.category === 'Cleaning' && '🧼'}
-                              {task.category === 'Setup' && '⚙️'}
-                              {task.category === 'Labs' && '🧪'}
-                              {task.category === 'Patient Care' && '🏥'}
-                              {task.category === 'Administrative' && '📋'}
-                              {task.category === 'Equipment' && '🔧'}
-                              {task.category}
-                            </Badge>
-                          )}
-                        </div>
+                <Card key={task.id} className="hover:shadow-sm transition-shadow">
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {/* Status indicator */}
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                          task.status === 'Done' ? 'bg-green-500' :
+                          task.status === 'In Progress' ? 'bg-blue-500' :
+                          'bg-gray-400'
+                        }`} />
                         
-                        {task.description && (
-                          <p className="text-sm text-muted-foreground">{task.description}</p>
-                        )}
-                        
-                        <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                          <span className="flex items-center">
-                            <CalendarIcon className="h-3 w-3 mr-1" />
-                            Due: {task['due-type']}
-                          </span>
-                          
-                          {task.recurrence && task.recurrence !== 'none' && (
-                            <span className="flex items-center">
-                              <Repeat className="h-3 w-3 mr-1" />
-                              {task.recurrence}
-                            </span>
-                          )}
-                          
-                          <span className="flex items-center">
-                            <Users className="h-3 w-3 mr-1" />
-                            {task.assigned_to 
-                              ? assistants.find(a => a.id === task.assigned_to)?.name || 'Unknown'
-                              : 'Unassigned'
-                            }
-                          </span>
-                        </div>
-                        
-                        {task.owner_notes && (
-                          <div className="mt-2 p-2 bg-clinical-sky/10 rounded text-xs">
-                            <strong>Owner Notes:</strong> {task.owner_notes}
+                        {/* Task title and info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium text-sm truncate">{task.title}</h4>
+                            {task.category && (
+                              <Badge variant="outline" className="text-xs flex-shrink-0">
+                                {task.category === 'Cleaning' && '🧼'}
+                                {task.category === 'Setup' && '⚙️'}
+                                {task.category === 'Labs' && '🧪'}
+                                {task.category === 'Patient Care' && '🏥'}
+                                {task.category === 'Administrative' && '📋'}
+                                {task.category === 'Equipment' && '🔧'}
+                                {task.category === 'opening' && '🌅'}
+                                {task.category === 'treatment' && '🦷'}
+                                {task.category === 'cleanup' && '🧽'}
+                                {task.category === 'sterilization' && '🧫'}
+                                {task.category === 'preparation' && '📋'}
+                                {task.category === 'maintenance' && '🔧'}
+                                {task.category === 'inventory' && '📦'}
+                                {task.category === 'equipment' && '⚙️'}
+                                {task.category}
+                              </Badge>
+                            )}
                           </div>
-                        )}
+                          
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <CalendarIcon className="h-3 w-3" />
+                              {task['due-type']}
+                            </span>
+                            
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {task.assigned_to 
+                                ? assistants.find(a => a.id === task.assigned_to)?.name || 'Unknown'
+                                : 'Unassigned'
+                              }
+                            </span>
+                            
+                            {task.status === 'Done' && task.completed_by && (
+                              <span className="flex items-center gap-1 text-green-600">
+                                <CheckCircle className="h-3 w-3" />
+                                Completed by {assistants.find(a => a.id === task.completed_by)?.name || 'Unknown'}
+                                {task.completed_at && (
+                                  <span className="text-muted-foreground">
+                                    • {new Date(task.completed_at).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                       
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Task
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Mark Complete
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {/* Status badge and actions */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Badge 
+                          variant={task.status === 'Done' ? 'default' : task.status === 'To Do' ? 'secondary' : 'outline'}
+                          className="text-xs"
+                        >
+                          {task.status === 'Done' ? '✅' : task.status === 'To Do' ? '⏳' : '🔄'} {task.status}
+                        </Badge>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <MoreHorizontal className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit Task
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Mark Complete
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
+                    
+                    {task.description && (
+                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{task.description}</p>
+                    )}
+                    
+                    {task.owner_notes && (
+                      <div className="mt-2 p-2 bg-blue-50/50 rounded text-xs border-l-2 border-blue-200">
+                        <strong className="text-blue-700">Owner Notes:</strong> {task.owner_notes}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}

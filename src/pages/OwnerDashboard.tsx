@@ -56,6 +56,8 @@ interface Task {
   checklist?: ChecklistItem[];
   owner_notes?: string;
   custom_due_date?: string;
+  completed_by?: string | null;
+  completed_at?: string | null;
 }
 
 interface Assistant {
@@ -138,7 +140,9 @@ const OwnerDashboard = () => {
         created_at: task.created_at || '',
         checklist: Array.isArray(task.checklist) ? (task.checklist as unknown as ChecklistItem[]) : [],
         owner_notes: task.owner_notes || undefined,
-        custom_due_date: task.custom_due_date || undefined
+        custom_due_date: task.custom_due_date || undefined,
+        completed_by: task.completed_by || null,
+        completed_at: task.completed_at || null
       }));
       setTasks(transformedTasks);
     } catch (error) {

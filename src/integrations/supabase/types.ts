@@ -138,6 +138,8 @@ export type Database = {
           category: string | null
           checklist: Json | null
           clinic_id: string | null
+          completed_at: string | null
+          completed_by: string | null
           created_at: string | null
           created_by: string | null
           custom_due_date: string | null
@@ -157,6 +159,8 @@ export type Database = {
           category?: string | null
           checklist?: Json | null
           clinic_id?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
           created_at?: string | null
           created_by?: string | null
           custom_due_date?: string | null
@@ -176,6 +180,8 @@ export type Database = {
           category?: string | null
           checklist?: Json | null
           clinic_id?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
           created_at?: string | null
           created_by?: string | null
           custom_due_date?: string | null

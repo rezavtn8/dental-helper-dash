@@ -127,7 +127,7 @@ export default function Login() {
               <Stethoscope className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Medical Clinic Portal
+              ClinicFlow Portal
             </CardTitle>
             <CardDescription>
               Access your clinic management system
@@ -136,18 +136,19 @@ export default function Login() {
           
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="login">
+              <TabsContent value="login" className="mt-0">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       type="email"
+                      className="h-12"
                       placeholder="Enter your email"
                       value={loginForm.email}
                       onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
@@ -160,6 +161,7 @@ export default function Login() {
                     <Input
                       id="password"
                       type="password"
+                      className="h-12"
                       placeholder="Enter your password"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
@@ -169,7 +171,7 @@ export default function Login() {
                   
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-12"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -184,13 +186,14 @@ export default function Login() {
                 </form>
               </TabsContent>
               
-              <TabsContent value="signup">
+              <TabsContent value="signup" className="mt-0">
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>
                     <Input
                       id="signup-name"
                       type="text"
+                      className="h-12"
                       placeholder="Enter your full name"
                       value={signupForm.name}
                       onChange={(e) => setSignupForm(prev => ({ ...prev, name: e.target.value }))}
@@ -203,6 +206,7 @@ export default function Login() {
                     <Input
                       id="signup-email"
                       type="email"
+                      className="h-12"
                       placeholder="Enter your email"
                       value={signupForm.email}
                       onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
@@ -214,7 +218,7 @@ export default function Login() {
                     <Label htmlFor="role">Role</Label>
                     <select
                       id="role"
-                      className="w-full p-2 border border-input bg-background rounded-md"
+                      className="w-full h-12 px-3 py-2 border border-input bg-background rounded-md"
                       value={signupForm.role}
                       onChange={(e) => setSignupForm(prev => ({ ...prev, role: e.target.value as 'owner' | 'assistant' }))}
                     >
@@ -228,6 +232,7 @@ export default function Login() {
                     <Input
                       id="signup-password"
                       type="password"
+                      className="h-12"
                       placeholder="Create a password"
                       value={signupForm.password}
                       onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
@@ -240,6 +245,7 @@ export default function Login() {
                     <Input
                       id="confirm-password"
                       type="password"
+                      className="h-12"
                       placeholder="Confirm your password"
                       value={signupForm.confirmPassword}
                       onChange={(e) => setSignupForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
@@ -249,7 +255,7 @@ export default function Login() {
                   
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-12"
                     disabled={isLoading}
                   >
                     {isLoading ? (

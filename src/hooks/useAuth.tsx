@@ -72,6 +72,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (session?.user) {
         fetchUserProfile(session.user.id);
+      } else {
+        // Check for assistant session from localStorage
+        checkAssistantSession();
       }
       
       setLoading(false);
@@ -79,6 +82,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const checkAssistantSession = async () => {
+    try {
+      const assistantSession = localStorage.getItem('assistant_session');
+      if (assistantSession) {
+        const { userId, timestamp } = JSON.parse(assistantSession);
+        
+        // Check if session is still valid (24 hours)
+        if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .eq('is_active', true)
+            .single();
+            
+          if (!error && data) {
+            setUserProfile(data);
+            return;
+          }
+        }
+        
+        // Remove invalid session
+        localStorage.removeItem('assistant_session');
+      }
+    } catch (error) {
+      console.error('Error checking assistant session:', error);
+      localStorage.removeItem('assistant_session');
+    }
+  };
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -108,20 +141,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('clinic_id', clinicId)
         .in('role', ['assistant', 'admin'])
         .eq('pin', pin)
+        .eq('is_active', true)
         .single();
 
       if (fetchError || !assistant) {
-        // Increment pin attempts
-        await supabase
+        // Increment pin attempts for the assistant with this name
+        const { data: assistantToUpdate } = await supabase
           .from('users')
-          .update({ 
-            pin_attempts: (assistant?.pin_attempts || 0) + 1,
-            pin_locked_until: (assistant?.pin_attempts || 0) >= 2 ? 
-              new Date(Date.now() + 15 * 60 * 1000).toISOString() : null
-          })
+          .select('pin_attempts')
           .eq('name', assistantName)
           .eq('clinic_id', clinicId)
-          .in('role', ['assistant', 'admin']);
+          .in('role', ['assistant', 'admin'])
+          .single();
+
+        if (assistantToUpdate) {
+          await supabase
+            .from('users')
+            .update({ 
+              pin_attempts: (assistantToUpdate.pin_attempts || 0) + 1,
+              pin_locked_until: (assistantToUpdate.pin_attempts || 0) >= 2 ? 
+                new Date(Date.now() + 15 * 60 * 1000).toISOString() : null
+            })
+            .eq('name', assistantName)
+            .eq('clinic_id', clinicId)
+            .in('role', ['assistant', 'admin']);
+        }
 
         return { error: 'Invalid PIN or assistant name' };
       }
@@ -141,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
         .eq('id', assistant.id);
 
-      // Create a session for the assistant (simulate auth session)
+      // Set assistant profile and session
       setUserProfile(assistant);
       setLoading(false);
       
@@ -274,6 +318,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async (): Promise<void> => {
     await supabase.auth.signOut();
+    localStorage.removeItem('assistant_session');
     setSession(null);
     setUser(null);
     setUserProfile(null);

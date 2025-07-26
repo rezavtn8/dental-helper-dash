@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useClinic } from '@/hooks/useClinic';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,11 +26,40 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
 
   useEffect(() => {
     loadAssistants();
+    
+    // Set up real-time listener for assistant changes
+    const channel = supabase
+      .channel('assistants_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'users',
+          filter: `clinic_id=eq.${clinicId}`
+        },
+        () => {
+          // Reload assistants when changes occur
+          loadAssistants();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [clinicId]);
 
   const loadAssistants = async () => {
-    const assistantList = await getClinicAssistants(clinicId);
-    setAssistants(assistantList);
+    if (!clinicId) return;
+    
+    try {
+      const assistantList = await getClinicAssistants(clinicId);
+      setAssistants(assistantList);
+    } catch (error) {
+      console.error('Error loading assistants:', error);
+      setAssistants([]);
+    }
   };
 
   const handleAssistantLogin = async (e: React.FormEvent) => {

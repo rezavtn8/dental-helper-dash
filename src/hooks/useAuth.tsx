@@ -87,10 +87,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const assistantSession = localStorage.getItem('assistant_session');
       if (assistantSession) {
-        const { userId, timestamp } = JSON.parse(assistantSession);
+        const sessionData = JSON.parse(assistantSession);
+        const { userId, expiresAt } = sessionData;
         
-        // Check if session is still valid (24 hours)
-        if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+        // Check if session is still valid
+        if (Date.now() < expiresAt) {
           const { data, error } = await supabase
             .from('users')
             .select('*')
@@ -100,17 +101,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
           if (!error && data) {
             setUserProfile(data);
+            setLoading(false);
             return;
           }
         }
         
-        // Remove invalid session
+        // Remove invalid or expired session
         localStorage.removeItem('assistant_session');
       }
     } catch (error) {
       console.error('Error checking assistant session:', error);
       localStorage.removeItem('assistant_session');
     }
+    setLoading(false);
   };
 
   const fetchUserProfile = async (userId: string) => {
@@ -175,6 +178,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: 'Account temporarily locked. Try again later.' };
       }
 
+      // Create a proper auth session using the assistant's auth.users record if it exists
+      // For now, use localStorage session but with better session management
+      const sessionData = {
+        userId: assistant.id,
+        clinicId: assistant.clinic_id,
+        name: assistant.name,
+        role: assistant.role,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+      };
+
       // Reset pin attempts and update last login
       await supabase
         .from('users')
@@ -185,16 +199,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
         .eq('id', assistant.id);
 
-      // Set assistant profile and session
+      // Set user profile immediately for faster UI response
       setUserProfile(assistant);
       setLoading(false);
       
-      // Store session in localStorage for persistence
-      localStorage.setItem('assistant_session', JSON.stringify({
-        userId: assistant.id,
-        clinicId: assistant.clinic_id,
-        timestamp: Date.now()
-      }));
+      // Store enhanced session in localStorage
+      localStorage.setItem('assistant_session', JSON.stringify(sessionData));
 
       return {};
     } catch (error) {

@@ -136,50 +136,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithPin = async (assistantName: string, pin: string, clinicId: string): Promise<{ error?: string }> => {
     try {
-      // Check if user exists and PIN matches
+      // First, check if the assistant exists and is active with a valid PIN
       const { data: assistant, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('name', assistantName)
         .eq('clinic_id', clinicId)
         .in('role', ['assistant', 'admin'])
-        .eq('pin', pin)
         .eq('is_active', true)
+        .not('pin', 'is', null)
         .single();
 
       if (fetchError || !assistant) {
-        // Increment pin attempts for the assistant with this name
-        const { data: assistantToUpdate } = await supabase
-          .from('users')
-          .select('pin_attempts')
-          .eq('name', assistantName)
-          .eq('clinic_id', clinicId)
-          .in('role', ['assistant', 'admin'])
-          .single();
-
-        if (assistantToUpdate) {
-          await supabase
-            .from('users')
-            .update({ 
-              pin_attempts: (assistantToUpdate.pin_attempts || 0) + 1,
-              pin_locked_until: (assistantToUpdate.pin_attempts || 0) >= 2 ? 
-                new Date(Date.now() + 15 * 60 * 1000).toISOString() : null
-            })
-            .eq('name', assistantName)
-            .eq('clinic_id', clinicId)
-            .in('role', ['assistant', 'admin']);
-        }
-
-        return { error: 'Invalid PIN or assistant name' };
+        return { error: 'Assistant not found or inactive' };
       }
 
-      // Check if locked
+      // Check if PIN matches
+      if (assistant.pin !== pin) {
+        // Increment pin attempts
+        await supabase
+          .from('users')
+          .update({ 
+            pin_attempts: (assistant.pin_attempts || 0) + 1,
+            pin_locked_until: (assistant.pin_attempts || 0) >= 2 ? 
+              new Date(Date.now() + 15 * 60 * 1000).toISOString() : null
+          })
+          .eq('id', assistant.id);
+
+        return { error: 'Invalid PIN' };
+      }
+
+      // Check if account is locked
       if (assistant.pin_locked_until && new Date(assistant.pin_locked_until) > new Date()) {
         return { error: 'Account temporarily locked. Try again later.' };
       }
 
-      // Create a proper auth session using the assistant's auth.users record if it exists
-      // For now, use localStorage session but with better session management
+      // Create session data
       const sessionData = {
         userId: assistant.id,
         clinicId: assistant.clinic_id,
@@ -199,11 +191,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
         .eq('id', assistant.id);
 
-      // Set user profile immediately for faster UI response
+      // Set user profile immediately for faster response
       setUserProfile(assistant);
       setLoading(false);
       
-      // Store enhanced session in localStorage
+      // Store session in localStorage
       localStorage.setItem('assistant_session', JSON.stringify(sessionData));
 
       return {};
@@ -245,6 +237,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('clinic_id', clinicId)
         .in('role', ['assistant', 'admin'])
         .eq('is_active', true)
+        .not('pin', 'is', null)  // Only include assistants with PINs
         .order('display_order', { ascending: true });
 
       if (error) {

@@ -27,7 +27,7 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
   useEffect(() => {
     loadAssistants();
     
-    // Set up real-time listener for assistant changes
+    // Set up real-time listener for assistant changes with proper filtering
     const channel = supabase
       .channel('assistants_changes')
       .on(
@@ -38,9 +38,15 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
           table: 'users',
           filter: `clinic_id=eq.${clinicId}`
         },
-        () => {
-          // Reload assistants when changes occur
-          loadAssistants();
+        (payload: any) => {
+          console.log('Assistant change detected:', payload);
+          // Only reload if it's an assistant/admin role change
+          const newRecord = payload.new as any;
+          const oldRecord = payload.old as any;
+          if (newRecord?.role === 'assistant' || newRecord?.role === 'admin' || 
+              oldRecord?.role === 'assistant' || oldRecord?.role === 'admin') {
+            loadAssistants();
+          }
         }
       )
       .subscribe();
@@ -55,7 +61,14 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
     
     try {
       const assistantList = await getClinicAssistants(clinicId);
+      console.log('Loaded assistants for clinic:', clinicId, assistantList);
       setAssistants(assistantList);
+      
+      // Clear selected assistant if they're no longer in the list
+      if (selectedAssistant && !assistantList.find(a => a.name === selectedAssistant)) {
+        setSelectedAssistant('');
+        setPin('');
+      }
     } catch (error) {
       console.error('Error loading assistants:', error);
       setAssistants([]);

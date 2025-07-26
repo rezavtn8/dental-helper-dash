@@ -200,8 +200,10 @@ const AssistantDashboard = () => {
 
   // Fetch patient count for today
   useEffect(() => {
-    fetchPatientsToday();
-  }, [session, user]);
+    if (user?.id) {
+      fetchPatientsToday();
+    }
+  }, [user?.id]);
 
   const fetchPatientsToday = async () => {
     if (!user?.id) return;

@@ -16,6 +16,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import TasksTab from '@/components/TasksTab';
 import TeamPerformanceTab from '@/components/TeamPerformanceTab';
+import TemplatesTab from '@/components/TemplatesTab';
 import { 
   Plus, 
   LogOut,
@@ -811,12 +812,44 @@ const OwnerDashboard = () => {
           </TabsContent>
 
           <TabsContent value="templates">
-            <Card>
-              <CardHeader>
-                <CardTitle>Templates</CardTitle>
-                <CardDescription>Task templates coming soon</CardDescription>
-              </CardHeader>
-            </Card>
+            <TemplatesTab 
+              onCreateTask={async (taskData) => {
+                // Use the existing createTask function but adapt for template data
+                const templateTaskData = {
+                  title: taskData.title,
+                  description: taskData.description,
+                  priority: taskData.priority || 'medium',
+                  'due-type': taskData['due-type'] || 'EoD',
+                  category: taskData.category || '',
+                  assigned_to: 'unassigned',
+                  recurrence: 'none',
+                  owner_notes: '',
+                  custom_due_date: undefined
+                };
+                setNewTask(templateTaskData);
+                setChecklist(taskData.checklist || []);
+                
+                // Create the task using the same logic as createTask
+                const finalTaskData = {
+                  ...templateTaskData,
+                  assigned_to: null,
+                  clinic_id: userProfile?.clinic_id,
+                  created_by: user?.id,
+                  status: 'To Do',
+                  checklist: taskData.checklist && taskData.checklist.length > 0 ? taskData.checklist as any : null,
+                  custom_due_date: null
+                };
+                
+                const { error } = await supabase
+                  .from('tasks')
+                  .insert(finalTaskData);
+
+                if (error) throw error;
+                
+                fetchTasks();
+              }}
+              userRole={userProfile?.role || 'owner'}
+            />
           </TabsContent>
 
           <TabsContent value="settings">

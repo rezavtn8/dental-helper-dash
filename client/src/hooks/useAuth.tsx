@@ -203,17 +203,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Store session in localStorage for persistence
       localStorage.setItem('assistant_session', JSON.stringify(sessionData));
 
-      // Update the user state
-      setUser({
-        id: assistantData.id,
-        aud: 'authenticated',
-        role: 'authenticated',
-        email: assistantData.email || '',
-        app_metadata: {},
-        user_metadata: {},
-        created_at: assistantData.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      } as User);
+      // Create a proper session object
+      const sessionObject = {
+        access_token: `assistant-${assistantData.id}`,
+        token_type: 'bearer',
+        expires_in: 3600,
+        refresh_token: `refresh-${assistantData.id}`,
+        user: {
+          id: assistantData.id,
+          aud: 'authenticated',
+          role: 'authenticated',
+          email: assistantData.email || '',
+          app_metadata: {},
+          user_metadata: {},
+          created_at: assistantData.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      };
+
+      // Update the session state properly
+      setSession(sessionObject as any);
+      setUser(sessionObject.user as User);
 
       // Set user profile
       setUserProfile({

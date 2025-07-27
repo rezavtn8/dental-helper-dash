@@ -103,7 +103,13 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
       setPin('');
     } else {
       toast.success('Welcome back!');
-      navigate('/assistant');
+      // Navigate based on role
+      const assistant = assistants.find(a => a.name === selectedAssistant);
+      if (assistant?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/assistant');
+      }
     }
     setLoading(false);
   };

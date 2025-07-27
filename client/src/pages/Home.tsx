@@ -90,14 +90,14 @@ export default function Home() {
               
               <div className="space-y-4">
                 <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
-                  ClinicFlow
+                  DentalFlow
                 </h1>
                 <p className="text-2xl text-slate-600 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
-                  Streamline Your Veterinary Practice with Smart Task Management
+                  Streamline Your Dental Practice with Smart Staff Management
                 </p>
                 <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Trusted by veterinary clinics worldwide</span>
+                  <span>Trusted by dental offices worldwide</span>
                 </div>
               </div>
             </div>
@@ -108,8 +108,8 @@ export default function Home() {
                 <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 w-12 h-12 mb-4">
                   <ClipboardCheck className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Smart Task Management</h3>
-                <p className="text-slate-600 dark:text-slate-300 text-sm">Organize daily operations with intelligent task assignment and tracking</p>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Staff Task Management</h3>
+                <p className="text-slate-600 dark:text-slate-300 text-sm">Organize dental assistants and staff with intelligent task assignment and tracking</p>
               </div>
               
               <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
@@ -117,7 +117,7 @@ export default function Home() {
                   <BarChart3 className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Performance Analytics</h3>
-                <p className="text-slate-600 dark:text-slate-300 text-sm">Track team productivity and clinic efficiency with detailed insights</p>
+                <p className="text-slate-600 dark:text-slate-300 text-sm">Track dental staff productivity and office efficiency with detailed insights</p>
               </div>
               
               <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
@@ -125,7 +125,7 @@ export default function Home() {
                   <UserCheck className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">Role-Based Access</h3>
-                <p className="text-slate-600 dark:text-slate-300 text-sm">Secure access control for owners, admins, and assistants</p>
+                <p className="text-slate-600 dark:text-slate-300 text-sm">Secure access control for dentists, office managers, and dental assistants</p>
               </div>
             </div>
           </div>
@@ -135,8 +135,8 @@ export default function Home() {
         <div className="container mx-auto px-6 pb-20">
           <div className="max-w-lg mx-auto space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Access Your Clinic</h2>
-              <p className="text-slate-600 dark:text-slate-300">Enter your clinic code to access your personalized dashboard</p>
+              <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100">Access Your Dental Office</h2>
+              <p className="text-slate-600 dark:text-slate-300">Enter your office code to access your personalized dashboard</p>
             </div>
 
             {/* Recent Clinics */}
@@ -146,8 +146,8 @@ export default function Home() {
                   <div className="mx-auto p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-fit shadow-lg mb-3">
                     <Clock className="w-6 h-6 text-white" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-slate-800 dark:text-slate-100">Recent Clinics</CardTitle>
-                  <CardDescription className="text-slate-600 dark:text-slate-300">Quick access to your recent clinics</CardDescription>
+                  <CardTitle className="text-xl font-bold text-slate-800 dark:text-slate-100">Recent Offices</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-300">Quick access to your recent dental offices</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="space-y-3">
@@ -180,21 +180,21 @@ export default function Home() {
                   <div className="mx-auto p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-fit shadow-lg mb-4">
                     <Building2 className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">Enter Clinic Code</h3>
-                  <p className="text-slate-600 dark:text-slate-300">Access your clinic's management portal</p>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">Enter Office Code</h3>
+                  <p className="text-slate-600 dark:text-slate-300">Access your dental office's management portal</p>
                 </div>
                 
                 <form onSubmit={handleClinicAccess} className="space-y-6">
                   <div className="space-y-3">
                     <Label htmlFor="clinicCode" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                      Clinic Access Code
+                      Office Access Code
                     </Label>
                     <div className="relative">
                       <Input
                         id="clinicCode"
                         value={clinicCode}
                         onChange={(e) => setClinicCode(e.target.value)}
-                        placeholder="Enter your clinic code"
+                        placeholder="Enter your office code"
                         className="text-center text-xl tracking-wider h-16 text-base border-2 hover:border-blue-300 focus:border-blue-500 transition-colors bg-white/60 dark:bg-slate-700/60"
                       />
                       <Lock className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -209,12 +209,12 @@ export default function Home() {
                     {clinicCode.trim() ? (
                       <>
                         <Shield className="w-5 h-5 mr-2" />
-                        Access Clinic Portal
+                        Access Office Portal
                       </>
                     ) : (
                       <>
                         <Building2 className="w-5 h-5 mr-2" />
-                        Enter Clinic Code
+                        Enter Office Code
                       </>
                     )}
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -227,7 +227,7 @@ export default function Home() {
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-4">
                 <div className="h-px bg-slate-300 dark:bg-slate-600 flex-1"></div>
-                <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">New Clinic?</span>
+                <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">New Office?</span>
                 <div className="h-px bg-slate-300 dark:bg-slate-600 flex-1"></div>
               </div>
               
@@ -237,7 +237,7 @@ export default function Home() {
                 className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-white/60 dark:hover:bg-slate-700/60 backdrop-blur-sm border border-transparent hover:border-white/40 dark:hover:border-slate-600/40 transition-all duration-200 transform hover:scale-105 px-6 py-3 rounded-xl"
               >
                 <Plus className="w-5 h-5 mr-2" />
-                Set up a new clinic
+                Set up a new dental office
               </Button>
             </div>
           </div>
@@ -247,8 +247,8 @@ export default function Home() {
         <div className="container mx-auto px-6 pb-16">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4">Trusted by Veterinary Professionals</h3>
-              <p className="text-slate-600 dark:text-slate-300">Streamline your clinic operations with our comprehensive management platform</p>
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-4">Trusted by Dental Professionals</h3>
+              <p className="text-slate-600 dark:text-slate-300">Streamline your dental office operations with our comprehensive staff management platform</p>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -268,7 +268,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">500+</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-300">Clinics</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-300">Offices</div>
                 </div>
               </div>
               

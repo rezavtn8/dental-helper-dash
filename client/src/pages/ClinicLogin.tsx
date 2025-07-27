@@ -127,14 +127,14 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
           <Users className="w-8 h-8 text-white" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Assistant Login</h3>
+          <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Dental Assistant Login</h3>
           <p className="text-slate-600 dark:text-slate-300">Select your name and enter your PIN</p>
         </div>
       </div>
       
       <form onSubmit={handleAssistantLogin} className="space-y-4">
         <div className="space-y-3">
-          <Label htmlFor="assistant" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Select Assistant</Label>
+          <Label htmlFor="assistant" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Select Dental Assistant</Label>
           <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
             <SelectTrigger className="h-14 text-base border-2 hover:border-blue-300 focus:border-blue-500 transition-colors">
               <SelectValue placeholder="Choose your name" />
@@ -298,7 +298,7 @@ export default function ClinicLogin() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/50 to-primary/10">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading clinic...</p>
+          <p className="text-muted-foreground">Loading dental office...</p>
         </div>
       </div>
     );
@@ -312,8 +312,8 @@ export default function ClinicLogin() {
             <div className="mx-auto p-3 bg-destructive/15 rounded-full w-fit mb-4">
               <AlertTriangle className="h-8 w-8 text-destructive" />
             </div>
-            <CardTitle>Clinic Not Found</CardTitle>
-            <CardDescription>The clinic code you entered is not valid</CardDescription>
+            <CardTitle>Dental Office Not Found</CardTitle>
+            <CardDescription>The office code you entered is not valid</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => navigate('/')} className="w-full">
@@ -357,7 +357,7 @@ export default function ClinicLogin() {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
               {clinic.name}
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">Welcome to your clinic portal</p>
+            <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">Welcome to your dental office portal</p>
             <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span>Secure Login Portal</span>

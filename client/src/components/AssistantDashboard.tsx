@@ -660,38 +660,39 @@ const AssistantDashboard = () => {
           </Card>
 
           {/* Patients Today */}
-          <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-clinical-sage to-clinical-sage/80">
+          <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-emerald-500 to-emerald-600">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-clinical-sage-foreground">Patients Today</CardTitle>
-              <Users className="h-5 w-5 text-clinical-sage-foreground" />
+              <CardTitle className="text-sm font-medium text-white">Patients Today</CardTitle>
+              <Users className="h-5 w-5 text-white" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-clinical-sage-foreground mb-3">{patientsToday}</div>
+              <div className="text-3xl font-bold text-white mb-4">{patientsToday}</div>
               <div className="flex items-center justify-between">
-                <p className="text-xs text-clinical-sage-foreground/80">Patients assisted</p>
-                <div className="flex items-center space-x-1">
+                <p className="text-xs text-white/90">Patients assisted</p>
+                <div className="flex items-center space-x-2 bg-white/10 rounded-lg p-1">
                   <Button 
                     size="sm" 
-                    variant="secondary" 
+                    variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation();
                       updatePatientCount(false);
                     }}
                     disabled={patientsToday === 0}
-                    className="h-7 w-7 p-0 text-xs bg-white/20 hover:bg-white/30 text-white border-white/30"
+                    className="h-6 w-6 p-0 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-md"
                   >
-                    -
+                    <Minus className="h-3 w-3" />
                   </Button>
+                  <div className="w-px h-4 bg-white/30"></div>
                   <Button 
                     size="sm" 
-                    variant="secondary"
+                    variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation();
                       updatePatientCount(true);
                     }}
-                    className="h-7 w-7 p-0 text-xs bg-white/20 hover:bg-white/30 text-white border-white/30"
+                    className="h-6 w-6 p-0 text-white hover:bg-white/20 rounded-md"
                   >
-                    +
+                    <Plus className="h-3 w-3" />
                   </Button>
                 </div>
               </div>

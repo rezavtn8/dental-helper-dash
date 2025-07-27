@@ -68,7 +68,15 @@ const AssistantDashboard = () => {
   const [patientsToday, setPatientsToday] = useState(0);
 
   useEffect(() => {
+    console.log('AssistantDashboard useEffect triggered:', { 
+      session: !!session, 
+      user: !!user, 
+      userProfile: userProfile, 
+      role: userProfile?.role 
+    });
+    
     if (session && user && (userProfile?.role === 'assistant' || userProfile?.role === 'admin')) {
+      console.log('Calling fetchMyTasks from useEffect');
       fetchMyTasks();
       
       // Set up real-time listeners for tasks
@@ -100,9 +108,17 @@ const AssistantDashboard = () => {
   }, [session, user, userProfile]);
 
   const fetchMyTasks = async () => {
+    console.log('fetchMyTasks called with:', { 
+      userProfile_clinic_id: userProfile?.clinic_id, 
+      user_id: user?.id 
+    });
+    
     try {
       if (!userProfile?.clinic_id || !user?.id) {
-
+        console.log('Missing required data for fetchMyTasks:', { 
+          clinic_id: userProfile?.clinic_id, 
+          user_id: user?.id 
+        });
         return;
       }
       

@@ -391,9 +391,9 @@ const AssistantDashboard = () => {
       }
 
       toast({
-        title: increment ? "Patient Added" : "Patient Removed", 
-        description: `Patient count: ${newCount}`,
-        duration: 2000
+        title: increment ? "✓ Patient Added" : "✓ Patient Removed", 
+        description: `Today's total: ${newCount} patients`,
+        duration: 1500
       });
     } catch (error) {
       console.error('Error updating patient count:', error);
@@ -660,41 +660,48 @@ const AssistantDashboard = () => {
           </Card>
 
           {/* Patients Today */}
-          <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-emerald-500 to-emerald-600">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Patients Today</CardTitle>
-              <Users className="h-5 w-5 text-white" />
+          <Card className="hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-sm font-semibold text-white/90">Patients Today</CardTitle>
+              <Users className="h-5 w-5 text-white/80" />
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white mb-4">{patientsToday}</div>
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-white/90">Patients assisted</p>
-                <div className="flex items-center space-x-2 bg-white/10 rounded-lg p-1">
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      updatePatientCount(false);
-                    }}
-                    disabled={patientsToday === 0}
-                    className="h-6 w-6 p-0 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-md"
-                  >
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <div className="w-px h-4 bg-white/30"></div>
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      updatePatientCount(true);
-                    }}
-                    className="h-6 w-6 p-0 text-white hover:bg-white/20 rounded-md"
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
+            <CardContent className="space-y-4">
+              {/* Large prominent number */}
+              <div className="text-center">
+                <div className="text-6xl font-black text-white mb-1 tracking-tight drop-shadow-lg">
+                  {patientsToday}
                 </div>
+                <p className="text-xs text-white/80 font-medium">Patients assisted today</p>
+              </div>
+              
+              {/* Prominent control buttons */}
+              <div className="flex items-center justify-center space-x-3">
+                <Button 
+                  size="lg"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updatePatientCount(false);
+                  }}
+                  disabled={patientsToday === 0}
+                  className="h-12 w-12 p-0 bg-white/15 hover:bg-white/25 text-white border-white/20 disabled:opacity-30 disabled:cursor-not-allowed rounded-xl font-bold text-lg shadow-lg backdrop-blur-sm"
+                >
+                  <Minus className="h-6 w-6" />
+                </Button>
+                
+                <div className="text-white/60 font-bold text-lg">|</div>
+                
+                <Button 
+                  size="lg"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updatePatientCount(true);
+                  }}
+                  className="h-12 w-12 p-0 bg-white/15 hover:bg-white/25 text-white border-white/20 rounded-xl font-bold text-lg shadow-lg backdrop-blur-sm"
+                >
+                  <Plus className="h-6 w-6" />
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -238,7 +238,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Analytics & Insights</h2>
           <p className="text-muted-foreground">
-            Comprehensive overview of clinic performance and assistant productivity
+            Comprehensive overview of dental office performance and assistant productivity
           </p>
         </div>
         <Button className="gap-2">
@@ -261,9 +261,10 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
                 <p className="text-xs text-blue-600">Completed</p>
               </div>
               <div className="relative w-16 h-16">
-                <Progress value={completionRate} className="w-16 h-16 rotate-90" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-blue-600" />
+                <div className="w-16 h-16 rounded-full border-4 border-blue-200 flex items-center justify-center bg-blue-50">
+                  <div className="text-xs font-bold text-blue-800">
+                    {Math.round(completionRate)}%
+                  </div>
                 </div>
               </div>
             </div>
@@ -465,7 +466,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
               <ClipboardList className="h-5 w-5" />
               Tasks by Category
             </CardTitle>
-            <CardDescription>Distribution of work across categories</CardDescription>
+            <CardDescription>Distribution of dental office tasks across categories</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={{}} className="h-[250px] w-full">
@@ -487,7 +488,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
               <RotateCcw className="h-5 w-5" />
               Procedure Types Handled
             </CardTitle>
-            <CardDescription>Clinical procedure distribution</CardDescription>
+            <CardDescription>Dental procedure and task timing distribution</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[200px] w-full">
@@ -518,7 +519,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
                     style={{ backgroundColor: item.color }}
                   />
                   <span className="flex-1">{item.name}</span>
-                  <span className="font-medium">{item.value}%</span>
+                  <span className="font-medium">{item.value}</span>
                 </div>
               ))}
             </div>
@@ -539,7 +540,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-lg bg-green-50 border border-green-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-green-800">Autoclave Checks</span>
+                <span className="font-medium text-green-800">Sterilization Checks</span>
                 <Badge variant="outline" className="bg-green-100 text-green-700">On Track</Badge>
               </div>
               <p className="text-sm text-green-600">7/7 completed this week</p>
@@ -547,15 +548,15 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
             
             <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-blue-800">Solution Prep</span>
+                <span className="font-medium text-blue-800">Dental Setup</span>
                 <Badge variant="outline" className="bg-blue-100 text-blue-700">Complete</Badge>
               </div>
-              <p className="text-sm text-blue-600">Daily prep completed</p>
+              <p className="text-sm text-blue-600">Daily setup completed</p>
             </div>
             
             <div className="p-4 rounded-lg bg-red-50 border border-red-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-red-800">Weekly Inventory</span>
+                <span className="font-medium text-red-800">Supply Inventory</span>
                 <Badge variant="destructive" className="gap-1">
                   <AlertCircle className="h-3 w-3" />
                   Behind

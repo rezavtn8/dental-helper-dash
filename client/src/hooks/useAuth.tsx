@@ -156,6 +156,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Attempting PIN sign in:', { assistantName, pin, clinicId });
       
+      // First, get all assistants to debug the issue
+      const { data: allAssistants, error: debugError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('clinic_id', clinicId)
+        .eq('is_active', true)
+        .in('role', ['assistant', 'admin']);
+      
+      console.log('All assistants in clinic:', allAssistants);
+      
       // Find the assistant by name, PIN, and clinic
       const { data: assistantData, error: fetchError } = await supabase
         .from('users')
@@ -174,7 +184,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (!assistantData) {
         console.error('Assistant not found with provided credentials');
-        return { error: 'Invalid assistant name or PIN' };
+        console.log('Search parameters:', { assistantName, pin, clinicId });
+        console.log('Available assistants:', allAssistants?.map(a => ({ name: a.name, pin: a.pin, role: a.role })));
+        return { error: 'Invalid assistant name or PIN. Please check your name and PIN.' };
       }
 
       console.log('Assistant found, creating session...');

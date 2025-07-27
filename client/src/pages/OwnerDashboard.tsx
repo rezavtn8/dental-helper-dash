@@ -121,9 +121,12 @@ const OwnerDashboard = () => {
 
   const fetchTasks = async () => {
     try {
+      if (!userProfile?.clinic_id) return;
+      
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .eq('clinic_id', userProfile.clinic_id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -291,7 +294,7 @@ const OwnerDashboard = () => {
         clinic_id: userProfile?.clinic_id,
         created_by: user?.id,
         status: 'To Do',
-        checklist: task.checklist || null,
+        checklist: task.checklist ? task.checklist as any : null,
         owner_notes: task.owner_notes,
         custom_due_date: null // Reset due date for duplicated task
       };

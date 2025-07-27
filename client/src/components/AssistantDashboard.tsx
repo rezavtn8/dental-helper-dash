@@ -95,10 +95,13 @@ const AssistantDashboard = () => {
 
   const fetchMyTasks = async () => {
     try {
+      if (!userProfile?.clinic_id || !user?.id) return;
+      
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .or(`assigned_to.eq.${user?.id},assigned_to.is.null`)
+        .eq('clinic_id', userProfile.clinic_id)
+        .or(`assigned_to.eq.${user.id},assigned_to.is.null`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -282,11 +285,11 @@ const AssistantDashboard = () => {
       if (existing) {
         const { error } = await supabase
           .from('patient_logs')
-          .update({ patient_count: existing.patient_count + 1 })
+          .update({ patient_count: (existing.patient_count || 0) + 1 })
           .eq('id', existing.id);
         
         if (error) throw error;
-        setPatientsToday(existing.patient_count + 1);
+        setPatientsToday((existing.patient_count || 0) + 1);
       } else {
         const { error } = await supabase
           .from('patient_logs')

@@ -38,7 +38,13 @@ import {
   Repeat,
   Settings,
   Shield,
-  Key
+  Key,
+  HelpCircle,
+  ChevronDown,
+  ChevronRight,
+  MessageCircle,
+  Phone,
+  Mail
 } from 'lucide-react';
 
 interface ChecklistItem {
@@ -715,6 +721,10 @@ const OwnerDashboard = () => {
                     <Settings className="h-4 w-4 mr-3" />
                     Settings
                   </TabsTrigger>
+                  <TabsTrigger value="help" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
+                    <HelpCircle className="h-4 w-4 mr-3" />
+                    Help & FAQ
+                  </TabsTrigger>
                 </TabsList>
               </div>
             </div>
@@ -1280,6 +1290,261 @@ const OwnerDashboard = () => {
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Save Preferences
                     </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="help" className="mt-0">
+              <div className="space-y-6">
+                {/* Getting Started */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <HelpCircle className="h-5 w-5" />
+                      Getting Started
+                    </CardTitle>
+                    <CardDescription>
+                      Quick guide to set up and use DentalFlow effectively
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <h4 className="font-medium mb-2 flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          1. Set Up Your Practice
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Go to Settings → General Information to update your practice name, contact details, and operating hours.
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <h4 className="font-medium mb-2 flex items-center gap-2">
+                          <Users className="h-4 w-4 text-blue-600" />
+                          2. Add Your Team
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Use the Team & Performance tab to add dental assistants and staff members to your practice.
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <h4 className="font-medium mb-2 flex items-center gap-2">
+                          <Copy className="h-4 w-4 text-purple-600" />
+                          3. Create Task Templates
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Set up reusable templates for common dental procedures and daily tasks in the Templates tab.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Frequently Asked Questions */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageCircle className="h-5 w-5" />
+                      Frequently Asked Questions
+                    </CardTitle>
+                    <CardDescription>
+                      Common questions and answers about using DentalFlow
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    
+                    {/* FAQ Item 1 */}
+                    <div className="border rounded-lg p-4">
+                      <details className="group">
+                        <summary className="flex items-center justify-between cursor-pointer font-medium">
+                          <span>How do I track daily patient counts?</span>
+                          <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
+                        </summary>
+                        <div className="mt-3 text-sm text-muted-foreground">
+                          <p>Use the patient tracking widget on your dashboard. Click the + and - buttons to adjust your daily patient count. The system automatically tracks this data for your analytics.</p>
+                        </div>
+                      </details>
+                    </div>
+
+                    {/* FAQ Item 2 */}
+                    <div className="border rounded-lg p-4">
+                      <details className="group">
+                        <summary className="flex items-center justify-between cursor-pointer font-medium">
+                          <span>How do I assign tasks to dental assistants?</span>
+                          <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
+                        </summary>
+                        <div className="mt-3 text-sm text-muted-foreground">
+                          <p>When creating a task, use the "Assigned To" dropdown to select a team member. They'll be able to see and complete the task from their assistant dashboard.</p>
+                        </div>
+                      </details>
+                    </div>
+
+                    {/* FAQ Item 3 */}
+                    <div className="border rounded-lg p-4">
+                      <details className="group">
+                        <summary className="flex items-center justify-between cursor-pointer font-medium">
+                          <span>Can I set up recurring tasks for routine procedures?</span>
+                          <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
+                        </summary>
+                        <div className="mt-3 text-sm text-muted-foreground">
+                          <p>Yes! When creating tasks, select the recurrence option (daily, weekly, monthly) to automatically generate recurring tasks for routine dental procedures like cleanings or equipment maintenance.</p>
+                        </div>
+                      </details>
+                    </div>
+
+                    {/* FAQ Item 4 */}
+                    <div className="border rounded-lg p-4">
+                      <details className="group">
+                        <summary className="flex items-center justify-between cursor-pointer font-medium">
+                          <span>How do I view team performance analytics?</span>
+                          <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
+                        </summary>
+                        <div className="mt-3 text-sm text-muted-foreground">
+                          <p>The Insights tab provides comprehensive analytics including task completion rates, team performance metrics, and productivity trends to help you optimize your practice operations.</p>
+                        </div>
+                      </details>
+                    </div>
+
+                    {/* FAQ Item 5 */}
+                    <div className="border rounded-lg p-4">
+                      <details className="group">
+                        <summary className="flex items-center justify-between cursor-pointer font-medium">
+                          <span>What should I do if an assistant forgets their PIN?</span>
+                          <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
+                        </summary>
+                        <div className="mt-3 text-sm text-muted-foreground">
+                          <p>Go to Team & Performance tab, find the assistant, and use the "Reset PIN" option. You can then provide them with a new PIN to access their account.</p>
+                        </div>
+                      </details>
+                    </div>
+
+                    {/* FAQ Item 6 */}
+                    <div className="border rounded-lg p-4">
+                      <details className="group">
+                        <summary className="flex items-center justify-between cursor-pointer font-medium">
+                          <span>How do I backup my practice data?</span>
+                          <ChevronDown className="h-4 w-4 group-open:rotate-180 transition-transform" />
+                        </summary>
+                        <div className="mt-3 text-sm text-muted-foreground">
+                          <p>Your data is automatically backed up in our secure cloud infrastructure. For additional security, you can export your task and patient data from the Settings page.</p>
+                        </div>
+                      </details>
+                    </div>
+                    
+                  </CardContent>
+                </Card>
+
+                {/* Best Practices */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Trophy className="h-5 w-5" />
+                      Best Practices for Dental Offices
+                    </CardTitle>
+                    <CardDescription>
+                      Tips to maximize efficiency and organization
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-4">
+                      <div className="flex gap-3">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Clock className="h-3 w-3 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-1">Start Each Day with Task Review</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Begin your day by reviewing pending tasks and assigning priorities to ensure smooth operations.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-3">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Copy className="h-3 w-3 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-1">Use Templates for Common Procedures</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Create templates for routine tasks like patient prep, sterilization, and equipment checks to maintain consistency.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-3">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Activity className="h-3 w-3 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-1">Monitor Team Performance Weekly</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Regular performance reviews help identify training needs and recognize outstanding performance.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-3">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <BarChart3 className="h-3 w-3 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-1">Track Patient Flow Patterns</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Use patient count tracking to identify busy periods and optimize staff scheduling.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Contact Support */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Phone className="h-5 w-5" />
+                      Need More Help?
+                    </CardTitle>
+                    <CardDescription>
+                      Get in touch with our support team
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-4">
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                        <Mail className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-medium">Email Support</p>
+                          <p className="text-sm text-muted-foreground">support@dentalflow.com</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                        <Phone className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-medium">Phone Support</p>
+                          <p className="text-sm text-muted-foreground">1-800-DENTAL-1 (Mon-Fri, 8AM-6PM EST)</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                        <MessageCircle className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-medium">Live Chat</p>
+                          <p className="text-sm text-muted-foreground">Available 24/7 through the help widget</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-4 border-t">
+                      <Button className="w-full">
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Contact Support
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </div>

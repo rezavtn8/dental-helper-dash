@@ -7,6 +7,7 @@ This is a full-stack clinic task management application built with React, Expres
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+UI Design Preference: Clean, professional interface focused on daily access with minimal clutter.
 
 ## System Architecture
 

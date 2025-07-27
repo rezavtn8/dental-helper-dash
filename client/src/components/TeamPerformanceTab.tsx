@@ -39,6 +39,9 @@ interface Task {
   category: string;
   assigned_to: string | null;
   created_at: string;
+  custom_due_date?: string;
+  completed_at?: string | null;
+  completed_by?: string | null;
 }
 
 interface Assistant {
@@ -100,6 +103,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
     if (!assistantToRemove || !onRemoveAssistant || deleteConfirmText !== 'DELETE') return;
 
     try {
+      console.log('Attempting to remove assistant:', assistantToRemove.name, assistantToRemove.id);
       await onRemoveAssistant(assistantToRemove.id);
       setAssistantToRemove(null);
       setDeleteConfirmText('');
@@ -118,17 +122,54 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
     }
   };
 
-  // Mock data for patient loads and performance metrics
+  // Real analytics based on actual task data
   const getAssistantMetrics = (assistantId: string) => {
     const assistantTasks = tasks.filter(task => task.assigned_to === assistantId);
     const completedTasks = assistantTasks.filter(task => task.status === 'Done');
-    const overdueTasks = assistantTasks.filter(task => 
-      task.status !== 'Done' && task['due-type'] === 'Before Opening'
-    );
     
-    // Mock patient data - in real app this would come from patient_logs table
-    const todayPatients = Math.floor(Math.random() * 15) + 5; // 5-20 patients today
-    const weeklyPatients = Math.floor(Math.random() * 80) + 30; // 30-110 patients this week
+    // Calculate tasks due today/overdue
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    const overdueTasks = assistantTasks.filter(task => {
+      if (task.status === 'Done') return false;
+      
+      if (task['due-type'] === 'Before Opening') {
+        return true; // These should be done before clinic opens
+      }
+      
+      if (task['due-type'] === 'EoD') {
+        return false; // End of day tasks aren't overdue until tomorrow
+      }
+      
+      if (task.custom_due_date) {
+        const dueDate = new Date(task.custom_due_date);
+        return dueDate < today;
+      }
+      
+      return false;
+    });
+
+    // Calculate today's completed tasks
+    const todayCompletedTasks = completedTasks.filter(task => {
+      if (task.completed_at) {
+        const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
+        return completedDate === todayStr;
+      }
+      return false;
+    });
+
+    // Calculate this week's completed tasks
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+    
+    const weekCompletedTasks = completedTasks.filter(task => {
+      if (task.completed_at) {
+        const completedDate = new Date(task.completed_at);
+        return completedDate >= weekStart;
+      }
+      return false;
+    });
     
     const completionRate = assistantTasks.length > 0 
       ? Math.round((completedTasks.length / assistantTasks.length) * 100)
@@ -136,8 +177,8 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
 
     return {
       completionRate,
-      todayPatients,
-      weeklyPatients,
+      todayCompletedTasks: todayCompletedTasks.length,
+      weeklyCompletedTasks: weekCompletedTasks.length,
       overdueTasks: overdueTasks.length,
       totalTasks: assistantTasks.length,
       completedTasks: completedTasks.length,
@@ -145,16 +186,37 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
     };
   };
 
-  // Mock weekly performance data
-  const getWeeklyData = (assistantId: string) => [
-    { day: 'Mon', completed: Math.floor(Math.random() * 10) + 5, patients: Math.floor(Math.random() * 15) + 8 },
-    { day: 'Tue', completed: Math.floor(Math.random() * 10) + 5, patients: Math.floor(Math.random() * 15) + 8 },
-    { day: 'Wed', completed: Math.floor(Math.random() * 10) + 5, patients: Math.floor(Math.random() * 15) + 8 },
-    { day: 'Thu', completed: Math.floor(Math.random() * 10) + 5, patients: Math.floor(Math.random() * 15) + 8 },
-    { day: 'Fri', completed: Math.floor(Math.random() * 10) + 5, patients: Math.floor(Math.random() * 15) + 8 },
-    { day: 'Sat', completed: Math.floor(Math.random() * 8) + 2, patients: Math.floor(Math.random() * 10) + 3 },
-    { day: 'Sun', completed: Math.floor(Math.random() * 5) + 1, patients: Math.floor(Math.random() * 8) + 2 }
-  ];
+  // Real weekly performance data based on completed tasks
+  const getWeeklyData = (assistantId: string) => {
+    const assistantTasks = tasks.filter(task => task.assigned_to === assistantId && task.status === 'Done');
+    const today = new Date();
+    
+    // Get the start of the current week (Sunday)
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    
+    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    return weekDays.map((day, index) => {
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(weekStart.getDate() + index);
+      const dayStr = dayDate.toISOString().split('T')[0];
+      
+      const dayCompletedTasks = assistantTasks.filter(task => {
+        if (task.completed_at) {
+          const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
+          return completedDate === dayStr;
+        }
+        return false;
+      });
+      
+      return {
+        day,
+        completed: dayCompletedTasks.length,
+        tasks: dayCompletedTasks.length // For consistency with the chart
+      };
+    });
+  };
 
   // Calculate team statistics
   const teamStats = useMemo(() => {
@@ -377,14 +439,14 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
                     />
                   </div>
 
-                  {/* Patient Load */}
+                  {/* Task Completion Stats */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="text-center p-2 bg-clinical-sky/10 rounded-lg">
-                      <div className="font-semibold text-clinical-sky">{metrics.todayPatients}</div>
-                      <div className="text-xs text-muted-foreground">Patients Today</div>
+                      <div className="font-semibold text-clinical-sky">{metrics.todayCompletedTasks}</div>
+                      <div className="text-xs text-muted-foreground">Completed Today</div>
                     </div>
                     <div className="text-center p-2 bg-clinical-mint/10 rounded-lg">
-                      <div className="font-semibold text-clinical-mint">{metrics.weeklyPatients}</div>
+                      <div className="font-semibold text-clinical-mint">{metrics.weeklyCompletedTasks}</div>
                       <div className="text-xs text-muted-foreground">This Week</div>
                     </div>
                   </div>

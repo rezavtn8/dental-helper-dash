@@ -395,6 +395,7 @@ const OwnerDashboard = () => {
 
       if (taskError) {
         console.error('Error reassigning tasks:', taskError);
+        // Continue with deletion even if task reassignment fails
       } else {
         console.log('Successfully reassigned tasks');
       }
@@ -403,13 +404,13 @@ const OwnerDashboard = () => {
       const { error: deleteError, data: deleteData } = await supabase
         .from('users')
         .delete()
-        .eq('id', assistantId)
-        .eq('clinic_id', userProfile?.clinic_id || ''); // Ensure we only delete from our clinic
+        .eq('id', assistantId);
 
       console.log('Delete response:', { deleteError, deleteData });
 
       if (deleteError) {
         console.error('Error deleting assistant:', deleteError);
+        console.error('Delete error details:', deleteError);
         throw deleteError;
       }
 

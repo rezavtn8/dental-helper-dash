@@ -7,12 +7,16 @@ interface UserProfile {
   role: string;
   name: string;
   clinic_id: string;
+  email?: string;
   pin?: string;
   pin_attempts: number;
   pin_locked_until?: string;
   last_login?: string;
   display_order: number;
   is_active: boolean;
+  created_at?: string;
+  created_by?: string;
+  must_change_pin?: boolean;
 }
 
 interface AuthContextType {
@@ -136,72 +140,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithPin = async (assistantName: string, pin: string, clinicId: string): Promise<{ error?: string }> => {
     try {
-      // First, check if the assistant exists and is active with a valid PIN
-      const { data: assistant, error: fetchError } = await supabase
+      console.log('Attempting PIN sign in:', { assistantName, pin, clinicId });
+      
+      // Find the assistant by name, PIN, and clinic
+      const { data: assistantData, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('name', assistantName)
+        .eq('pin', pin)
         .eq('clinic_id', clinicId)
-        .in('role', ['assistant', 'admin'])
         .eq('is_active', true)
-        .not('pin', 'is', null)
-        .single();
+        .in('role', ['assistant', 'admin'])
+        .maybeSingle();
 
-      if (fetchError || !assistant) {
-        return { error: 'Assistant not found or inactive' };
+      if (fetchError) {
+        console.error('Database error during assistant lookup:', fetchError);
+        return { error: 'Login failed. Please try again.' };
       }
 
-      // Check if PIN matches
-      if (assistant.pin !== pin) {
-        // Increment pin attempts
-        await supabase
-          .from('users')
-          .update({ 
-            pin_attempts: (assistant.pin_attempts || 0) + 1,
-            pin_locked_until: (assistant.pin_attempts || 0) >= 2 ? 
-              new Date(Date.now() + 15 * 60 * 1000).toISOString() : null
-          })
-          .eq('id', assistant.id);
-
-        return { error: 'Invalid PIN' };
+      if (!assistantData) {
+        console.error('Assistant not found with provided credentials');
+        return { error: 'Invalid assistant name or PIN' };
       }
 
-      // Check if account is locked
-      if (assistant.pin_locked_until && new Date(assistant.pin_locked_until) > new Date()) {
-        return { error: 'Account temporarily locked. Try again later.' };
-      }
+      console.log('Assistant found, creating session...');
 
-      // Create session data
+      // Create session data for the assistant
       const sessionData = {
-        userId: assistant.id,
-        clinicId: assistant.clinic_id,
-        name: assistant.name,
-        role: assistant.role,
-        timestamp: Date.now(),
-        expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        assistantId: assistantData.id,
+        clinicId: clinicId,
+        name: assistantData.name,
+        role: assistantData.role,
+        loginTime: new Date().toISOString()
       };
 
-      // Reset pin attempts and update last login
-      await supabase
-        .from('users')
-        .update({ 
-          pin_attempts: 0,
-          pin_locked_until: null,
-          last_login: new Date().toISOString()
-        })
-        .eq('id', assistant.id);
-
-      // Set user profile immediately for faster response
-      setUserProfile(assistant);
-      setLoading(false);
-      
-      // Store session in localStorage
+      // Store session in localStorage for persistence
       localStorage.setItem('assistant_session', JSON.stringify(sessionData));
 
+      // Update the user state
+      setUser({
+        id: assistantData.id,
+        aud: 'authenticated',
+        role: 'authenticated',
+        email: assistantData.email || '',
+        app_metadata: {},
+        user_metadata: {},
+        created_at: assistantData.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as User);
+
+      // Set user profile
+      setUserProfile({
+        id: assistantData.id,
+        name: assistantData.name,
+        email: assistantData.email,
+        role: assistantData.role,
+        clinic_id: assistantData.clinic_id,
+        pin: assistantData.pin,
+        is_active: assistantData.is_active,
+        pin_attempts: assistantData.pin_attempts,
+        pin_locked_until: assistantData.pin_locked_until,
+        last_login: assistantData.last_login,
+        display_order: assistantData.display_order
+      });
+
+      // Update last login time
+      await supabase
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', assistantData.id);
+
+      console.log('PIN sign in successful');
       return {};
+
     } catch (error) {
-      console.error('PIN sign-in error:', error);
-      return { error: 'Authentication failed' };
+      console.error('Error during PIN sign in:', error);
+      return { error: 'Login failed. Please try again.' };
     }
   };
 
@@ -231,23 +245,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getClinicAssistants = async (clinicId: string): Promise<UserProfile[]> => {
     try {
+      console.log('Fetching assistants for clinic:', clinicId);
+      
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('id, name, pin, role, is_active, clinic_id, email, display_order, pin_attempts, pin_locked_until, last_login, created_at, created_by')
         .eq('clinic_id', clinicId)
         .in('role', ['assistant', 'admin'])
         .eq('is_active', true)
-        .not('pin', 'is', null)  // Only include assistants with PINs
+        .not('pin', 'is', null)
+        .neq('pin', '')
         .order('display_order', { ascending: true });
 
       if (error) {
-        console.error('Error fetching assistants:', error);
+        console.error('Error fetching clinic assistants:', error);
         return [];
       }
 
+      console.log('Found assistants:', data);
       return data || [];
     } catch (error) {
-      console.error('Error fetching assistants:', error);
+      console.error('Error in getClinicAssistants:', error);
       return [];
     }
   };

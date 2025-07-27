@@ -25,11 +25,28 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadAssistants();
+    let isMounted = true;
     
-    // Set up real-time listener for assistant changes with proper filtering
+    const fetchAssistants = async () => {
+      if (!clinicId) return;
+      
+      try {
+        console.log('Fetching assistants for clinic:', clinicId);
+        const assistants = await getClinicAssistants(clinicId);
+        console.log('Received assistants:', assistants);
+        if (isMounted) {
+          setAssistants(assistants);
+        }
+      } catch (error) {
+        console.error('Error fetching assistants:', error);
+      }
+    };
+
+    fetchAssistants();
+
+    // Set up real-time listener for users table changes
     const channel = supabase
-      .channel('assistants_changes')
+      .channel('users_changes')
       .on(
         'postgres_changes',
         {
@@ -38,23 +55,19 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
           table: 'users',
           filter: `clinic_id=eq.${clinicId}`
         },
-        (payload: any) => {
-          console.log('Assistant change detected:', payload);
-          // Only reload if it's an assistant/admin role change
-          const newRecord = payload.new as any;
-          const oldRecord = payload.old as any;
-          if (newRecord?.role === 'assistant' || newRecord?.role === 'admin' || 
-              oldRecord?.role === 'assistant' || oldRecord?.role === 'admin') {
-            loadAssistants();
-          }
+        (payload) => {
+          console.log('Real-time user change:', payload);
+          // Refetch assistants when users table changes
+          setTimeout(() => fetchAssistants(), 100);
         }
       )
       .subscribe();
 
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
     };
-  }, [clinicId]);
+  }, [clinicId, getClinicAssistants]);
 
   const loadAssistants = async () => {
     if (!clinicId) return;

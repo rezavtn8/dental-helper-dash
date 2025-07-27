@@ -162,17 +162,31 @@ const AdminDashboard = () => {
 
   const removeAssistant = async (assistantId: string) => {
     try {
-      await supabase
+      console.log('Admin removing assistant with ID:', assistantId);
+      
+      // First, reassign their tasks to unassigned
+      const { error: taskError } = await supabase
         .from('tasks')
         .update({ assigned_to: null })
         .eq('assigned_to', assistantId);
 
-      const { error } = await supabase
+      if (taskError) {
+        console.error('Error reassigning tasks:', taskError);
+      }
+
+      // Then delete the assistant from users table
+      const { error: deleteError } = await supabase
         .from('users')
         .delete()
-        .eq('id', assistantId);
+        .eq('id', assistantId)
+        .eq('clinic_id', userProfile?.clinic_id); // Ensure we only delete from our clinic
 
-      if (error) throw error;
+      if (deleteError) {
+        console.error('Error deleting assistant:', deleteError);
+        throw deleteError;
+      }
+
+      console.log('Assistant successfully removed by admin');
 
       toast({
         title: "Assistant Removed",
@@ -185,7 +199,7 @@ const AdminDashboard = () => {
       console.error('Error removing assistant:', error);
       toast({
         title: "Error",
-        description: "Failed to remove assistant",
+        description: "Failed to remove assistant. Please try again.",
         variant: "destructive"
       });
     }

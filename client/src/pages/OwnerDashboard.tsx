@@ -106,6 +106,8 @@ const OwnerDashboard = () => {
     custom_due_date: undefined as Date | undefined
   });
 
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
+
   useEffect(() => {
     if (session && user && userProfile?.role === 'owner') {
       fetchTasks();
@@ -195,8 +197,10 @@ const OwnerDashboard = () => {
 
   const createTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (!newTask.title.trim()) return;
+
     try {
+      // Prepare task with clinic and creator info
       const taskData = {
         ...newTask,
         assigned_to: newTask.assigned_to === 'unassigned' ? null : newTask.assigned_to,
@@ -206,18 +210,67 @@ const OwnerDashboard = () => {
         checklist: checklist.length > 0 ? checklist as any : null,
         custom_due_date: newTask.custom_due_date ? newTask.custom_due_date.toISOString() : null
       };
-      
-      const { error } = await supabase
-        .from('tasks')
-        .insert([taskData]);
 
-      if (error) throw error;
+      // Handle recurring tasks
+      if (newTask.recurrence !== 'none') {
+        const tasksToCreate = [];
+        const baseDate = newTask.custom_due_date || new Date();
+        
+        // Create the first task
+        tasksToCreate.push(taskData);
+        
+        // Generate recurring tasks
+        for (let i = 1; i <= 10; i++) { // Create next 10 occurrences
+          const nextDate = new Date(baseDate);
+          
+          switch (newTask.recurrence) {
+            case 'daily':
+              nextDate.setDate(baseDate.getDate() + i);
+              break;
+            case 'weekly':
+              nextDate.setDate(baseDate.getDate() + (i * 7));
+              break;
+            case 'biweekly':
+              nextDate.setDate(baseDate.getDate() + (i * 14));
+              break;
+            case 'monthly':
+              nextDate.setMonth(baseDate.getMonth() + i);
+              break;
+          }
+          
+          tasksToCreate.push({
+            ...taskData,
+            custom_due_date: nextDate.toISOString(),
+            title: `${taskData.title} (${i + 1}/${11})`
+          });
+        }
+        
+        // Insert all recurring tasks
+        const { error } = await supabase
+          .from('tasks')
+          .insert(tasksToCreate);
 
-      toast({
-        title: "Task Created",
-        description: "New task has been created successfully"
-      });
+        if (error) throw error;
 
+        toast({
+          title: "Recurring Tasks Created",
+          description: `Created ${tasksToCreate.length} recurring tasks successfully`
+        });
+      } else {
+        // Single task creation
+        const { error } = await supabase
+          .from('tasks')
+          .insert([taskData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Task Created",
+          description: "New task has been added successfully"
+        });
+      }
+
+      // Reset form
       setNewTask({
         title: '',
         description: '',
@@ -230,14 +283,15 @@ const OwnerDashboard = () => {
         custom_due_date: undefined
       });
       setChecklist([]);
-      
+      setShowCustomDatePicker(false);
       setIsCreateDialogOpen(false);
+      
       fetchTasks();
     } catch (error) {
       console.error('Error creating task:', error);
       toast({
         title: "Error",
-        description: "Failed to create task",
+        description: "Failed to create task. Please try again.",
         variant: "destructive"
       });
     }
@@ -643,7 +697,10 @@ const OwnerDashboard = () => {
 
                       <div className="space-y-2">
                         <Label>Due Time</Label>
-                        <Select value={newTask['due-type']} onValueChange={(value) => setNewTask({ ...newTask, 'due-type': value })}>
+                        <Select value={newTask['due-type']} onValueChange={(value) => {
+                          setNewTask({ ...newTask, 'due-type': value });
+                          setShowCustomDatePicker(value === 'Custom');
+                        }}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -709,6 +766,54 @@ const OwnerDashboard = () => {
                         </SelectContent>
                       </Select>
                     </div>
+
+                    {/* Custom Date/Time Picker */}
+                    {showCustomDatePicker && (
+                      <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                        <div className="flex items-center gap-2 mb-3">
+                          <CalendarIcon className="h-4 w-4" />
+                          <Label className="text-sm font-medium">Custom Due Date & Time</Label>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm">Date</Label>
+                            <Input
+                              type="date"
+                              value={newTask.custom_due_date ? newTask.custom_due_date.toISOString().split('T')[0] : ''}
+                              onChange={(e) => {
+                                const date = e.target.value ? new Date(e.target.value) : undefined;
+                                setNewTask({ ...newTask, custom_due_date: date });
+                              }}
+                              className="text-sm"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm">Time</Label>
+                            <Input
+                              type="time"
+                              value={newTask.custom_due_date ? 
+                                `${String(newTask.custom_due_date.getHours()).padStart(2, '0')}:${String(newTask.custom_due_date.getMinutes()).padStart(2, '0')}` : 
+                                '09:00'
+                              }
+                              onChange={(e) => {
+                                const [hours, minutes] = e.target.value.split(':');
+                                const date = newTask.custom_due_date || new Date();
+                                date.setHours(parseInt(hours), parseInt(minutes));
+                                setNewTask({ ...newTask, custom_due_date: date });
+                              }}
+                              className="text-sm"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="text-xs text-muted-foreground">
+                          {newTask.custom_due_date && (
+                            <span>Due: {newTask.custom_due_date.toLocaleString()}</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     <Button type="submit" className="w-full">
                       Create Task
@@ -1129,22 +1234,26 @@ const OwnerDashboard = () => {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="practice-name">Practice Name</Label>
+                        <Label htmlFor="practice-name">Clinic Name</Label>
                         <Input 
                           id="practice-name" 
-                          defaultValue="Dr. Smith's Dental Office"
-                          placeholder="Enter practice name"
+                          defaultValue={userProfile?.clinic_name || "Dr. Smith's Dental Office"}
+                          placeholder="Enter clinic name"
                         />
+                        <p className="text-xs text-muted-foreground">
+                          You can change this 2 times total as the practice owner
+                        </p>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="practice-id">Practice ID</Label>
+                        <Label htmlFor="clinic-id">Clinic ID</Label>
                         <Input 
-                          id="practice-id" 
-                          defaultValue="DS-001" 
-                          placeholder="Practice ID"
-                          disabled
-                          className="bg-muted"
+                          id="clinic-id" 
+                          defaultValue={userProfile?.clinic_id || "CLINIC-001"} 
+                          placeholder="Clinic ID"
                         />
+                        <p className="text-xs text-muted-foreground">
+                          Unique identifier for your clinic (2 changes allowed)
+                        </p>
                       </div>
                     </div>
                     
@@ -1263,22 +1372,125 @@ const OwnerDashboard = () => {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="operating-hours">Operating Hours</Label>
-                        <Input 
-                          id="operating-hours" 
-                          defaultValue="8:00 AM - 6:00 PM"
-                          placeholder="Business hours"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="working-days">Working Days</Label>
-                        <Input 
-                          id="working-days" 
-                          defaultValue="Monday - Friday"
-                          placeholder="Operating days"
-                        />
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm">Daily Operating Hours</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Monday</Label>
+                            <div className="flex items-center gap-2">
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>8:00 AM</option>
+                                <option>9:00 AM</option>
+                                <option>7:00 AM</option>
+                              </select>
+                              <span className="text-xs">to</span>
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>5:00 PM</option>
+                                <option>6:00 PM</option>
+                                <option>4:00 PM</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Tuesday</Label>
+                            <div className="flex items-center gap-2">
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>8:00 AM</option>
+                                <option>9:00 AM</option>
+                                <option>7:00 AM</option>
+                              </select>
+                              <span className="text-xs">to</span>
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>5:00 PM</option>
+                                <option>6:00 PM</option>
+                                <option>4:00 PM</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Wednesday</Label>
+                            <div className="flex items-center gap-2">
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>8:00 AM</option>
+                                <option>9:00 AM</option>
+                                <option>7:00 AM</option>
+                              </select>
+                              <span className="text-xs">to</span>
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>5:00 PM</option>
+                                <option>6:00 PM</option>
+                                <option>4:00 PM</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Thursday</Label>
+                            <div className="flex items-center gap-2">
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>8:00 AM</option>
+                                <option>9:00 AM</option>
+                                <option>7:00 AM</option>
+                              </select>
+                              <span className="text-xs">to</span>
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>5:00 PM</option>
+                                <option>6:00 PM</option>
+                                <option>4:00 PM</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Friday</Label>
+                            <div className="flex items-center gap-2">
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>8:00 AM</option>
+                                <option>9:00 AM</option>
+                                <option>7:00 AM</option>
+                              </select>
+                              <span className="text-xs">to</span>
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>5:00 PM</option>
+                                <option>6:00 PM</option>
+                                <option>4:00 PM</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Saturday</Label>
+                            <div className="flex items-center gap-2">
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>Closed</option>
+                                <option>9:00 AM</option>
+                                <option>8:00 AM</option>
+                              </select>
+                              <span className="text-xs">to</span>
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>Closed</option>
+                                <option>2:00 PM</option>
+                                <option>1:00 PM</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Sunday</Label>
+                            <div className="flex items-center gap-2">
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>Closed</option>
+                                <option>10:00 AM</option>
+                                <option>9:00 AM</option>
+                              </select>
+                              <span className="text-xs">to</span>
+                              <select className="px-2 py-1 border rounded text-xs w-20">
+                                <option>Closed</option>
+                                <option>3:00 PM</option>
+                                <option>2:00 PM</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     

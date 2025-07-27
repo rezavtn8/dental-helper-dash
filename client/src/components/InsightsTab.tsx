@@ -86,7 +86,11 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
   
+  // Safely filter and process tasks
   const todayTasks = tasks.filter(task => {
+    if (!task.created_at) return false;
+    const taskDate = new Date(task.created_at);
+    if (isNaN(taskDate.getTime())) return false; // Check for invalid date
     if (task.completed_at) {
       const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
       return completedDate === todayStr;
@@ -99,8 +103,9 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
   const totalTasksToday = todayTasks.length;
   const completedTasksToday = tasks.filter(task => {
     if (task.completed_at) {
-      const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
-      return completedDate === todayStr && task.status === 'Done';
+      const completedDate = new Date(task.completed_at);
+      if (isNaN(completedDate.getTime())) return false;
+      return completedDate.toISOString().split('T')[0] === todayStr && task.status === 'Done';
     }
     return false;
   }).length;
@@ -122,15 +127,18 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
       
       const dayCompletedTasks = tasks.filter(task => {
         if (task.completed_at && task.status === 'Done') {
-          const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
-          return completedDate === dayStr;
+          const completedDate = new Date(task.completed_at);
+          if (isNaN(completedDate.getTime())) return false;
+          return completedDate.toISOString().split('T')[0] === dayStr;
         }
         return false;
       });
       
       const dayIncompleteTasks = tasks.filter(task => {
-        const createdDate = new Date(task.created_at).toISOString().split('T')[0];
-        return createdDate === dayStr && task.status !== 'Done';
+        if (!task.created_at) return false;
+        const createdDate = new Date(task.created_at);
+        if (isNaN(createdDate.getTime())) return false;
+        return createdDate.toISOString().split('T')[0] === dayStr && task.status !== 'Done';
       });
       
       return {
@@ -166,15 +174,19 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
     return timeSlots.map(slot => {
       const completed = tasks.filter(task => {
         if (task.completed_at && task.status === 'Done') {
-          const completedHour = new Date(task.completed_at).getHours();
+          const completedTime = new Date(task.completed_at);
+          if (isNaN(completedTime.getTime())) return false;
+          const completedHour = completedTime.getHours();
           return completedHour >= slot.start && completedHour < slot.end;
         }
         return false;
       }).length;
 
       const incomplete = tasks.filter(task => {
-        if (task.status !== 'Done') {
-          const createdHour = new Date(task.created_at).getHours();
+        if (task.status !== 'Done' && task.created_at) {
+          const createdTime = new Date(task.created_at);
+          if (isNaN(createdTime.getTime())) return false;
+          const createdHour = createdTime.getHours();
           return createdHour >= slot.start && createdHour < slot.end;
         }
         return false;

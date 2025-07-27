@@ -684,49 +684,39 @@ const OwnerDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="flex gap-8">
-          {/* Vertical Tab List */}
-          <div className="w-64 flex-shrink-0 relative">
-            {/* Elegant sidebar with grey line effect */}
-            <div className="relative bg-gradient-to-b from-muted/30 to-muted/10 backdrop-blur-sm rounded-lg border-l-4 border-primary/20 shadow-sm">
-              <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-primary/40 via-primary/20 to-primary/10 rounded-full"></div>
-              
-              <div className="p-4">
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Navigation</h3>
-                  <div className="h-px bg-gradient-to-r from-border to-transparent"></div>
-                </div>
-                
-                <TabsList className="flex flex-col h-fit w-full bg-transparent p-0 space-y-2">
-                  <TabsTrigger value="dashboard" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
-                    <BarChart3 className="h-4 w-4 mr-3" />
-                    Dashboard
-                  </TabsTrigger>
-                  <TabsTrigger value="tasks" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
-                    <CheckCircle className="h-4 w-4 mr-3" />
-                    Tasks
-                  </TabsTrigger>
-                  <TabsTrigger value="team" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
-                    <Users className="h-4 w-4 mr-3" />
-                    Team & Performance
-                  </TabsTrigger>
-                  <TabsTrigger value="insights" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
-                    <Activity className="h-4 w-4 mr-3" />
-                    Insights
-                  </TabsTrigger>
-                  <TabsTrigger value="templates" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
-                    <Copy className="h-4 w-4 mr-3" />
-                    Templates
-                  </TabsTrigger>
-                  <TabsTrigger value="settings" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
-                    <Settings className="h-4 w-4 mr-3" />
-                    Settings
-                  </TabsTrigger>
-                  <TabsTrigger value="help" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
-                    <HelpCircle className="h-4 w-4 mr-3" />
-                    Help & FAQ
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+          {/* Simple Vertical Tab List */}
+          <div className="w-56 flex-shrink-0">
+            <div className="space-y-1">
+              <TabsList className="flex flex-col h-fit w-full bg-transparent p-0 space-y-1">
+                <TabsTrigger value="dashboard" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted transition-all">
+                  <BarChart3 className="h-4 w-4 mr-3" />
+                  Dashboard
+                </TabsTrigger>
+                <TabsTrigger value="tasks" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted transition-all">
+                  <CheckCircle className="h-4 w-4 mr-3" />
+                  Tasks
+                </TabsTrigger>
+                <TabsTrigger value="team" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted transition-all">
+                  <Users className="h-4 w-4 mr-3" />
+                  Team & Performance
+                </TabsTrigger>
+                <TabsTrigger value="insights" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted transition-all">
+                  <Activity className="h-4 w-4 mr-3" />
+                  Insights
+                </TabsTrigger>
+                <TabsTrigger value="templates" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted transition-all">
+                  <Copy className="h-4 w-4 mr-3" />
+                  Templates
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted transition-all">
+                  <Settings className="h-4 w-4 mr-3" />
+                  Settings
+                </TabsTrigger>
+                <TabsTrigger value="help" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted transition-all">
+                  <HelpCircle className="h-4 w-4 mr-3" />
+                  Help & FAQ
+                </TabsTrigger>
+              </TabsList>
             </div>
           </div>
 

@@ -159,11 +159,9 @@ const OwnerDashboard = () => {
   const fetchTasks = async () => {
     try {
       if (!userProfile?.clinic_id) {
-        console.log('Owner missing clinic_id:', userProfile);
+
         return;
       }
-      
-      console.log('Owner fetching tasks for clinic:', userProfile.clinic_id);
       
       const { data, error } = await supabase
         .from('tasks')
@@ -171,12 +169,7 @@ const OwnerDashboard = () => {
         .eq('clinic_id', userProfile.clinic_id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Owner task fetch error:', error);
-        throw error;
-      }
-      
-      console.log('Owner fetched tasks:', { total: data?.length || 0, tasks: data });
+      if (error) throw error;
       // Transform the data to match our interface
       const transformedTasks = (data || []).map(task => ({
         id: task.id || '',
@@ -230,14 +223,20 @@ const OwnerDashboard = () => {
     if (!newTask.title.trim()) return;
 
     try {
-      // Prepare task with clinic and creator info
+      // Prepare basic task data for database insert
       const taskData = {
-        ...newTask,
+        title: newTask.title,
+        description: newTask.description,
+        priority: newTask.priority,
+        'due-type': newTask['due-type'],
+        category: newTask.category,
         assigned_to: newTask.assigned_to === 'unassigned' ? null : newTask.assigned_to,
+        recurrence: newTask.recurrence,
+        owner_notes: newTask.owner_notes,
         clinic_id: userProfile?.clinic_id,
         created_by: user?.id,
         status: 'To Do',
-        checklist: checklist.length > 0 ? checklist as any : null,
+        checklist: checklist.length > 0 ? (checklist as any) : null,
         custom_due_date: newTask.custom_due_date ? newTask.custom_due_date.toISOString() : null
       };
 
@@ -270,25 +269,18 @@ const OwnerDashboard = () => {
           
           tasksToCreate.push({
             ...taskData,
+            checklist: taskData.checklist,
             custom_due_date: nextDate.toISOString(),
             title: `${taskData.title} (${i + 1}/${11})`
           });
         }
         
         // Insert all recurring tasks
-        console.log('Creating recurring tasks:', tasksToCreate);
-        
-        const { data: insertedTasks, error } = await supabase
+        const { error } = await supabase
           .from('tasks')
-          .insert(tasksToCreate)
-          .select();
+          .insert(tasksToCreate);
 
-        if (error) {
-          console.error('Recurring tasks creation error:', error);
-          throw error;
-        }
-        
-        console.log('Recurring tasks created successfully:', insertedTasks);
+        if (error) throw error;
 
         toast({
           title: "Recurring Tasks Created",
@@ -465,19 +457,11 @@ const OwnerDashboard = () => {
         custom_due_date: null // Reset due date for duplicated task
       };
       
-      console.log('Creating task with data:', taskData);
-      
-      const { data: insertedTask, error } = await supabase
+      const { error } = await supabase
         .from('tasks')
-        .insert([taskData])
-        .select();
+        .insert([taskData]);
 
-      if (error) {
-        console.error('Task creation error:', error);
-        throw error;
-      }
-      
-      console.log('Task created successfully:', insertedTask);
+      if (error) throw error;
 
       toast({
         title: "Task Duplicated",

@@ -142,9 +142,11 @@ const OwnerDashboard = () => {
             filter: `clinic_id=eq.${userProfile.clinic_id}`
           },
           (payload) => {
-            console.log('Real-time task change:', payload);
-            // Refetch tasks on any change
-            fetchTasks();
+            console.log('Real-time task change (owner):', payload);
+            // Add a slight delay to ensure database consistency
+            setTimeout(() => {
+              fetchTasks();
+            }, 100);
           }
         )
         .subscribe();
@@ -163,13 +165,23 @@ const OwnerDashboard = () => {
         return;
       }
       
+      console.log('Owner fetching tasks for clinic:', userProfile.clinic_id);
+
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
         .eq('clinic_id', userProfile.clinic_id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Owner task fetch error:', error);
+        throw error;
+      }
+
+      console.log('Owner fetched tasks:', { 
+        total: data?.length || 0, 
+        tasks: data?.map(t => ({ id: t.id, title: t.title, assigned_to: t.assigned_to })) 
+      });
       // Transform the data to match our interface
       const transformedTasks = (data || []).map(task => ({
         id: task.id || '',

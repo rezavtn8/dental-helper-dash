@@ -84,8 +84,10 @@ const AssistantDashboard = () => {
           },
           (payload) => {
             console.log('Real-time task change (assistant):', payload);
-            // Refetch tasks on any change
-            fetchMyTasks();
+            // Add a slight delay to ensure database consistency
+            setTimeout(() => {
+              fetchMyTasks();
+            }, 100);
           }
         )
         .subscribe();
@@ -104,16 +106,36 @@ const AssistantDashboard = () => {
         return;
       }
       
+      console.log('Assistant fetching tasks:', { 
+        clinic_id: userProfile.clinic_id, 
+        user_id: user.id 
+      });
+
+      // First get all tasks for the clinic, then filter locally
+      // This is more reliable than the OR query which sometimes fails
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
         .eq('clinic_id', userProfile.clinic_id)
-        .or(`assigned_to.eq.${user.id},assigned_to.is.null`)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Assistant task fetch error:', error);
+        throw error;
+      }
+
+      // Filter tasks to show assigned to this user OR unassigned tasks
+      const filteredData = (data || []).filter(task => 
+        task.assigned_to === user.id || task.assigned_to === null
+      );
+
+      console.log('Assistant fetched tasks:', { 
+        total_from_db: data?.length || 0,
+        filtered_for_assistant: filteredData.length,
+        tasks: filteredData.map(t => ({ id: t.id, title: t.title, assigned_to: t.assigned_to })) 
+      });
       
-      const transformedTasks = (data || []).map(task => ({
+      const transformedTasks = filteredData.map(task => ({
         id: task.id || '',
         title: task.title || '',
         description: task.description || '',

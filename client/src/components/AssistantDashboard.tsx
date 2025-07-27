@@ -53,7 +53,6 @@ interface Task {
   custom_due_date?: string;
   completed_by?: string | null;
   completed_at?: string | null;
-  assigned_at?: string | null;
 }
 
 const AssistantDashboard = () => {
@@ -123,8 +122,7 @@ const AssistantDashboard = () => {
         owner_notes: task.owner_notes || undefined,
         custom_due_date: task.custom_due_date || undefined,
         completed_by: task.completed_by || null,
-        completed_at: task.completed_at || null,
-        assigned_at: task.assigned_at || null
+        completed_at: task.completed_at || null
       }));
       setTasks(transformedTasks);
     } catch (error) {
@@ -143,12 +141,9 @@ const AssistantDashboard = () => {
     try {
       console.log('Updating task status:', { taskId, status, userId: user?.id });
       
-      const updateData: any = { 
-        status,
-        updated_at: new Date().toISOString()
-      };
+      const updateData: any = { status };
 
-      // Track completion analytics
+      // Track completion analytics if fields exist
       if (status === 'Done') {
         updateData.completed_by = user?.id;
         updateData.completed_at = new Date().toISOString();
@@ -165,17 +160,12 @@ const AssistantDashboard = () => {
 
       if (error) {
         console.error('Supabase error:', error);
-        // If the completion tracking fields don't exist, try without them
-        if (error.message?.includes('column') && (status === 'Done' || status === 'To Do')) {
-          console.log('Retrying without completion tracking fields...');
-          const simpleUpdateData = { 
-            status,
-            updated_at: new Date().toISOString()
-          };
-          
+        // If the completion tracking fields don't exist, try with just status
+        if (error.message?.includes('column')) {
+          console.log('Retrying with just status field...');
           const { error: retryError } = await supabase
             .from('tasks')
-            .update(simpleUpdateData)
+            .update({ status })
             .eq('id', taskId);
             
           if (retryError) throw retryError;
@@ -202,37 +192,15 @@ const AssistantDashboard = () => {
 
   const claimTask = async (taskId: string) => {
     try {
-      const updateData: any = { 
-        assigned_to: user?.id,
-        owner_notes: 'picked_up_by_assistant', // Mark this task as picked up
-        assigned_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
       const { error } = await supabase
         .from('tasks')
-        .update(updateData)
+        .update({ 
+          assigned_to: user?.id,
+          owner_notes: 'picked_up_by_assistant' // Mark this task as picked up
+        })
         .eq('id', taskId);
 
-      if (error) {
-        // If assigned_at field doesn't exist, try without it
-        if (error.message?.includes('assigned_at')) {
-          const simpleUpdateData = { 
-            assigned_to: user?.id,
-            owner_notes: 'picked_up_by_assistant',
-            updated_at: new Date().toISOString()
-          };
-          
-          const { error: retryError } = await supabase
-            .from('tasks')
-            .update(simpleUpdateData)
-            .eq('id', taskId);
-            
-          if (retryError) throw retryError;
-        } else {
-          throw error;
-        }
-      }
+      if (error) throw error;
 
       toast({
         title: "Task Claimed",

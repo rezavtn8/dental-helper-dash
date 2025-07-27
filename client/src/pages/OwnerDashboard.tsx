@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -34,7 +35,10 @@ import {
   Stethoscope,
   Trophy,
   Zap,
-  Repeat
+  Repeat,
+  Settings,
+  Shield,
+  Key
 } from 'lucide-react';
 
 interface ChecklistItem {
@@ -544,12 +548,6 @@ const OwnerDashboard = () => {
               </div>
               
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="bg-primary hover:bg-primary/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Task
-                  </Button>
-                </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
                     <DialogTitle>Create New Task</DialogTitle>
@@ -681,46 +679,45 @@ const OwnerDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="flex gap-8">
           {/* Vertical Tab List */}
-          <div className="w-64 flex-shrink-0">
-            <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                  Navigation
-                </CardTitle>
-                <CardDescription className="text-sm">
-                  Select a section to view
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-2">
-                <TabsList className="flex flex-col h-fit w-full bg-transparent p-0 space-y-1">
-                  <TabsTrigger value="dashboard" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+          <div className="w-64 flex-shrink-0 relative">
+            {/* Elegant sidebar with grey line effect */}
+            <div className="relative bg-gradient-to-b from-muted/30 to-muted/10 backdrop-blur-sm rounded-lg border-l-4 border-primary/20 shadow-sm">
+              <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-primary/40 via-primary/20 to-primary/10 rounded-full"></div>
+              
+              <div className="p-4">
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Navigation</h3>
+                  <div className="h-px bg-gradient-to-r from-border to-transparent"></div>
+                </div>
+                
+                <TabsList className="flex flex-col h-fit w-full bg-transparent p-0 space-y-2">
+                  <TabsTrigger value="dashboard" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
                     <BarChart3 className="h-4 w-4 mr-3" />
                     Dashboard
                   </TabsTrigger>
-                  <TabsTrigger value="tasks" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                  <TabsTrigger value="tasks" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
                     <CheckCircle className="h-4 w-4 mr-3" />
                     Tasks
                   </TabsTrigger>
-                  <TabsTrigger value="team" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                  <TabsTrigger value="team" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
                     <Users className="h-4 w-4 mr-3" />
                     Team & Performance
                   </TabsTrigger>
-                  <TabsTrigger value="insights" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                  <TabsTrigger value="insights" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
                     <Activity className="h-4 w-4 mr-3" />
                     Insights
                   </TabsTrigger>
-                  <TabsTrigger value="templates" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                  <TabsTrigger value="templates" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
                     <Copy className="h-4 w-4 mr-3" />
                     Templates
                   </TabsTrigger>
-                  <TabsTrigger value="settings" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
-                    <Stethoscope className="h-4 w-4 mr-3" />
+                  <TabsTrigger value="settings" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:border-l-2 data-[state=active]:border-primary hover:bg-muted/50 transition-all rounded-md relative">
+                    <Settings className="h-4 w-4 mr-3" />
                     Settings
                   </TabsTrigger>
                 </TabsList>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Tab Content Area */}
@@ -1058,12 +1055,234 @@ const OwnerDashboard = () => {
           </TabsContent>
 
             <TabsContent value="settings" className="mt-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Settings</CardTitle>
-                  <CardDescription>Clinic settings coming soon</CardDescription>
-                </CardHeader>
-              </Card>
+              <div className="space-y-6">
+                {/* General Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="h-5 w-5" />
+                      General Information
+                    </CardTitle>
+                    <CardDescription>
+                      Manage your practice details and basic information
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="practice-name">Practice Name</Label>
+                        <Input 
+                          id="practice-name" 
+                          defaultValue="Dr. Smith's Dental Office"
+                          placeholder="Enter practice name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="practice-id">Practice ID</Label>
+                        <Input 
+                          id="practice-id" 
+                          defaultValue="DS-001" 
+                          placeholder="Practice ID"
+                          disabled
+                          className="bg-muted"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input 
+                          id="phone" 
+                          defaultValue="+1 (555) 123-4567"
+                          placeholder="Practice phone number"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Practice Email</Label>
+                        <Input 
+                          id="email" 
+                          type="email"
+                          defaultValue="info@drsmithdental.com"
+                          placeholder="practice@example.com"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Address</Label>
+                      <Textarea 
+                        id="address"
+                        defaultValue="123 Main Street, Suite 100&#10;Anytown, ST 12345"
+                        placeholder="Practice address"
+                        rows={3}
+                      />
+                    </div>
+                    
+                    <Button className="w-fit">
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Account Security */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5" />
+                      Account Security
+                    </CardTitle>
+                    <CardDescription>
+                      Manage your password and security settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Password Reset</h4>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Change your account password for enhanced security
+                        </p>
+                        <Button variant="outline" size="sm">
+                          <Key className="h-4 w-4 mr-2" />
+                          Change Password
+                        </Button>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium">Two-Step Authentication</h4>
+                          <Badge variant="secondary" className="text-xs">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Not Enabled
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Add an extra layer of security to your account
+                        </p>
+                        <Button variant="outline" size="sm">
+                          <Shield className="h-4 w-4 mr-2" />
+                          Enable 2FA
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Practice Configuration */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Stethoscope className="h-5 w-5" />
+                      Practice Configuration
+                    </CardTitle>
+                    <CardDescription>
+                      Configure practice-specific settings and preferences
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="timezone">Time Zone</Label>
+                        <select className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm">
+                          <option>Eastern Time (ET)</option>
+                          <option>Central Time (CT)</option>
+                          <option>Mountain Time (MT)</option>
+                          <option>Pacific Time (PT)</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="date-format">Date Format</Label>
+                        <select className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm">
+                          <option>MM/DD/YYYY</option>
+                          <option>DD/MM/YYYY</option>
+                          <option>YYYY-MM-DD</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="operating-hours">Operating Hours</Label>
+                        <Input 
+                          id="operating-hours" 
+                          defaultValue="8:00 AM - 6:00 PM"
+                          placeholder="Business hours"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="working-days">Working Days</Label>
+                        <Input 
+                          id="working-days" 
+                          defaultValue="Monday - Friday"
+                          placeholder="Operating days"
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button className="w-fit">
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Update Configuration
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* System Preferences */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="h-5 w-5" />
+                      System Preferences
+                    </CardTitle>
+                    <CardDescription>
+                      Customize your dashboard and notification settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Email Notifications</p>
+                          <p className="text-xs text-muted-foreground">Receive email updates about tasks and appointments</p>
+                        </div>
+                        <input type="checkbox" className="h-4 w-4" defaultChecked />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Daily Summary Reports</p>
+                          <p className="text-xs text-muted-foreground">Get daily performance summaries</p>
+                        </div>
+                        <input type="checkbox" className="h-4 w-4" defaultChecked />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Task Reminders</p>
+                          <p className="text-xs text-muted-foreground">Receive reminders for due tasks</p>
+                        </div>
+                        <input type="checkbox" className="h-4 w-4" defaultChecked />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Dark Mode</p>
+                          <p className="text-xs text-muted-foreground">Use dark theme for the interface</p>
+                        </div>
+                        <input type="checkbox" className="h-4 w-4" />
+                      </div>
+                    </div>
+                    
+                    <Button className="w-fit">
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Save Preferences
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
           </div>
         </Tabs>

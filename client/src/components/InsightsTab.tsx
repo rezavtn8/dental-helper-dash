@@ -68,6 +68,20 @@ interface InsightsTabProps {
 }
 
 const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
+  console.log("InsightsTab rendering with:", { tasks: tasks?.length, assistants: assistants?.length });
+  
+  // Handle loading state
+  if (!tasks || !assistants) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <Clock className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate real productivity metrics
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];

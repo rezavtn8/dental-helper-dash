@@ -515,7 +515,7 @@ const OwnerDashboard = () => {
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-2">
                 <Stethoscope className="h-6 w-6 text-primary" />
-                <span className="text-lg font-semibold">ClinicFlow</span>
+                <span className="text-lg font-semibold">DentalFlow</span>
               </div>
               
               {/* Current tab indicator */}
@@ -528,6 +528,21 @@ const OwnerDashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* User Profile Info */}
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                    {userProfile?.name ? userProfile.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'DR'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-right">
+                  <p className="text-sm font-medium">{userProfile?.name || 'Dr. Smith'}</p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {userProfile?.role || 'Owner'} • Dental Office
+                  </p>
+                </div>
+              </div>
+              
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm" className="bg-primary hover:bg-primary/90">
@@ -667,32 +682,45 @@ const OwnerDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="flex gap-8">
           {/* Vertical Tab List */}
           <div className="w-64 flex-shrink-0">
-            <TabsList className="flex flex-col h-fit w-full bg-muted/50 p-1">
-              <TabsTrigger value="dashboard" className="w-full justify-start px-4 py-3 text-left">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Dashboard
-              </TabsTrigger>
-              <TabsTrigger value="tasks" className="w-full justify-start px-4 py-3 text-left">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Tasks
-              </TabsTrigger>
-              <TabsTrigger value="team" className="w-full justify-start px-4 py-3 text-left">
-                <Users className="h-4 w-4 mr-2" />
-                Team & Performance
-              </TabsTrigger>
-              <TabsTrigger value="insights" className="w-full justify-start px-4 py-3 text-left">
-                <Activity className="h-4 w-4 mr-2" />
-                Insights
-              </TabsTrigger>
-              <TabsTrigger value="templates" className="w-full justify-start px-4 py-3 text-left">
-                <Copy className="h-4 w-4 mr-2" />
-                Templates
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="w-full justify-start px-4 py-3 text-left">
-                <Stethoscope className="h-4 w-4 mr-2" />
-                Settings
-              </TabsTrigger>
-            </TabsList>
+            <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  Navigation
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  Select a section to view
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-2">
+                <TabsList className="flex flex-col h-fit w-full bg-transparent p-0 space-y-1">
+                  <TabsTrigger value="dashboard" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                    <BarChart3 className="h-4 w-4 mr-3" />
+                    Dashboard
+                  </TabsTrigger>
+                  <TabsTrigger value="tasks" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                    <CheckCircle className="h-4 w-4 mr-3" />
+                    Tasks
+                  </TabsTrigger>
+                  <TabsTrigger value="team" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                    <Users className="h-4 w-4 mr-3" />
+                    Team & Performance
+                  </TabsTrigger>
+                  <TabsTrigger value="insights" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                    <Activity className="h-4 w-4 mr-3" />
+                    Insights
+                  </TabsTrigger>
+                  <TabsTrigger value="templates" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                    <Copy className="h-4 w-4 mr-3" />
+                    Templates
+                  </TabsTrigger>
+                  <TabsTrigger value="settings" className="w-full justify-start px-4 py-3 text-left bg-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-muted/50 transition-all">
+                    <Stethoscope className="h-4 w-4 mr-3" />
+                    Settings
+                  </TabsTrigger>
+                </TabsList>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Tab Content Area */}
@@ -983,8 +1011,8 @@ const OwnerDashboard = () => {
 
             <TabsContent value="insights" className="mt-0">
               <InsightsTab 
-                tasks={tasks}
-                assistants={assistants}
+                tasks={tasks || []}
+                assistants={assistants || []}
               />
             </TabsContent>
 

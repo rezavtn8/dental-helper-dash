@@ -726,25 +726,25 @@ const OwnerDashboard = () => {
             {/* Section 1: Smart Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Tasks Today Card */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-clinical-sky to-clinical-sky/80">
+              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-blue-500 to-blue-600">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-clinical-sky-foreground">Tasks Today</CardTitle>
-                  <CalendarIcon className="h-5 w-5 text-clinical-sky-foreground" />
+                  <CardTitle className="text-sm font-medium text-white">Tasks Today</CardTitle>
+                  <CalendarIcon className="h-5 w-5 text-white" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-clinical-sky-foreground mb-2">{todayTasks.length}</div>
+                  <div className="text-3xl font-bold text-white mb-2">{todayTasks.length}</div>
                   <div className="flex items-center space-x-4 text-xs">
-                    <span className="flex items-center">
-                      <CheckCircle className="h-3 w-3 mr-1 text-status-completed" />
+                    <span className="flex items-center text-white/90">
+                      <CheckCircle className="h-3 w-3 mr-1" />
                       {completedTasks.length} completed
                     </span>
-                    <span className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1 text-status-pending" />
+                    <span className="flex items-center text-white/90">
+                      <Clock className="h-3 w-3 mr-1" />
                       {pendingTasks.length} pending
                     </span>
                     {overdueTasks.length > 0 && (
-                      <span className="flex items-center">
-                        <AlertTriangle className="h-3 w-3 mr-1 text-status-overdue" />
+                      <span className="flex items-center text-white/90">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
                         {overdueTasks.length} overdue
                       </span>
                     )}
@@ -753,23 +753,23 @@ const OwnerDashboard = () => {
               </Card>
 
               {/* Active Team Members Card */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-clinical-mint to-clinical-mint/80">
+              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-green-500 to-green-600">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-clinical-mint-foreground">Active Team</CardTitle>
-                  <Users className="h-5 w-5 text-clinical-mint-foreground" />
+                  <CardTitle className="text-sm font-medium text-white">Active Team</CardTitle>
+                  <Users className="h-5 w-5 text-white" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-clinical-mint-foreground mb-3">{assistants.length}</div>
+                  <div className="text-3xl font-bold text-white mb-3">{assistants.length}</div>
                   <div className="flex -space-x-2">
                     {assistants.slice(0, 4).map((assistant, i) => (
-                      <Avatar key={assistant.id} className="h-8 w-8 border-2 border-clinical-mint">
-                        <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                      <Avatar key={assistant.id} className="h-8 w-8 border-2 border-white">
+                        <AvatarFallback className="text-xs bg-white text-green-600">
                           {assistant.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                     ))}
                     {assistants.length > 4 && (
-                      <div className="h-8 w-8 rounded-full bg-muted border-2 border-clinical-mint flex items-center justify-center text-xs font-medium">
+                      <div className="h-8 w-8 rounded-full bg-white border-2 border-white flex items-center justify-center text-xs font-medium text-green-600">
                         +{assistants.length - 4}
                       </div>
                     )}
@@ -778,28 +778,28 @@ const OwnerDashboard = () => {
               </Card>
 
               {/* Patients Assisted Card */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-clinical-orange to-clinical-orange/80">
+              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-purple-500 to-purple-600">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-clinical-orange-foreground">Patients Today</CardTitle>
-                  <Activity className="h-5 w-5 text-clinical-orange-foreground" />
+                  <CardTitle className="text-sm font-medium text-white">Patients Assisted</CardTitle>
+                  <Stethoscope className="h-5 w-5 text-white" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-clinical-orange-foreground mb-2">42</div>
-                  <div className="text-xs text-clinical-orange-foreground/80">
-                    264 this week • <span className="text-status-completed">+8%</span> vs last week
+                  <div className="text-3xl font-bold text-white mb-2">{currentPatientCount}</div>
+                  <div className="text-xs text-white/80">
+                    Total helped today by team
                   </div>
                 </CardContent>
               </Card>
 
               {/* Alerts Card */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-clinical-green to-clinical-green/80">
+              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-red-500 to-red-600">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-clinical-green-foreground">Alerts</CardTitle>
-                  <Bell className="h-5 w-5 text-clinical-green-foreground" />
+                  <CardTitle className="text-sm font-medium text-white">Alerts</CardTitle>
+                  <Bell className="h-5 w-5 text-white" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-clinical-green-foreground mb-2">{overdueTasks.length}</div>
-                  <div className="text-xs text-clinical-green-foreground/80">
+                  <div className="text-3xl font-bold text-white mb-2">{overdueTasks.length}</div>
+                  <div className="text-xs text-white/80">
                     {overdueTasks.length === 0 ? 'All caught up!' : 'Items need attention'}
                   </div>
                 </CardContent>
@@ -819,34 +819,48 @@ const OwnerDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center space-x-3 p-3 rounded-lg bg-clinical-green/20">
-                      <div className="w-2 h-2 bg-status-completed rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Sterilization completed - Op 2</p>
-                        <p className="text-xs text-muted-foreground">2 minutes ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 rounded-lg bg-clinical-sky/20">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Patient check-in complete</p>
-                        <p className="text-xs text-muted-foreground">5 minutes ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 rounded-lg bg-clinical-orange/20">
-                      <div className="w-2 h-2 bg-status-pending rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Equipment maintenance scheduled</p>
-                        <p className="text-xs text-muted-foreground">12 minutes ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 rounded-lg bg-clinical-mint/20">
-                      <div className="w-2 h-2 bg-status-completed rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Daily cleaning checklist completed</p>
-                        <p className="text-xs text-muted-foreground">18 minutes ago</p>
-                      </div>
-                    </div>
+                    {/* Generate activity feed from recent task completions */}
+                    {tasks
+                      .filter(task => task.completed_at)
+                      .sort((a, b) => new Date(b.completed_at || '').getTime() - new Date(a.completed_at || '').getTime())
+                      .slice(0, 5)
+                      .map((task, index) => {
+                        const completedAt = new Date(task.completed_at || '');
+                        const timeAgo = Math.floor((Date.now() - completedAt.getTime()) / (1000 * 60));
+                        const assistant = assistants.find(a => a.id === task.completed_by);
+                        
+                        return (
+                          <div key={task.id} className="flex items-center space-x-3 p-3 rounded-lg bg-green-50 border-l-4 border-green-400">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{task.title} completed</p>
+                              <p className="text-xs text-muted-foreground">
+                                By {assistant?.name || 'Team member'} • {timeAgo < 1 ? 'Just now' : `${timeAgo} min ago`}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    
+                    {/* Show fallback if no recent completions */}
+                    {tasks.filter(task => task.completed_at).length === 0 && (
+                      <>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg bg-blue-50 border-l-4 border-blue-400">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">System ready for patient care</p>
+                            <p className="text-xs text-muted-foreground">All systems operational</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-50 border-l-4 border-purple-400">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Team logged in and ready</p>
+                            <p className="text-xs text-muted-foreground">{assistants.length} staff members active</p>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -861,20 +875,20 @@ const OwnerDashboard = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button variant="outline" size="sm" className="w-full justify-start">
-                    <Copy className="h-4 w-4 mr-2" />
-                    Duplicate Yesterday
+                    <Stethoscope className="h-4 w-4 mr-2" />
+                    Schedule Cleaning
                   </Button>
                   <Button variant="outline" size="sm" className="w-full justify-start">
-                    <UserCheck className="h-4 w-4 mr-2" />
-                    Assign All Unclaimed
+                    <Users className="h-4 w-4 mr-2" />
+                    Check Team Status
                   </Button>
                   <Button variant="outline" size="sm" className="w-full justify-start">
-                    <Bell className="h-4 w-4 mr-2" />
-                    Ping Assistants
+                    <Activity className="h-4 w-4 mr-2" />
+                    Equipment Check
                   </Button>
                   <Button variant="outline" size="sm" className="w-full justify-start">
-                    <Repeat className="h-4 w-4 mr-2" />
-                    Generate Daily Tasks
+                    <CalendarIcon className="h-4 w-4 mr-2" />
+                    End-of-Day Report
                   </Button>
                 </CardContent>
               </Card>

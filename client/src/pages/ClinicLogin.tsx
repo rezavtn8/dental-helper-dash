@@ -39,6 +39,9 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
         }
       } catch (error) {
         console.error('Error fetching assistants:', error);
+        if (isMounted) {
+          setAssistants([]);
+        }
       }
     };
 
@@ -46,7 +49,7 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
 
     // Set up real-time listener for users table changes
     const channel = supabase
-      .channel('users_changes')
+      .channel(`users_changes_${clinicId}`)
       .on(
         'postgres_changes',
         {
@@ -58,10 +61,12 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
         (payload) => {
           console.log('Real-time user change:', payload);
           // Refetch assistants when users table changes
-          setTimeout(() => fetchAssistants(), 100);
+          fetchAssistants();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
       isMounted = false;
@@ -86,6 +91,11 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
       console.error('Error loading assistants:', error);
       setAssistants([]);
     }
+  };
+
+  // Add manual refresh functionality
+  const refreshAssistants = () => {
+    loadAssistants();
   };
 
   const handleAssistantLogin = async (e: React.FormEvent) => {

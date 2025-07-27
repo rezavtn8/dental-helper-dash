@@ -28,7 +28,9 @@ import {
   ClipboardList,
   Bell,
   Hand,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Plus,
+  Minus
 } from 'lucide-react';
 
 interface ChecklistItem {
@@ -349,7 +351,7 @@ const AssistantDashboard = () => {
     }
   };
 
-  const incrementPatientCount = async () => {
+  const updatePatientCount = async (increment: boolean) => {
     if (!user?.id) return;
     
     try {
@@ -363,15 +365,18 @@ const AssistantDashboard = () => {
 
       if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
+      const currentCount = existing?.patient_count || 0;
+      const newCount = increment ? currentCount + 1 : Math.max(0, currentCount - 1);
+
       if (existing) {
         const { error } = await supabase
           .from('patient_logs')
-          .update({ patient_count: (existing.patient_count || 0) + 1 })
+          .update({ patient_count: newCount })
           .eq('id', existing.id);
         
         if (error) throw error;
-        setPatientsToday((existing.patient_count || 0) + 1);
-      } else {
+        setPatientsToday(newCount);
+      } else if (increment) {
         const { error } = await supabase
           .from('patient_logs')
           .insert({
@@ -386,8 +391,9 @@ const AssistantDashboard = () => {
       }
 
       toast({
-        title: "Patient Added",
-        description: "Patient count updated successfully"
+        title: increment ? "Patient Added" : "Patient Removed", 
+        description: `Patient count: ${newCount}`,
+        duration: 2000
       });
     } catch (error) {
       console.error('Error updating patient count:', error);
@@ -593,7 +599,7 @@ const AssistantDashboard = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Stethoscope className="h-6 w-6 text-primary" />
-                <span className="text-lg font-semibold">ClinicFlow</span>
+                <span className="text-lg font-semibold">DentalFlow</span>
                 <Badge variant="outline" className="ml-2">
                   {userProfile?.role === 'admin' ? 'Admin' : 'Assistant'}
                 </Badge>
@@ -654,19 +660,40 @@ const AssistantDashboard = () => {
           </Card>
 
           {/* Patients Today */}
-          <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer" onClick={incrementPatientCount}>
+          <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-clinical-sage to-clinical-sage/80">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Patients Today</CardTitle>
-              <Users className="h-5 w-5 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-clinical-sage-foreground">Patients Today</CardTitle>
+              <Users className="h-5 w-5 text-clinical-sage-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{patientsToday}</div>
+              <div className="text-3xl font-bold text-clinical-sage-foreground mb-3">{patientsToday}</div>
               <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">Patients assisted</p>
-                <Button size="sm" variant="outline" className="text-xs">
-                  <User className="h-3 w-3 mr-1" />
-                  Add Patient
-                </Button>
+                <p className="text-xs text-clinical-sage-foreground/80">Patients assisted</p>
+                <div className="flex items-center space-x-1">
+                  <Button 
+                    size="sm" 
+                    variant="secondary" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updatePatientCount(false);
+                    }}
+                    disabled={patientsToday === 0}
+                    className="h-7 w-7 p-0 text-xs bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  >
+                    -
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updatePatientCount(true);
+                    }}
+                    className="h-7 w-7 p-0 text-xs bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  >
+                    +
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

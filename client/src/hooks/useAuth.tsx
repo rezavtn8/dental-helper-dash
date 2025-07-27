@@ -53,6 +53,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state change:', event, !!session);
+        
+        // Don't clear assistant sessions when Supabase auth changes
+        const assistantSession = localStorage.getItem('assistant_session');
+        if (!session && assistantSession) {
+          console.log('Preserving assistant session during auth change');
+          return; // Don't update state if we have an active assistant session
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -193,11 +202,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Create session data for the assistant
       const sessionData = {
+        userId: assistantData.id,
         assistantId: assistantData.id,
         clinicId: clinicId,
         name: assistantData.name,
         role: assistantData.role,
-        loginTime: new Date().toISOString()
+        loginTime: new Date().toISOString(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
       };
 
       // Store session in localStorage for persistence

@@ -5,9 +5,9 @@ interface Clinic {
   id: string;
   name: string;
   clinic_code: string;
-  domain_slug?: string;
-  is_active: boolean;
-  subscription_status: string;
+  domain_slug?: string | null;
+  is_active: boolean | null;
+  subscription_status: string | null;
 }
 
 interface ClinicContextType {
@@ -64,7 +64,11 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return false;
       }
 
-      setClinic(data);
+      setClinic({
+        ...data,
+        is_active: data.is_active ?? true,
+        subscription_status: data.subscription_status || 'active'
+      });
       setClinicCode(code);
       localStorage.setItem('clinic_code', code);
       setLoading(false);

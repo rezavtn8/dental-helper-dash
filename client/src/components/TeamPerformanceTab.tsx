@@ -68,6 +68,7 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
   const [expandedAssistant, setExpandedAssistant] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [assistantToRemove, setAssistantToRemove] = useState<Assistant | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   
   const [newAssistant, setNewAssistant] = useState({
     name: '',
@@ -96,11 +97,12 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
   };
 
   const handleRemoveAssistant = async () => {
-    if (!assistantToRemove || !onRemoveAssistant) return;
+    if (!assistantToRemove || !onRemoveAssistant || deleteConfirmText !== 'DELETE') return;
 
     try {
       await onRemoveAssistant(assistantToRemove.id);
       setAssistantToRemove(null);
+      setDeleteConfirmText('');
     } catch (error) {
       console.error('Error removing assistant:', error);
     }
@@ -557,7 +559,10 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
       </div>
 
       {/* Final Confirmation Dialog for Removing Assistant */}
-      <AlertDialog open={!!assistantToRemove} onOpenChange={() => setAssistantToRemove(null)}>
+      <AlertDialog open={!!assistantToRemove} onOpenChange={() => {
+        setAssistantToRemove(null);
+        setDeleteConfirmText('');
+      }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive">
@@ -587,18 +592,14 @@ const TeamPerformanceTab: React.FC<TeamPerformanceTabProps> = ({
               placeholder="Type DELETE to confirm"
               className="w-full px-3 py-2 border rounded-md"
               onChange={(e) => {
-                const deleteButton = document.getElementById('final-delete-button') as HTMLButtonElement;
-                if (deleteButton) {
-                  deleteButton.disabled = e.target.value !== 'DELETE';
-                }
+                setDeleteConfirmText(e.target.value);
               }}
             />
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel - Keep Assistant</AlertDialogCancel>
             <AlertDialogAction
-              id="final-delete-button"
-              disabled={true}
+              disabled={deleteConfirmText !== 'DELETE'}
               onClick={handleRemoveAssistant}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
             >

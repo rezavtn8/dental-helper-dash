@@ -289,8 +289,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('clinic_id', clinicId)
         .in('role', ['assistant', 'admin'])
         .eq('is_active', true)
-        .not('pin', 'is', null)
-        .neq('pin', '')
         .order('display_order', { ascending: true });
 
       if (error) {
@@ -300,7 +298,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('Found assistants:', data);
       return (data || []).filter(assistant => 
-        assistant.role && assistant.name
+        assistant.role && assistant.name && assistant.pin && assistant.pin.trim() !== ''
       ).map(assistant => ({
         ...assistant,
         role: assistant.role!,

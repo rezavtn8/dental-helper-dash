@@ -158,7 +158,12 @@ const OwnerDashboard = () => {
 
   const fetchTasks = async () => {
     try {
-      if (!userProfile?.clinic_id) return;
+      if (!userProfile?.clinic_id) {
+        console.log('Owner missing clinic_id:', userProfile);
+        return;
+      }
+      
+      console.log('Owner fetching tasks for clinic:', userProfile.clinic_id);
       
       const { data, error } = await supabase
         .from('tasks')
@@ -166,7 +171,12 @@ const OwnerDashboard = () => {
         .eq('clinic_id', userProfile.clinic_id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Owner task fetch error:', error);
+        throw error;
+      }
+      
+      console.log('Owner fetched tasks:', { total: data?.length || 0, tasks: data });
       // Transform the data to match our interface
       const transformedTasks = (data || []).map(task => ({
         id: task.id || '',
@@ -266,11 +276,19 @@ const OwnerDashboard = () => {
         }
         
         // Insert all recurring tasks
-        const { error } = await supabase
+        console.log('Creating recurring tasks:', tasksToCreate);
+        
+        const { data: insertedTasks, error } = await supabase
           .from('tasks')
-          .insert(tasksToCreate);
+          .insert(tasksToCreate)
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Recurring tasks creation error:', error);
+          throw error;
+        }
+        
+        console.log('Recurring tasks created successfully:', insertedTasks);
 
         toast({
           title: "Recurring Tasks Created",
@@ -447,11 +465,19 @@ const OwnerDashboard = () => {
         custom_due_date: null // Reset due date for duplicated task
       };
       
-      const { error } = await supabase
+      console.log('Creating task with data:', taskData);
+      
+      const { data: insertedTask, error } = await supabase
         .from('tasks')
-        .insert([taskData]);
+        .insert([taskData])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Task creation error:', error);
+        throw error;
+      }
+      
+      console.log('Task created successfully:', insertedTask);
 
       toast({
         title: "Task Duplicated",

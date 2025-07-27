@@ -99,7 +99,16 @@ const AssistantDashboard = () => {
 
   const fetchMyTasks = async () => {
     try {
-      if (!userProfile?.clinic_id || !user?.id) return;
+      if (!userProfile?.clinic_id || !user?.id) {
+        console.log('Missing required data:', { clinic_id: userProfile?.clinic_id, user_id: user?.id });
+        return;
+      }
+      
+      console.log('Fetching tasks for assistant:', { 
+        user_id: user.id, 
+        clinic_id: userProfile.clinic_id,
+        role: userProfile.role 
+      });
       
       const { data, error } = await supabase
         .from('tasks')
@@ -108,7 +117,15 @@ const AssistantDashboard = () => {
         .or(`assigned_to.eq.${user.id},assigned_to.is.null`)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase query error:', error);
+        throw error;
+      }
+      
+      console.log('Tasks fetched for assistant:', { 
+        total_tasks: data?.length || 0,
+        tasks: data 
+      });
       
       const transformedTasks = (data || []).map(task => ({
         id: task.id || '',

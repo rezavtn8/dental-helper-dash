@@ -84,6 +84,8 @@ const OwnerDashboard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
@@ -100,6 +102,19 @@ const OwnerDashboard = () => {
     title: '',
     description: '',
     priority: 'medium' as const,
+    'due-type': 'EoD',
+    category: '',
+    assigned_to: 'unassigned',
+    recurrence: 'none',
+    owner_notes: '',
+    custom_due_date: undefined as Date | undefined
+  });
+
+  // State for editing task
+  const [editTask, setEditTask] = useState({
+    title: '',
+    description: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
     'due-type': 'EoD',
     category: '',
     assigned_to: 'unassigned',
@@ -185,9 +200,12 @@ const OwnerDashboard = () => {
 
   const fetchAssistants = async () => {
     try {
+      if (!userProfile?.clinic_id) return;
+      
       const { data, error } = await supabase
         .from('users')
         .select('id, name, email, role, is_active')
+        .eq('clinic_id', userProfile.clinic_id)
         .in('role', ['assistant', 'admin']);
 
       if (error) throw error;
@@ -319,6 +337,62 @@ const OwnerDashboard = () => {
         description: "Task has been updated successfully"
       });
 
+      fetchTasks();
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update task",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Function to open edit dialog with task data
+  const openEditDialog = (task: Task) => {
+    setEditingTask(task);
+    setEditTask({
+      title: task.title,
+      description: task.description,
+      priority: task.priority as 'low' | 'medium' | 'high',
+      'due-type': task['due-type'],
+      category: task.category,
+      assigned_to: task.assigned_to || 'unassigned',
+      recurrence: task.recurrence,
+      owner_notes: task.owner_notes || '',
+      custom_due_date: task.custom_due_date ? new Date(task.custom_due_date) : undefined
+    });
+    setChecklist(task.checklist || []);
+    setIsEditDialogOpen(true);
+  };
+
+  // Function to update existing task via form
+  const updateTaskFromForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTask || !editTask.title.trim()) return;
+
+    try {
+      const taskData = {
+        ...editTask,
+        assigned_to: editTask.assigned_to === 'unassigned' ? null : editTask.assigned_to,
+        checklist: checklist.length > 0 ? checklist as any : null,
+        custom_due_date: editTask.custom_due_date ? editTask.custom_due_date.toISOString() : null
+      };
+
+      const { error } = await supabase
+        .from('tasks')
+        .update(taskData)
+        .eq('id', editingTask.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Task updated successfully"
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingTask(null);
       fetchTasks();
     } catch (error) {
       console.error('Error updating task:', error);
@@ -823,6 +897,126 @@ const OwnerDashboard = () => {
                   </form>
                 </DialogContent>
               </Dialog>
+
+              {/* Edit Task Dialog */}
+              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Edit Task</DialogTitle>
+                    <DialogDescription>
+                      Update task details and assignment
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={updateTaskFromForm} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-title">Task Title</Label>
+                        <Input
+                          id="edit-title"
+                          placeholder="Enter task title"
+                          value={editTask.title}
+                          onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-category">Category</Label>
+                        <Select value={editTask.category} onValueChange={(value) => setEditTask({ ...editTask, category: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Patient Care">🦷 Patient Care</SelectItem>
+                            <SelectItem value="Equipment">🔧 Equipment</SelectItem>
+                            <SelectItem value="Cleaning">🧽 Cleaning</SelectItem>
+                            <SelectItem value="Administrative">📝 Administrative</SelectItem>
+                            <SelectItem value="Supplies">📦 Supplies</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-description">Description</Label>
+                      <Textarea
+                        id="edit-description"
+                        placeholder="Describe the task details"
+                        value={editTask.description}
+                        onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label>Priority</Label>
+                        <Select value={editTask.priority} onValueChange={(value: 'low' | 'medium' | 'high') => setEditTask({ ...editTask, priority: value })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">🟢 Low</SelectItem>
+                            <SelectItem value="medium">🟡 Medium</SelectItem>
+                            <SelectItem value="high">🔴 High</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Due Type</Label>
+                        <Select value={editTask['due-type']} onValueChange={(value) => setEditTask({ ...editTask, 'due-type': value })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="EoD">📅 End of Day</SelectItem>
+                            <SelectItem value="EoW">📆 End of Week</SelectItem>
+                            <SelectItem value="ASAP">⚡ ASAP</SelectItem>
+                            <SelectItem value="Custom">🕒 Custom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Assign To</Label>
+                        <Select value={editTask.assigned_to} onValueChange={(value) => setEditTask({ ...editTask, assigned_to: value })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="unassigned">👤 Unassigned</SelectItem>
+                            {assistants.map(assistant => (
+                              <SelectItem key={assistant.id} value={assistant.id}>
+                                {assistant.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-notes">Owner Notes</Label>
+                      <Textarea
+                        id="edit-notes"
+                        placeholder="Add notes or special instructions"
+                        value={editTask.owner_notes}
+                        onChange={(e) => setEditTask({ ...editTask, owner_notes: e.target.value })}
+                        rows={2}
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button type="submit" className="flex-1">
+                        Update Task
+                      </Button>
+                      <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
               
               <Button variant="ghost" size="sm" onClick={signOut}>
                 <LogOut className="h-4 w-4 mr-2" />
@@ -1187,6 +1381,7 @@ const OwnerDashboard = () => {
                 onUpdateTask={updateTask}
                 onDeleteTask={deleteTask}
                 onDuplicateTask={duplicateTask}
+                onEditTask={openEditDialog}
                 loading={loading}
               />
             </TabsContent>

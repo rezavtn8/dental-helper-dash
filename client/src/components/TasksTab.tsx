@@ -71,10 +71,11 @@ interface TasksTabProps {
   onUpdateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
   onDeleteTask: (taskId: string) => Promise<void>;
   onDuplicateTask: (task: Task) => Promise<void>;
+  onEditTask?: (task: Task) => void;
   loading: boolean;
 }
 
-const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, onUpdateTask, onDeleteTask, onDuplicateTask, loading }) => {
+const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, onUpdateTask, onDeleteTask, onDuplicateTask, onEditTask, loading }) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [taskViewMode, setTaskViewMode] = useState<'table' | 'kanban'>('table');
@@ -115,8 +116,12 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, on
   };
 
   const handleEditTask = (task: Task) => {
-    // For now, just update status to In Progress as a simple edit
-    onUpdateTask(task.id, { status: 'In Progress' });
+    if (onEditTask) {
+      onEditTask(task);
+    } else {
+      // Fallback: just update status to In Progress
+      onUpdateTask(task.id, { status: 'In Progress' });
+    }
   };
 
   const handleToggleComplete = (task: Task) => {

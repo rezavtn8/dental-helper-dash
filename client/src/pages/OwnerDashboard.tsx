@@ -286,6 +286,7 @@ const OwnerDashboard = () => {
   const removeAssistant = async (assistantId: string) => {
     try {
       console.log('Removing assistant with ID:', assistantId);
+      console.log('Current clinic ID:', userProfile?.clinic_id);
       
       // First, reassign their tasks to unassigned
       const { error: taskError } = await supabase
@@ -295,14 +296,18 @@ const OwnerDashboard = () => {
 
       if (taskError) {
         console.error('Error reassigning tasks:', taskError);
+      } else {
+        console.log('Successfully reassigned tasks');
       }
 
       // Then delete the assistant from users table
-      const { error: deleteError } = await supabase
+      const { error: deleteError, data: deleteData } = await supabase
         .from('users')
         .delete()
         .eq('id', assistantId)
         .eq('clinic_id', userProfile?.clinic_id || ''); // Ensure we only delete from our clinic
+
+      console.log('Delete response:', { deleteError, deleteData });
 
       if (deleteError) {
         console.error('Error deleting assistant:', deleteError);
@@ -317,8 +322,8 @@ const OwnerDashboard = () => {
       });
 
       // Refresh both lists
-      fetchAssistants();
-      fetchTasks();
+      await fetchAssistants();
+      await fetchTasks();
     } catch (error) {
       console.error('Error removing team member:', error);
       toast({

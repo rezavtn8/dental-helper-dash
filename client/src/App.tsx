@@ -20,7 +20,15 @@ const queryClient = new QueryClient();
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading, userProfile } = useAuth();
 
+  console.log('ProtectedRoute check:', { 
+    loading, 
+    hasSession: !!session, 
+    hasUserProfile: !!userProfile, 
+    userRole: userProfile?.role 
+  });
+
   if (loading) {
+    console.log('ProtectedRoute: Still loading...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -31,17 +39,27 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!session) {
+  // For assistant sessions, we might not have a traditional session but we have userProfile
+  if (!session && !userProfile) {
+    console.log('ProtectedRoute: No session and no userProfile, redirecting to home');
     return <Navigate to="/" replace />;
   }
 
+  console.log('ProtectedRoute: Access granted');
   return <>{children}</>;
 };
 
 const RoleBasedRedirect = () => {
   const { userProfile, loading } = useAuth();
 
+  console.log('RoleBasedRedirect check:', { 
+    loading, 
+    userProfile, 
+    role: userProfile?.role 
+  });
+
   if (loading) {
+    console.log('RoleBasedRedirect: Still loading...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -54,12 +72,16 @@ const RoleBasedRedirect = () => {
 
   switch (userProfile?.role) {
     case 'owner':
+      console.log('RoleBasedRedirect: Rendering OwnerDashboard');
       return <OwnerDashboard />;
     case 'admin':
+      console.log('RoleBasedRedirect: Rendering AdminDashboard');
       return <AdminDashboard />;
     case 'assistant':
+      console.log('RoleBasedRedirect: Rendering AssistantDashboard');
       return <AssistantDashboard />;
     default:
+      console.log('RoleBasedRedirect: Unknown role, redirecting to home', userProfile?.role);
       return <Navigate to="/" replace />;
   }
 };

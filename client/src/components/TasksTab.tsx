@@ -68,10 +68,13 @@ interface TasksTabProps {
   tasks: Task[];
   assistants: Assistant[];
   onCreateTask: (e: React.FormEvent) => Promise<void>;
+  onUpdateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  onDeleteTask: (taskId: string) => Promise<void>;
+  onDuplicateTask: (task: Task) => Promise<void>;
   loading: boolean;
 }
 
-const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, loading }) => {
+const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, onUpdateTask, onDeleteTask, onDuplicateTask, loading }) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [taskViewMode, setTaskViewMode] = useState<'table' | 'kanban'>('table');
@@ -109,6 +112,22 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
     });
     setChecklist([]);
     setIsCreateDialogOpen(false);
+  };
+
+  const handleEditTask = (task: Task) => {
+    // For now, just update status to In Progress as a simple edit
+    onUpdateTask(task.id, { status: 'In Progress' });
+  };
+
+  const handleToggleComplete = (task: Task) => {
+    const newStatus = task.status === 'Done' ? 'To Do' : 'Done';
+    onUpdateTask(task.id, { status: newStatus });
+  };
+
+  const handleDeleteTask = (task: Task) => {
+    if (confirm(`Are you sure you want to delete "${task.title}"?`)) {
+      onDeleteTask(task.id);
+    }
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -585,19 +604,22 @@ const TasksTab: React.FC<TasksTabProps> = ({ tasks, assistants, onCreateTask, lo
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditTask(task)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit Task
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleToggleComplete(task)}>
                               <CheckCircle className="h-4 w-4 mr-2" />
-                              Mark Complete
+                              {task.status === 'Done' ? 'Mark Incomplete' : 'Mark Complete'}
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onDuplicateTask(task)}>
                               <Copy className="h-4 w-4 mr-2" />
                               Duplicate
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleDeleteTask(task)}
+                            >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Delete
                             </DropdownMenuItem>

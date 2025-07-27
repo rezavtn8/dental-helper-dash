@@ -188,7 +188,7 @@ const OwnerDashboard = () => {
       
       const { error } = await supabase
         .from('tasks')
-        .insert(taskData);
+        .insert([taskData]);
 
       if (error) throw error;
 
@@ -217,6 +217,102 @@ const OwnerDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to create task",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const updateTask = async (taskId: string, updates: Partial<Task>) => {
+    try {
+      // Convert checklist to proper format for database
+      const dbUpdates = {
+        ...updates,
+        checklist: updates.checklist ? updates.checklist as any : undefined
+      };
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update(dbUpdates)
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Task Updated",
+        description: "Task has been updated successfully"
+      });
+
+      fetchTasks();
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update task",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Task Deleted",
+        description: "Task has been deleted successfully"
+      });
+
+      fetchTasks();
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete task",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const duplicateTask = async (task: Task) => {
+    try {
+      const taskData = {
+        title: `${task.title} (Copy)`,
+        description: task.description,
+        priority: task.priority,
+        'due-type': task['due-type'],
+        category: task.category,
+        assigned_to: null, // Reset assignment for duplicated task
+        recurrence: task.recurrence,
+        clinic_id: userProfile?.clinic_id,
+        created_by: user?.id,
+        status: 'To Do',
+        checklist: task.checklist || null,
+        owner_notes: task.owner_notes,
+        custom_due_date: null // Reset due date for duplicated task
+      };
+      
+      const { error } = await supabase
+        .from('tasks')
+        .insert([taskData]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Task Duplicated",
+        description: "Task has been duplicated successfully"
+      });
+
+      fetchTasks();
+    } catch (error) {
+      console.error('Error duplicating task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to duplicate task",
         variant: "destructive"
       });
     }
@@ -834,6 +930,9 @@ const OwnerDashboard = () => {
               tasks={tasks}
               assistants={assistants}
               onCreateTask={createTask}
+              onUpdateTask={updateTask}
+              onDeleteTask={deleteTask}
+              onDuplicateTask={duplicateTask}
               loading={loading}
             />
           </TabsContent>

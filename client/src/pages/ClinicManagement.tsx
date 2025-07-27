@@ -78,7 +78,7 @@ export default function ClinicManagement() {
       if (error) {
         console.error('Error fetching users:', error);
       } else {
-        setUsers(data || []);
+        setUsers((data || []).filter(user => user.role !== null) as User[]);
       }
     } catch (error) {
       console.error('Error fetching users:', error);

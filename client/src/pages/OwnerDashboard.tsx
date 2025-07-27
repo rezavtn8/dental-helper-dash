@@ -166,7 +166,7 @@ const OwnerDashboard = () => {
         .in('role', ['assistant', 'admin']);
 
       if (error) throw error;
-      setAssistants(data || []);
+      setAssistants((data || []).filter(user => user.name !== null) as Assistant[]);
     } catch (error) {
       console.error('Error fetching assistants:', error);
     }
@@ -302,7 +302,7 @@ const OwnerDashboard = () => {
         .from('users')
         .delete()
         .eq('id', assistantId)
-        .eq('clinic_id', userProfile?.clinic_id); // Ensure we only delete from our clinic
+        .eq('clinic_id', userProfile?.clinic_id || ''); // Ensure we only delete from our clinic
 
       if (deleteError) {
         console.error('Error deleting assistant:', deleteError);

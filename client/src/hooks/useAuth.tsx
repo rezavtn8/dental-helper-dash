@@ -7,16 +7,16 @@ interface UserProfile {
   role: string;
   name: string;
   clinic_id: string;
-  email?: string;
-  pin?: string;
+  email?: string | null;
+  pin?: string | null;
   pin_attempts: number;
-  pin_locked_until?: string;
-  last_login?: string;
+  pin_locked_until?: string | null;
+  last_login?: string | null;
   display_order: number;
   is_active: boolean;
   created_at?: string;
-  created_by?: string;
-  must_change_pin?: boolean;
+  created_by?: string | null;
+  must_change_pin?: boolean | null;
 }
 
 interface AuthContextType {
@@ -103,8 +103,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             .eq('is_active', true)
             .single();
             
-          if (!error && data) {
-            setUserProfile(data);
+          if (!error && data && data.role && data.name) {
+            setUserProfile({
+              ...data,
+              role: data.role,
+              name: data.name,
+              pin_attempts: data.pin_attempts || 0,
+              display_order: data.display_order || 0,
+              is_active: data.is_active ?? true
+            });
             setLoading(false);
             return;
           }
@@ -130,8 +137,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching user profile:', error);
-      } else {
-        setUserProfile(data);
+      } else if (data && data.role && data.name) {
+        setUserProfile({
+          ...data,
+          role: data.role,
+          name: data.name,
+          pin_attempts: data.pin_attempts || 0,
+          display_order: data.display_order || 0,
+          is_active: data.is_active ?? true
+        });
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -192,16 +206,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Set user profile
       setUserProfile({
         id: assistantData.id,
-        name: assistantData.name,
+        name: assistantData.name || '',
         email: assistantData.email,
-        role: assistantData.role,
+        role: assistantData.role || '',
         clinic_id: assistantData.clinic_id,
         pin: assistantData.pin,
-        is_active: assistantData.is_active,
-        pin_attempts: assistantData.pin_attempts,
+        is_active: assistantData.is_active ?? true,
+        pin_attempts: assistantData.pin_attempts || 0,
         pin_locked_until: assistantData.pin_locked_until,
         last_login: assistantData.last_login,
-        display_order: assistantData.display_order
+        display_order: assistantData.display_order || 0
       });
 
       // Update last login time
@@ -263,7 +277,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('Found assistants:', data);
-      return data || [];
+      return (data || []).filter(assistant => 
+        assistant.role && assistant.name
+      ).map(assistant => ({
+        ...assistant,
+        role: assistant.role!,
+        name: assistant.name!,
+        pin_attempts: assistant.pin_attempts || 0,
+        display_order: assistant.display_order || 0,
+        is_active: assistant.is_active ?? true
+      }));
     } catch (error) {
       console.error('Error in getClinicAssistants:', error);
       return [];

@@ -396,7 +396,12 @@ const AssistantDashboard = () => {
     return { beforeOpeningTasks, before1PMTasks, endOfDayTasks, otherTasks };
   };
 
-  const renderTaskCard = (task: Task, isAvailable = false) => (
+  const renderTaskCard = (task: Task, isAvailable = false) => {
+    // Temporarily disable "Put Back" for assigned tasks until we can properly track task assignment origin
+    // This ensures assistants can't put back tasks that were originally assigned by the owner
+    const canPutBack = false;
+    
+    return (
     <Card 
       key={task.id} 
       className={`cursor-pointer hover:shadow-md transition-all duration-200 ${
@@ -413,8 +418,12 @@ const AssistantDashboard = () => {
           <div className="flex items-center space-x-2 flex-1">
             <span className="text-lg">{getCategoryIcon(task.category)}</span>
             <div className="flex-1">
-              <h4 className="font-medium text-sm">{task.title}</h4>
-              <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
+              <h4 className={`font-medium text-sm ${task.status === 'Done' ? 'line-through text-muted-foreground' : ''}`}>
+                {task.title}
+              </h4>
+              <p className={`text-xs text-muted-foreground mt-1 ${task.status === 'Done' ? 'line-through' : ''}`}>
+                {task.description}
+              </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -470,18 +479,20 @@ const AssistantDashboard = () => {
                   <CheckCircle2 className="h-3 w-3 mr-1" />
                   Done
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    putBackTask(task.id);
-                  }}
-                  className="text-xs text-orange-600 hover:text-orange-700"
-                >
-                  <Hand className="h-3 w-3 mr-1 rotate-180" />
-                  Put Back
-                </Button>
+                {canPutBack && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      putBackTask(task.id);
+                    }}
+                    className="text-xs text-orange-600 hover:text-orange-700"
+                  >
+                    <Hand className="h-3 w-3 mr-1 rotate-180" />
+                    Put Back
+                  </Button>
+                )}
               </div>
             ) : (
               <Button
@@ -501,7 +512,8 @@ const AssistantDashboard = () => {
         </div>
       </CardContent>
     </Card>
-  );
+    );
+  };
 
   if (loading) {
     return (

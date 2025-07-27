@@ -27,7 +27,8 @@ import {
   Users,
   ClipboardList,
   Bell,
-  Hand
+  Hand,
+  ArrowLeftRight
 } from 'lucide-react';
 
 interface ChecklistItem {
@@ -193,6 +194,34 @@ const AssistantDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to claim task",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const putBackTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          assigned_to: null,
+          status: 'To Do' // Reset status when putting back
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Task Put Back",
+        description: "Task is now available for others to pick up"
+      });
+
+      fetchMyTasks();
+    } catch (error) {
+      console.error('Error putting back task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to put back task",
         variant: "destructive"
       });
     }
@@ -413,46 +442,62 @@ const AssistantDashboard = () => {
             <Clock className="h-3 w-3 mr-1" />
             {task.category}
           </span>
-          {isAvailable ? (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                claimTask(task.id);
-              }}
-              className="text-xs"
-            >
-              <Hand className="h-3 w-3 mr-1" />
-              Pick Up
-            </Button>
-          ) : task.status !== 'Done' ? (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                updateTaskStatus(task.id, 'Done');
-              }}
-              className="text-xs"
-            >
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              Done
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                updateTaskStatus(task.id, 'To Do');
-              }}
-              className="text-xs"
-            >
-              <Clock className="h-3 w-3 mr-1" />
-              Undo
-            </Button>
-          )}
+          <div className="flex gap-1">
+            {isAvailable ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  claimTask(task.id);
+                }}
+                className="text-xs"
+              >
+                <Hand className="h-3 w-3 mr-1" />
+                Pick Up
+              </Button>
+            ) : task.status !== 'Done' ? (
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateTaskStatus(task.id, 'Done');
+                  }}
+                  className="text-xs"
+                >
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  Done
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    putBackTask(task.id);
+                  }}
+                  className="text-xs text-orange-600 hover:text-orange-700"
+                >
+                  <Hand className="h-3 w-3 mr-1 rotate-180" />
+                  Put Back
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateTaskStatus(task.id, 'To Do');
+                }}
+                className="text-xs"
+              >
+                <Clock className="h-3 w-3 mr-1" />
+                Undo
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

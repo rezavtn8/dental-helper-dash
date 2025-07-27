@@ -145,7 +145,7 @@ const AssistantDashboard = () => {
       
       const updateData: any = { status };
 
-      // Track completion analytics if fields exist
+      // Track completion analytics 
       if (status === 'Done') {
         updateData.completed_by = user?.id;
         updateData.completed_at = new Date().toISOString();
@@ -155,26 +155,25 @@ const AssistantDashboard = () => {
         updateData.completed_at = null;
       }
 
-      const { error } = await supabase
+      console.log('Update data:', updateData);
+
+      const { data, error } = await supabase
         .from('tasks')
         .update(updateData)
-        .eq('id', taskId);
+        .eq('id', taskId)
+        .select();
 
       if (error) {
-        console.error('Supabase error:', error);
-        // If the completion tracking fields don't exist, try with just status
-        if (error.message?.includes('column')) {
-          console.log('Retrying with just status field...');
-          const { error: retryError } = await supabase
-            .from('tasks')
-            .update({ status })
-            .eq('id', taskId);
-            
-          if (retryError) throw retryError;
-        } else {
-          throw error;
-        }
+        console.error('Supabase error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
       }
+
+      console.log('Update successful:', data);
 
       toast({
         title: "Task Updated",
@@ -186,7 +185,7 @@ const AssistantDashboard = () => {
       console.error('Error updating task:', error);
       toast({
         title: "Error",
-        description: "Failed to update task",
+        description: `Failed to update task: ${error.message || 'Unknown error'}`,
         variant: "destructive"
       });
     }

@@ -124,7 +124,7 @@ const AssistantDashboard = () => {
         custom_due_date: task.custom_due_date || undefined,
         completed_by: task.completed_by || null,
         completed_at: task.completed_at || null,
-        assigned_at: task.assigned_at || null
+        assigned_at: (task as any).assigned_at || null
       }));
       setTasks(transformedTasks);
     } catch (error) {
@@ -147,8 +147,16 @@ const AssistantDashboard = () => {
 
       // Track completion analytics 
       if (status === 'Done') {
-        updateData.completed_by = user?.id;
-        updateData.completed_at = new Date().toISOString();
+        // Get the current Supabase auth user to ensure proper foreign key reference
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        
+        if (authUser) {
+          updateData.completed_by = authUser.id;
+          updateData.completed_at = new Date().toISOString();
+        } else {
+          // If no auth user, just update status without completion tracking
+          console.log('No auth user found, updating status only');
+        }
       } else if (status === 'To Do') {
         // Clear completion tracking when undoing
         updateData.completed_by = null;
@@ -181,7 +189,7 @@ const AssistantDashboard = () => {
       });
 
       fetchMyTasks();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating task:', error);
       toast({
         title: "Error",

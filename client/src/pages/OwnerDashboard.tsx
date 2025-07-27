@@ -75,6 +75,8 @@ interface Assistant {
   id: string;
   name: string;
   email: string;
+  role?: string;
+  is_active?: boolean;
 }
 
 const OwnerDashboard = () => {
@@ -876,50 +878,48 @@ const OwnerDashboard = () => {
             {/* Section 1: Smart Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Tasks Today Card */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-blue-500 to-blue-600">
+              <Card className="hover:shadow-md transition-shadow duration-300 border-0 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-150">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-white">Tasks Today</CardTitle>
-                  <CalendarIcon className="h-5 w-5 text-white" />
+                  <CardTitle className="text-sm font-medium text-blue-700">Tasks Today</CardTitle>
+                  <CalendarIcon className="h-5 w-5 text-blue-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-white mb-2">{todayTasks.length}</div>
+                  <div className="text-3xl font-bold text-blue-800 mb-2">{todayTasks.length}</div>
                   <div className="flex items-center space-x-4 text-xs">
-                    <span className="flex items-center text-white/90">
+                    <span className="flex items-center text-blue-600">
                       <CheckCircle className="h-3 w-3 mr-1" />
-                      {completedTasks.length} completed
+                      {completedTasks.filter(task => 
+                        new Date(task.created_at).toDateString() === todayDateString
+                      ).length} completed
                     </span>
-                    <span className="flex items-center text-white/90">
+                    <span className="flex items-center text-blue-600">
                       <Clock className="h-3 w-3 mr-1" />
                       {pendingTasks.length} pending
                     </span>
-                    {overdueTasks.length > 0 && (
-                      <span className="flex items-center text-white/90">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        {overdueTasks.length} overdue
-                      </span>
-                    )}
                   </div>
                 </CardContent>
               </Card>
 
               {/* Active Team Members Card */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-green-500 to-green-600">
+              <Card className="hover:shadow-md transition-shadow duration-300 border-0 bg-gradient-to-br from-green-50 via-green-100 to-green-150">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-white">Active Team</CardTitle>
-                  <Users className="h-5 w-5 text-white" />
+                  <CardTitle className="text-sm font-medium text-green-700">Active Team</CardTitle>
+                  <Users className="h-5 w-5 text-green-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-white mb-3">{assistants.length}</div>
+                  <div className="text-3xl font-bold text-green-800 mb-3">
+                    {assistants.filter(a => a.is_active !== false).length}/{assistants.length}
+                  </div>
                   <div className="flex -space-x-2">
                     {assistants.slice(0, 4).map((assistant, i) => (
-                      <Avatar key={assistant.id} className="h-8 w-8 border-2 border-white">
-                        <AvatarFallback className="text-xs bg-white text-green-600">
+                      <Avatar key={assistant.id} className="h-8 w-8 border-2 border-green-100">
+                        <AvatarFallback className="text-xs bg-green-100 text-green-700">
                           {assistant.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                     ))}
                     {assistants.length > 4 && (
-                      <div className="h-8 w-8 rounded-full bg-white border-2 border-white flex items-center justify-center text-xs font-medium text-green-600">
+                      <div className="h-8 w-8 rounded-full bg-green-100 border-2 border-green-100 flex items-center justify-center text-xs font-medium text-green-700">
                         +{assistants.length - 4}
                       </div>
                     )}
@@ -927,30 +927,62 @@ const OwnerDashboard = () => {
                 </CardContent>
               </Card>
 
-              {/* Patients Assisted Card */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-purple-500 to-purple-600">
+              {/* Total Patients Seen Card */}
+              <Card className="hover:shadow-md transition-shadow duration-300 border-0 bg-gradient-to-br from-emerald-50 via-emerald-100 to-teal-150">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-white">Patients Assisted</CardTitle>
-                  <Stethoscope className="h-5 w-5 text-white" />
+                  <CardTitle className="text-sm font-medium text-emerald-700">Total Patients Seen</CardTitle>
+                  <Stethoscope className="h-5 w-5 text-emerald-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-white mb-2">{currentPatientCount}</div>
-                  <div className="text-xs text-white/80">
-                    Total helped today by team
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="text-3xl font-bold text-emerald-800">
+                      {(() => {
+                        // Calculate total patients from assistant's completed patient care tasks + manual count
+                        const assistantPatientTasks = completedTasks.filter(task => 
+                          task.category === 'Patient Care' &&
+                          new Date(task.completed_at || task.created_at).toDateString() === todayDateString
+                        ).length;
+                        return currentPatientCount + assistantPatientTasks;
+                      })()}
+                    </div>
+                    <div className="flex gap-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-6 w-6 p-0 border-emerald-200 hover:border-emerald-300 text-emerald-600"
+                        onClick={decrementPatientCount}
+                      >
+                        -
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-6 w-6 p-0 border-emerald-200 hover:border-emerald-300 text-emerald-600"
+                        onClick={incrementPatientCount}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="text-xs text-emerald-600">
+                    Manual ({currentPatientCount}) + Tasks ({completedTasks.filter(task => 
+                      task.category === 'Patient Care' &&
+                      new Date(task.completed_at || task.created_at).toDateString() === todayDateString
+                    ).length})
                   </div>
                 </CardContent>
               </Card>
 
               {/* Alerts Card */}
-              <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-red-500 to-red-600">
+              <Card className="hover:shadow-md transition-shadow duration-300 border-0 bg-gradient-to-br from-amber-50 via-orange-100 to-red-150">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-white">Alerts</CardTitle>
-                  <Bell className="h-5 w-5 text-white" />
+                  <CardTitle className="text-sm font-medium text-amber-700">Priority Alerts</CardTitle>
+                  <Bell className="h-5 w-5 text-amber-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-white mb-2">{overdueTasks.length}</div>
-                  <div className="text-xs text-white/80">
-                    {overdueTasks.length === 0 ? 'All caught up!' : 'Items need attention'}
+                  <div className="text-3xl font-bold text-amber-800 mb-2">{overdueTasks.length}</div>
+                  <div className="text-xs text-amber-600">
+                    {overdueTasks.length === 0 ? 'All caught up!' : `${overdueTasks.length} overdue tasks need attention`}
                   </div>
                 </CardContent>
               </Card>
@@ -1237,7 +1269,7 @@ const OwnerDashboard = () => {
                         <Label htmlFor="practice-name">Clinic Name</Label>
                         <Input 
                           id="practice-name" 
-                          defaultValue={userProfile?.clinic_name || "Dr. Smith's Dental Office"}
+                          defaultValue="Dr. Smith's Dental Office"
                           placeholder="Enter clinic name"
                         />
                         <p className="text-xs text-muted-foreground">

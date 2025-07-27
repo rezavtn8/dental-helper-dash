@@ -85,6 +85,14 @@ const OwnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
+  
+  // Patient count management
+  const [patientCounts, setPatientCounts] = useState<{ [key: string]: number }>({});
+  const [weeklyTotal, setWeeklyTotal] = useState(0);
+  
+  // Current patient count for today
+  const today = new Date().toISOString().split('T')[0];
+  const currentPatientCount = patientCounts[today] || 0;
 
   const [newTask, setNewTask] = useState({
     title: '',
@@ -469,10 +477,47 @@ const OwnerDashboard = () => {
     }
   };
 
-  // Calculate dashboard metrics
-  const today = new Date().toDateString();
+  // Patient count functions
+  const incrementPatientCount = () => {
+    const newCount = currentPatientCount + 1;
+    const newCounts = { ...patientCounts, [today]: newCount };
+    setPatientCounts(newCounts);
+    
+    // Calculate weekly total
+    const thisWeek = Object.keys(newCounts)
+      .filter(date => {
+        const dateObj = new Date(date);
+        const weekStart = new Date(today);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        return dateObj >= weekStart;
+      })
+      .reduce((sum, date) => sum + newCounts[date], 0);
+    setWeeklyTotal(thisWeek);
+  };
+
+  const decrementPatientCount = () => {
+    if (currentPatientCount > 0) {
+      const newCount = currentPatientCount - 1;
+      const newCounts = { ...patientCounts, [today]: newCount };
+      setPatientCounts(newCounts);
+      
+      // Calculate weekly total
+      const thisWeek = Object.keys(newCounts)
+        .filter(date => {
+          const dateObj = new Date(date);
+          const weekStart = new Date(today);
+          weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+          return dateObj >= weekStart;
+        })
+        .reduce((sum, date) => sum + newCounts[date], 0);
+      setWeeklyTotal(thisWeek);
+    }
+  };
+
+  // Calculate dashboard metrics  
+  const todayDateString = new Date().toDateString();
   const todayTasks = tasks.filter(task => 
-    new Date(task.created_at).toDateString() === today
+    new Date(task.created_at).toDateString() === todayDateString
   );
   const completedTasks = tasks.filter(task => task.status === 'Done');
   const pendingTasks = tasks.filter(task => task.status === 'To Do');

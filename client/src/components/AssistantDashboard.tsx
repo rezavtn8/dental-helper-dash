@@ -53,6 +53,7 @@ interface Task {
   custom_due_date?: string;
   completed_by?: string | null;
   completed_at?: string | null;
+  assigned_at?: string | null;
 }
 
 const AssistantDashboard = () => {
@@ -122,7 +123,8 @@ const AssistantDashboard = () => {
         owner_notes: task.owner_notes || undefined,
         custom_due_date: task.custom_due_date || undefined,
         completed_by: task.completed_by || null,
-        completed_at: task.completed_at || null
+        completed_at: task.completed_at || null,
+        assigned_at: task.assigned_at || null
       }));
       setTasks(transformedTasks);
     } catch (error) {
@@ -192,15 +194,38 @@ const AssistantDashboard = () => {
 
   const claimTask = async (taskId: string) => {
     try {
+      const updateData: any = { 
+        assigned_to: user?.id,
+        owner_notes: 'picked_up_by_assistant' // Mark this task as picked up
+      };
+
+      // Try to add assignment timestamp if field exists
+      try {
+        updateData.assigned_at = new Date().toISOString();
+      } catch (e) {
+        // Field might not exist yet
+      }
+
       const { error } = await supabase
         .from('tasks')
-        .update({ 
-          assigned_to: user?.id,
-          owner_notes: 'picked_up_by_assistant' // Mark this task as picked up
-        })
+        .update(updateData)
         .eq('id', taskId);
 
-      if (error) throw error;
+      if (error) {
+        // If assigned_at field doesn't exist, try without it
+        if (error.message?.includes('assigned_at')) {
+          const { error: retryError } = await supabase
+            .from('tasks')
+            .update({ 
+              assigned_to: user?.id,
+              owner_notes: 'picked_up_by_assistant'
+            })
+            .eq('id', taskId);
+          if (retryError) throw retryError;
+        } else {
+          throw error;
+        }
+      }
 
       toast({
         title: "Task Claimed",

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, Building2, Users, AlertTriangle } from 'lucide-react';
+import { Loader2, Building2, Users, AlertTriangle, Stethoscope, Shield, Heart, Lock } from 'lucide-react';
 
 interface AssistantLoginProps {
   clinicId: string;
@@ -122,57 +122,68 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <div className="mx-auto p-3 bg-primary/15 rounded-full w-fit">
-          <Users className="w-8 h-8 text-primary" />
+      <div className="text-center space-y-4">
+        <div className="mx-auto p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-fit shadow-lg">
+          <Users className="w-8 h-8 text-white" />
         </div>
-        <h3 className="text-xl font-semibold">Assistant Login</h3>
-        <p className="text-sm text-muted-foreground">Select your name and enter your PIN</p>
+        <div className="space-y-2">
+          <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Assistant Login</h3>
+          <p className="text-slate-600 dark:text-slate-300">Select your name and enter your PIN</p>
+        </div>
       </div>
       
       <form onSubmit={handleAssistantLogin} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="assistant">Select Assistant</Label>
+        <div className="space-y-3">
+          <Label htmlFor="assistant" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Select Assistant</Label>
           <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-            <SelectTrigger className="h-12">
+            <SelectTrigger className="h-14 text-base border-2 hover:border-blue-300 focus:border-blue-500 transition-colors">
               <SelectValue placeholder="Choose your name" />
             </SelectTrigger>
             <SelectContent>
               {assistants.map((assistant) => (
-                <SelectItem key={assistant.id} value={assistant.name}>
-                  {assistant.name}
+                <SelectItem key={assistant.id} value={assistant.name} className="text-base py-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>{assistant.name}</span>
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="pin">4-Digit PIN</Label>
-          <Input
-            id="pin"
-            type="password"
-            value={pin}
-            onChange={(e) => handlePinInput(e.target.value)}
-            placeholder="Enter your PIN"
-            className="text-center text-xl tracking-wider h-12"
-            maxLength={4}
-            autoComplete="off"
-          />
+        <div className="space-y-3">
+          <Label htmlFor="pin" className="text-sm font-semibold text-slate-700 dark:text-slate-200">4-Digit PIN</Label>
+          <div className="relative">
+            <Input
+              id="pin"
+              type="password"
+              value={pin}
+              onChange={(e) => handlePinInput(e.target.value)}
+              placeholder="••••"
+              className="text-center text-2xl tracking-widest h-14 border-2 hover:border-blue-300 focus:border-blue-500 transition-colors"
+              maxLength={4}
+              autoComplete="off"
+            />
+            <Lock className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+          </div>
         </div>
 
         <Button 
           type="submit" 
-          className="w-full h-12" 
+          className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]" 
           disabled={loading || !selectedAssistant || pin.length !== 4}
         >
           {loading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
               Signing in...
             </>
           ) : (
-            'Sign In'
+            <>
+              <Shield className="w-5 h-5 mr-2" />
+              Sign In Securely
+            </>
           )}
         </Button>
       </form>
@@ -204,49 +215,61 @@ const OwnerLogin: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <div className="mx-auto p-3 bg-primary/15 rounded-full w-fit">
-          <Building2 className="w-8 h-8 text-primary" />
+      <div className="text-center space-y-4">
+        <div className="mx-auto p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl w-fit shadow-lg">
+          <Building2 className="w-8 h-8 text-white" />
         </div>
-        <h3 className="text-xl font-semibold">Clinic Owner Login</h3>
-        <p className="text-sm text-muted-foreground">Sign in with your email and password</p>
+        <div className="space-y-2">
+          <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Clinic Owner Login</h3>
+          <p className="text-slate-600 dark:text-slate-300">Sign in with your email and password</p>
+        </div>
       </div>
       
       <form onSubmit={handleOwnerLogin} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+        <div className="space-y-3">
+          <Label htmlFor="email" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Email Address</Label>
           <Input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="h-12"
+            placeholder="Enter your email address"
+            className="h-14 text-base border-2 hover:border-green-300 focus:border-green-500 transition-colors"
             required
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            className="h-12"
-            required
-          />
+        <div className="space-y-3">
+          <Label htmlFor="password" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Password</Label>
+          <div className="relative">
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              className="h-14 text-base border-2 hover:border-green-300 focus:border-green-500 transition-colors pr-12"
+              required
+            />
+            <Lock className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+          </div>
         </div>
 
-        <Button type="submit" className="w-full h-12" disabled={loading}>
+        <Button 
+          type="submit" 
+          className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]" 
+          disabled={loading}
+        >
           {loading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
               Signing in...
             </>
           ) : (
-            'Sign In'
+            <>
+              <Building2 className="w-5 h-5 mr-2" />
+              Sign In as Owner
+            </>
           )}
         </Button>
       </form>
@@ -303,26 +326,50 @@ export default function ClinicLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/50 to-primary/10 p-4">
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
-      <div className="relative w-full max-w-md space-y-6">
-        <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/20 rounded-full blur-xl" />
-        <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-accent/20 rounded-full blur-xl" />
-        
-        <div className="text-center">
-          <div className="mx-auto p-4 bg-primary/15 rounded-full w-fit mb-4">
-            <Building2 className="h-12 w-12 text-primary" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/60 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900/30 p-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-10 left-10 w-72 h-72 bg-blue-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute top-10 right-10 w-72 h-72 bg-purple-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+      
+      {/* Medical icons floating background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <Stethoscope className="absolute top-20 left-1/4 w-6 h-6 text-blue-200/30 animate-float" />
+        <Heart className="absolute top-40 right-1/3 w-5 h-5 text-pink-200/30 animate-float animation-delay-1000" />
+        <Shield className="absolute bottom-40 left-1/3 w-7 h-7 text-green-200/30 animate-float animation-delay-2000" />
+        <Lock className="absolute bottom-20 right-1/4 w-4 h-4 text-purple-200/30 animate-float animation-delay-3000" />
+      </div>
+      
+      <div className="relative w-full max-w-md space-y-8 z-10">
+        {/* Header Section */}
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="mx-auto p-6 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl w-fit mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300">
+              <div className="absolute inset-0 bg-white/20 rounded-2xl backdrop-blur-sm"></div>
+              <Building2 className="h-16 w-16 text-white relative z-10" />
+            </div>
+            <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">
-            {clinic.name}
-          </h1>
-          <p className="text-muted-foreground">Welcome to your clinic portal</p>
+          
+          <div className="space-y-3">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
+              {clinic.name}
+            </h1>
+            <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">Welcome to your clinic portal</p>
+            <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Secure Login Portal</span>
+            </div>
+          </div>
         </div>
 
-        <Card className="backdrop-blur-sm border-white/10 shadow-2xl">
-          <CardContent className="p-6">
+        {/* Main Login Card */}
+        <Card className="backdrop-blur-lg bg-white/80 dark:bg-slate-800/80 border-white/20 shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-500 transform hover:scale-[1.02]">
+          <CardContent className="p-8">
             <Tabs defaultValue="assistant" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-100/50 dark:bg-slate-700/50 p-1 rounded-xl h-12">
                 <TabsTrigger value="assistant">Assistant</TabsTrigger>
                 <TabsTrigger value="owner">Owner</TabsTrigger>
               </TabsList>

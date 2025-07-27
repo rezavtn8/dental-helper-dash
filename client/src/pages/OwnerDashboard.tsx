@@ -518,16 +518,13 @@ const OwnerDashboard = () => {
                 <span className="text-lg font-semibold">ClinicFlow</span>
               </div>
               
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
-                <TabsList className="grid w-fit grid-cols-6 bg-muted/50">
-                  <TabsTrigger value="dashboard" className="px-4">Dashboard</TabsTrigger>
-                  <TabsTrigger value="tasks" className="px-4">Tasks</TabsTrigger>
-                  <TabsTrigger value="team" className="px-4">Team & Performance</TabsTrigger>
-                  <TabsTrigger value="insights" className="px-4">Insights</TabsTrigger>
-                  <TabsTrigger value="templates" className="px-4">Templates</TabsTrigger>
-                  <TabsTrigger value="settings" className="px-4">Settings</TabsTrigger>
-                </TabsList>
-              </Tabs>
+              {/* Current tab indicator */}
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <span>Current:</span>
+                <Badge variant="secondary" className="capitalize">
+                  {activeTab === 'team' ? 'Team & Performance' : activeTab}
+                </Badge>
+              </div>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -667,8 +664,40 @@ const OwnerDashboard = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsContent value="dashboard" className="space-y-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="flex gap-8">
+          {/* Vertical Tab List */}
+          <div className="w-64 flex-shrink-0">
+            <TabsList className="flex flex-col h-fit w-full bg-muted/50 p-1">
+              <TabsTrigger value="dashboard" className="w-full justify-start px-4 py-3 text-left">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="tasks" className="w-full justify-start px-4 py-3 text-left">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger value="team" className="w-full justify-start px-4 py-3 text-left">
+                <Users className="h-4 w-4 mr-2" />
+                Team & Performance
+              </TabsTrigger>
+              <TabsTrigger value="insights" className="w-full justify-start px-4 py-3 text-left">
+                <Activity className="h-4 w-4 mr-2" />
+                Insights
+              </TabsTrigger>
+              <TabsTrigger value="templates" className="w-full justify-start px-4 py-3 text-left">
+                <Copy className="h-4 w-4 mr-2" />
+                Templates
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="w-full justify-start px-4 py-3 text-left">
+                <Stethoscope className="h-4 w-4 mr-2" />
+                Settings
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* Tab Content Area */}
+          <div className="flex-1">
+            <TabsContent value="dashboard" className="space-y-8 mt-0">
             {/* Section 1: Smart Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Tasks Today Card */}
@@ -929,70 +958,70 @@ const OwnerDashboard = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="tasks">
-            <TasksTab 
-              tasks={tasks}
-              assistants={assistants}
-              onCreateTask={createTask}
-              onUpdateTask={updateTask}
-              onDeleteTask={deleteTask}
-              onDuplicateTask={duplicateTask}
-              loading={loading}
-            />
-          </TabsContent>
+            <TabsContent value="tasks" className="mt-0">
+              <TasksTab 
+                tasks={tasks}
+                assistants={assistants}
+                onCreateTask={createTask}
+                onUpdateTask={updateTask}
+                onDeleteTask={deleteTask}
+                onDuplicateTask={duplicateTask}
+                loading={loading}
+              />
+            </TabsContent>
 
-          <TabsContent value="team" className="space-y-8">
-            <TeamPerformanceTab 
-              tasks={tasks}
-              assistants={assistants}
-              onAddAssistant={addAssistant}
-              onRemoveAssistant={removeAssistant}
-              onToggleAssistantStatus={toggleAssistantStatus}
-              onResetPin={resetAssistantPin}
-            />
-          </TabsContent>
+            <TabsContent value="team" className="space-y-8 mt-0">
+              <TeamPerformanceTab 
+                tasks={tasks}
+                assistants={assistants}
+                onAddAssistant={addAssistant}
+                onRemoveAssistant={removeAssistant}
+                onToggleAssistantStatus={toggleAssistantStatus}
+                onResetPin={resetAssistantPin}
+              />
+            </TabsContent>
 
-          <TabsContent value="insights">
-            <InsightsTab 
-              tasks={tasks}
-              assistants={assistants}
-            />
-          </TabsContent>
+            <TabsContent value="insights" className="mt-0">
+              <InsightsTab 
+                tasks={tasks}
+                assistants={assistants}
+              />
+            </TabsContent>
 
-          <TabsContent value="templates">
-            <TemplatesTab 
-              onCreateTask={async (taskData) => {
-                // Use the existing createTask function but adapt for template data
-                const templateTaskData = {
-                  title: taskData.title,
-                  description: taskData.description,
-                  priority: taskData.priority || 'medium',
-                  'due-type': taskData['due-type'] || 'EoD',
-                  category: taskData.category || '',
-                  assigned_to: 'unassigned',
-                  recurrence: 'none',
-                  owner_notes: '',
-                  custom_due_date: undefined
-                };
-                setNewTask(templateTaskData);
-                setChecklist(taskData.checklist || []);
-                
-                // Create the task using the same logic as createTask
-                const finalTaskData = {
-                  ...templateTaskData,
-                  assigned_to: null,
-                  clinic_id: userProfile?.clinic_id,
-                  created_by: user?.id,
-                  status: 'To Do',
-                  checklist: taskData.checklist && taskData.checklist.length > 0 ? taskData.checklist as any : null,
-                  custom_due_date: null
-                };
-                
-                const { error } = await supabase
-                  .from('tasks')
-                  .insert(finalTaskData);
+            <TabsContent value="templates" className="mt-0">
+              <TemplatesTab 
+                onCreateTask={async (taskData) => {
+                  // Use the existing createTask function but adapt for template data
+                  const templateTaskData = {
+                    title: taskData.title,
+                    description: taskData.description,
+                    priority: taskData.priority || 'medium',
+                    'due-type': taskData['due-type'] || 'EoD',
+                    category: taskData.category || '',
+                    assigned_to: 'unassigned',
+                    recurrence: 'none',
+                    owner_notes: '',
+                    custom_due_date: undefined
+                  };
+                  setNewTask(templateTaskData);
+                  setChecklist(taskData.checklist || []);
+                  
+                  // Create the task using the same logic as createTask
+                  const finalTaskData = {
+                    ...templateTaskData,
+                    assigned_to: null,
+                    clinic_id: userProfile?.clinic_id,
+                    created_by: user?.id,
+                    status: 'To Do',
+                    checklist: taskData.checklist && taskData.checklist.length > 0 ? taskData.checklist as any : null,
+                    custom_due_date: null
+                  };
+                  
+                  const { error } = await supabase
+                    .from('tasks')
+                    .insert(finalTaskData);
 
-                if (error) throw error;
+                  if (error) throw error;
                 
                 fetchTasks();
               }}
@@ -1000,14 +1029,15 @@ const OwnerDashboard = () => {
             />
           </TabsContent>
 
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Settings</CardTitle>
-                <CardDescription>Clinic settings coming soon</CardDescription>
-              </CardHeader>
-            </Card>
-          </TabsContent>
+            <TabsContent value="settings" className="mt-0">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Settings</CardTitle>
+                  <CardDescription>Clinic settings coming soon</CardDescription>
+                </CardHeader>
+              </Card>
+            </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>

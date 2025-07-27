@@ -178,7 +178,10 @@ const AssistantDashboard = () => {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ assigned_to: user?.id })
+        .update({ 
+          assigned_to: user?.id,
+          owner_notes: 'picked_up_by_assistant' // Mark this task as picked up
+        })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -205,7 +208,8 @@ const AssistantDashboard = () => {
         .from('tasks')
         .update({ 
           assigned_to: null,
-          status: 'To Do' // Reset status when putting back
+          status: 'To Do',
+          owner_notes: null // Clear the pickup marker
         })
         .eq('id', taskId);
 
@@ -388,18 +392,22 @@ const AssistantDashboard = () => {
   };
 
   const groupTasksByTiming = (tasks: Task[]) => {
-    const beforeOpeningTasks = tasks.filter(t => t['due-type'] === 'Before Opening');
-    const before1PMTasks = tasks.filter(t => t['due-type'] === 'Before 1PM');
-    const endOfDayTasks = tasks.filter(t => t['due-type'] === 'EoD');
-    const otherTasks = tasks.filter(t => !['Before Opening', 'Before 1PM', 'EoD'].includes(t['due-type']));
+    // Only include non-completed tasks in timing sections
+    const activeTasks = tasks.filter(t => t.status !== 'Done');
+    const beforeOpeningTasks = activeTasks.filter(t => t['due-type'] === 'Before Opening');
+    const before1PMTasks = activeTasks.filter(t => t['due-type'] === 'Before 1PM');
+    const endOfDayTasks = activeTasks.filter(t => t['due-type'] === 'EoD');
+    const otherTasks = activeTasks.filter(t => !['Before Opening', 'Before 1PM', 'EoD'].includes(t['due-type']));
 
     return { beforeOpeningTasks, before1PMTasks, endOfDayTasks, otherTasks };
   };
 
   const renderTaskCard = (task: Task, isAvailable = false) => {
-    // Temporarily disable "Put Back" for assigned tasks until we can properly track task assignment origin
-    // This ensures assistants can't put back tasks that were originally assigned by the owner
-    const canPutBack = false;
+    // A task can be put back only if it was picked up by an assistant (marked with special owner_notes)
+    const canPutBack = !isAvailable && 
+      task.assigned_to === user?.id && 
+      task.status !== 'Done' &&
+      task.owner_notes === 'picked_up_by_assistant';
     
     return (
     <Card 
@@ -694,6 +702,20 @@ const AssistantDashboard = () => {
               </div>
             )}
 
+            {/* Completed Today */}
+            {completedToday.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <h3 className="text-lg font-semibold">Completed Today</h3>
+                  <Badge variant="outline">{completedToday.length}</Badge>
+                </div>
+                <div className="grid gap-3">
+                  {completedToday.map(task => renderTaskCard(task))}
+                </div>
+              </div>
+            )}
+
             {/* No tasks message */}
             {myTasks.length === 0 && (
               <Card>
@@ -710,7 +732,7 @@ const AssistantDashboard = () => {
             {availableTasks.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
                   <h3 className="text-lg font-semibold">Available Tasks</h3>
                   <Badge variant="outline">{availableTasks.length}</Badge>
                 </div>

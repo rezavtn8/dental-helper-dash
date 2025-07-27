@@ -68,29 +68,66 @@ interface InsightsTabProps {
 }
 
 const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
-  // Calculate productivity metrics
+  // Calculate real productivity metrics
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  
   const todayTasks = tasks.filter(task => {
-    const today = new Date().toDateString();
-    return new Date(task.created_at).toDateString() === today;
+    if (task.completed_at) {
+      const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
+      return completedDate === todayStr;
+    }
+    const createdDate = new Date(task.created_at).toISOString().split('T')[0];
+    return createdDate === todayStr;
   });
   
   const completedTasks = tasks.filter(task => task.status === 'Done');
   const totalTasksToday = todayTasks.length;
-  const completedTasksToday = todayTasks.filter(task => task.status === 'Done').length;
+  const completedTasksToday = tasks.filter(task => {
+    if (task.completed_at) {
+      const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
+      return completedDate === todayStr && task.status === 'Done';
+    }
+    return false;
+  }).length;
+  
   const completionRate = totalTasksToday > 0 ? (completedTasksToday / totalTasksToday) * 100 : 0;
   const unassignedTasks = tasks.filter(task => !task.assigned_to && task.status !== 'Done').length;
 
-  // Mock data for charts (in real app, calculate from actual data)
-  const weeklyCompletionData = [
-    { day: 'Mon', completed: 24, incomplete: 6 },
-    { day: 'Tue', completed: 28, incomplete: 4 },
-    { day: 'Wed', completed: 22, incomplete: 8 },
-    { day: 'Thu', completed: 32, incomplete: 3 },
-    { day: 'Fri', completed: 26, incomplete: 7 },
-    { day: 'Sat', completed: 18, incomplete: 2 },
-    { day: 'Sun', completed: 12, incomplete: 1 }
-  ];
+  // Real weekly completion data
+  const weeklyCompletionData = (() => {
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+    
+    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    return weekDays.map((day, index) => {
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(weekStart.getDate() + index);
+      const dayStr = dayDate.toISOString().split('T')[0];
+      
+      const dayCompletedTasks = tasks.filter(task => {
+        if (task.completed_at && task.status === 'Done') {
+          const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
+          return completedDate === dayStr;
+        }
+        return false;
+      });
+      
+      const dayIncompleteTasks = tasks.filter(task => {
+        const createdDate = new Date(task.created_at).toISOString().split('T')[0];
+        return createdDate === dayStr && task.status !== 'Done';
+      });
+      
+      return {
+        day,
+        completed: dayCompletedTasks.length,
+        incomplete: dayIncompleteTasks.length
+      };
+    });
+  })();
 
+  // Real assistant workload data
   const assistantWorkloadData = assistants.map(assistant => {
     const assignedTasks = tasks.filter(task => task.assigned_to === assistant.id);
     const completedTasks = assignedTasks.filter(task => task.status === 'Done');
@@ -102,42 +139,97 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ tasks, assistants }) => {
     };
   });
 
-  const timeOfDayData = [
-    { time: 'Before 9AM', completed: 12, incomplete: 2 },
-    { time: '9AM-12PM', completed: 18, incomplete: 4 },
-    { time: '12PM-3PM', completed: 22, incomplete: 3 },
-    { time: '3PM-6PM', completed: 16, incomplete: 5 },
-    { time: 'After 6PM', completed: 8, incomplete: 1 }
-  ];
+  // Real time-based completion data
+  const timeOfDayData = (() => {
+    const timeSlots = [
+      { time: 'Before 9AM', start: 0, end: 9 },
+      { time: '9AM-12PM', start: 9, end: 12 },
+      { time: '12PM-3PM', start: 12, end: 15 },
+      { time: '3PM-6PM', start: 15, end: 18 },
+      { time: 'After 6PM', start: 18, end: 24 }
+    ];
 
-  const categoryData = [
-    { name: 'Sterilization', value: 28, color: '#3B82F6' },
-    { name: 'Endodontics', value: 24, color: '#EF4444' },
-    { name: 'Opening/Closing', value: 20, color: '#F59E0B' },
-    { name: 'Inventory', value: 15, color: '#10B981' },
-    { name: 'Admin', value: 8, color: '#8B5CF6' },
-    { name: 'Misc', value: 5, color: '#6B7280' }
-  ];
+    return timeSlots.map(slot => {
+      const completed = tasks.filter(task => {
+        if (task.completed_at && task.status === 'Done') {
+          const completedHour = new Date(task.completed_at).getHours();
+          return completedHour >= slot.start && completedHour < slot.end;
+        }
+        return false;
+      }).length;
 
-  const procedureData = [
-    { name: 'Endodontics', value: 35, color: '#EF4444' },
-    { name: 'Orthodontics', value: 25, color: '#3B82F6' },
-    { name: 'Sterilization', value: 20, color: '#10B981' },
-    { name: 'Administrative', value: 20, color: '#F59E0B' }
-  ];
+      const incomplete = tasks.filter(task => {
+        if (task.status !== 'Done') {
+          const createdHour = new Date(task.created_at).getHours();
+          return createdHour >= slot.start && createdHour < slot.end;
+        }
+        return false;
+      }).length;
 
-  const patientCoverageData = assistants.map(assistant => ({
-    name: assistant.name.split(' ')[0],
-    patients: Math.floor(Math.random() * 15) + 5 // Mock data
-  }));
+      return {
+        time: slot.time,
+        completed,
+        incomplete
+      };
+    });
+  })();
+
+  // Real category distribution data
+  const categoryData = (() => {
+    const categories: { [key: string]: number } = {};
+    
+    tasks.forEach(task => {
+      const category = task.category || 'Misc';
+      categories[category] = (categories[category] || 0) + 1;
+    });
+
+    const colors = ['#3B82F6', '#EF4444', '#F59E0B', '#10B981', '#8B5CF6', '#6B7280', '#EC4899', '#14B8A6'];
+    
+    return Object.entries(categories).map(([name, value], index) => ({
+      name,
+      value,
+      color: colors[index % colors.length]
+    }));
+  })();
+
+  // Real due-type distribution data  
+  const procedureData = (() => {
+    const dueTypes: { [key: string]: number } = {};
+    
+    tasks.forEach(task => {
+      const dueType = task['due-type'] || 'Other';
+      dueTypes[dueType] = (dueTypes[dueType] || 0) + 1;
+    });
+
+    const colors = ['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#6B7280'];
+    
+    return Object.entries(dueTypes).map(([name, value], index) => ({
+      name,
+      value,
+      color: colors[index % colors.length]
+    }));
+  })();
+
+  // Real assistant patient coverage data based on completed tasks
+  const patientCoverageData = assistants.map(assistant => {
+    const completedTasks = tasks.filter(task => 
+      task.assigned_to === assistant.id && task.status === 'Done'
+    );
+    return {
+      name: assistant.name.split(' ')[0],
+      patients: completedTasks.length // Use completed tasks as proxy for patient interactions
+    };
+  });
 
   // Find most active assistant
-  const mostActiveAssistant = assistantWorkloadData.reduce((prev, current) => 
-    prev.completed > current.completed ? prev : current, assistantWorkloadData[0] || { name: 'None', completed: 0 }
-  );
+  const mostActiveAssistant = assistantWorkloadData.length > 0 
+    ? assistantWorkloadData.reduce((prev, current) => 
+        prev.completed > current.completed ? prev : current, assistantWorkloadData[0]
+      )
+    : { name: 'None', completed: 0 };
 
-  // Mock patients seen today
-  const patientsSeen = 34;
+  // Calculate total completed tasks today as proxy for patients seen
+  const patientsSeen = completedTasksToday;
 
   return (
     <div className="space-y-8">

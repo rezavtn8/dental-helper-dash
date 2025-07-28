@@ -73,42 +73,50 @@ const AdminDashboard = () => {
 }
   }, [session, user, userProfile]);
 
-  const fetchTasks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
+  const fetchTasks = async (assistantOnly = false) => {
+  try {
+    let query = supabase
+      .from('tasks')
+      .select('*')
+      .eq('clinic_id', userProfile?.clinic_id)
+      .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      const transformedTasks = (data || []).map(task => ({
-        id: task.id || '',
-        title: task.title || '',
-        description: task.description || '',
-        priority: task.priority || 'medium',
-        status: task.status || 'To Do',
-        'due-type': task['due-type'] || 'EoD',
-        category: task.category || '',
-        assigned_to: task.assigned_to,
-        recurrence: task.recurrence || 'none',
-        created_at: task.created_at || '',
-        checklist: Array.isArray(task.checklist) ? (task.checklist as unknown as ChecklistItem[]) : [],
-        owner_notes: task.owner_notes || undefined,
-        custom_due_date: task.custom_due_date || undefined
-      }));
-      setTasks(transformedTasks);
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load tasks",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+    if (assistantOnly) {
+      query = query.or(`assigned_to.eq.${user?.id},assigned_to.is.null`);
     }
-  };
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    const transformedTasks = (data || []).map(task => ({
+      id: task.id || '',
+      title: task.title || '',
+      description: task.description || '',
+      priority: task.priority || 'medium',
+      status: task.status || 'To Do',
+      'due-type': task['due-type'] || 'EoD',
+      category: task.category || '',
+      assigned_to: task.assigned_to,
+      recurrence: task.recurrence || 'none',
+      created_at: task.created_at || '',
+      checklist: Array.isArray(task.checklist) ? (task.checklist as unknown as ChecklistItem[]) : [],
+      owner_notes: task.owner_notes || undefined,
+      custom_due_date: task.custom_due_date || undefined
+    }));
+
+    setTasks(transformedTasks);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    toast({
+      title: "Error",
+      description: "Failed to load tasks",
+      variant: "destructive"
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const fetchAssistants = async () => {
     try {

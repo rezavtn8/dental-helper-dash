@@ -65,10 +65,12 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
-    if (session && user && userProfile?.role === 'admin') {
-      fetchTasks();
-      fetchAssistants();
-    }
+   if (session && user && userProfile?.role === 'admin') {
+  fetchTasks();      // admin sees all tasks
+  fetchAssistants();
+} else if (session && user && userProfile?.role === 'assistant') {
+  fetchTasks(true);  // assistant fetches limited task view
+}
   }, [session, user, userProfile]);
 
   const fetchTasks = async () => {

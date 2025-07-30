@@ -13,6 +13,5 @@ export default defineConfig({
   build: {
     outDir: '../dist/public',
     emptyOutDir: true,
-  }
-
-  
+  },
+}) // ← Make sure this closing bracket and parenthesis are here

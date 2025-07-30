@@ -7,10 +7,10 @@
           "cmds": ["npm install"]
         },
         "build": {
-          "cmds": []
+          "cmds": ["npm run build"]
         },
         "start": {
-          "cmds": ["npx tsx server/index.ts"]
+          "cmds": ["npm start"]
         }
       }
     }

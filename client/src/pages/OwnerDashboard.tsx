@@ -567,10 +567,10 @@ export default function OwnerDashboard() {
               <div className="flex items-center">
                 <Badge variant="secondary" className="text-xs">
                   {activeTab === 'tasks' ? `${tasks.length} Tasks` : 
-                   activeTab === 'team' ? `${assistants.length} Team Members` : 
-                   activeTab === 'insights' ? 'Analytics' : 
-                   activeTab === 'templates' ? 'Templates' : 
-                   'Team & Performance' : activeTab}
+ activeTab === 'team' ? `${assistants.length} Team Members` : 
+ activeTab === 'insights' ? 'Analytics' : 
+ activeTab === 'templates' ? 'Templates' : 
+ activeTab}
                 </Badge>
               </div>
             </div>

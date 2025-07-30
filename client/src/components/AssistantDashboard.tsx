@@ -360,7 +360,7 @@ export default function AssistantDashboard() {
           <p className="text-muted-foreground">Loading your tasks...</p>
         </div>
       </div>
-  }
+ );  // ← FIXED: Added ) and ;
   }
 
   return (
@@ -428,7 +428,7 @@ export default function AssistantDashboard() {
                         </div>
                         <div className="flex items-center gap-2 ml-4">
                           {getStatusIcon(task.status)}
-                          {task.checklist.length > 0 && (
+                          {Array.isArray(task.checklist) && task.checklist.length > 0 && (
                             <Collapsible>
                               <CollapsibleTrigger asChild>
                                 <Button
@@ -450,84 +450,7 @@ export default function AssistantDashboard() {
 
                     <CardContent className="pt-0">
                       {/* Checklist */}
-                      {task.checklist.length > 0 && expandedTasks.has(task.id) && (
-                        <div className="mb-4">
-                          <h4 className="font-medium text-sm mb-2">Checklist:</h4>
-                          <div className="space-y-2">
-                            {task.checklist.map((item, index) => (
-                              <div key={item.id || index} className="flex items-center space-x-2">
-                                <span className="text-sm text-gray-600">
-                                  {item.completed ? '✓' : '○'} {item.text}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Owner Notes */}
-                      {task.owner_notes && task.owner_notes !== 'picked_up_by_assistant' && (
-                        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                          <h4 className="font-medium text-sm mb-1 text-blue-900 dark:text-blue-100">
-                            Owner Notes:
-                          </h4>
-                          <p className="text-sm text-blue-800 dark:text-blue-200">
-                            {task.owner_notes}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Claim Action */}
-                      <Button 
-                        size="sm" 
-                        onClick={() => claimTask(task.id)}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        <UserPlus className="w-4 h-4 mr-1" />
-                        Claim Task
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );title}
-                          </h3>
-                          {task.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              {task.description}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 ml-4">
-                          {getStatusIcon(task.status)}
-                          {task.checklist.length > 0 && (
-                            <Collapsible>
-                              <CollapsibleTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleTaskExpanded(task.id)}
-                                >
-                                  {expandedTasks.has(task.id) ? 
-                                    <ChevronUp className="w-4 h-4" /> : 
-                                    <ChevronDown className="w-4 h-4" />
-                                  }
-                                </Button>
-                              </CollapsibleTrigger>
-                            </Collapsible>
-                          )}
-                        </div>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="pt-0">
-                      {/* Checklist */}
-                      {task.checklist.length > 0 && expandedTasks.has(task.id) && (
+                      {Array.isArray(task.checklist) && task.checklist.length > 0 && expandedTasks.has(task.id) && (
                         <div className="mb-4">
                           <h4 className="font-medium text-sm mb-2">Checklist:</h4>
                           <div className="space-y-2">
@@ -551,56 +474,27 @@ export default function AssistantDashboard() {
                         </div>
                       )}
 
-                      {/* Task Actions */}
-                      <div className="flex flex-wrap gap-2">
-                        {task.status === 'To Do' && (
-                          <Button 
-                            size="sm" 
-                            onClick={() => updateTaskStatus(task.id, 'In Progress')}
-                            className="bg-blue-600 hover:bg-blue-700"
-                          >
-                            <Play className="w-4 h-4 mr-1" />
-                            Start
-                          </Button>
-                        )}
-                        {task.status === 'In Progress' && (
-                          <>
-                            <Button 
-                              size="sm" 
-                              onClick={() => updateTaskStatus(task.id, 'Done')}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              <CheckCircle2 className="w-4 h-4 mr-1" />
-                              Complete
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => updateTaskStatus(task.id, 'To Do')}
-                            >
-                              <Pause className="w-4 h-4 mr-1" />
-                              Pause
-                            </Button>
-                          </>
-                        )}
-                        {task.status === 'Done' && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => updateTaskStatus(task.id, 'To Do')}
-                          >
-                            <RotateCcw className="w-4 h-4 mr-1" />
-                            Reopen
-                          </Button>
-                        )}
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => putBackTask(task.id)}
-                        >
-                          Put Back
-                        </Button>
-                      </div>
+                      {/* Owner Notes */}
+                      {task.owner_notes && task.owner_notes !== 'picked_up_by_assistant' && (
+                        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                          <h4 className="font-medium text-sm mb-1 text-blue-900 dark:text-blue-100">
+                            Owner Notes:
+                          </h4>
+                          <p className="text-sm text-blue-800 dark:text-blue-200">
+                            {task.owner_notes}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Put Back Action */}
+                      <Button 
+                        size="sm" 
+                        onClick={() => putBackTask(task.id)}
+                        className="bg-yellow-600 hover:bg-yellow-700"
+                      >
+                        <RotateCcw className="w-4 h-4 mr-1" />
+                        Put Back
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -643,4 +537,77 @@ export default function AssistantDashboard() {
                             </Badge>
                           </div>
                           <h3 className="font-medium text-gray-900 dark:text-white mb-1">
-                            {task.
+                            {task.title}
+                          </h3>
+                          {task.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                              {task.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 ml-4">
+                          {getStatusIcon(task.status)}
+                          {Array.isArray(task.checklist) && task.checklist.length > 0 && (
+                            <Collapsible>
+                              <CollapsibleTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => toggleTaskExpanded(task.id)}
+                                >
+                                  {expandedTasks.has(task.id) ? 
+                                    <ChevronUp className="w-4 h-4" /> : 
+                                    <ChevronDown className="w-4 h-4" />
+                                  }
+                                </Button>
+                              </CollapsibleTrigger>
+                            </Collapsible>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      {/* Checklist */}
+                      {Array.isArray(task.checklist) && task.checklist.length > 0 && expandedTasks.has(task.id) && (
+                        <div className="mb-4">
+                          <h4 className="font-medium text-sm mb-2">Checklist:</h4>
+                          <div className="space-y-2">
+                            {task.checklist.map((item, index) => (
+                              <div key={item.id || index} className="flex items-center space-x-2">
+                                <Checkbox
+                                  checked={item.completed}
+                                  onCheckedChange={(checked) => {
+                                    const updatedChecklist = task.checklist.map((checkItem, i) =>
+                                      i === index ? { ...checkItem, completed: !!checked } : checkItem
+                                    );
+                                    updateChecklist(task.id, updatedChecklist);
+                                  }}
+                                />
+                                <span className={`text-sm ${item.completed ? 'line-through text-gray-500' : ''}`}>
+                                  {item.text}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {/* Claim Action */}
+                      <Button 
+                        size="sm" 
+                        onClick={() => claimTask(task.id)}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <UserPlus className="w-4 h-4 mr-1" />
+                        Claim Task
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,5 +1,12 @@
 {
+  "name": "dental-helper-dash",
+  "type": "module",
   "scripts": {
-    "build": "vite build"
+    "build": "npm run build:server",
+    "build:server": "esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "start": "npm run start:server",
+    "start:server": "node dist/index.js",
+    "dev": "vite"
   }
 }
+

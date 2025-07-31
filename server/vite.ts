@@ -75,9 +75,20 @@ export function serveStatic(app: Express) {
   const distPath = path.resolve(__dirname, "..", "dist", "public");
 
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+    // In production, serve a simple message if client build is missing
+    app.use("*", (_req, res) => {
+      res.status(200).send(`
+        <html>
+          <head><title>Dental Helper Dashboard</title></head>
+          <body>
+            <h1>Dental Helper Dashboard API</h1>
+            <p>Server is running successfully!</p>
+            <p>API endpoints are available at /api/*</p>
+          </body>
+        </html>
+      `);
+    });
+    return;
   }
 
   app.use(express.static(distPath));

@@ -1,5 +1,8 @@
 // API client for connecting frontend to Railway backend
-const API_BASE_URL = import.meta.env.VITE_API_URL_PRODUCTION || import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { config } from '@/config/environment';
+import { logger } from '@/lib/logger';
+
+const API_BASE_URL = config.api.baseUrl;
 
 class ApiClient {
   private baseURL: string;
@@ -13,25 +16,63 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    const startTime = Date.now();
     
-    const config: RequestInit = {
+    const requestConfig: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      signal: AbortSignal.timeout(config.api.timeout),
       ...options,
     };
 
+    logger.debug(`API Request: ${options.method || 'GET'} ${url}`, {
+      endpoint,
+      headers: requestConfig.headers,
+    });
+
     try {
-      const response = await fetch(url, config);
+      const response = await fetch(url, requestConfig);
+      const duration = Date.now() - startTime;
+      
+      logger.debug(`API Response: ${response.status} in ${duration}ms`, {
+        endpoint,
+        status: response.status,
+        duration,
+      });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+        
+        logger.error(`API request failed: ${options.method || 'GET'} ${endpoint}`, error, {
+          status: response.status,
+          statusText: response.statusText,
+          responseText: errorText,
+          duration,
+        });
+        
+        throw error;
       }
       
-      return await response.json();
+      const data = await response.json();
+      logger.info(`API request successful: ${options.method || 'GET'} ${endpoint}`, {
+        duration,
+        dataSize: JSON.stringify(data).length,
+      });
+      
+      return data;
     } catch (error) {
-      console.error('API request failed:', error);
+      const duration = Date.now() - startTime;
+      
+      if (error instanceof Error) {
+        logger.error(`API request failed: ${options.method || 'GET'} ${endpoint}`, error, {
+          duration,
+          url,
+        });
+      }
+      
       throw error;
     }
   }

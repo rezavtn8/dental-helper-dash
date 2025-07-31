@@ -35,19 +35,27 @@ export default function Home() {
   };
 
   const handleRecentClinicAccess = (code: string) => {
-    // FIX: Don't set the input field when clicking recent clinic
-    // Just navigate directly to that clinic
+    // Clear the input field to prevent confusion
+    setClinicCode('');
+    // Navigate directly to the specific clinic without affecting input state
+    console.log('Accessing recent clinic:', code);
     accessClinic(code);
   };
 
   const accessClinic = (code: string) => {
+    const normalizedCode = code.toLowerCase().trim();
+    console.log('Accessing clinic with code:', normalizedCode);
+    
     // Save to recent clinics (move to top if already exists)
-    const updated = [code, ...recentClinics.filter(c => c !== code)].slice(0, 3);
+    const updated = [normalizedCode, ...recentClinics.filter(c => c !== normalizedCode)].slice(0, 3);
     setRecentClinics(updated);
     localStorage.setItem('recentClinics', JSON.stringify(updated));
     
+    // Clear any cached clinic data to prevent stale state
+    localStorage.removeItem('clinic_code');
+    
     // Navigate to the specific clinic
-    navigate(`/clinic/${code}`);
+    navigate(`/clinic/${normalizedCode}`);
   };
 
   return (

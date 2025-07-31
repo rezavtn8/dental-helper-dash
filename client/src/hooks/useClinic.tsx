@@ -34,47 +34,60 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to get clinic from URL or localStorage
+    // Only get clinic from URL, don't auto-load from localStorage
+    // This prevents the "most recent clinic" bug
     const urlPath = window.location.pathname;
     const codeFromUrl = urlPath.startsWith('/clinic/') ? urlPath.split('/clinic/')[1] : null;
-    const savedClinicCode = localStorage.getItem('clinic_code');
     
     if (codeFromUrl) {
+      console.log('Loading clinic from URL:', codeFromUrl);
       setClinicFromCode(codeFromUrl);
-    } else if (savedClinicCode) {
-      setClinicFromCode(savedClinicCode);
     } else {
+      // Clear any existing clinic state when not on a clinic page
+      setClinic(null);
+      setClinicCode(null);
       setLoading(false);
     }
-  }, []);
+  }, [window.location.pathname]); // React to URL changes
 
   const setClinicFromCode = async (code: string): Promise<boolean> => {
     setLoading(true);
+    
+    // Clear previous clinic state first to prevent stale data
+    setClinic(null);
+    setClinicCode(null);
+    
     try {
+      console.log('Fetching clinic with code:', code);
       const { data, error } = await supabase
         .from('clinics')
         .select('*')
-        .eq('clinic_code', code)
+        .eq('clinic_code', code.toLowerCase().trim())
         .eq('is_active', true)
         .single();
 
       if (error || !data) {
-        console.error('Clinic not found:', error);
+        console.error('Clinic not found for code:', code, error);
+        localStorage.removeItem('clinic_code'); // Clear invalid code
         setLoading(false);
         return false;
       }
 
-      setClinic({
+      console.log('Found clinic:', data);
+      const clinicData = {
         ...data,
         is_active: data.is_active ?? true,
         subscription_status: data.subscription_status || 'active'
-      });
-      setClinicCode(code);
-      localStorage.setItem('clinic_code', code);
+      };
+      
+      setClinic(clinicData);
+      setClinicCode(code.toLowerCase().trim());
+      localStorage.setItem('clinic_code', code.toLowerCase().trim());
       setLoading(false);
       return true;
     } catch (error) {
       console.error('Error fetching clinic:', error);
+      localStorage.removeItem('clinic_code'); // Clear on error
       setLoading(false);
       return false;
     }

@@ -2,15 +2,13 @@ import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
-import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const viteLogger = createLogger();
+// Vite logger will be created conditionally in development mode
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -24,19 +22,23 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
+  // Dynamically import Vite only in development
+  const { createServer: createViteServer, createLogger } = await import("vite");
+  const viteConfigModule = await import("../vite.config.js");
+  const viteLogger = createLogger();
+  
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
-    allowedHosts: true,
-  };
+  } as const;
 
   const vite = await createViteServer({
-    ...viteConfig,
+    ...viteConfigModule?.default,
     configFile: false,
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {
-        viteLogger.error(msg, options);
+        viteLogger?.error(msg, options);
         process.exit(1);
       },
     },

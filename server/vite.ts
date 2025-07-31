@@ -24,7 +24,6 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   // Dynamically import Vite only in development
   const { createServer: createViteServer, createLogger } = await import("vite");
-  const viteConfigModule = await import("../vite.config.js");
   const viteLogger = createLogger();
   
   const serverOptions = {
@@ -32,9 +31,22 @@ export async function setupVite(app: Express, server: Server) {
     hmr: { server },
   } as const;
 
+  // Inline Vite configuration to avoid importing vite.config.ts
   const vite = await createViteServer({
-    ...viteConfigModule?.default,
     configFile: false,
+    root: path.resolve(__dirname, "../client"),
+    plugins: [
+      // We'll load React plugin dynamically if needed
+    ],
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "../client/src")
+      }
+    },
+    build: {
+      outDir: "../dist/public",
+      emptyOutDir: true
+    },
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {

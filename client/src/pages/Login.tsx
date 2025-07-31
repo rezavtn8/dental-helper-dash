@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,19 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Stethoscope } from 'lucide-react';
+import { Loader2, Stethoscope, User, KeyRound } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInWithEmail, signUp } = useAuth();
+  const { clinicCode } = useParams<{ clinicCode: string }>();
+  const { signInWithEmail, signUp, signInAssistant } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Login form state
-  const [loginForm, setLoginForm] = useState({
-    email: '',
-    password: ''
-  });
-  
+
+  // Owner login state
+  const [ownerForm, setOwnerForm] = useState({ email: '', password: '' });
+
+  // Assistant login state
+  const [assistantForm, setAssistantForm] = useState({ name: '', pin: '' });
+
   // Signup form state
   const [signupForm, setSignupForm] = useState({
     email: '',
@@ -29,49 +30,51 @@ export default function Login() {
     role: 'assistant' as 'owner' | 'assistant'
   });
 
-  const handleLogin = async (e: React.FormEvent) => {
+  // Owner login handler
+  const handleOwnerLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
-      const { error } = await signInWithEmail(loginForm.email, loginForm.password);
-      
+      const { error } = await signInWithEmail(ownerForm.email, ownerForm.password, clinicCode);
       if (error) {
-        toast({
-          title: "Login Failed",
-          description: error,
-          variant: "destructive",
-        });
+        toast({ title: "Login Failed", description: error, variant: "destructive" });
       } else {
-        toast({
-          title: "Welcome back!",
-          description: "Successfully logged in.",
-        });
-        
-        // Navigate to appropriate dashboard (we'll determine this from user role)
-        navigate('/owner'); // Default navigation - will be redirected based on role
+        toast({ title: "Welcome Owner!", description: "Successfully logged in." });
+        navigate('/owner');
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
-      });
+    } catch {
+      toast({ title: "Error", description: "Unexpected error.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Assistant login handler
+  const handleAssistantLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const { error } = await signInAssistant(assistantForm.name, assistantForm.pin, clinicCode);
+      if (error) {
+        toast({ title: "Login Failed", description: error, variant: "destructive" });
+      } else {
+        toast({ title: "Welcome Assistant!", description: "Successfully logged in." });
+        navigate('/assistant');
+      }
+    } catch {
+      toast({ title: "Error", description: "Unexpected error.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Signup handler (for owners only)
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     if (signupForm.password !== signupForm.confirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "Passwords do not match.",
-        variant: "destructive",
-      });
+      toast({ title: "Password Mismatch", description: "Passwords do not match.", variant: "destructive" });
       setIsLoading(false);
       return;
     }
@@ -79,36 +82,17 @@ export default function Login() {
     try {
       const { error } = await signUp(signupForm.email, signupForm.password, {
         name: signupForm.name,
-        role: signupForm.role
+        role: signupForm.role,
+        clinicCode
       });
-      
       if (error) {
-        toast({
-          title: "Registration Failed",
-          description: error,
-          variant: "destructive",
-        });
+        toast({ title: "Registration Failed", description: error, variant: "destructive" });
       } else {
-        toast({
-          title: "Registration Successful",
-          description: "Please check your email to verify your account.",
-        });
-        
-        // Switch to login tab after successful signup
-        setSignupForm({
-          email: '',
-          password: '',
-          confirmPassword: '',
-          name: '',
-          role: 'assistant'
-        });
+        toast({ title: "Registration Successful", description: "Check your email to verify your account." });
+        setSignupForm({ email: '', password: '', confirmPassword: '', name: '', role: 'assistant' });
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
-      });
+    } catch {
+      toast({ title: "Error", description: "Unexpected error.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -120,72 +104,112 @@ export default function Login() {
       <div className="relative w-full max-w-md">
         <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/20 rounded-full blur-xl" />
         <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-accent/20 rounded-full blur-xl" />
-        
+
         <Card className="backdrop-blur-sm border-white/10 shadow-2xl">
           <CardHeader className="text-center space-y-4">
             <div className="mx-auto p-3 bg-primary/15 rounded-full w-fit">
               <Stethoscope className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              ClinicFlow Portal
+              {clinicCode ? `Clinic: ${clinicCode}` : "ClinicFlow Portal"}
             </CardTitle>
             <CardDescription>
-              Access your clinic management system
+              {clinicCode
+                ? "Authenticate as Owner or Assistant"
+                : "Access your clinic management system"}
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Login</TabsTrigger>
+            <Tabs defaultValue="owner" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="owner">Owner Login</TabsTrigger>
+                <TabsTrigger value="assistant">Assistant Login</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="login" className="mt-0">
-                <form onSubmit={handleLogin} className="space-y-4">
+
+              {/* Owner Login */}
+              <TabsContent value="owner" className="mt-0">
+                <form onSubmit={handleOwnerLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="owner-email">Email</Label>
                     <Input
-                      id="email"
+                      id="owner-email"
                       type="email"
                       className="h-12"
-                      placeholder="Enter your email"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="Owner email"
+                      value={ownerForm.email}
+                      onChange={(e) => setOwnerForm(prev => ({ ...prev, email: e.target.value }))}
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="owner-password">Password</Label>
                     <Input
-                      id="password"
+                      id="owner-password"
                       type="password"
                       className="h-12"
-                      placeholder="Enter your password"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                      placeholder="Password"
+                      value={ownerForm.password}
+                      onChange={(e) => setOwnerForm(prev => ({ ...prev, password: e.target.value }))}
                       required
                     />
                   </div>
-                  
-                  <Button
-                    type="submit"
-                    className="w-full h-12"
-                    disabled={isLoading}
-                  >
+                  <Button type="submit" className="w-full h-12" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Signing in...
                       </>
                     ) : (
-                      'Sign In'
+                      'Sign In as Owner'
                     )}
                   </Button>
                 </form>
               </TabsContent>
-              
+
+              {/* Assistant Login */}
+              <TabsContent value="assistant" className="mt-0">
+                <form onSubmit={handleAssistantLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="assistant-name">Name</Label>
+                    <Input
+                      id="assistant-name"
+                      type="text"
+                      className="h-12"
+                      placeholder="Assistant name"
+                      value={assistantForm.name}
+                      onChange={(e) => setAssistantForm(prev => ({ ...prev, name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="assistant-pin">PIN</Label>
+                    <Input
+                      id="assistant-pin"
+                      type="password"
+                      className="h-12"
+                      placeholder="4-digit PIN"
+                      value={assistantForm.pin}
+                      onChange={(e) => setAssistantForm(prev => ({ ...prev, pin: e.target.value }))}
+                      required
+                      maxLength={4}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full h-12" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing in...
+                      </>
+                    ) : (
+                      'Sign In as Assistant'
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              {/* Owner Signup */}
               <TabsContent value="signup" className="mt-0">
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
@@ -194,26 +218,24 @@ export default function Login() {
                       id="signup-name"
                       type="text"
                       className="h-12"
-                      placeholder="Enter your full name"
+                      placeholder="Your full name"
                       value={signupForm.name}
                       onChange={(e) => setSignupForm(prev => ({ ...prev, name: e.target.value }))}
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
                       type="email"
                       className="h-12"
-                      placeholder="Enter your email"
+                      placeholder="Your email"
                       value={signupForm.email}
                       onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="role">Role</Label>
                     <select
@@ -226,7 +248,6 @@ export default function Login() {
                       <option value="owner">Owner</option>
                     </select>
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
                     <Input
@@ -239,7 +260,6 @@ export default function Login() {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirm Password</Label>
                     <Input
@@ -252,12 +272,7 @@ export default function Login() {
                       required
                     />
                   </div>
-                  
-                  <Button
-                    type="submit"
-                    className="w-full h-12"
-                    disabled={isLoading}
-                  >
+                  <Button type="submit" className="w-full h-12" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

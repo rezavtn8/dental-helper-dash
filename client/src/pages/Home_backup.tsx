@@ -2,9 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Building2, ArrowRight, Plus, Clock, Shield, Lock } from 'lucide-react';
+import { 
+  Building2, 
+  ArrowRight, 
+  Plus, 
+  Clock, 
+  Shield,
+  Lock
+} from 'lucide-react';
 
 export default function Home() {
   const [clinicCode, setClinicCode] = useState('');
@@ -12,8 +19,11 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Load recent clinics from localStorage
     const recent = localStorage.getItem('recentClinics');
-    if (recent) setRecentClinics(JSON.parse(recent));
+    if (recent) {
+      setRecentClinics(JSON.parse(recent));
+    }
   }, []);
 
   const handleClinicAccess = (e: React.FormEvent) => {
@@ -25,61 +35,67 @@ export default function Home() {
   };
 
   const handleRecentClinicAccess = (code: string) => {
+    // Clear the input field to prevent confusion
     setClinicCode('');
+    // Navigate directly to the specific clinic without affecting input state
+    console.log('Accessing recent clinic:', code);
     accessClinic(code);
   };
 
   const accessClinic = (code: string) => {
     const normalizedCode = code.toLowerCase().trim();
+    console.log('Accessing clinic with code:', normalizedCode);
+    
+    // Save to recent clinics (move to top if already exists)
     const updated = [normalizedCode, ...recentClinics.filter(c => c !== normalizedCode)].slice(0, 3);
     setRecentClinics(updated);
     localStorage.setItem('recentClinics', JSON.stringify(updated));
+    
+    // Clear any cached clinic data to prevent stale state
     localStorage.removeItem('clinic_code');
-    navigate(`/clinic/${normalizedCode}/login`);
+    
+    // Navigate to the specific clinic
+    navigate(`/clinic/${normalizedCode}`);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="grid lg:grid-cols-2 min-h-screen">
-        {/* Branding & Features */}
+        {/* Left Side - Branding */}
         <div className="hidden lg:flex flex-col justify-center px-12 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
           <div className="space-y-8">
             <div className="space-y-4">
               <Building2 className="w-16 h-16" />
               <h1 className="text-5xl font-bold tracking-tight">
-                Dental Task<span className="text-blue-200">Pro</span>
+                Dental Task
+                <span className="text-blue-200">Pro</span>
               </h1>
               <p className="text-xl text-blue-100 leading-relaxed max-w-md">
-                Smart, secure, and real-time task management for dental clinics.
+                Streamline your dental practice with smart task management and team coordination
               </p>
             </div>
+            
             <div className="space-y-6 text-blue-100">
               <div className="flex items-start space-x-3">
                 <Shield className="w-6 h-6 mt-1 text-blue-200" />
                 <div>
-                  <h3 className="font-semibold text-white">Secure Authentication</h3>
-                  <p className="text-sm">Owners use email/password, assistants use name & PIN.</p>
+                  <h3 className="font-semibold text-white">Secure & Private</h3>
+                  <p className="text-sm">Your clinic data is protected with enterprise-grade security</p>
                 </div>
               </div>
+              
               <div className="flex items-start space-x-3">
                 <Clock className="w-6 h-6 mt-1 text-blue-200" />
                 <div>
-                  <h3 className="font-semibold text-white">Real-time Task Updates</h3>
-                  <p className="text-sm">Instant sync and notifications for all team members.</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <Lock className="w-6 h-6 mt-1 text-blue-200" />
-                <div>
-                  <h3 className="font-semibold text-white">Multi-Clinic Support</h3>
-                  <p className="text-sm">Clinic-specific branding, permissions, and data isolation.</p>
+                  <h3 className="font-semibold text-white">Real-time Updates</h3>
+                  <p className="text-sm">Tasks sync instantly across all devices and team members</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Clinic Access & Recent */}
+        {/* Right Side - Login */}
         <div className="flex flex-col justify-center px-8 sm:px-12 lg:px-16">
           <div className="max-w-md mx-auto w-full space-y-8">
             {/* Mobile Branding */}
@@ -95,7 +111,7 @@ export default function Home() {
             <div className="space-y-6">
               <div className="text-center space-y-2">
                 <h2 className="text-2xl font-bold tracking-tight">Access Your Clinic</h2>
-                <p className="text-muted-foreground">Enter your clinic code to begin authentication</p>
+                <p className="text-muted-foreground">Enter your clinic code to continue</p>
               </div>
 
               <Card className="border-2">
@@ -105,7 +121,7 @@ export default function Home() {
                     Clinic Login
                   </CardTitle>
                   <CardDescription>
-                    Owners: Email/Password &nbsp;|&nbsp; Assistants: Name/PIN
+                    Enter your unique clinic code
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -123,7 +139,7 @@ export default function Home() {
                     </div>
                     <Button type="submit" className="w-full" size="lg">
                       <ArrowRight className="w-4 h-4 mr-2" />
-                      Continue
+                      Continue to Clinic
                     </Button>
                   </form>
 
@@ -135,9 +151,10 @@ export default function Home() {
                           <span className="w-full border-t" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-background px-2 text-muted-foreground">Recent Clinics</span>
+                          <span className="bg-background px-2 text-muted-foreground">Recent</span>
                         </div>
                       </div>
+                      
                       <div className="space-y-2">
                         {recentClinics.map((code, index) => (
                           <Button

@@ -22,7 +22,9 @@
     "express": "^4.19.2",
     "nanoid": "^5.0.7",
     "ws": "^8.18.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@rollup/rollup-linux-x64-gnu": "^4.46.2",
+    "@rollup/rollup-linux-x64-musl": "^4.46.2"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -86,7 +88,6 @@
     "tsx": "^4.20.3",
     "typescript": "^5.5.3",
     "vaul": "^0.9.1",
-    "vite": "^7.0.6",
-    "@rollup/rollup-linux-x64-gnu": "^4.46.2"
+    "vite": "^7.0.6"
   }
 }

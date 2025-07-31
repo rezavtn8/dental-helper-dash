@@ -17,5 +17,11 @@ export default defineConfig({
   build: {
     outDir: '../dist/public',
     emptyOutDir: true,
+    rollupOptions: {
+      external: [],
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
-}) // ← Make sure this closing bracket and parenthesis are here
+})

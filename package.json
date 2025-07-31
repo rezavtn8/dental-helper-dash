@@ -1,5 +1,5 @@
 {
-  "name": "dental-helper-dash",
+  "name": "dental-helper-dashboard",
   "type": "module",
   "scripts": {
     "build": "npm run build:server",

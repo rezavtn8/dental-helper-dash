@@ -56,9 +56,12 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Clear previous clinic state first to prevent stale data
     setClinic(null);
     setClinicCode(null);
+    localStorage.removeItem('clinic_code'); // Clear any cached data
     
     try {
-      console.log('Fetching clinic with code:', code);
+      console.log('🔍 Fetching clinic with code:', code);
+      console.log('🔍 Searching for clinic_code:', code.toLowerCase().trim());
+      
       const { data, error } = await supabase
         .from('clinics')
         .select('*')
@@ -67,13 +70,26 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .single();
 
       if (error || !data) {
-        console.error('Clinic not found for code:', code, error);
-        localStorage.removeItem('clinic_code'); // Clear invalid code
+        console.error('❌ Clinic not found for code:', code, error);
+        
+        // Debug: Let's see what clinics exist
+        const { data: allClinics } = await supabase
+          .from('clinics')
+          .select('id, name, clinic_code, is_active')
+          .eq('is_active', true);
+        console.log('🔍 Available clinics in database:', allClinics);
+        
         setLoading(false);
         return false;
       }
 
-      console.log('Found clinic:', data);
+      console.log('✅ Found clinic:', {
+        id: data.id,
+        name: data.name,
+        clinic_code: data.clinic_code,
+        is_active: data.is_active
+      });
+      
       const clinicData = {
         ...data,
         is_active: data.is_active ?? true,
@@ -86,8 +102,7 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setLoading(false);
       return true;
     } catch (error) {
-      console.error('Error fetching clinic:', error);
-      localStorage.removeItem('clinic_code'); // Clear on error
+      console.error('❌ Error fetching clinic:', error);
       setLoading(false);
       return false;
     }

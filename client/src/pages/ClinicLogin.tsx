@@ -1,333 +1,254 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useClinic } from '@/hooks/useClinic';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
-import { Loader2, Building2, Users, AlertTriangle, Stethoscope, Shield, Heart, Lock } from 'lucide-react';
+import { Building2, User, Shield, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useClinic } from '@/hooks/useClinic';
+import { useToast } from '@/hooks/use-toast';
 
 interface AssistantLoginProps {
-  clinicId: string;
+  clinicId: number;
 }
 
+interface OwnerLoginProps {
+  clinicCode: string;
+}
+
+// Assistant Login Component
 const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
-  const [selectedAssistant, setSelectedAssistant] = useState('');
+  const [name, setName] = useState('');
   const [pin, setPin] = useState('');
-  const [assistants, setAssistants] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { signInWithPin, getClinicAssistants } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signInWithPin } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    const fetchAssistants = async () => {
-      if (!clinicId) return;
-      
-      try {
-        console.log('Fetching assistants for clinic:', clinicId);
-        const assistants = await getClinicAssistants(clinicId);
-        console.log('Received assistants:', assistants);
-        if (isMounted) {
-          setAssistants(assistants);
-        }
-      } catch (error) {
-        console.error('Error fetching assistants:', error);
-        if (isMounted) {
-          setAssistants([]);
-        }
-      }
-    };
-
-    fetchAssistants();
-
-    // Set up real-time listener for users table changes
-    const channel = supabase
-      .channel(`users_changes_${clinicId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'users',
-          filter: `clinic_id=eq.${clinicId}`
-        },
-        (payload) => {
-          console.log('Real-time user change:', payload);
-          // Refetch assistants when users table changes
-          fetchAssistants();
-        }
-      )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-      });
-
-    return () => {
-      isMounted = false;
-      supabase.removeChannel(channel);
-    };
-  }, [clinicId, getClinicAssistants]);
-
-  const loadAssistants = async () => {
-    if (!clinicId) return;
-    
-    try {
-      const assistantList = await getClinicAssistants(clinicId);
-      console.log('Loaded assistants for clinic:', clinicId, assistantList);
-      setAssistants(assistantList);
-      
-      // Clear selected assistant if they're no longer in the list
-      if (selectedAssistant && !assistantList.find(a => a.name === selectedAssistant)) {
-        setSelectedAssistant('');
-        setPin('');
-      }
-    } catch (error) {
-      console.error('Error loading assistants:', error);
-      setAssistants([]);
-    }
-  };
-
-  // Add manual refresh functionality
-  const refreshAssistants = () => {
-    loadAssistants();
-  };
-
-  const handleAssistantLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedAssistant || pin.length !== 4) {
-      toast.error('Please select an assistant and enter a 4-digit PIN');
-      return;
-    }
+    setIsLoading(true);
 
-    setLoading(true);
-    const { error } = await signInWithPin(selectedAssistant, pin, clinicId);
-    
-    if (error) {
-      toast.error(error);
-      setPin('');
-    } else {
-      toast.success('Welcome back!');
-      // Navigate based on role
-      const assistant = assistants.find(a => a.name === selectedAssistant);
-      if (assistant?.role === 'admin') {
-        navigate('/admin');
+    try {
+      const { error } = await signInWithPin(name.trim(), pin, clinicId);
+      
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error,
+          variant: "destructive"
+        });
       } else {
+        toast({
+          title: "Welcome!",
+          description: "Successfully logged in as assistant.",
+        });
         navigate('/assistant');
       }
-    }
-    setLoading(false);
-  };
-
-  const handlePinInput = (value: string) => {
-    if (value.length <= 4 && /^\d*$/.test(value)) {
-      setPin(value);
+    } catch (error) {
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-4">
-        <div className="mx-auto p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-fit shadow-lg">
-          <Users className="w-8 h-8 text-white" />
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Dental Assistant Login</h3>
-          <p className="text-slate-600 dark:text-slate-300">Select your name and enter your PIN</p>
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="assistant-name">Your Name</Label>
+        <Input
+          id="assistant-name"
+          type="text"
+          placeholder="Enter your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="h-12"
+          required
+          disabled={isLoading}
+        />
       </div>
       
-      <form onSubmit={handleAssistantLogin} className="space-y-4">
-        <div className="space-y-3">
-          <Label htmlFor="assistant" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Select Dental Assistant</Label>
-          <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-            <SelectTrigger className="h-14 text-base border-2 hover:border-blue-300 focus:border-blue-500 transition-colors">
-              <SelectValue placeholder="Choose your name" />
-            </SelectTrigger>
-            <SelectContent>
-              {assistants.map((assistant) => (
-                <SelectItem key={assistant.id} value={assistant.name} className="text-base py-3">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>{assistant.name}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-3">
-          <Label htmlFor="pin" className="text-sm font-semibold text-slate-700 dark:text-slate-200">4-Digit PIN</Label>
-          <div className="relative">
-            <Input
-              id="pin"
-              type="password"
-              value={pin}
-              onChange={(e) => handlePinInput(e.target.value)}
-              placeholder="••••"
-              className="text-center text-2xl tracking-widest h-14 border-2 hover:border-blue-300 focus:border-blue-500 transition-colors"
-              maxLength={4}
-              autoComplete="off"
-            />
-            <Lock className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-          </div>
-        </div>
-
-        <Button 
-          type="submit" 
-          className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]" 
-          disabled={loading || !selectedAssistant || pin.length !== 4}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              Signing in...
-            </>
-          ) : (
-            <>
-              <Shield className="w-5 h-5 mr-2" />
-              Sign In Securely
-            </>
-          )}
-        </Button>
-      </form>
-    </div>
+      <div className="space-y-2">
+        <Label htmlFor="assistant-pin">PIN</Label>
+        <Input
+          id="assistant-pin"
+          type="password"
+          placeholder="Enter your PIN"
+          value={pin}
+          onChange={(e) => setPin(e.target.value)}
+          className="h-12 text-center text-lg tracking-widest"
+          maxLength={6}
+          required
+          disabled={isLoading}
+        />
+      </div>
+      
+      <Button type="submit" className="w-full h-12" disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Signing In...
+          </>
+        ) : (
+          <>
+            <User className="w-4 h-4 mr-2" />
+            Sign In as Assistant
+          </>
+        )}
+      </Button>
+    </form>
   );
 };
 
-const OwnerLogin: React.FC = () => {
+// Owner Login Component
+const OwnerLogin: React.FC<OwnerLoginProps> = ({ clinicCode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { signInWithEmail } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleOwnerLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    const { error } = await signInWithEmail(email, password);
-    
-    if (error) {
-      toast.error(error);
-    } else {
-      toast.success('Welcome back!');
-      navigate('/owner');
+    setIsLoading(true);
+
+    try {
+      const { error } = await signIn(email.trim(), password);
+      
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Welcome Back!",
+          description: "Successfully logged in as owner.",
+        });
+        navigate('/owner');
+      }
+    } catch (error) {
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-4">
-        <div className="mx-auto p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl w-fit shadow-lg">
-          <Building2 className="w-8 h-8 text-white" />
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Clinic Owner Login</h3>
-          <p className="text-slate-600 dark:text-slate-300">Sign in with your email and password</p>
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="owner-email">Email</Label>
+        <Input
+          id="owner-email"
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="h-12"
+          required
+          disabled={isLoading}
+        />
       </div>
       
-      <form onSubmit={handleOwnerLogin} className="space-y-4">
-        <div className="space-y-3">
-          <Label htmlFor="email" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Email Address</Label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email address"
-            className="h-14 text-base border-2 hover:border-green-300 focus:border-green-500 transition-colors"
-            required
-          />
-        </div>
-
-        <div className="space-y-3">
-          <Label htmlFor="password" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Password</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="h-14 text-base border-2 hover:border-green-300 focus:border-green-500 transition-colors pr-12"
-              required
-            />
-            <Lock className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-          </div>
-        </div>
-
-        <Button 
-          type="submit" 
-          className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]" 
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              Signing in...
-            </>
-          ) : (
-            <>
-              <Building2 className="w-5 h-5 mr-2" />
-              Sign In as Owner
-            </>
-          )}
-        </Button>
-      </form>
-    </div>
+      <div className="space-y-2">
+        <Label htmlFor="owner-password">Password</Label>
+        <Input
+          id="owner-password"
+          type="password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="h-12"
+          required
+          disabled={isLoading}
+        />
+      </div>
+      
+      <Button type="submit" className="w-full h-12" disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Signing In...
+          </>
+        ) : (
+          <>
+            <Shield className="w-4 h-4 mr-2" />
+            Sign In as Owner
+          </>
+        )}
+      </Button>
+    </form>
   );
 };
 
+// Main Clinic Login Page
 export default function ClinicLogin() {
   const { clinicCode } = useParams<{ clinicCode: string }>();
-  const { clinic, setClinicFromCode, loading: clinicLoading } = useClinic();
+  const { clinic, loading, setClinicFromCode } = useClinic();
+  const [loadError, setLoadError] = useState<string>('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (clinicCode && !clinic) {
-      setClinicFromCode(clinicCode).then((found) => {
-        if (!found) {
-          toast.error('Clinic not found');
-          navigate('/');
-        }
-      });
+    if (clinicCode) {
+      console.log('🔄 Loading clinic for code:', clinicCode);
+      
+      setClinicFromCode(clinicCode)
+        .then((success) => {
+          if (!success) {
+            setLoadError('Clinic not found or inactive');
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading clinic:', error);
+          setLoadError('Failed to load clinic');
+        });
     }
-  }, [clinicCode, clinic, setClinicFromCode, navigate]);
+  }, [clinicCode, setClinicFromCode]);
 
-  if (clinicLoading) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/50 to-primary/10">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading dental office...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading clinic...</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  if (!clinic) {
+  if (loadError || !clinic) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/50 to-primary/10 p-4">
-        <Card className="w-full max-w-md backdrop-blur-sm border-white/10 shadow-2xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto p-3 bg-destructive/15 rounded-full w-fit mb-4">
-              <AlertTriangle className="h-8 w-8 text-destructive" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
+            <div className="space-y-2">
+              <h3 className="font-semibold text-lg">Clinic Not Found</h3>
+              <p className="text-muted-foreground">
+                {loadError || 'The clinic you\'re looking for doesn\'t exist or is no longer active.'}
+              </p>
             </div>
-            <CardTitle>Dental Office Not Found</CardTitle>
-            <CardDescription>The office code you entered is not valid</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => navigate('/')} className="w-full">
-              Go Home
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/')}
+              className="w-full"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
             </Button>
           </CardContent>
         </Card>
@@ -336,38 +257,35 @@ export default function ClinicLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/60 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900/30 p-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-10 left-10 w-72 h-72 bg-blue-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute top-10 right-10 w-72 h-72 bg-purple-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
-      
-      {/* Medical icons floating background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <Stethoscope className="absolute top-20 left-1/4 w-6 h-6 text-blue-200/30 animate-float" />
-        <Heart className="absolute top-40 right-1/3 w-5 h-5 text-pink-200/30 animate-float animation-delay-1000" />
-        <Shield className="absolute bottom-40 left-1/3 w-7 h-7 text-green-200/30 animate-float animation-delay-2000" />
-        <Lock className="absolute bottom-20 right-1/4 w-4 h-4 text-purple-200/30 animate-float animation-delay-3000" />
-      </div>
-      
-      <div className="relative w-full max-w-md space-y-8 z-10">
-        {/* Header Section */}
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <div className="mx-auto p-6 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl w-fit mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300">
-              <div className="absolute inset-0 bg-white/20 rounded-2xl backdrop-blur-sm"></div>
-              <Building2 className="h-16 w-16 text-white relative z-10" />
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
+      <div className="container mx-auto max-w-md pt-12">
+        
+        {/* Back to Home Button */}
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+
+        {/* Clinic Header */}
+        <div className="text-center mb-8 space-y-4">
+          <div className="relative mx-auto w-20 h-20">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl opacity-90"></div>
+            <div className="absolute inset-0 bg-white/20 rounded-2xl backdrop-blur-sm"></div>
+            <Building2 className="h-12 w-12 text-white relative z-10 mx-auto mt-4" />
             <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
           </div>
           
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
               {clinic.name}
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">Welcome to your dental office portal</p>
+            <p className="text-lg text-slate-600 font-medium">Welcome to your dental office portal</p>
             <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span>Secure Login Portal</span>
@@ -376,24 +294,60 @@ export default function ClinicLogin() {
         </div>
 
         {/* Main Login Card */}
-        <Card className="backdrop-blur-lg bg-white/80 dark:bg-slate-800/80 border-white/20 shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-500 transform hover:scale-[1.02]">
-          <CardContent className="p-8">
+        <Card className="backdrop-blur-lg bg-white/80 border-white/20 shadow-2xl shadow-blue-500/10 hover:shadow-blue-500/20 transition-all duration-500">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-xl font-semibold">
+              Access {clinic.name}
+            </CardTitle>
+            <CardDescription>
+              Choose your login method below
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="p-6">
             <Tabs defaultValue="assistant" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-8 bg-slate-100/50 dark:bg-slate-700/50 p-1 rounded-xl h-12">
-                <TabsTrigger value="assistant">Assistant</TabsTrigger>
-                <TabsTrigger value="owner">Owner</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100/50 p-1 rounded-xl h-12">
+                <TabsTrigger value="assistant" className="text-sm font-medium">
+                  <User className="w-4 h-4 mr-2" />
+                  Assistant
+                </TabsTrigger>
+                <TabsTrigger value="owner" className="text-sm font-medium">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Owner
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="assistant" className="mt-0">
-                <AssistantLogin clinicId={clinic.id} />
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <p className="text-sm text-muted-foreground">
+                      Assistant login using name and PIN
+                    </p>
+                  </div>
+                  <AssistantLogin clinicId={clinic.id} />
+                </div>
               </TabsContent>
               
               <TabsContent value="owner" className="mt-0">
-                <OwnerLogin />
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <p className="text-sm text-muted-foreground">
+                      Owner login using email and password
+                    </p>
+                  </div>
+                  <OwnerLogin clinicCode={clinicCode || ''} />
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Additional Info */}
+        <div className="mt-6 text-center">
+          <p className="text-xs text-muted-foreground">
+            Need help? Contact your clinic administrator
+          </p>
+        </div>
       </div>
     </div>
   );

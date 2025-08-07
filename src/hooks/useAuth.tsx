@@ -18,6 +18,7 @@ interface AuthContextType {
   loading: boolean;
   userProfile: UserProfile | null;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
+  signInWithGoogle: () => Promise<{ error?: string }>;
   signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicId?: string }) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   createAssistant: (email: string, name: string, clinicId: string) => Promise<{ error?: string }>;
@@ -81,12 +82,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error('Error fetching user profile:', error);
-      } else {
+        return;
+      }
+
+      if (data) {
         setUserProfile(data);
+      } else {
+        // User profile doesn't exist, might be a new signup
+        console.log('No user profile found for user:', userId);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -144,6 +151,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithGoogle = async (): Promise<{ error?: string }> => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      return {};
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      return { error: 'Google authentication failed' };
+    }
+  };
+
   const signInWithEmail = async (email: string, password: string): Promise<{ error?: string }> => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -179,6 +206,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: error.message };
       }
 
+      // The user profile will be created automatically by the handle_new_user trigger
       return {};
     } catch (error) {
       console.error('Sign-up error:', error);
@@ -199,6 +227,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     userProfile,
     loading,
     signInWithEmail,
+    signInWithGoogle,
     signUp,
     signOut,
     createAssistant,

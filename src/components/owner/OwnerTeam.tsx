@@ -14,6 +14,7 @@ import {
   Clock,
   Users
 } from 'lucide-react';
+import AddMemberDialog from './AddMemberDialog';
 
 interface TeamMember {
   id: string;
@@ -40,6 +41,7 @@ interface OwnerTeamProps {
 
 const OwnerTeam: React.FC<OwnerTeamProps> = ({ assistants, tasks, onTeamUpdate }) => {
   const [teamStats, setTeamStats] = useState<Record<string, { completed: number; pending: number; total: number }>>({});
+  const [showAddMember, setShowAddMember] = useState(false);
 
   useEffect(() => {
     calculateTeamStats();
@@ -140,7 +142,7 @@ const OwnerTeam: React.FC<OwnerTeamProps> = ({ assistants, tasks, onTeamUpdate }
       {/* Add Member Button */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Team Members</h2>
-        <Button>
+        <Button onClick={() => setShowAddMember(true)}>
           <UserPlus className="h-4 w-4 mr-2" />
           Add Member
         </Button>
@@ -212,6 +214,13 @@ const OwnerTeam: React.FC<OwnerTeamProps> = ({ assistants, tasks, onTeamUpdate }
           })
         )}
       </div>
+
+      {/* Add Member Dialog */}
+      <AddMemberDialog
+        open={showAddMember}
+        onOpenChange={setShowAddMember}
+        onMemberAdded={onTeamUpdate}
+      />
     </div>
   );
 };

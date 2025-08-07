@@ -14,7 +14,9 @@ import {
   Minus,
   Calendar,
   AlertTriangle,
-  LogOut
+  LogOut,
+  Undo,
+  ArrowLeft
 } from 'lucide-react';
 
 interface Task {
@@ -112,7 +114,11 @@ const AssistantDashboard = () => {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ status: 'Done' })
+        .update({ 
+          status: 'Done',
+          completed_by: user?.id,
+          completed_at: new Date().toISOString()
+        })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -128,6 +134,60 @@ const AssistantDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to update task",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const markTaskUndone = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'To Do',
+          completed_by: null,
+          completed_at: null
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Task Reopened",
+        description: "Task marked as to-do"
+      });
+      
+      fetchTasks();
+    } catch (error) {
+      console.error('Error marking task undone:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update task",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const unassignTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ assigned_to: null })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Task Unassigned",
+        description: "Task returned to available tasks"
+      });
+      
+      fetchTasks();
+    } catch (error) {
+      console.error('Error unassigning task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to unassign task",
         variant: "destructive"
       });
     }
@@ -265,24 +325,46 @@ const AssistantDashboard = () => {
                       )}
                     </div>
                   </div>
-                  
-                  {task.status === 'To Do' && (
-                    <Button 
-                      size="sm"
-                      onClick={() => markTaskDone(task.id)}
-                      className="w-full"
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Mark as Done
-                    </Button>
-                  )}
-                  
-                  {task.status === 'Done' && (
-                    <Badge variant="secondary" className="w-full justify-center">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Completed
-                    </Badge>
-                  )}
+                   
+                   <div className="flex gap-2">
+                     {task.status === 'To Do' && (
+                       <>
+                         <Button 
+                           size="sm"
+                           onClick={() => markTaskDone(task.id)}
+                           className="flex-1"
+                         >
+                           <CheckCircle className="h-4 w-4 mr-2" />
+                           Mark as Done
+                         </Button>
+                         <Button 
+                           size="sm"
+                           variant="outline"
+                           onClick={() => unassignTask(task.id)}
+                         >
+                           <ArrowLeft className="h-4 w-4 mr-2" />
+                           Put Back
+                         </Button>
+                       </>
+                     )}
+                     
+                     {task.status === 'Done' && (
+                       <>
+                         <Badge variant="secondary" className="flex-1 justify-center">
+                           <CheckCircle className="h-3 w-3 mr-1" />
+                           Completed
+                         </Badge>
+                         <Button 
+                           size="sm"
+                           variant="outline"
+                           onClick={() => markTaskUndone(task.id)}
+                         >
+                           <Undo className="h-4 w-4 mr-2" />
+                           Undo
+                         </Button>
+                       </>
+                     )}
+                   </div>
                 </div>
               ))
             )}

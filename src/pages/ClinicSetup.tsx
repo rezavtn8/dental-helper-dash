@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2, Building2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ClinicSetup() {
   const [clinicName, setClinicName] = useState('');
@@ -16,6 +17,7 @@ export default function ClinicSetup() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signUp } = useAuth();
 
   const generateClinicCode = () => {
     if (clinicName) {
@@ -52,45 +54,20 @@ export default function ClinicSetup() {
       }
 
       // Create the owner account
-      const redirectUrl = `${window.location.origin}/clinic/${clinicCode}`;
-      
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: { name: ownerName, role: 'owner' }
-        }
+      const { error: authError } = await signUp(email, password, {
+        name: ownerName,
+        role: 'owner',
+        clinicId: clinic.id
       });
 
       if (authError) {
-        toast.error('Failed to create account: ' + authError.message);
+        toast.error('Failed to create account: ' + authError);
         setLoading(false);
         return;
       }
 
-      // Create user profile
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: email,
-            name: ownerName,
-            role: 'owner',
-            clinic_id: clinic.id,
-            is_active: true,
-            display_order: 0
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          toast.error('Account created but profile setup failed. Please contact support.');
-        } else {
-          toast.success('Clinic created successfully! Please check your email to verify your account.');
-          navigate(`/clinic/${clinicCode}`);
-        }
-      }
+      toast.success('Clinic created successfully! Please check your email to verify your account.');
+      navigate(`/`);
     } catch (error) {
       console.error('Setup error:', error);
       toast.error('Failed to create clinic. Please try again.');

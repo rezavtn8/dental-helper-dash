@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ClinicProvider } from "@/hooks/useClinic";
 import Home from "./pages/Home";
+import Login from "./pages/Login";
 import ClinicSetup from "./pages/ClinicSetup";
 import ClinicLogin from "./pages/ClinicLogin";
 import AssistantDashboard from "./pages/AssistantDashboard";
@@ -69,9 +70,9 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/clinic/:clinicCode" element={<ClinicLogin />} />
-              <Route path="/login" element={<Navigate to="/" replace />} />
               <Route 
                 path="/assistant" 
                 element={

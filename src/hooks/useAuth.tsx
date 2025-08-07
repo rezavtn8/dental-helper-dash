@@ -6,12 +6,9 @@ interface UserProfile {
   id: string;
   role: string;
   name: string;
+  email: string;
   clinic_id: string;
-  pin?: string;
-  pin_attempts: number;
-  pin_locked_until?: string;
   last_login?: string;
-  display_order: number;
   is_active: boolean;
 }
 
@@ -21,12 +18,10 @@ interface AuthContextType {
   loading: boolean;
   userProfile: UserProfile | null;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
-  signInWithPin: (assistantName: string, pin: string, clinicId: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicCode?: string }) => Promise<{ error?: string }>;
+  signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicId?: string }) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
-  generatePinForAssistant: (assistantId: string) => Promise<{ pin?: string; error?: string }>;
-  resetAssistantPin: (assistantId: string) => Promise<{ pin?: string; error?: string }>;
-  getClinicAssistants: (clinicId: string) => Promise<UserProfile[]>;
+  createAssistant: (email: string, name: string, clinicId: string) => Promise<{ error?: string }>;
+  getClinicUsers: (clinicId: string) => Promise<UserProfile[]>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -98,109 +93,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithPin = async (assistantName: string, pin: string, clinicId: string): Promise<{ error?: string }> => {
+  const createAssistant = async (email: string, name: string, clinicId: string): Promise<{ error?: string }> => {
     try {
-      // Check if assistant is locked
-      const { data: assistant, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('name', assistantName)
-        .eq('clinic_id', clinicId)
-        .eq('role', 'assistant')
-        .eq('pin', pin)
-        .single();
-
-      if (fetchError || !assistant) {
-        // Increment pin attempts
-        await supabase
-          .from('users')
-          .update({ 
-            pin_attempts: (assistant?.pin_attempts || 0) + 1,
-            pin_locked_until: (assistant?.pin_attempts || 0) >= 2 ? 
-              new Date(Date.now() + 15 * 60 * 1000).toISOString() : null
-          })
-          .eq('name', assistantName)
-          .eq('clinic_id', clinicId)
-          .eq('role', 'assistant');
-
-        return { error: 'Invalid PIN or assistant name' };
-      }
-
-      // Check if locked
-      if (assistant.pin_locked_until && new Date(assistant.pin_locked_until) > new Date()) {
-        return { error: 'Account temporarily locked. Try again later.' };
-      }
-
-      // Reset pin attempts and update last login
-      await supabase
-        .from('users')
-        .update({ 
-          pin_attempts: 0,
-          pin_locked_until: null,
-          last_login: new Date().toISOString()
-        })
-        .eq('id', assistant.id);
-
-      // Create a session for the assistant (simulate auth session)
-      setUserProfile(assistant);
-      setLoading(false);
+      // Generate a temporary password
+      const tempPassword = `temp${Math.floor(Math.random() * 100000)}`;
       
-      // Store session in localStorage for persistence
-      localStorage.setItem('assistant_session', JSON.stringify({
-        userId: assistant.id,
-        clinicId: assistant.clinic_id,
-        timestamp: Date.now()
-      }));
-
-      return {};
-    } catch (error) {
-      console.error('PIN sign-in error:', error);
-      return { error: 'Authentication failed' };
-    }
-  };
-
-  const generatePinForAssistant = async (assistantId: string): Promise<{ pin?: string; error?: string }> => {
-    try {
-      const pin = Math.floor(1000 + Math.random() * 9000).toString();
-      
-      const { error } = await supabase
-        .from('users')
-        .update({ pin })
-        .eq('id', assistantId);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: tempPassword,
+        options: {
+          emailRedirectTo: `${window.location.origin}/clinic`,
+          data: { 
+            name, 
+            role: 'assistant',
+            clinic_id: clinicId,
+            must_change_password: true
+          }
+        }
+      });
 
       if (error) {
         return { error: error.message };
       }
 
-      return { pin };
+      return {};
     } catch (error) {
-      console.error('PIN generation error:', error);
-      return { error: 'Failed to generate PIN' };
+      console.error('Assistant creation error:', error);
+      return { error: 'Failed to create assistant' };
     }
   };
 
-  const resetAssistantPin = async (assistantId: string): Promise<{ pin?: string; error?: string }> => {
-    return generatePinForAssistant(assistantId);
-  };
-
-  const getClinicAssistants = async (clinicId: string): Promise<UserProfile[]> => {
+  const getClinicUsers = async (clinicId: string): Promise<UserProfile[]> => {
     try {
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('clinic_id', clinicId)
-        .eq('role', 'assistant')
         .eq('is_active', true)
-        .order('display_order', { ascending: true });
+        .order('role', { ascending: true });
 
       if (error) {
-        console.error('Error fetching assistants:', error);
+        console.error('Error fetching clinic users:', error);
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Error fetching assistants:', error);
+      console.error('Error fetching clinic users:', error);
       return [];
     }
   };
@@ -223,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant' }): Promise<{ error?: string }> => {
+  const signUp = async (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicId?: string }): Promise<{ error?: string }> => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -232,37 +171,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: userData
+          data: { ...userData, clinic_id: userData.clinicId }
         }
       });
 
       if (error) {
         return { error: error.message };
-      }
-
-      // Create user profile in public.users table
-      if (data.user) {
-        // Get the first clinic (or create logic to assign to specific clinic)
-        const { data: clinicData } = await supabase
-          .from('clinics')
-          .select('id')
-          .limit(1)
-          .single();
-
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: data.user.id,
-            email: email,
-            name: userData.name,
-            role: userData.role,
-            clinic_id: clinicData?.id
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          return { error: 'Failed to create user profile' };
-        }
       }
 
       return {};
@@ -285,12 +199,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     userProfile,
     loading,
     signInWithEmail,
-    signInWithPin,
     signUp,
     signOut,
-    generatePinForAssistant,
-    resetAssistantPin,
-    getClinicAssistants,
+    createAssistant,
+    getClinicUsers,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

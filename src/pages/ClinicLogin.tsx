@@ -5,113 +5,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, Building2, Users } from 'lucide-react';
+import { Loader2, LogIn } from 'lucide-react';
 
-// Components
-const AssistantLogin = ({ clinicId }: { clinicId: string }) => {
-  const [selectedAssistant, setSelectedAssistant] = useState('');
-  const [pin, setPin] = useState('');
-  const [assistants, setAssistants] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { signInWithPin, getClinicAssistants } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    loadAssistants();
-  }, [clinicId]);
-
-  const loadAssistants = async () => {
-    const assistantList = await getClinicAssistants(clinicId);
-    setAssistants(assistantList);
-  };
-
-  const handleAssistantLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedAssistant || pin.length !== 4) {
-      toast.error('Please select an assistant and enter a 4-digit PIN');
-      return;
-    }
-
-    setLoading(true);
-    const { error } = await signInWithPin(selectedAssistant, pin, clinicId);
-    
-    if (error) {
-      toast.error(error);
-      setPin('');
-    } else {
-      toast.success('Welcome back!');
-      navigate('/assistant');
-    }
-    setLoading(false);
-  };
-
-  const handlePinInput = (value: string) => {
-    if (value.length <= 4 && /^\d*$/.test(value)) {
-      setPin(value);
-    }
-  };
-
-  return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-        <CardTitle>Assistant Login</CardTitle>
-        <CardDescription>Select your name and enter your PIN</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleAssistantLogin} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="assistant">Select Assistant</Label>
-            <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose your name" />
-              </SelectTrigger>
-              <SelectContent>
-                {assistants.map((assistant) => (
-                  <SelectItem key={assistant.id} value={assistant.name}>
-                    {assistant.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="pin">4-Digit PIN</Label>
-            <Input
-              id="pin"
-              type="password"
-              value={pin}
-              onChange={(e) => handlePinInput(e.target.value)}
-              placeholder="Enter your PIN"
-              className="text-center text-2xl tracking-wider"
-              maxLength={4}
-              autoComplete="off"
-            />
-          </div>
-
-          <Button type="submit" className="w-full" disabled={loading || !selectedAssistant || pin.length !== 4}>
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            Sign In
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-};
-
-const OwnerLogin = () => {
+// Unified Login Component
+const UnifiedLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signInWithEmail } = useAuth();
   const navigate = useNavigate();
 
-  const handleOwnerLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
@@ -121,7 +27,7 @@ const OwnerLogin = () => {
       toast.error(error);
     } else {
       toast.success('Welcome back!');
-      navigate('/owner');
+      // Navigation will be handled by the RoleBasedRedirect component
     }
     setLoading(false);
   };
@@ -129,12 +35,12 @@ const OwnerLogin = () => {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
-        <CardTitle>Clinic Owner Login</CardTitle>
-        <CardDescription>Sign in with your email and password</CardDescription>
+        <LogIn className="w-12 h-12 mx-auto mb-4 text-primary" />
+        <CardTitle>Sign In</CardTitle>
+        <CardDescription>Enter your email and password to continue</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleOwnerLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -160,7 +66,7 @@ const OwnerLogin = () => {
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+            {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
             Sign In
           </Button>
         </form>
@@ -225,20 +131,7 @@ export default function ClinicLogin() {
           <p className="text-muted-foreground">Welcome to your clinic portal</p>
         </div>
 
-        <Tabs defaultValue="assistant" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="assistant">Assistant</TabsTrigger>
-            <TabsTrigger value="owner">Owner</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="assistant" className="mt-6">
-            <AssistantLogin clinicId={clinic.id} />
-          </TabsContent>
-          
-          <TabsContent value="owner" className="mt-6">
-            <OwnerLogin />
-          </TabsContent>
-        </Tabs>
+        <UnifiedLogin />
       </div>
     </div>
   );

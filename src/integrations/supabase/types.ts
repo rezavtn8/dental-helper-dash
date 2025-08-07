@@ -80,6 +80,60 @@ export type Database = {
         }
         Relationships: []
       }
+      task_templates: {
+        Row: {
+          assigned_at: string | null
+          category: string | null
+          checklist: Json | null
+          clinic_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          "due-type": string | null
+          id: string
+          is_active: boolean | null
+          owner_notes: string | null
+          recurrence: string | null
+          specialty: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          category?: string | null
+          checklist?: Json | null
+          clinic_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          "due-type"?: string | null
+          id?: string
+          is_active?: boolean | null
+          owner_notes?: string | null
+          recurrence?: string | null
+          specialty?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_at?: string | null
+          category?: string | null
+          checklist?: Json | null
+          clinic_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          "due-type"?: string | null
+          id?: string
+          is_active?: boolean | null
+          owner_notes?: string | null
+          recurrence?: string | null
+          specialty?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to: string | null
@@ -87,16 +141,22 @@ export type Database = {
           category: string | null
           checklist: Json | null
           clinic_id: string | null
+          completed_at: string | null
+          completed_by: string | null
           created_at: string | null
           created_by: string | null
+          custom_due_date: string | null
           description: string | null
+          due_type: string | null
           "due-date": string | null
           "due-type": string | null
           id: string
+          owner_notes: string | null
           priority: string | null
           recurrence: string | null
           status: string | null
           title: string | null
+          updated_at: string | null
         }
         Insert: {
           assigned_to?: string | null
@@ -104,16 +164,22 @@ export type Database = {
           category?: string | null
           checklist?: Json | null
           clinic_id?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
           created_at?: string | null
           created_by?: string | null
+          custom_due_date?: string | null
           description?: string | null
+          due_type?: string | null
           "due-date"?: string | null
           "due-type"?: string | null
           id?: string
+          owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
           status?: string | null
           title?: string | null
+          updated_at?: string | null
         }
         Update: {
           assigned_to?: string | null
@@ -121,16 +187,22 @@ export type Database = {
           category?: string | null
           checklist?: Json | null
           clinic_id?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
           created_at?: string | null
           created_by?: string | null
+          custom_due_date?: string | null
           description?: string | null
+          due_type?: string | null
           "due-date"?: string | null
           "due-type"?: string | null
           id?: string
+          owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
           status?: string | null
           title?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -174,46 +246,37 @@ export type Database = {
         Row: {
           clinic_id: string
           created_at: string
-          display_order: number | null
+          created_by: string | null
           email: string | null
           id: string
           is_active: boolean | null
           last_login: string | null
           name: string | null
           password_hash: string | null
-          pin: string | null
-          pin_attempts: number | null
-          pin_locked_until: string | null
           role: string | null
         }
         Insert: {
           clinic_id?: string
           created_at?: string
-          display_order?: number | null
+          created_by?: string | null
           email?: string | null
           id?: string
           is_active?: boolean | null
           last_login?: string | null
           name?: string | null
           password_hash?: string | null
-          pin?: string | null
-          pin_attempts?: number | null
-          pin_locked_until?: string | null
           role?: string | null
         }
         Update: {
           clinic_id?: string
           created_at?: string
-          display_order?: number | null
+          created_by?: string | null
           email?: string | null
           id?: string
           is_active?: boolean | null
           last_login?: string | null
           name?: string | null
           password_hash?: string | null
-          pin?: string | null
-          pin_attempts?: number | null
-          pin_locked_until?: string | null
           role?: string | null
         }
         Relationships: [
@@ -224,6 +287,13 @@ export type Database = {
             referencedRelation: "clinics"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "users_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -231,7 +301,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_create_user: {
+        Args: { target_role: string }
+        Returns: boolean
+      }
+      get_current_user_clinic_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      update_user_pin: {
+        Args: { user_id: string; new_pin: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

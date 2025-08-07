@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,7 +54,7 @@ const OwnerDashboard = () => {
     priority: 'medium' as const,
     'due-type': 'EoD',
     category: '',
-    assigned_to: '',
+    assigned_to: 'unassigned',
     recurrence: 'none'
   });
 
@@ -108,7 +109,7 @@ const OwnerDashboard = () => {
         .from('tasks')
         .insert({
           ...newTask,
-          assigned_to: newTask.assigned_to || null,
+          assigned_to: newTask.assigned_to === 'unassigned' ? null : newTask.assigned_to,
           clinic_id: userProfile?.clinic_id,
           created_by: user?.id,
           status: 'To Do'
@@ -127,7 +128,7 @@ const OwnerDashboard = () => {
         priority: 'medium',
         'due-type': 'EoD',
         category: '',
-        assigned_to: '',
+        assigned_to: 'unassigned',
         recurrence: 'none'
       });
       
@@ -147,7 +148,7 @@ const OwnerDashboard = () => {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ assigned_to: assistantId || null })
+        .update({ assigned_to: assistantId === 'unassigned' ? null : assistantId })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -294,7 +295,7 @@ const OwnerDashboard = () => {
                         <SelectValue placeholder="Leave unassigned" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Unassigned</SelectItem>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
                         {assistants.map((assistant) => (
                           <SelectItem key={assistant.id} value={assistant.id}>
                             {assistant.name}
@@ -422,14 +423,14 @@ const OwnerDashboard = () => {
                       </span>
                       
                       <Select 
-                        value={task.assigned_to || ''} 
+                        value={task.assigned_to || 'unassigned'} 
                         onValueChange={(value) => reassignTask(task.id, value)}
                       >
                         <SelectTrigger className="w-32">
                           <SelectValue placeholder="Reassign" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Unassigned</SelectItem>
+                          <SelectItem value="unassigned">Unassigned</SelectItem>
                           {assistants.map((assistant) => (
                             <SelectItem key={assistant.id} value={assistant.id}>
                               {assistant.name}

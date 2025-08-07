@@ -58,6 +58,7 @@ const OwnerDashboard = () => {
   });
 
   useEffect(() => {
+    console.log('OwnerDashboard - session:', !!session, 'user:', !!user, 'userProfile:', userProfile);
     if (session && user && userProfile?.role === 'owner') {
       fetchTasks();
       fetchAssistants();
@@ -185,12 +186,16 @@ const OwnerDashboard = () => {
   const completedTasks = tasks.filter(task => task.status === 'Done').length;
   const pendingTasks = tasks.filter(task => task.status === 'To Do').length;
 
-  if (loading) {
+  // Show loading screen if still loading or if user profile doesn't exist yet
+  if (loading || !userProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Clock className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p>Loading dashboard...</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            {!userProfile ? 'Setting up your profile...' : 'Loading data...'}
+          </p>
         </div>
       </div>
     );

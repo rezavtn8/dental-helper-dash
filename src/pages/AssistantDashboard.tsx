@@ -36,6 +36,7 @@ const AssistantDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('AssistantDashboard - session:', !!session, 'user:', !!user, 'userProfile:', userProfile);
     if (session && user && userProfile?.role === 'assistant') {
       fetchTasks();
       fetchTodayPatientCount();
@@ -170,12 +171,16 @@ const AssistantDashboard = () => {
   const myTasks = tasks.filter(task => task.assigned_to === user?.id);
   const unassignedTasks = tasks.filter(task => !task.assigned_to);
 
-  if (loading) {
+  // Show loading screen if still loading or if user profile doesn't exist yet
+  if (loading || !userProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Clock className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p>Loading dashboard...</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            {!userProfile ? 'Setting up your profile...' : 'Loading data...'}
+          </p>
         </div>
       </div>
     );

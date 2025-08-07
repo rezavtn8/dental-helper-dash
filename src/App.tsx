@@ -34,29 +34,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/" replace />;
   }
 
+  // If user is authenticated but no profile exists, stay on current page
+  // This allows the useAuth hook to attempt profile creation
   return <>{children}</>;
 };
 
 const RoleBasedRedirect = () => {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading, session } = useAuth();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Loading user profile...</p>
         </div>
       </div>
     );
+  }
+
+  if (!session) {
+    return <Navigate to="/" replace />;
   }
 
   if (userProfile?.role === 'owner') {
     return <Navigate to="/owner" replace />;
   } else if (userProfile?.role === 'assistant') {
     return <Navigate to="/assistant" replace />;
+  } else if (userProfile?.role === 'admin') {
+    return <Navigate to="/owner" replace />; // Admins use owner dashboard
   } else {
-    return <Navigate to="/" replace />;
+    // If no profile or unknown role, wait a bit more or redirect to home
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Setting up your profile...</p>
+        </div>
+      </div>
+    );
   }
 };
 
@@ -73,6 +89,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/clinic/:clinicCode" element={<ClinicLogin />} />
+              <Route path="/dashboard" element={<RoleBasedRedirect />} />
               <Route 
                 path="/assistant" 
                 element={

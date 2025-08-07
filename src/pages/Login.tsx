@@ -25,7 +25,7 @@ export default function Login() {
       toast.error(error);
     } else {
       toast.success('Welcome back!');
-      navigate('/');
+      // Navigation will be handled by RoleBasedRedirect component
     }
     setLoading(false);
   };
@@ -35,8 +35,8 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <LogIn className="w-12 h-12 mx-auto mb-4 text-primary" />
-          <CardTitle>Welcome Back</CardTitle>
-          <CardDescription>Sign in to your account</CardDescription>
+          <CardTitle>Direct Login</CardTitle>
+          <CardDescription>Sign in with your account credentials</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

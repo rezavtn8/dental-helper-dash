@@ -15,7 +15,6 @@ const UnifiedLogin = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signInWithEmail } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,17 +26,17 @@ const UnifiedLogin = () => {
       toast.error(error);
     } else {
       toast.success('Welcome back!');
-      // Navigation will be handled by the RoleBasedRedirect component
+      // Navigation will be handled by the RoleBasedRedirect component in App.tsx
     }
     setLoading(false);
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full">
       <CardHeader className="text-center">
         <LogIn className="w-12 h-12 mx-auto mb-4 text-primary" />
         <CardTitle>Sign In</CardTitle>
-        <CardDescription>Enter your email and password to continue</CardDescription>
+        <CardDescription>Enter your credentials to access the clinic</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin} className="space-y-4">
@@ -128,10 +127,17 @@ export default function ClinicLogin() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground mb-2">{clinic.name}</h1>
-          <p className="text-muted-foreground">Welcome to your clinic portal</p>
+          <p className="text-muted-foreground">Sign in to access your clinic</p>
+          <p className="text-xs text-muted-foreground mt-1">Clinic Code: {clinic.clinic_code}</p>
         </div>
 
         <UnifiedLogin />
+        
+        <div className="text-center">
+          <Button variant="link" onClick={() => navigate('/')} className="text-sm">
+            ← Back to Home
+          </Button>
+        </div>
       </div>
     </div>
   );

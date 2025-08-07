@@ -66,8 +66,8 @@ export default function ClinicSetup() {
         return;
       }
 
-      toast.success('Clinic created successfully! Please check your email to verify your account.');
-      navigate(`/`);
+      toast.success(`Clinic created successfully! Your clinic is now available at: /clinic/${clinicCode}`);
+      navigate(`/clinic/${clinicCode}`);
     } catch (error) {
       console.error('Setup error:', error);
       toast.error('Failed to create clinic. Please try again.');
@@ -78,11 +78,11 @@ export default function ClinicSetup() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
           <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
           <CardTitle>Create Your Clinic</CardTitle>
-          <CardDescription>Set up your clinic and owner account</CardDescription>
+          <CardDescription>Set up your clinic and owner account in one step</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -112,7 +112,7 @@ export default function ClinicSetup() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Your clinic URL will be: yourapp.com/clinic/{clinicCode}
+                Your clinic will be accessible at: /clinic/{clinicCode || 'your-code'}
               </p>
             </div>
 

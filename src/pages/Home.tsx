@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Building2, Users, ArrowRight, Plus, Clock } from 'lucide-react';
+import { Building2, Users, ArrowRight, Plus, Clock, LogIn } from 'lucide-react';
 
 export default function Home() {
   const [clinicCode, setClinicCode] = useState('');
@@ -75,12 +75,12 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="max-w-4xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-3 gap-6">
             {/* Access Clinic */}
             <Card>
               <CardHeader className="text-center">
                 <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <CardTitle className="text-2xl">Access Your Clinic</CardTitle>
+                <CardTitle className="text-xl">Access Your Clinic</CardTitle>
                 <CardDescription>
                   Enter your clinic code to access the portal
                 </CardDescription>
@@ -93,16 +93,13 @@ export default function Home() {
                       id="clinicCode"
                       value={clinicCode}
                       onChange={(e) => setClinicCode(e.target.value)}
-                      placeholder="e.g., irvine123, smith-dental"
-                      className="text-center text-lg h-12"
+                      placeholder="e.g., irvine123"
+                      className="text-center"
                     />
-                    <p className="text-xs text-muted-foreground text-center">
-                      Enter your clinic's unique code to access your portal
-                    </p>
                   </div>
-                  <Button type="submit" className="w-full h-12 text-lg" disabled={!clinicCode.trim()}>
+                  <Button type="submit" className="w-full" disabled={!clinicCode.trim()}>
                     Access Clinic
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                    <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </form>
               </CardContent>
@@ -112,19 +109,40 @@ export default function Home() {
             <Card>
               <CardHeader className="text-center">
                 <Plus className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <CardTitle className="text-2xl">Create New Clinic</CardTitle>
+                <CardTitle className="text-xl">Create New Clinic</CardTitle>
                 <CardDescription>
-                  Set up a new clinic and invite your team
+                  Set up a new clinic and get your unique URL
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button 
-                  className="w-full h-12 text-lg" 
+                  className="w-full" 
                   variant="outline"
                   onClick={() => navigate('/setup')}
                 >
                   Create Clinic
-                  <Plus className="ml-2 w-5 h-5" />
+                  <Plus className="ml-2 w-4 h-4" />
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Direct Login */}
+            <Card>
+              <CardHeader className="text-center">
+                <LogIn className="w-12 h-12 mx-auto mb-4 text-primary" />
+                <CardTitle className="text-xl">Direct Login</CardTitle>
+                <CardDescription>
+                  Sign in if you already have an account
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  className="w-full" 
+                  variant="secondary"
+                  onClick={() => navigate('/login')}
+                >
+                  Sign In
+                  <LogIn className="ml-2 w-4 h-4" />
                 </Button>
               </CardContent>
             </Card>

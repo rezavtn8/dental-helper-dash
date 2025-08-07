@@ -45,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth event:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -78,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -90,13 +92,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data) {
+        console.log('User profile found:', data);
         setUserProfile(data);
       } else {
-        // User profile doesn't exist, might be a new signup
-        console.log('No user profile found for user:', userId);
+        console.log('No user profile found, attempting to create one...');
+        // Try to create a user profile for users who logged in via Google
+        const { data: authUser } = await supabase.auth.getUser();
+        if (authUser.user) {
+          await createUserProfileFromAuth(authUser.user);
+        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const createUserProfileFromAuth = async (user: any) => {
+    try {
+      console.log('Creating user profile from auth user:', user);
+      const userMetadata = user.user_metadata || {};
+      
+      const { data, error } = await supabase
+        .from('users')
+        .insert({
+          id: user.id,
+          email: user.email,
+          name: userMetadata.full_name || userMetadata.name || user.email?.split('@')[0] || 'User',
+          role: userMetadata.role || 'assistant', // Default to assistant if no role specified
+          clinic_id: userMetadata.clinic_id || null,
+          is_active: true
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating user profile:', error);
+        return;
+      }
+
+      if (data) {
+        console.log('User profile created:', data);
+        setUserProfile(data);
+      }
+    } catch (error) {
+      console.error('Error creating user profile:', error);
     }
   };
 

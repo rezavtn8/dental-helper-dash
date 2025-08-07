@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Plus, Users, Building2, Mail, Phone, Key, RotateCcw, Eye, EyeOff } from 'lucide-react';
+import { Plus, Users, Building2, Mail, Loader2 } from 'lucide-react';
 
 interface Clinic {
   id: string;
@@ -24,9 +24,17 @@ interface User {
   name: string | null;
   email: string | null;
   role: string;
-  pin?: string;
   created_at: string;
 }
+
+const LoadingScreen = ({ message }: { message: string }) => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="text-center">
+      <Loader2 className="animate-spin h-8 w-8 mx-auto mb-4 text-primary" />
+      <p className="text-muted-foreground">{message}</p>
+    </div>
+  </div>
+);
 
 export default function ClinicManagement() {
   const { user, signOut } = useAuth();
@@ -90,8 +98,6 @@ export default function ClinicManagement() {
     setIsInviting(true);
 
     try {
-      // For now, we'll just create a user record
-      // In a real app, you'd send an invitation email
       const { error } = await supabase
         .from('users')
         .insert({
@@ -105,9 +111,8 @@ export default function ClinicManagement() {
         toast.error(`Invitation Failed: ${error.message}`);
       } else {
         toast.success(`${inviteForm.name} has been added to your clinic.`);
-        
         setInviteForm({ email: '', name: '', role: 'assistant' });
-        fetchUsers(); // Refresh the users list
+        fetchUsers();
       }
     } catch (error) {
       toast.error("Failed to invite user.");
@@ -117,14 +122,7 @@ export default function ClinicManagement() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Loading clinic data...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading clinic data..." />;
   }
 
   return (
@@ -132,7 +130,7 @@ export default function ClinicManagement() {
       <header className="border-b">
         <div className="flex h-16 items-center px-4 justify-between">
           <div className="flex items-center space-x-4">
-            <Building2 className="h-6 w-6" />
+            <Building2 className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-semibold">Clinic Management</h1>
           </div>
           <Button variant="outline" onClick={signOut}>
@@ -229,7 +227,14 @@ export default function ClinicManagement() {
                 </div>
               </div>
               <Button type="submit" disabled={isInviting}>
-                {isInviting ? 'Inviting...' : 'Invite User'}
+                {isInviting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Inviting...
+                  </>
+                ) : (
+                  'Invite User'
+                )}
               </Button>
             </form>
           </CardContent>

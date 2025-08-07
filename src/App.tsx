@@ -8,7 +8,6 @@ import { ClinicProvider } from "@/hooks/useClinic";
 import Home from "./pages/Home";
 import ClinicSetup from "./pages/ClinicSetup";
 import ClinicLogin from "./pages/ClinicLogin";
-import Login from "./pages/Login";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import ClinicManagement from "./pages/ClinicManagement";
@@ -21,10 +20,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -42,10 +41,10 @@ const RoleBasedRedirect = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );

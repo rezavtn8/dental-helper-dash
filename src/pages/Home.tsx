@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,6 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Load recent clinics from localStorage
     const recent = localStorage.getItem('recentClinics');
     if (recent) {
       setRecentClinics(JSON.parse(recent));
@@ -23,7 +22,6 @@ export default function Home() {
     e.preventDefault();
     if (clinicCode.trim()) {
       const code = clinicCode.trim().toLowerCase();
-      // Save to recent clinics
       const updated = [code, ...recentClinics.filter(c => c !== code)].slice(0, 3);
       setRecentClinics(updated);
       localStorage.setItem('recentClinics', JSON.stringify(updated));
@@ -36,7 +34,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -51,7 +49,7 @@ export default function Home() {
         {/* Recent Clinics */}
         {recentClinics.length > 0 && (
           <div className="max-w-2xl mx-auto mb-8">
-            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
+            <Card>
               <CardHeader className="text-center pb-4">
                 <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
                 <CardTitle className="text-lg">Recent Clinics</CardTitle>
@@ -79,7 +77,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Access Clinic */}
-            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
+            <Card>
               <CardHeader className="text-center">
                 <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
                 <CardTitle className="text-2xl">Access Your Clinic</CardTitle>
@@ -111,7 +109,7 @@ export default function Home() {
             </Card>
 
             {/* Create New Clinic */}
-            <Card className="bg-card/95 backdrop-blur-sm border shadow-md">
+            <Card>
               <CardHeader className="text-center">
                 <Plus className="w-12 h-12 mx-auto mb-4 text-primary" />
                 <CardTitle className="text-2xl">Create New Clinic</CardTitle>
@@ -134,7 +132,7 @@ export default function Home() {
 
           {/* Features */}
           <div className="mt-16 grid md:grid-cols-2 gap-8">
-            <Card className="bg-card/90 backdrop-blur-sm border shadow-sm">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Users className="w-6 h-6 mr-2 text-primary" />
@@ -148,7 +146,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card/90 backdrop-blur-sm border shadow-sm">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Building2 className="w-6 h-6 mr-2 text-primary" />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useClinic } from '@/hooks/useClinic';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,11 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Loader2, Building2, Users } from 'lucide-react';
 
-interface AssistantLoginProps {
-  clinicId: string;
-}
-
-const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
+// Components
+const AssistantLogin = ({ clinicId }: { clinicId: string }) => {
   const [selectedAssistant, setSelectedAssistant] = useState('');
   const [pin, setPin] = useState('');
   const [assistants, setAssistants] = useState<any[]>([]);
@@ -107,7 +104,7 @@ const AssistantLogin: React.FC<AssistantLoginProps> = ({ clinicId }) => {
   );
 };
 
-const OwnerLogin: React.FC = () => {
+const OwnerLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -172,6 +169,16 @@ const OwnerLogin: React.FC = () => {
   );
 };
 
+const LoadingScreen = ({ message }: { message: string }) => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center">
+      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+      <p className="text-muted-foreground">{message}</p>
+    </div>
+  </div>
+);
+
+// Main component
 export default function ClinicLogin() {
   const { clinicCode } = useParams<{ clinicCode: string }>();
   const { clinic, setClinicFromCode, loading: clinicLoading } = useClinic();
@@ -189,19 +196,12 @@ export default function ClinicLogin() {
   }, [clinicCode, clinic, setClinicFromCode, navigate]);
 
   if (clinicLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p>Loading clinic...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading clinic..." />;
   }
 
   if (!clinic) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle>Clinic Not Found</CardTitle>
@@ -218,7 +218,7 @@ export default function ClinicLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground mb-2">{clinic.name}</h1>

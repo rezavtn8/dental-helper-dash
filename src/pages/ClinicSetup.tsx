@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,7 +29,7 @@ export default function ClinicSetup() {
     setLoading(true);
 
     try {
-      // First create the clinic
+      // Create the clinic
       const { data: clinic, error: clinicError } = await supabase
         .from('clinics')
         .insert({
@@ -101,8 +100,8 @@ export default function ClinicSetup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 p-4">
-      <Card className="w-full max-w-md bg-card/95 backdrop-blur-sm border shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
           <CardTitle>Create Your Clinic</CardTitle>

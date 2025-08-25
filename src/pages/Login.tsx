@@ -25,7 +25,8 @@ export default function Login() {
       toast.error(error);
     } else {
       toast.success('Welcome back!');
-      // Navigation will be handled by RoleBasedRedirect component
+      // Navigate to dashboard for role-based redirect
+      navigate('/dashboard');
     }
     setLoading(false);
   };
@@ -36,6 +37,9 @@ export default function Login() {
     
     if (error) {
       toast.error(error);
+    } else {
+      // Navigate to dashboard for role-based redirect
+      navigate('/dashboard');
     }
     setLoading(false);
   };

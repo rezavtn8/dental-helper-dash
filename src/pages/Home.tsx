@@ -1,182 +1,139 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Building2, Users, ArrowRight, Plus, Clock, LogIn } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, Users, Plus, Star } from 'lucide-react';
+import ClinicSearch from '@/components/ClinicSearch';
+import DualLoginInterface from '@/components/DualLoginInterface';
+import { useNavigate } from 'react-router-dom';
+
+interface Clinic {
+  id: string;
+  name: string;
+  clinic_code: string;
+  address?: string;
+}
 
 export default function Home() {
-  const [clinicCode, setClinicCode] = useState('');
-  const [recentClinics, setRecentClinics] = useState<string[]>([]);
+  const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const recent = localStorage.getItem('recentClinics');
-    if (recent) {
-      setRecentClinics(JSON.parse(recent));
-    }
-  }, []);
-
-  const handleClinicAccess = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (clinicCode.trim()) {
-      const code = clinicCode.trim().toLowerCase();
-      const updated = [code, ...recentClinics.filter(c => c !== code)].slice(0, 3);
-      setRecentClinics(updated);
-      localStorage.setItem('recentClinics', JSON.stringify(updated));
-      navigate(`/clinic/${code}`);
-    }
+  const handleClinicSelected = (clinic: Clinic) => {
+    setSelectedClinic(clinic);
+    
+    // Update recent clinics in localStorage
+    const recentClinics = JSON.parse(localStorage.getItem('recentClinics') || '[]');
+    const updated = [clinic.clinic_code, ...recentClinics.filter((c: string) => c !== clinic.clinic_code)].slice(0, 3);
+    localStorage.setItem('recentClinics', JSON.stringify(updated));
   };
 
-  const handleRecentClinicAccess = (code: string) => {
-    navigate(`/clinic/${code}`);
+  const handleBackToSearch = () => {
+    setSelectedClinic(null);
   };
+
+  if (selectedClinic) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <DualLoginInterface 
+            clinic={selectedClinic} 
+            onBack={handleBackToSearch}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            DentalFlow
+        <div className="text-center mb-12 space-y-4">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto shadow-lg mb-6">
+            <Building2 className="w-10 h-10 text-primary" />
+          </div>
+          <h1 className="text-5xl font-bold text-foreground mb-4">
+            Welcome to DentalFlow
           </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Practice management made simple - access your clinic or create a new one
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Modern practice management made simple. Find your clinic and access your personalized dashboard.
           </p>
         </div>
 
-        {/* Recent Clinics */}
-        {recentClinics.length > 0 && (
-          <div className="max-w-2xl mx-auto mb-8">
-            <Card>
-              <CardHeader className="text-center pb-4">
-                <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
-                <CardTitle className="text-lg">Recent Clinics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {recentClinics.map((code) => (
-                    <Button
-                      key={code}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRecentClinicAccess(code)}
-                      className="text-sm"
-                    >
-                      {code}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {/* Main Search Interface */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
+          <ClinicSearch onClinicSelected={handleClinicSelected} />
+        </div>
 
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto">
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Access Clinic */}
-            <Card>
-              <CardHeader className="text-center">
-                <Building2 className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <CardTitle className="text-xl">Access Your Clinic</CardTitle>
-                <CardDescription>
-                  Enter your clinic code to access the portal
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleClinicAccess} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="clinicCode">Clinic Code</Label>
-                    <Input
-                      id="clinicCode"
-                      value={clinicCode}
-                      onChange={(e) => setClinicCode(e.target.value)}
-                      placeholder="e.g., irvine123"
-                      className="text-center"
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={!clinicCode.trim()}>
-                    Access Clinic
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+        {/* Quick Actions */}
+        <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <Card className="hover:shadow-lg transition-shadow border-0 shadow-md">
+            <CardHeader className="text-center pb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Plus className="w-7 h-7 text-white" />
+              </div>
+              <CardTitle className="text-xl">Create New Practice</CardTitle>
+              <CardDescription className="text-base">
+                Set up a new dental practice with your own custom portal
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                className="w-full h-12 text-base shadow-sm" 
+                variant="outline"
+                onClick={() => navigate('/setup')}
+              >
+                Get Started
+                <Plus className="ml-2 w-4 h-4" />
+              </Button>
+            </CardContent>
+          </Card>
 
-            {/* Create New Clinic */}
-            <Card>
-              <CardHeader className="text-center">
-                <Plus className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <CardTitle className="text-xl">Create New Clinic</CardTitle>
-                <CardDescription>
-                  Set up a new clinic and get your unique URL
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  className="w-full" 
-                  variant="outline"
-                  onClick={() => navigate('/setup')}
-                >
-                  Create Clinic
-                  <Plus className="ml-2 w-4 h-4" />
-                </Button>
-              </CardContent>
-            </Card>
+          <Card className="hover:shadow-lg transition-shadow border-0 shadow-md">
+            <CardHeader className="text-center pb-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-7 h-7 text-white" />
+              </div>
+              <CardTitle className="text-xl">Direct Access</CardTitle>
+              <CardDescription className="text-base">
+                Already have an account? Sign in directly to your dashboard
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                className="w-full h-12 text-base shadow-sm" 
+                variant="secondary"
+                onClick={() => navigate('/login')}
+              >
+                Sign In
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Direct Login */}
-            <Card>
-              <CardHeader className="text-center">
-                <LogIn className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <CardTitle className="text-xl">Direct Login</CardTitle>
-                <CardDescription>
-                  Sign in if you already have an account
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  className="w-full" 
-                  variant="secondary"
-                  onClick={() => navigate('/login')}
-                >
-                  Sign In
-                  <LogIn className="ml-2 w-4 h-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Features */}
-          <div className="mt-16 grid md:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="w-6 h-6 mr-2 text-primary" />
-                  Multi-Role Access
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Owners and assistants have different dashboards tailored to their needs
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Building2 className="w-6 h-6 mr-2 text-primary" />
-                  Easy Setup
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Quick clinic setup with unique codes for secure access
-                </p>
-              </CardContent>
-            </Card>
+        {/* Features Overview */}
+        <div className="text-center space-y-8">
+          <h2 className="text-3xl font-bold text-foreground mb-8">Why Choose DentalFlow?</h2>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <Users className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold">Role-Based Access</h3>
+              <p className="text-muted-foreground">
+                Customized dashboards for practice owners and assistants, each with the tools they need.
+              </p>
+            </div>
+            
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <Building2 className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold">Secure & Simple</h3>
+              <p className="text-muted-foreground">
+                Quick setup with unique clinic codes and secure authentication for your entire team.
+              </p>
+            </div>
           </div>
         </div>
       </div>

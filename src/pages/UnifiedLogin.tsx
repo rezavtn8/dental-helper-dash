@@ -6,16 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, LogIn, Eye, EyeOff, Search } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { PinSetupDialog } from '@/components/assistant/PinSetupDialog';
-
-interface Clinic {
-  id: string;
-  name: string;
-  clinic_code: string;
-  address?: string;
-}
+import { Loader2, LogIn, Eye, EyeOff, UserCheck } from 'lucide-react';
 
 export default function UnifiedLogin() {
   // Owner login state
@@ -25,55 +16,13 @@ export default function UnifiedLogin() {
   const [ownerLoading, setOwnerLoading] = useState(false);
 
   // Assistant login state  
-  const [assistantFirstName, setAssistantFirstName] = useState('');
-  const [assistantPinValue, setAssistantPinValue] = useState('');
+  const [assistantEmail, setAssistantEmail] = useState('');
+  const [assistantPassword, setAssistantPassword] = useState('');
+  const [showAssistantPassword, setShowAssistantPassword] = useState(false);
   const [assistantLoading, setAssistantLoading] = useState(false);
-  const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(null);
-  const [assistantData, setAssistantData] = useState<any>(null);
-  const [showPinSetup, setShowPinSetup] = useState(false);
-  const [needsPinEntry, setNeedsPinEntry] = useState(false);
-  
-  // Clinic search state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [clinics, setClinics] = useState<Clinic[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
 
   const { signInWithEmail, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
-
-  // Search for clinics
-  const searchClinics = async (term: string) => {
-    if (!term.trim()) {
-      setClinics([]);
-      setHasSearched(false);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const { data, error } = await supabase
-        .from('clinics')
-        .select('id, name, clinic_code, address')
-        .eq('is_active', true)
-        .or(`name.ilike.%${term}%,clinic_code.ilike.%${term}%`)
-        .limit(10);
-
-      if (error) throw error;
-      setClinics(data || []);
-      setHasSearched(true);
-    } catch (error) {
-      console.error('Error searching clinics:', error);
-      toast.error('Failed to search clinics');
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    searchClinics(value);
-  };
 
   // Owner login handlers
   const handleOwnerLogin = async (e: React.FormEvent) => {
@@ -104,89 +53,19 @@ export default function UnifiedLogin() {
   };
 
   // Assistant login handlers
-  const handleAssistantNameSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedClinic) {
-      toast.error('Please select a clinic first');
-      return;
-    }
-
-    if (!assistantFirstName.trim()) {
-      toast.error('Please enter your first name');
-      return;
-    }
-
-    setAssistantLoading(true);
-    
-    const { data, error } = await checkAssistantExists(selectedClinic.id, assistantFirstName.trim());
-    
-    if (error) {
-      toast.error(error);
-      setAssistantLoading(false);
-      return;
-    }
-
-    setAssistantData(data);
-    
-    if (data.must_create_pin) {
-      setShowPinSetup(true);
-    } else {
-      setNeedsPinEntry(true);
-    }
-    
-    setAssistantLoading(false);
-  };
-
   const handleAssistantLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedClinic || !assistantData) {
-      toast.error('Session expired. Please start over.');
-      return;
-    }
-
-    if (assistantPinValue.length !== 4) {
-      toast.error('PIN must be exactly 4 digits');
-      return;
-    }
-
     setAssistantLoading(true);
     
-    const { error } = await signInWithPin(selectedClinic.id, assistantFirstName.trim(), assistantPinValue);
+    const { error } = await signInWithEmail(assistantEmail, assistantPassword);
     
     if (error) {
       toast.error(error);
     } else {
-      toast.success(`Welcome back, ${assistantFirstName}!`);
+      toast.success('Welcome back!');
       navigate('/dashboard');
     }
     setAssistantLoading(false);
-  };
-
-  const handlePinCreated = async (pin: string) => {
-    if (!selectedClinic || !assistantData) {
-      toast.error('Session expired. Please start over.');
-      return;
-    }
-
-    // PIN already created in the dialog, now sign them in
-    const { error: loginError } = await signInWithPin(selectedClinic.id, assistantFirstName.trim(), pin);
-    
-    if (loginError) {
-      toast.error(loginError);
-    } else {
-      toast.success(`Welcome, ${assistantFirstName}! Your PIN has been created.`);
-      navigate('/dashboard');
-    }
-  };
-
-  const resetAssistantFlow = () => {
-    setAssistantFirstName('');
-    setAssistantPinValue('');
-    setAssistantData(null);
-    setNeedsPinEntry(false);
-    setShowPinSetup(false);
   };
 
   return (
@@ -290,157 +169,56 @@ export default function UnifiedLogin() {
         {/* Assistant Login */}
         <Card className="h-fit">
           <CardHeader className="text-center">
-            <Search className="w-12 h-12 mx-auto mb-4 text-secondary" />
+            <UserCheck className="w-12 h-12 mx-auto mb-4 text-secondary" />
             <CardTitle>Assistant</CardTitle>
-            <CardDescription>Find your clinic and sign in with your PIN</CardDescription>
+            <CardDescription>Sign in with your email and password</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {/* Clinic Search */}
-              {!selectedClinic ? (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="clinic-search">Search for your clinic</Label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input
-                        id="clinic-search"
-                        type="text"
-                        placeholder="Enter clinic name or code"
-                        value={searchTerm}
-                        onChange={(e) => handleSearchChange(e.target.value)}
-                        className="pl-10"
-                      />
-                      {isSearching && (
-                        <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin" />
-                      )}
-                    </div>
-                  </div>
+            <form onSubmit={handleAssistantLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="assistant-email">Email</Label>
+                <Input
+                  id="assistant-email"
+                  type="email"
+                  value={assistantEmail}
+                  onChange={(e) => setAssistantEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
 
-                  {/* Clinic Results */}
-                  {hasSearched && (
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {clinics.length > 0 ? (
-                        clinics.map((clinic) => (
-                          <Card
-                            key={clinic.id}
-                            className="cursor-pointer hover:bg-accent transition-colors"
-                            onClick={() => setSelectedClinic(clinic)}
-                          >
-                            <CardContent className="p-3">
-                              <div className="font-medium">{clinic.name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                Code: {clinic.clinic_code}
-                              </div>
-                              {clinic.address && (
-                                <div className="text-xs text-muted-foreground">
-                                  {clinic.address}
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        ))
-                      ) : (
-                        <div className="text-center py-4 text-muted-foreground">
-                          No clinics found matching "{searchTerm}"
-                        </div>
-                      )}
-                    </div>
-                  )}
+              <div className="space-y-2">
+                <Label htmlFor="assistant-password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="assistant-password"
+                    type={showAssistantPassword ? 'text' : 'password'}
+                    value={assistantPassword}
+                    onChange={(e) => setAssistantPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowAssistantPassword(!showAssistantPassword)}
+                  >
+                    {showAssistantPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
-              ) : (
-                /* Assistant Login Form */
-                <div className="space-y-4">
-                  {/* Selected Clinic Info */}
-                  <div className="p-3 bg-accent rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium">{selectedClinic.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Code: {selectedClinic.clinic_code}
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedClinic(null);
-                          resetAssistantFlow();
-                        }}
-                      >
-                        Change
-                      </Button>
-                    </div>
-                  </div>
+              </div>
 
-                  {/* Assistant Login Form */}
-                  {!needsPinEntry ? (
-                    <form onSubmit={handleAssistantNameSubmit} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="assistant-name">First Name</Label>
-                        <Input
-                          id="assistant-name"
-                          type="text"
-                          value={assistantFirstName}
-                          onChange={(e) => setAssistantFirstName(e.target.value)}
-                          placeholder="Enter your first name"
-                          required
-                        />
-                      </div>
-
-                      <Button type="submit" className="w-full" disabled={assistantLoading}>
-                        {assistantLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                        Continue
-                      </Button>
-                    </form>
-                  ) : (
-                    <form onSubmit={handleAssistantLogin} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="assistant-name">First Name</Label>
-                        <Input
-                          id="assistant-name"
-                          type="text"
-                          value={assistantFirstName}
-                          disabled
-                          className="bg-muted"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="assistant-pin">4-Digit PIN</Label>
-                        <Input
-                          id="assistant-pin"
-                          type="password"
-                          value={assistantPinValue}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-                            setAssistantPinValue(value);
-                          }}
-                          placeholder="Enter your 4-digit PIN"
-                          maxLength={4}
-                          required
-                        />
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={resetAssistantFlow}
-                          className="flex-1"
-                        >
-                          Back
-                        </Button>
-                        <Button type="submit" className="flex-1" disabled={assistantLoading}>
-                          {assistantLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                          Sign In
-                        </Button>
-                      </div>
-                    </form>
-                  )}
-                </div>
-              )}
-            </div>
+              <Button type="submit" className="w-full" disabled={assistantLoading}>
+                {assistantLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                Sign In as Assistant
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
@@ -451,17 +229,6 @@ export default function UnifiedLogin() {
           ← Back to Home
         </Button>
       </div>
-
-      {/* PIN Setup Dialog */}
-      <PinSetupDialog
-        open={showPinSetup}
-        onClose={() => setShowPinSetup(false)}
-        onPinCreated={handlePinCreated}
-        assistantName={assistantFirstName}
-        clinicName={selectedClinic?.name || ''}
-        clinicId={selectedClinic?.id || ''}
-        onSetPin={setAssistantPin}
-      />
     </div>
   );
 }

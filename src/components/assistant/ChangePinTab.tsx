@@ -13,9 +13,10 @@ import {
   AlertCircle,
   Shield,
   Lock,
-  Info
+  Info,
+  Zap
 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export default function ChangePinTab() {
   const [currentPin, setCurrentPin] = useState('');
@@ -92,9 +93,8 @@ export default function ChangePinTab() {
       // Simulate API call - in real app, this would call the update_user_pin function
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      toast({
-        title: "PIN Updated Successfully! 🎉",
-        description: "Your new PIN is now active. Please remember it for future logins.",
+      toast.success('PIN Updated Successfully! 🎉', {
+        description: 'Your new PIN is now active. Please remember it for future logins.'
       });
       
       // Reset form
@@ -104,10 +104,8 @@ export default function ChangePinTab() {
       setErrors({});
       
     } catch (error) {
-      toast({
-        title: "Failed to Update PIN",
-        description: "Please check your current PIN and try again.",
-        variant: "destructive"
+      toast.error('Failed to Update PIN', {
+        description: 'Please check your current PIN and try again.'
       });
     } finally {
       setLoading(false);
@@ -123,24 +121,38 @@ export default function ChangePinTab() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">Change PIN</h2>
-        <p className="text-gray-600 text-lg">Update your secure 4-digit PIN</p>
+      <div className="text-center lg:text-left">
+        <h1 className="text-4xl font-bold text-teal-900 mb-3">Change PIN</h1>
+        <p className="text-teal-600 text-lg">Update your secure 4-digit PIN for enhanced security</p>
       </div>
 
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         {/* Security Info */}
-        <Card className="shadow-sm border-blue-200 bg-blue-50/50 mb-6">
+        <Card className="mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-lg">
           <CardContent className="p-6">
-            <div className="flex items-start space-x-3">
-              <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                <Info className="w-6 h-6 text-white" />
+              </div>
               <div>
-                <h3 className="font-medium text-blue-900 mb-2">PIN Security Tips</h3>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Use a unique 4-digit PIN that's not easily guessed</li>
-                  <li>• Avoid simple patterns like 1234 or repeated digits like 1111</li>
-                  <li>• Don't share your PIN with anyone</li>
-                  <li>• Change your PIN regularly for better security</li>
+                <h3 className="font-bold text-blue-900 mb-3 text-lg">PIN Security Guidelines</h3>
+                <ul className="text-sm text-blue-800 space-y-2">
+                  <li className="flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-blue-600" />
+                    Use a unique 4-digit PIN that's not easily guessed
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-blue-600" />
+                    Avoid simple patterns like 1234 or repeated digits like 1111
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-blue-600" />
+                    Never share your PIN with anyone
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-blue-600" />
+                    Change your PIN regularly for better security
+                  </li>
                 </ul>
               </div>
             </div>
@@ -148,21 +160,21 @@ export default function ChangePinTab() {
         </Card>
 
         {/* PIN Change Form */}
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Lock className="w-5 h-5 mr-2 text-teal-600" />
+        <Card className="shadow-xl border-2 border-teal-200 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-teal-50 to-blue-50 border-b border-teal-100">
+            <CardTitle className="flex items-center text-teal-900">
+              <Lock className="w-6 h-6 mr-3 text-teal-600" />
               Update Your PIN
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-teal-700">
               Enter your current PIN and choose a new secure PIN
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Current PIN */}
-              <div className="space-y-2">
-                <Label htmlFor="current-pin" className="text-base font-medium">
+              <div className="space-y-3">
+                <Label htmlFor="current-pin" className="text-base font-semibold text-teal-900">
                   Current PIN
                 </Label>
                 <div className="relative">
@@ -173,18 +185,20 @@ export default function ChangePinTab() {
                     onChange={(e) => handlePinInput(e.target.value, setCurrentPin)}
                     placeholder="••••"
                     maxLength={4}
-                    className={`text-center text-xl tracking-widest h-14 ${
-                      errors.currentPin ? 'border-red-300 focus:border-red-500' : ''
+                    className={`text-center text-2xl tracking-widest h-16 border-2 rounded-xl font-bold ${
+                      errors.currentPin 
+                        ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                        : 'border-teal-200 focus:border-teal-500 bg-teal-50/50'
                     }`}
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-teal-600 hover:bg-teal-100"
                     onClick={() => setShowPins(!showPins)}
                   >
-                    {showPins ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPins ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </Button>
                 </div>
                 {errors.currentPin && (
@@ -196,8 +210,8 @@ export default function ChangePinTab() {
               </div>
 
               {/* New PIN */}
-              <div className="space-y-2">
-                <Label htmlFor="new-pin" className="text-base font-medium">
+              <div className="space-y-3">
+                <Label htmlFor="new-pin" className="text-base font-semibold text-teal-900">
                   New PIN
                 </Label>
                 <div className="relative">
@@ -208,35 +222,42 @@ export default function ChangePinTab() {
                     onChange={(e) => handlePinInput(e.target.value, setNewPin)}
                     placeholder="••••"
                     maxLength={4}
-                    className={`text-center text-xl tracking-widest h-14 ${
-                      errors.newPin ? 'border-red-300 focus:border-red-500' : ''
+                    className={`text-center text-2xl tracking-widest h-16 border-2 rounded-xl font-bold ${
+                      errors.newPin 
+                        ? 'border-red-300 focus:border-red-500 bg-red-50' 
+                        : 'border-teal-200 focus:border-teal-500 bg-teal-50/50'
                     }`}
                   />
                 </div>
                 
                 {/* PIN Strength Indicator */}
                 {newPin && (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">PIN Strength:</span>
+                      <span className="text-sm font-medium text-teal-700">PIN Strength:</span>
                       <Badge 
                         variant="outline" 
-                        className={`${
-                          pinStrength.strength <= 25 ? 'border-red-300 text-red-700' :
-                          pinStrength.strength <= 50 ? 'border-yellow-300 text-yellow-700' :
-                          pinStrength.strength <= 75 ? 'border-blue-300 text-blue-700' :
-                          'border-green-300 text-green-700'
+                        className={`font-semibold ${
+                          pinStrength.strength <= 25 ? 'border-red-300 text-red-700 bg-red-50' :
+                          pinStrength.strength <= 50 ? 'border-yellow-300 text-yellow-700 bg-yellow-50' :
+                          pinStrength.strength <= 75 ? 'border-blue-300 text-blue-700 bg-blue-50' :
+                          'border-green-300 text-green-700 bg-green-50'
                         }`}
                       >
+                        {pinStrength.strength >= 75 && <Zap className="w-3 h-3 mr-1" />}
                         {pinStrength.label}
                       </Badge>
                     </div>
-                    <Progress 
-                      value={pinStrength.strength} 
-                      className="h-2"
-                      // @ts-ignore - custom CSS class
-                      indicatorClassName={pinStrength.color}
-                    />
+                    <div className="relative">
+                      <Progress 
+                        value={pinStrength.strength} 
+                        className="h-3 bg-gray-200"
+                      />
+                      <div 
+                        className={`absolute top-0 left-0 h-full rounded-full transition-all duration-300 ${pinStrength.color}`}
+                        style={{ width: `${pinStrength.strength}%` }}
+                      />
+                    </div>
                   </div>
                 )}
                 
@@ -249,8 +270,8 @@ export default function ChangePinTab() {
               </div>
 
               {/* Confirm PIN */}
-              <div className="space-y-2">
-                <Label htmlFor="confirm-pin" className="text-base font-medium">
+              <div className="space-y-3">
+                <Label htmlFor="confirm-pin" className="text-base font-semibold text-teal-900">
                   Confirm New PIN
                 </Label>
                 <div className="relative">
@@ -261,14 +282,16 @@ export default function ChangePinTab() {
                     onChange={(e) => handlePinInput(e.target.value, setConfirmPin)}
                     placeholder="••••"
                     maxLength={4}
-                    className={`text-center text-xl tracking-widest h-14 ${
-                      errors.confirmPin ? 'border-red-300 focus:border-red-500' : ''
-                    } ${
-                      confirmPin && confirmPin === newPin ? 'border-green-300 focus:border-green-500' : ''
+                    className={`text-center text-2xl tracking-widest h-16 border-2 rounded-xl font-bold ${
+                      errors.confirmPin 
+                        ? 'border-red-300 focus:border-red-500 bg-red-50'
+                        : confirmPin && confirmPin === newPin 
+                          ? 'border-green-300 focus:border-green-500 bg-green-50'
+                          : 'border-teal-200 focus:border-teal-500 bg-teal-50/50'
                     }`}
                   />
                   {confirmPin && confirmPin === newPin && (
-                    <CheckCircle2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-500" />
+                    <CheckCircle2 className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-green-500" />
                   )}
                 </div>
                 {errors.confirmPin && (
@@ -280,7 +303,7 @@ export default function ChangePinTab() {
                 {confirmPin && confirmPin === newPin && !errors.confirmPin && (
                   <div className="flex items-center space-x-2 text-green-600 text-sm">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>PINs match</span>
+                    <span className="font-medium">PINs match perfectly!</span>
                   </div>
                 )}
               </div>
@@ -289,16 +312,16 @@ export default function ChangePinTab() {
               <Button
                 type="submit"
                 disabled={loading || !currentPin || !newPin || !confirmPin}
-                className="w-full h-12 text-base font-medium bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
+                className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 rounded-xl shadow-lg shadow-teal-500/25 touch-target"
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
                     Updating PIN...
                   </>
                 ) : (
                   <>
-                    <Key className="w-4 h-4 mr-2" />
+                    <Key className="w-5 h-5 mr-3" />
                     Update PIN
                   </>
                 )}
@@ -308,30 +331,30 @@ export default function ChangePinTab() {
         </Card>
 
         {/* Security Features */}
-        <Card className="shadow-sm mt-6">
-          <CardHeader>
-            <CardTitle className="flex items-center text-base">
-              <Shield className="w-5 h-5 mr-2 text-teal-600" />
+        <Card className="mt-8 shadow-lg border-2 border-gray-200 bg-white/50 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
+            <CardTitle className="flex items-center text-teal-900">
+              <Shield className="w-6 h-6 mr-3 text-teal-600" />
               Security Features
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-3">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-gray-700">PIN is encrypted and secure</span>
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <span className="text-teal-800 font-medium">PIN is encrypted and secure</span>
               </div>
               <div className="flex items-center space-x-3">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-gray-700">Failed attempts are monitored</span>
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <span className="text-teal-800 font-medium">Failed attempts are monitored</span>
               </div>
               <div className="flex items-center space-x-3">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-gray-700">PIN locks after multiple failures</span>
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <span className="text-teal-800 font-medium">PIN locks after multiple failures</span>
               </div>
               <div className="flex items-center space-x-3">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-gray-700">Regular PIN updates recommended</span>
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <span className="text-teal-800 font-medium">Regular PIN updates recommended</span>
               </div>
             </div>
           </CardContent>

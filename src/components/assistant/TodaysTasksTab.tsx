@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -11,15 +11,16 @@ import {
   Clock, 
   CheckCircle2,
   User,
-  AlertCircle,
   MessageSquare,
   Plus,
   ArrowLeft,
   Undo2,
-  Target
+  Target,
+  Sparkles,
+  FileText
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
 interface Task {
@@ -44,13 +45,13 @@ const getPriorityColor = (priority: string) => {
   switch (priority?.toLowerCase()) {
     case 'high':
     case 'urgent':
-      return 'bg-red-100 text-red-700 border-red-200';
+      return 'bg-red-50 text-red-700 border-red-200';
     case 'medium':
-      return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      return 'bg-yellow-50 text-yellow-700 border-yellow-200';
     case 'low':
-      return 'bg-green-100 text-green-700 border-green-200';
+      return 'bg-green-50 text-green-700 border-green-200';
     default:
-      return 'bg-gray-100 text-gray-700 border-gray-200';
+      return 'bg-teal-50 text-teal-700 border-teal-200';
   }
 };
 
@@ -65,7 +66,7 @@ const getDueText = (dueType: string) => {
     case 'end-of-day':
       return 'End of Day';
     default:
-      return 'No deadline';
+      return 'Flexible';
   }
 };
 
@@ -98,19 +99,14 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
       if (error) throw error;
       
-      toast({
-        title: "Task Assigned",
-        description: "Task has been added to your list"
+      toast.success('Task assigned to you!', {
+        description: 'The task has been added to your list.'
       });
       
       onTaskUpdate();
     } catch (error) {
       console.error('Error picking task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to assign task",
-        variant: "destructive"
-      });
+      toast.error('Failed to assign task');
     }
   };
 
@@ -127,19 +123,14 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
       if (error) throw error;
       
-      toast({
-        title: "Task Completed! 🎉",
-        description: "Great job! Keep up the excellent work."
+      toast.success('Task completed! 🎉', {
+        description: 'Great job! Keep up the excellent work.'
       });
       
       onTaskUpdate();
     } catch (error) {
       console.error('Error marking task done:', error);
-      toast({
-        title: "Error",
-        description: "Failed to complete task",
-        variant: "destructive"
-      });
+      toast.error('Failed to complete task');
     }
   };
 
@@ -156,19 +147,12 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
       if (error) throw error;
       
-      toast({
-        title: "Task Reopened",
-        description: "Task moved back to pending"
-      });
+      toast.success('Task reopened');
       
       onTaskUpdate();
     } catch (error) {
       console.error('Error reopening task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reopen task",
-        variant: "destructive"
-      });
+      toast.error('Failed to reopen task');
     }
   };
 
@@ -181,47 +165,42 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
       if (error) throw error;
       
-      toast({
-        title: "Task Returned",
-        description: "Task moved to available tasks"
-      });
+      toast.success('Task returned to available tasks');
       
       onTaskUpdate();
     } catch (error) {
       console.error('Error unassigning task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to return task",
-        variant: "destructive"
-      });
+      toast.error('Failed to return task');
     }
   };
 
   const saveNote = async () => {
-    // This would typically save to a notes table
-    toast({
-      title: "Note Saved",
-      description: "Your note has been saved for this task"
+    toast.success('Note saved! 📝', {
+      description: 'Your note has been saved for this task'
     });
     setNoteDialog({ open: false, taskId: '', note: '' });
   };
 
   const TaskCard = ({ task, showPickUp = false, showCompleted = false }: { task: Task; showPickUp?: boolean; showCompleted?: boolean }) => (
-    <Card className="shadow-sm hover:shadow-md transition-all duration-200 border-2 hover:border-teal-200">
-      <CardContent className="p-5">
+    <Card className="group transition-all duration-300 hover:shadow-xl hover:shadow-teal-100/50 border-2 hover:border-teal-200 bg-white/80 backdrop-blur-sm">
+      <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 text-lg mb-2">{task.title}</h3>
+          <div className="flex-1 pr-4">
+            <h3 className="font-bold text-teal-900 text-lg mb-2 group-hover:text-teal-700 transition-colors">
+              {task.title}
+            </h3>
             {task.description && (
-              <p className="text-gray-600 mb-3 leading-relaxed">{task.description}</p>
+              <p className="text-teal-700 mb-4 leading-relaxed text-sm">
+                {task.description}
+              </p>
             )}
             
-            <div className="flex items-center space-x-2">
-              <Badge className={`text-xs font-medium ${getPriorityColor(task.priority)}`}>
-                {task.priority || 'Medium'}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge className={`text-xs font-semibold px-3 py-1.5 ${getPriorityColor(task.priority)}`}>
+                {task.priority || 'Normal'}
               </Badge>
               {task['due-type'] && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-teal-200 text-teal-700 bg-teal-50/50">
                   <Clock className="w-3 h-3 mr-1" />
                   {getDueText(task['due-type'])}
                 </Badge>
@@ -230,7 +209,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
           </div>
           
           {!showPickUp && !showCompleted && (
-            <div className="ml-4">
+            <div className="ml-4 flex-shrink-0">
               <Checkbox
                 checked={['completed', 'done'].includes(task.status?.toLowerCase())}
                 onCheckedChange={(checked) => {
@@ -240,17 +219,17 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     markTaskUndone(task.id);
                   }
                 }}
-                className="w-6 h-6 border-2 border-teal-300 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                className="w-7 h-7 border-2 border-teal-300 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600 rounded-lg"
               />
             </div>
           )}
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-3 pt-2">
           {showPickUp && (
             <Button 
               onClick={() => pickTask(task.id)}
-              className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium h-11"
+              className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold h-12 shadow-lg shadow-teal-500/25"
             >
               <Plus className="w-4 h-4 mr-2" />
               Pick Up Task
@@ -263,7 +242,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                 variant="outline"
                 size="sm"
                 onClick={() => unassignTask(task.id)}
-                className="hover:bg-gray-50"
+                className="hover:bg-teal-50 border-teal-200 text-teal-700 h-10 px-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 Return
@@ -278,35 +257,39 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     variant="outline"
                     size="sm"
                     onClick={() => setNoteDialog({ open: true, taskId: task.id, note: '' })}
-                    className="hover:bg-gray-50"
+                    className="hover:bg-blue-50 border-blue-200 text-blue-700 h-10 px-4"
                   >
                     <MessageSquare className="w-4 h-4 mr-1" />
                     Note
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-lg">
                   <DialogHeader>
-                    <DialogTitle>Add Note</DialogTitle>
+                    <DialogTitle className="flex items-center text-teal-900">
+                      <FileText className="w-5 h-5 mr-2 text-teal-600" />
+                      Add Task Note
+                    </DialogTitle>
                     <DialogDescription>
                       Leave a note about this task for the practice owner
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="note">Note</Label>
+                      <Label htmlFor="note" className="text-teal-900 font-medium">Note</Label>
                       <Textarea
                         id="note"
                         placeholder="Enter your note here..."
                         value={noteDialog.note}
                         onChange={(e) => setNoteDialog(prev => ({ ...prev, note: e.target.value }))}
                         rows={4}
+                        className="mt-2 border-teal-200 focus:border-teal-500"
                       />
                     </div>
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-end space-x-3">
                       <Button variant="outline" onClick={() => setNoteDialog({ open: false, taskId: '', note: '' })}>
                         Cancel
                       </Button>
-                      <Button onClick={saveNote}>
+                      <Button onClick={saveNote} className="bg-teal-600 hover:bg-teal-700">
                         Save Note
                       </Button>
                     </div>
@@ -321,7 +304,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
               variant="outline"
               size="sm"
               onClick={() => markTaskUndone(task.id)}
-              className="hover:bg-gray-50"
+              className="hover:bg-gray-50 h-10 px-4"
             >
               <Undo2 className="w-4 h-4 mr-1" />
               Undo
@@ -335,50 +318,50 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">Today's Tasks</h2>
-        <p className="text-gray-600 text-lg">Manage your daily assignments</p>
+      <div className="text-center lg:text-left">
+        <h1 className="text-4xl font-bold text-teal-900 mb-3">Today's Tasks</h1>
+        <p className="text-teal-600 text-lg">Manage your daily assignments and pick up new tasks</p>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="shadow-sm">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Target className="w-6 h-6 text-blue-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Target className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{myTasks.length}</p>
-                <p className="text-sm text-gray-600">Total Assigned</p>
+                <p className="text-3xl font-bold text-blue-900">{myTasks.length}</p>
+                <p className="text-sm text-blue-700 font-medium">My Tasks</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <CheckCircle2 className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{completedTasks.length}</p>
-                <p className="text-sm text-gray-600">Completed</p>
+                <p className="text-3xl font-bold text-green-900">{completedTasks.length}</p>
+                <p className="text-sm text-green-700 font-medium">Completed</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-6 h-6 text-yellow-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Plus className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{unassignedTasks.length}</p>
-                <p className="text-sm text-gray-600">Available to Pick</p>
+                <p className="text-3xl font-bold text-teal-900">{unassignedTasks.length}</p>
+                <p className="text-sm text-teal-700 font-medium">Available</p>
               </div>
             </div>
           </CardContent>
@@ -388,11 +371,11 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       {/* My Active Tasks */}
       {pendingTasks.length > 0 && (
         <div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <User className="w-5 h-5 mr-2 text-teal-600" />
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center">
+            <User className="w-6 h-6 mr-3 text-teal-600" />
             My Tasks ({pendingTasks.length})
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2">
+          </h2>
+          <div className="grid gap-6 lg:grid-cols-2">
             {pendingTasks.map((task) => (
               <TaskCard key={task.id} task={task} />
             ))}
@@ -400,40 +383,25 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
         </div>
       )}
 
-      {/* Completed Tasks */}
-      {completedTasks.length > 0 && (
-        <div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <CheckCircle2 className="w-5 h-5 mr-2 text-green-600" />
-            Completed Today ({completedTasks.length})
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            {completedTasks.map((task) => (
-              <TaskCard key={task.id} task={task} showCompleted={true} />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Available Tasks */}
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-          <Plus className="w-5 h-5 mr-2 text-teal-600" />
+        <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center">
+          <Sparkles className="w-6 h-6 mr-3 text-teal-600" />
           Available Tasks ({unassignedTasks.length})
-        </h3>
+        </h2>
         
         {unassignedTasks.length === 0 ? (
-          <Card className="shadow-sm">
+          <Card className="bg-gradient-to-br from-teal-50 to-blue-50 border-teal-200">
             <CardContent className="p-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8 text-gray-400" />
+              <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-teal-600" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">All caught up!</h3>
-              <p className="text-gray-600">No available tasks to pick up right now. Great work!</p>
+              <h3 className="text-xl font-bold text-teal-900 mb-3">All caught up!</h3>
+              <p className="text-teal-700">No available tasks to pick up right now. Great work!</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 lg:grid-cols-2">
             {unassignedTasks.map((task) => (
               <TaskCard key={task.id} task={task} showPickUp={true} />
             ))}
@@ -441,51 +409,70 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
         )}
       </div>
 
+      {/* Completed Tasks */}
+      {completedTasks.length > 0 && (
+        <div>
+          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center">
+            <CheckCircle2 className="w-6 h-6 mr-3 text-green-600" />
+            Completed Today ({completedTasks.length})
+          </h2>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {completedTasks.map((task) => (
+              <TaskCard key={task.id} task={task} showCompleted={true} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* No Tasks Message */}
       {myTasks.length === 0 && unassignedTasks.length === 0 && (
-        <Card className="shadow-sm">
+        <Card className="bg-gradient-to-br from-teal-50 to-blue-50 border-teal-200">
           <CardContent className="p-12 text-center">
-            <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="w-8 h-8 text-teal-600" />
+            <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Calendar className="w-10 h-10 text-teal-600" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-            <p className="text-gray-600">Tasks will appear here when they're created by your practice owner.</p>
+            <h3 className="text-xl font-bold text-teal-900 mb-3">No tasks yet</h3>
+            <p className="text-teal-700">Tasks will appear here when they're created by your practice owner.</p>
           </CardContent>
         </Card>
       )}
 
       {/* Floating Leave Note Button */}
-      <div className="fixed bottom-8 right-8">
+      <div className="fixed bottom-8 right-8 z-50">
         <Dialog>
           <DialogTrigger asChild>
             <Button 
               size="lg"
-              className="rounded-full w-16 h-16 shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+              className="rounded-full w-16 h-16 shadow-2xl hover:shadow-3xl transition-all duration-300 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-110"
             >
               <MessageSquare className="w-6 h-6" />
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Leave a Shift Note</DialogTitle>
+              <DialogTitle className="flex items-center text-teal-900">
+                <FileText className="w-5 h-5 mr-2 text-blue-600" />
+                Leave a Shift Note
+              </DialogTitle>
               <DialogDescription>
-                Leave a general note about your shift or any observations for the practice owner
+                Share any updates, observations, or feedback from your shift with the practice owner
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="shift-note">Shift Note</Label>
+                <Label htmlFor="shift-note" className="text-teal-900 font-medium">Shift Note</Label>
                 <Textarea
                   id="shift-note"
                   placeholder="Share any updates, observations, or feedback from your shift..."
                   rows={5}
+                  className="mt-2 border-teal-200 focus:border-teal-500"
                 />
               </div>
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-3">
                 <Button variant="outline">
                   Cancel
                 </Button>
-                <Button>
+                <Button className="bg-blue-600 hover:bg-blue-700">
                   Save Note
                 </Button>
               </div>

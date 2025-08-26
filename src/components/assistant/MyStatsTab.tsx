@@ -13,10 +13,12 @@ import {
   Zap,
   Plus,
   Minus,
-  BarChart3
+  BarChart3,
+  Award,
+  Flame
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
 interface Task {
@@ -47,10 +49,10 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
     return completedDate === today && ['completed', 'done'].includes(task.status?.toLowerCase());
   }).length;
 
-  // Calculate streak (mock data for now)
-  const streak = 7; // This would come from actual data
+  // Calculate streak (mock data - in real app this would come from database)
+  const streak = 7;
   
-  // Weekly data (mock for now)
+  // Weekly data (mock for demonstration - replace with real data)
   const weeklyData = [
     { day: 'Mon', tasks: 8, patients: 12 },
     { day: 'Tue', tasks: 6, patients: 9 },
@@ -82,27 +84,20 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
       if (error) throw error;
       onPatientCountUpdate(newCount);
       
-      toast({
-        title: "Updated",
-        description: `Patient count: ${newCount}`,
-      });
+      toast.success(`Patient count updated: ${newCount}`);
     } catch (error) {
       console.error('Error updating patient count:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update patient count",
-        variant: "destructive"
-      });
+      toast.error('Failed to update patient count');
     }
   };
 
   // Motivational messages based on performance
   const getMotivationalMessage = () => {
-    if (completedToday >= 10) return { text: "You're on fire! 🔥", color: "bg-red-100 text-red-700", icon: Zap };
-    if (completedToday >= 7) return { text: "Excellent work! ⭐", color: "bg-yellow-100 text-yellow-700", icon: Star };
-    if (completedToday >= 5) return { text: "Great job! 👏", color: "bg-green-100 text-green-700", icon: Trophy };
-    if (completedToday >= 3) return { text: "Keep it up! 💪", color: "bg-blue-100 text-blue-700", icon: TrendingUp };
-    return { text: "Getting started! 🚀", color: "bg-gray-100 text-gray-700", icon: Target };
+    if (completedToday >= 10) return { text: "You're on fire! 🔥", color: "bg-red-100 text-red-700 border-red-200", icon: Flame };
+    if (completedToday >= 7) return { text: "Excellent work! ⭐", color: "bg-yellow-100 text-yellow-700 border-yellow-200", icon: Star };
+    if (completedToday >= 5) return { text: "Great job! 👏", color: "bg-green-100 text-green-700 border-green-200", icon: Award };
+    if (completedToday >= 3) return { text: "Keep it up! 💪", color: "bg-blue-100 text-blue-700 border-blue-200", icon: TrendingUp };
+    return { text: "Getting started! 🚀", color: "bg-teal-100 text-teal-700 border-teal-200", icon: Target };
   };
 
   const motivation = getMotivationalMessage();
@@ -111,40 +106,40 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">My Performance</h2>
-        <p className="text-gray-600 text-lg">Track your daily progress and achievements</p>
+      <div className="text-center lg:text-left">
+        <h1 className="text-4xl font-bold text-teal-900 mb-3">My Performance</h1>
+        <p className="text-teal-600 text-lg">Track your daily progress and achievements</p>
       </div>
 
-      {/* Today's Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Today's Key Metrics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Patient Counter */}
-        <Card className="shadow-md border-2 border-teal-100">
-          <CardContent className="p-6">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center mx-auto">
-                <Users className="w-8 h-8 text-white" />
+        <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-2 border-teal-200 shadow-xl">
+          <CardContent className="p-8">
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-3xl flex items-center justify-center mx-auto shadow-2xl">
+                <Users className="w-10 h-10 text-white" />
               </div>
               <div>
-                <p className="text-4xl font-bold text-gray-900 mb-2">{patientCount}</p>
-                <p className="text-gray-600 font-medium">Patients Assisted Today</p>
+                <p className="text-5xl font-bold text-teal-900 mb-2">{patientCount}</p>
+                <p className="text-teal-700 font-semibold text-lg">Patients Assisted Today</p>
               </div>
-              <div className="flex items-center justify-center space-x-4">
+              <div className="flex items-center justify-center space-x-6">
                 <Button 
                   size="lg"
                   variant="outline"
                   onClick={() => updatePatientCount(false)}
                   disabled={patientCount === 0}
-                  className="w-12 h-12 rounded-full border-2 hover:bg-gray-50"
+                  className="w-14 h-14 rounded-full border-2 border-teal-300 hover:bg-teal-50 hover:border-teal-400 touch-target"
                 >
-                  <Minus className="h-5 w-5" />
+                  <Minus className="h-6 w-6 text-teal-600" />
                 </Button>
                 <Button 
                   size="lg"
                   onClick={() => updatePatientCount(true)}
-                  className="w-12 h-12 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
+                  className="w-14 h-14 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 shadow-lg shadow-teal-500/25 touch-target"
                 >
-                  <Plus className="h-5 w-5" />
+                  <Plus className="h-6 w-6" />
                 </Button>
               </div>
             </div>
@@ -152,19 +147,19 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
         </Card>
 
         {/* Tasks Completed */}
-        <Card className="shadow-md border-2 border-green-100">
-          <CardContent className="p-6">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-8 h-8 text-white" />
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 shadow-xl">
+          <CardContent className="p-8">
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto shadow-2xl">
+                <CheckCircle2 className="w-10 h-10 text-white" />
               </div>
               <div>
-                <p className="text-4xl font-bold text-gray-900 mb-2">{completedToday}</p>
-                <p className="text-gray-600 font-medium">Tasks Completed Today</p>
+                <p className="text-5xl font-bold text-green-900 mb-2">{completedToday}</p>
+                <p className="text-green-700 font-semibold text-lg">Tasks Completed Today</p>
               </div>
               <div className="flex items-center justify-center">
-                <Badge className={`${motivation.color} px-4 py-2 text-sm font-medium`}>
-                  <MotivationIcon className="w-4 h-4 mr-2" />
+                <Badge className={`${motivation.color} px-6 py-3 text-base font-semibold border-2`}>
+                  <MotivationIcon className="w-5 h-5 mr-2" />
                   {motivation.text}
                 </Badge>
               </div>
@@ -173,90 +168,90 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
         </Card>
       </div>
 
-      {/* Performance Metrics */}
+      {/* Performance Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="shadow-sm">
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-lg hover:shadow-xl transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-purple-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Calendar className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{streak}</p>
-                <p className="text-sm text-gray-600">Day Streak</p>
+                <p className="text-3xl font-bold text-purple-900">{streak}</p>
+                <p className="text-sm text-purple-700 font-medium">Day Streak</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Trophy className="w-6 h-6 text-orange-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Trophy className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{totalWeeklyTasks}</p>
-                <p className="text-sm text-gray-600">Tasks This Week</p>
+                <p className="text-3xl font-bold text-orange-900">{totalWeeklyTasks}</p>
+                <p className="text-sm text-orange-700 font-medium">Tasks This Week</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg hover:shadow-xl transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Users className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{totalWeeklyPatients}</p>
-                <p className="text-sm text-gray-600">Patients This Week</p>
+                <p className="text-3xl font-bold text-blue-900">{totalWeeklyPatients}</p>
+                <p className="text-sm text-blue-700 font-medium">Patients This Week</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Weekly Chart */}
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <BarChart3 className="w-5 h-5 mr-2 text-teal-600" />
-            Weekly Performance
+      {/* Weekly Performance Chart */}
+      <Card className="shadow-xl border-teal-100 bg-white/50 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-teal-50 to-blue-50">
+          <CardTitle className="flex items-center text-teal-900">
+            <BarChart3 className="w-6 h-6 mr-3 text-teal-600" />
+            Weekly Performance Overview
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-teal-700">
             Your task completion and patient assistance over the past week
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
+        <CardContent className="p-8">
+          <div className="space-y-8">
             {/* Tasks Chart */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-4">Tasks Completed</h4>
-              <div className="grid grid-cols-7 gap-2">
+              <h4 className="font-bold text-teal-900 mb-6 text-lg">Tasks Completed Daily</h4>
+              <div className="grid grid-cols-7 gap-3">
                 {weeklyData.map((day, index) => {
                   const height = maxTasks > 0 ? (day.tasks / maxTasks) * 100 : 0;
                   const isToday = index === 5; // Saturday for demo
                   
                   return (
                     <div key={`tasks-${day.day}`} className="text-center">
-                      <div className="relative h-24 bg-gray-100 rounded-lg mb-2 flex items-end justify-center">
+                      <div className="relative h-32 bg-teal-50 rounded-2xl mb-3 flex items-end justify-center border-2 border-teal-100">
                         <div 
-                          className={`w-full rounded-lg transition-all duration-500 ${
+                          className={`w-full rounded-2xl transition-all duration-700 ${
                             isToday 
-                              ? 'bg-gradient-to-t from-teal-500 to-teal-400' 
-                              : 'bg-gradient-to-t from-gray-400 to-gray-300'
+                              ? 'bg-gradient-to-t from-teal-500 to-teal-400 shadow-lg' 
+                              : 'bg-gradient-to-t from-teal-300 to-teal-200'
                           }`}
-                          style={{ height: `${height}%` }}
+                          style={{ height: `${Math.max(height, 10)}%` }}
                         />
                         {day.tasks > 0 && (
-                          <span className="absolute text-xs font-bold text-white mb-1">
+                          <span className="absolute text-sm font-bold text-white mb-2">
                             {day.tasks}
                           </span>
                         )}
                       </div>
-                      <p className={`text-xs font-medium ${isToday ? 'text-teal-600' : 'text-gray-600'}`}>
+                      <p className={`text-sm font-semibold ${isToday ? 'text-teal-700' : 'text-teal-600'}`}>
                         {day.day}
                       </p>
                     </div>
@@ -267,30 +262,30 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
 
             {/* Patients Chart */}
             <div>
-              <h4 className="font-medium text-gray-900 mb-4">Patients Assisted</h4>
-              <div className="grid grid-cols-7 gap-2">
+              <h4 className="font-bold text-teal-900 mb-6 text-lg">Patients Assisted Daily</h4>
+              <div className="grid grid-cols-7 gap-3">
                 {weeklyData.map((day, index) => {
                   const height = maxPatients > 0 ? (day.patients / maxPatients) * 100 : 0;
                   const isToday = index === 5; // Saturday for demo
                   
                   return (
                     <div key={`patients-${day.day}`} className="text-center">
-                      <div className="relative h-24 bg-gray-100 rounded-lg mb-2 flex items-end justify-center">
+                      <div className="relative h-32 bg-blue-50 rounded-2xl mb-3 flex items-end justify-center border-2 border-blue-100">
                         <div 
-                          className={`w-full rounded-lg transition-all duration-500 ${
+                          className={`w-full rounded-2xl transition-all duration-700 ${
                             isToday 
-                              ? 'bg-gradient-to-t from-blue-500 to-blue-400' 
-                              : 'bg-gradient-to-t from-gray-400 to-gray-300'
+                              ? 'bg-gradient-to-t from-blue-500 to-blue-400 shadow-lg' 
+                              : 'bg-gradient-to-t from-blue-300 to-blue-200'
                           }`}
-                          style={{ height: `${height}%` }}
+                          style={{ height: `${Math.max(height, 10)}%` }}
                         />
                         {day.patients > 0 && (
-                          <span className="absolute text-xs font-bold text-white mb-1">
+                          <span className="absolute text-sm font-bold text-white mb-2">
                             {day.patients}
                           </span>
                         )}
                       </div>
-                      <p className={`text-xs font-medium ${isToday ? 'text-blue-600' : 'text-gray-600'}`}>
+                      <p className={`text-sm font-semibold ${isToday ? 'text-blue-700' : 'text-blue-600'}`}>
                         {day.day}
                       </p>
                     </div>
@@ -303,47 +298,54 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
       </Card>
 
       {/* Achievement Badges */}
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Trophy className="w-5 h-5 mr-2 text-teal-600" />
-            Recent Achievements
+      <Card className="shadow-xl border-teal-100 bg-white/50 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50">
+          <CardTitle className="flex items-center text-teal-900">
+            <Trophy className="w-6 h-6 mr-3 text-yellow-600" />
+            Today's Achievements
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <CardContent className="p-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {completedToday >= 5 && (
-              <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
-                <Star className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-yellow-800">Task Master</p>
-                <p className="text-xs text-yellow-600">5+ tasks completed</p>
+              <div className="text-center p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl border-2 border-yellow-200 shadow-lg">
+                <Star className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
+                <p className="text-base font-bold text-yellow-800">Task Master</p>
+                <p className="text-xs text-yellow-600 mt-1">5+ tasks completed</p>
               </div>
             )}
             
             {patientCount >= 10 && (
-              <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-                <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-blue-800">People Person</p>
-                <p className="text-xs text-blue-600">10+ patients helped</p>
+              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 shadow-lg">
+                <Users className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                <p className="text-base font-bold text-blue-800">People Person</p>
+                <p className="text-xs text-blue-600 mt-1">10+ patients helped</p>
               </div>
             )}
             
             {streak >= 7 && (
-              <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-                <Calendar className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-purple-800">Consistent</p>
-                <p className="text-xs text-purple-600">7+ day streak</p>
+              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-200 shadow-lg">
+                <Calendar className="w-12 h-12 text-purple-600 mx-auto mb-3" />
+                <p className="text-base font-bold text-purple-800">Consistent</p>
+                <p className="text-xs text-purple-600 mt-1">7+ day streak</p>
               </div>
             )}
             
             {completedToday >= 10 && (
-              <div className="text-center p-4 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
-                <Zap className="w-8 h-8 text-red-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-red-800">On Fire!</p>
-                <p className="text-xs text-red-600">10+ tasks today</p>
+              <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl border-2 border-red-200 shadow-lg">
+                <Flame className="w-12 h-12 text-red-600 mx-auto mb-3" />
+                <p className="text-base font-bold text-red-800">On Fire!</p>
+                <p className="text-xs text-red-600 mt-1">10+ tasks today</p>
               </div>
             )}
           </div>
+          
+          {completedToday < 3 && patientCount < 5 && streak < 3 && (
+            <div className="text-center py-12">
+              <Target className="w-16 h-16 text-teal-400 mx-auto mb-4" />
+              <p className="text-teal-600 font-medium">Keep working to unlock achievements!</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

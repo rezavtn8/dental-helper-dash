@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
-import { Menu, Clock } from 'lucide-react';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { toast } from 'sonner';
+import { Clock } from 'lucide-react';
 import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
@@ -29,7 +29,6 @@ const AssistantDashboard = () => {
   const [patientCount, setPatientCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tasks');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     console.log('AssistantDashboard - session:', !!session, 'user:', !!user, 'userProfile:', userProfile);
@@ -52,11 +51,7 @@ const AssistantDashboard = () => {
       setTasks(data || []);
     } catch (error) {
       console.error('Error fetching tasks:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load tasks",
-        variant: "destructive"
-      });
+      toast.error('Failed to load tasks');
     } finally {
       setLoading(false);
     }
@@ -112,11 +107,11 @@ const AssistantDashboard = () => {
   // Show loading screen if still loading or if user profile doesn't exist yet
   if (loading || !userProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-teal-50">
         <div className="text-center">
-          <Clock className="h-8 w-8 animate-spin mx-auto mb-4 text-teal-600" />
-          <p className="text-gray-900 font-medium">Loading dashboard...</p>
-          <p className="text-sm text-gray-500 mt-2">
+          <Clock className="h-12 w-12 animate-spin mx-auto mb-6 text-teal-600" />
+          <p className="text-teal-900 font-semibold text-lg">Loading dashboard...</p>
+          <p className="text-sm text-teal-600 mt-2">
             {!userProfile ? 'Setting up your profile...' : 'Loading data...'}
           </p>
         </div>
@@ -149,42 +144,31 @@ const AssistantDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-          <h1 className="font-semibold text-gray-900">
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-teal-50 to-blue-50">
+        {/* Global trigger that is ALWAYS visible */}
+        <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40 lg:hidden">
+          <SidebarTrigger className="ml-4 text-teal-600 hover:bg-teal-50" />
+          <h1 className="ml-4 font-semibold text-teal-900">
             {clinic?.name || 'Assistant Portal'}
           </h1>
-        </div>
-      </div>
+        </header>
 
-      {/* Sidebar */}
-      <AssistantSidebar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        clinic={clinic}
-        userProfile={userProfile}
-        isCollapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
+        <AssistantSidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          clinic={clinic}
+          userProfile={userProfile}
+        />
 
-      {/* Main Content */}
-      <div className={`transition-all duration-300 ${
-        sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-80'
-      }`}>
-        <div className="p-6 lg:p-8">
-          {renderTabContent()}
-        </div>
+        {/* Main Content */}
+        <main className="flex-1 pt-16 lg:pt-0">
+          <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+            {renderTabContent()}
+          </div>
+        </main>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

@@ -6,9 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ClinicProvider } from "@/hooks/useClinic";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
+import UnifiedLogin from "./pages/UnifiedLogin";
 import ClinicSetup from "./pages/ClinicSetup";
-import ClinicLogin from "./pages/ClinicLogin";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import ClinicManagement from "./pages/ClinicManagement";
@@ -91,9 +90,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<UnifiedLogin />} />
               <Route path="/setup" element={<ClinicSetup />} />
-              <Route path="/clinic/:clinicCode" element={<ClinicLogin />} />
               <Route path="/dashboard" element={<RoleBasedRedirect />} />
               <Route 
                 path="/assistant" 

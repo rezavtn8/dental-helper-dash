@@ -1,142 +1,165 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Building2, Users, Plus, Star } from 'lucide-react';
-import ClinicSearch from '@/components/ClinicSearch';
-import DualLoginInterface from '@/components/DualLoginInterface';
 import { useNavigate } from 'react-router-dom';
-
-interface Clinic {
-  id: string;
-  name: string;
-  clinic_code: string;
-  address?: string;
-}
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LogIn, Shield, Users, CheckCircle } from 'lucide-react';
 
 export default function Home() {
-  const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(null);
   const navigate = useNavigate();
 
-  const handleClinicSelected = (clinic: Clinic) => {
-    setSelectedClinic(clinic);
-    
-    // Update recent clinics in localStorage
-    const recentClinics = JSON.parse(localStorage.getItem('recentClinics') || '[]');
-    const updated = [clinic.clinic_code, ...recentClinics.filter((c: string) => c !== clinic.clinic_code)].slice(0, 3);
-    localStorage.setItem('recentClinics', JSON.stringify(updated));
-  };
-
-  const handleBackToSearch = () => {
-    setSelectedClinic(null);
-  };
-
-  if (selectedClinic) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <DualLoginInterface 
-            clinic={selectedClinic} 
-            onBack={handleBackToSearch}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12 space-y-4">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto shadow-lg mb-6">
-            <Building2 className="w-10 h-10 text-primary" />
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <span className="text-xl font-bold">ClinicFlow</span>
           </div>
-          <h1 className="text-5xl font-bold text-foreground mb-4">
-            Welcome to DentalFlow
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Modern practice management made simple. Find your clinic and access your personalized dashboard.
+          <Button onClick={() => navigate('/login')}>
+            <LogIn className="w-4 h-4 mr-2" />
+            Login
+          </Button>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <div className="max-w-3xl mx-auto space-y-8">
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+              Streamline Your Clinic Operations
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Manage tasks, track progress, and empower your team with our comprehensive clinic management platform.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" onClick={() => navigate('/login')}>
+              <LogIn className="w-5 h-5 mr-2" />
+              Get Started
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate('/setup')}>
+              Create New Clinic
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center space-y-4 mb-12">
+          <h2 className="text-3xl font-bold">Why Choose ClinicFlow?</h2>
+          <p className="text-lg text-muted-foreground">
+            Built specifically for healthcare teams to improve efficiency and patient care.
           </p>
         </div>
 
-        {/* Main Search Interface */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
-          <ClinicSearch onClinicSelected={handleClinicSelected} />
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <Card className="hover:shadow-lg transition-shadow border-0 shadow-md">
-            <CardHeader className="text-center pb-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-7 h-7 text-white" />
-              </div>
-              <CardTitle className="text-xl">Create New Practice</CardTitle>
-              <CardDescription className="text-base">
-                Set up a new dental practice with your own custom portal
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <Card>
+            <CardHeader className="text-center">
+              <Shield className="w-12 h-12 mx-auto mb-4 text-primary" />
+              <CardTitle>Role-Based Access</CardTitle>
+              <CardDescription>
+                Secure login system with different access levels for owners and assistants
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                className="w-full h-12 text-base shadow-sm" 
-                variant="outline"
-                onClick={() => navigate('/setup')}
-              >
-                Get Started
-                <Plus className="ml-2 w-4 h-4" />
-              </Button>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  Owner dashboard with full control
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  Assistant access with PIN authentication
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  Secure data protection
+                </li>
+              </ul>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow border-0 shadow-md">
-            <CardHeader className="text-center pb-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="w-7 h-7 text-white" />
-              </div>
-              <CardTitle className="text-xl">Direct Access</CardTitle>
-              <CardDescription className="text-base">
-                Already have an account? Sign in directly to your dashboard
+          <Card>
+            <CardHeader className="text-center">
+              <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
+              <CardTitle>Team Management</CardTitle>
+              <CardDescription>
+                Add team members, assign tasks, and track performance across your clinic
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                className="w-full h-12 text-base shadow-sm" 
-                variant="secondary"
-                onClick={() => navigate('/login')}
-              >
-                Sign In
-              </Button>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  Task assignment and tracking
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  Real-time progress updates
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  Performance analytics
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="text-center">
+              <LogIn className="w-12 h-12 mx-auto mb-4 text-primary" />
+              <CardTitle>Simple & Secure</CardTitle>
+              <CardDescription>
+                Easy-to-use interface with enterprise-grade security for healthcare environments
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  Intuitive user interface
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  HIPAA-compliant security
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  Cloud-based reliability
+                </li>
+              </ul>
             </CardContent>
           </Card>
         </div>
+      </section>
 
-        {/* Features Overview */}
-        <div className="text-center space-y-8">
-          <h2 className="text-3xl font-bold text-foreground mb-8">Why Choose DentalFlow?</h2>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Users className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Role-Based Access</h3>
-              <p className="text-muted-foreground">
-                Customized dashboards for practice owners and assistants, each with the tools they need.
-              </p>
-            </div>
-            
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Building2 className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Secure & Simple</h3>
-              <p className="text-muted-foreground">
-                Quick setup with unique clinic codes and secure authentication for your entire team.
-              </p>
-            </div>
+      {/* CTA Section */}
+      <section className="bg-muted py-16">
+        <div className="container mx-auto px-4 text-center">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <h2 className="text-3xl font-bold">Ready to Transform Your Clinic?</h2>
+            <p className="text-lg text-muted-foreground">
+              Join healthcare teams already using ClinicFlow to improve their operations.
+            </p>
+            <Button size="lg" onClick={() => navigate('/login')}>
+              <LogIn className="w-5 h-5 mr-2" />
+              Start Your Journey
+            </Button>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t py-8">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>&copy; 2024 ClinicFlow. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }

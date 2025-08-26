@@ -170,14 +170,7 @@ export default function UnifiedLogin() {
       return;
     }
 
-    const { error } = await setAssistantPin(selectedClinic.id, assistantFirstName.trim(), pin);
-    
-    if (error) {
-      toast.error(error);
-      return;
-    }
-
-    // Now sign them in with the new PIN
+    // PIN already created in the dialog, now sign them in
     const { error: loginError } = await signInWithPin(selectedClinic.id, assistantFirstName.trim(), pin);
     
     if (loginError) {
@@ -466,6 +459,8 @@ export default function UnifiedLogin() {
         onPinCreated={handlePinCreated}
         assistantName={assistantFirstName}
         clinicName={selectedClinic?.name || ''}
+        clinicId={selectedClinic?.id || ''}
+        onSetPin={setAssistantPin}
       />
     </div>
   );

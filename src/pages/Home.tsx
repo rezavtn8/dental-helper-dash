@@ -1,135 +1,194 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogIn, Shield, Users, CheckCircle } from 'lucide-react';
+import { LogIn, Shield, Users, CheckCircle, ArrowRight, Stethoscope } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
-      <header className="border-b">
+      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-primary-foreground" />
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
+              <Stethoscope className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold">ClinicFlow</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              ClinicFlow
+            </span>
           </div>
-          <Button onClick={() => navigate('/login')}>
-            <LogIn className="w-4 h-4 mr-2" />
-            Login
+          <Button 
+            onClick={() => navigate('/login')} 
+            size="lg"
+            className="group hover-scale shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <LogIn className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+            Sign In
           </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <div className="max-w-3xl mx-auto space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-              Streamline Your Clinic Operations
+      <section className="container mx-auto px-4 py-24 text-center">
+        <div className="max-w-4xl mx-auto space-y-12 animate-fade-in">
+          <div className="space-y-6">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent leading-tight">
+              Streamline Your
+              <br />
+              <span className="text-primary">Clinic Operations</span>
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Manage tasks, track progress, and empower your team with our comprehensive clinic management platform.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => navigate('/login')}>
-              <LogIn className="w-5 h-5 mr-2" />
-              Get Started
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/login')}
+              className="group px-8 py-6 text-lg hover-scale shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90"
+            >
+              <LogIn className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
+              Get Started Now
+              <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('/setup')}>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              onClick={() => navigate('/setup')}
+              className="px-8 py-6 text-lg hover-scale border-2 hover:bg-muted/50 transition-all duration-300"
+            >
               Create New Clinic
             </Button>
+          </div>
+
+          {/* Quick Login Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16 max-w-2xl mx-auto">
+            <Card 
+              className="cursor-pointer hover-scale group border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl"
+              onClick={() => navigate('/login')}
+            >
+              <CardHeader className="text-center pb-3">
+                <Shield className="w-12 h-12 mx-auto mb-3 text-primary group-hover:scale-110 transition-transform" />
+                <CardTitle className="text-xl">Clinic Owner</CardTitle>
+                <CardDescription>Full access & management</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button variant="secondary" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  Owner Login
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="cursor-pointer hover-scale group border-2 hover:border-secondary/50 transition-all duration-300 hover:shadow-xl"
+              onClick={() => navigate('/login')}
+            >
+              <CardHeader className="text-center pb-3">
+                <Users className="w-12 h-12 mx-auto mb-3 text-secondary group-hover:scale-110 transition-transform" />
+                <CardTitle className="text-xl">Assistant</CardTitle>
+                <CardDescription>Task management & tracking</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button variant="secondary" className="w-full group-hover:bg-secondary group-hover:text-secondary-foreground transition-all">
+                  Assistant Login
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-bold">Why Choose ClinicFlow?</h2>
-          <p className="text-lg text-muted-foreground">
+      <section className="container mx-auto px-4 py-20 animate-fade-in">
+        <div className="text-center space-y-6 mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold">Why Choose ClinicFlow?</h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Built specifically for healthcare teams to improve efficiency and patient care.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card>
+          <Card className="hover-scale group border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
             <CardHeader className="text-center">
-              <Shield className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <CardTitle>Role-Based Access</CardTitle>
-              <CardDescription>
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Shield className="w-8 h-8 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">Role-Based Access</CardTitle>
+              <CardDescription className="text-base">
                 Secure login system with different access levels for owners and assistants
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <ul className="space-y-3 text-sm">
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Owner dashboard with full control
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Assistant access with PIN authentication
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Secure data protection
                 </li>
               </ul>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover-scale group border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
             <CardHeader className="text-center">
-              <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <CardTitle>Team Management</CardTitle>
-              <CardDescription>
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-secondary/10 to-secondary/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Users className="w-8 h-8 text-secondary" />
+              </div>
+              <CardTitle className="text-2xl">Team Management</CardTitle>
+              <CardDescription className="text-base">
                 Add team members, assign tasks, and track performance across your clinic
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <ul className="space-y-3 text-sm">
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Task assignment and tracking
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Real-time progress updates
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Performance analytics
                 </li>
               </ul>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover-scale group border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
             <CardHeader className="text-center">
-              <LogIn className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <CardTitle>Simple & Secure</CardTitle>
-              <CardDescription>
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-accent/10 to-accent/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <LogIn className="w-8 h-8 text-accent-foreground" />
+              </div>
+              <CardTitle className="text-2xl">Simple & Secure</CardTitle>
+              <CardDescription className="text-base">
                 Easy-to-use interface with enterprise-grade security for healthcare environments
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <ul className="space-y-3 text-sm">
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Intuitive user interface
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   HIPAA-compliant security
                 </li>
                 <li className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Cloud-based reliability
                 </li>
               </ul>
@@ -139,25 +198,36 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-muted py-16">
+      <section className="bg-gradient-to-r from-primary/5 via-muted/30 to-secondary/5 py-24">
         <div className="container mx-auto px-4 text-center">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold">Ready to Transform Your Clinic?</h2>
-            <p className="text-lg text-muted-foreground">
-              Join healthcare teams already using ClinicFlow to improve their operations.
+          <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold">Ready to Transform Your Clinic?</h2>
+            <p className="text-xl text-muted-foreground leading-relaxed">
+              Join healthcare teams already using ClinicFlow to improve their operations and patient care.
             </p>
-            <Button size="lg" onClick={() => navigate('/login')}>
-              <LogIn className="w-5 h-5 mr-2" />
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/login')}
+              className="px-12 py-6 text-lg hover-scale shadow-2xl group bg-gradient-to-r from-primary to-primary/90"
+            >
+              <LogIn className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />
               Start Your Journey
+              <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 ClinicFlow. All rights reserved.</p>
+      <footer className="border-t bg-background/50 backdrop-blur-sm py-12">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
+              <Stethoscope className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <span className="text-lg font-semibold">ClinicFlow</span>
+          </div>
+          <p>&copy; 2024 ClinicFlow. All rights reserved. Empowering healthcare teams worldwide.</p>
         </div>
       </footer>
     </div>

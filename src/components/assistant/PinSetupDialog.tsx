@@ -13,9 +13,11 @@ interface PinSetupDialogProps {
   onPinCreated: (pin: string) => void;
   assistantName: string;
   clinicName: string;
+  clinicId: string;
+  onSetPin: (clinicId: string, firstName: string, pin: string) => Promise<{ error?: string }>;
 }
 
-export function PinSetupDialog({ open, onClose, onPinCreated, assistantName, clinicName }: PinSetupDialogProps) {
+export function PinSetupDialog({ open, onClose, onPinCreated, assistantName, clinicName, clinicId, onSetPin }: PinSetupDialogProps) {
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [loading, setLoading] = useState(false);
@@ -73,12 +75,15 @@ export function PinSetupDialog({ open, onClose, onPinCreated, assistantName, cli
     setLoading(true);
     
     try {
-      // Simulate PIN creation process
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await onSetPin(clinicId, assistantName, pin);
       
-      toast.success('PIN created successfully!');
-      onPinCreated(pin);
-      onClose();
+      if (error) {
+        toast.error(error);
+      } else {
+        toast.success('PIN created successfully!');
+        onPinCreated(pin);
+        onClose();
+      }
     } catch (error) {
       toast.error('Failed to create PIN. Please try again.');
     } finally {

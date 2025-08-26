@@ -246,16 +246,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAssistantExists = async (clinicId: string, firstName: string): Promise<{ data?: any; error?: string }> => {
     try {
+      console.log('Checking assistant exists:', { clinicId, firstName: firstName.trim() });
+      
       const { data, error } = await supabase
         .rpc('check_assistant_exists', {
           p_clinic_id: clinicId,
-          p_first_name: firstName
+          p_first_name: firstName.trim()
         });
 
       if (error) {
         console.error('Error checking assistant exists:', error);
         return { error: 'Failed to verify assistant' };
       }
+
+      console.log('Assistant check result:', data);
 
       if (!data || data.length === 0) {
         return { error: 'Assistant not found with that name in this clinic' };
@@ -270,20 +274,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const setAssistantPin = async (clinicId: string, firstName: string, pin: string): Promise<{ error?: string }> => {
     try {
+      console.log('Setting PIN for:', { clinicId, firstName: firstName.trim() });
+      
       const { data, error } = await supabase
         .rpc('set_assistant_pin', {
           p_clinic_id: clinicId,
-          p_first_name: firstName,
+          p_first_name: firstName.trim(),
           p_pin: pin
         });
 
       if (error) {
         console.error('Error setting assistant PIN:', error);
-        return { error: 'Failed to set PIN' };
+        return { error: `Failed to set PIN: ${error.message}` };
       }
 
+      console.log('PIN set result:', data);
+      
       if (!data) {
-        return { error: 'Unable to set PIN. Please contact your clinic administrator.' };
+        return { error: 'Unable to set PIN. This assistant may already have a PIN or was not found.' };
       }
 
       return {};

@@ -40,7 +40,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const RoleBasedRedirect = () => {
-  const { userProfile, loading, session } = useAuth();
+  const { userProfile, loading, session, needsClinicSetup } = useAuth();
 
   if (loading) {
     return (
@@ -55,6 +55,11 @@ const RoleBasedRedirect = () => {
 
   if (!session) {
     return <Navigate to="/" replace />;
+  }
+
+  // If user needs clinic setup, redirect to setup page
+  if (needsClinicSetup) {
+    return <Navigate to="/setup" replace />;
   }
 
   if (userProfile?.role === 'owner') {

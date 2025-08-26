@@ -17,6 +17,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   userProfile: UserProfile | null;
+  needsClinicSetup: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
   signInWithPin: (clinicId: string, firstName: string, pin: string) => Promise<{ error?: string }>;
@@ -41,6 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsClinicSetup, setNeedsClinicSetup] = useState(false);
+  const [profileCreationInProgress, setProfileCreationInProgress] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -79,6 +82,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
+    if (profileCreationInProgress) {
+      console.log('Profile creation already in progress, skipping...');
+      return;
+    }
+
     try {
       console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
@@ -95,16 +103,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data) {
         console.log('User profile found:', data);
         setUserProfile(data);
+        setNeedsClinicSetup(false);
       } else {
         console.log('No user profile found, attempting to create one...');
-        // Try to create a user profile for users who logged in via Google
+        setProfileCreationInProgress(true);
+        
+        // Try to create a user profile for users who logged in
         const { data: authUser } = await supabase.auth.getUser();
         if (authUser.user) {
           await createUserProfileFromAuth(authUser.user);
         }
+        
+        setProfileCreationInProgress(false);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      setProfileCreationInProgress(false);
     }
   };
 
@@ -114,11 +128,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userMetadata = user.user_metadata || {};
       const userRole = userMetadata.role || 'assistant';
       
-      // For owners without a clinic_id, we need to handle this case
+      // For owners without a clinic_id, set the flag instead of redirecting
       if (userRole === 'owner' && !userMetadata.clinic_id) {
-        console.log('Owner without clinic_id detected, redirecting to clinic setup');
-        // For now, redirect them to create a clinic first
-        window.location.href = '/setup';
+        console.log('Owner without clinic_id detected, flagging for clinic setup');
+        setNeedsClinicSetup(true);
+        setLoading(false);
         return;
       }
       
@@ -137,10 +151,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error creating user profile:', error);
-        // If it's a constraint error and user is an owner, redirect to setup
+        // If it's a constraint error and user is an owner, flag for setup
         if (error.code === '23502' && userRole === 'owner') {
-          console.log('Redirecting owner to clinic setup due to missing clinic_id');
-          window.location.href = '/setup';
+          console.log('Flagging owner for clinic setup due to missing clinic_id');
+          setNeedsClinicSetup(true);
+          setLoading(false);
           return;
         }
         return;
@@ -149,6 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data) {
         console.log('User profile created:', data);
         setUserProfile(data);
+        setNeedsClinicSetup(false);
       }
     } catch (error) {
       console.error('Error creating user profile:', error);
@@ -344,6 +360,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     userProfile,
     loading,
+    needsClinicSetup,
     signInWithEmail,
     signInWithGoogle,
     signInWithPin,

@@ -112,6 +112,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Creating user profile from auth user:', user);
       const userMetadata = user.user_metadata || {};
+      const userRole = userMetadata.role || 'assistant';
+      
+      // For owners without a clinic_id, we need to handle this case
+      if (userRole === 'owner' && !userMetadata.clinic_id) {
+        console.log('Owner without clinic_id detected, redirecting to clinic setup');
+        // For now, redirect them to create a clinic first
+        window.location.href = '/setup';
+        return;
+      }
       
       const { data, error } = await supabase
         .from('users')
@@ -119,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: user.id,
           email: user.email,
           name: userMetadata.full_name || userMetadata.name || user.email?.split('@')[0] || 'User',
-          role: userMetadata.role || 'assistant', // Default to assistant if no role specified
+          role: userRole,
           clinic_id: userMetadata.clinic_id || null,
           is_active: true
         })
@@ -128,6 +137,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error creating user profile:', error);
+        // If it's a constraint error and user is an owner, redirect to setup
+        if (error.code === '23502' && userRole === 'owner') {
+          console.log('Redirecting owner to clinic setup due to missing clinic_id');
+          window.location.href = '/setup';
+          return;
+        }
         return;
       }
 

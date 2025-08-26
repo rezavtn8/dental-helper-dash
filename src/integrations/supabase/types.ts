@@ -334,6 +334,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      set_assistant_pin: {
+        Args: { p_clinic_id: string; p_first_name: string; p_pin: string }
+        Returns: boolean
+      }
       update_user_pin: {
         Args: { new_pin: string; user_id: string }
         Returns: boolean

@@ -21,6 +21,8 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
   signInWithPin: (clinicId: string, firstName: string, pin: string) => Promise<{ error?: string }>;
+  checkAssistantExists: (clinicId: string, firstName: string) => Promise<{ data?: any; error?: string }>;
+  setAssistantPin: (clinicId: string, firstName: string, pin: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicId?: string }) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   createAssistant: (email: string, name: string, clinicId: string) => Promise<{ error?: string }>;
@@ -242,6 +244,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const checkAssistantExists = async (clinicId: string, firstName: string): Promise<{ data?: any; error?: string }> => {
+    try {
+      const { data, error } = await supabase
+        .rpc('check_assistant_exists', {
+          p_clinic_id: clinicId,
+          p_first_name: firstName
+        });
+
+      if (error) {
+        console.error('Error checking assistant exists:', error);
+        return { error: 'Failed to verify assistant' };
+      }
+
+      if (!data || data.length === 0) {
+        return { error: 'Assistant not found with that name in this clinic' };
+      }
+
+      return { data: data[0] };
+    } catch (error) {
+      console.error('Error checking assistant exists:', error);
+      return { error: 'Failed to verify assistant' };
+    }
+  };
+
+  const setAssistantPin = async (clinicId: string, firstName: string, pin: string): Promise<{ error?: string }> => {
+    try {
+      const { data, error } = await supabase
+        .rpc('set_assistant_pin', {
+          p_clinic_id: clinicId,
+          p_first_name: firstName,
+          p_pin: pin
+        });
+
+      if (error) {
+        console.error('Error setting assistant PIN:', error);
+        return { error: 'Failed to set PIN' };
+      }
+
+      if (!data) {
+        return { error: 'Unable to set PIN. Please contact your clinic administrator.' };
+      }
+
+      return {};
+    } catch (error) {
+      console.error('Error setting assistant PIN:', error);
+      return { error: 'Failed to set PIN' };
+    }
+  };
+
   const signInWithPin = async (clinicId: string, firstName: string, pin: string): Promise<{ error?: string }> => {
     try {
       // First, authenticate the assistant using the PIN
@@ -263,41 +314,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const assistant = assistantData[0];
       
-      // Create a temporary auth session by signing in with the user's email
-      // This is a workaround since Supabase doesn't support custom PIN auth directly
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      // Update last login for the assistant
+      await supabase
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', assistant.user_id);
+
+      // Set the user profile directly for PIN-based auth
+      setUserProfile({
+        id: assistant.user_id,
+        name: assistant.user_name,
         email: assistant.user_email,
-        password: pin // Use PIN as temporary password - this needs to be set up properly
+        role: 'assistant',
+        clinic_id: clinicId,
+        is_active: true
       });
 
-      if (authError) {
-        // If password auth fails, we need an alternative approach
-        // For now, we'll create a temporary session using admin privileges
-        console.log('Direct auth failed, using alternative method');
-        
-        // Update last login for the assistant
-        await supabase
-          .from('users')
-          .update({ last_login: new Date().toISOString() })
-          .eq('id', assistant.user_id);
-
-        // Set the user profile directly (this is a simplified approach)
-        setUserProfile({
-          id: assistant.user_id,
-          name: assistant.user_name,
-          email: assistant.user_email,
-          role: 'assistant',
-          clinic_id: clinicId,
-          is_active: true
-        });
-
-        // For PIN-based auth, we don't need a full Supabase session
-        // Just set the user profile and handle the navigation in the component
-        setLoading(false);
-        
-        return {};
-      }
-
+      setLoading(false);
+      
       return {};
     } catch (error) {
       console.error('PIN sign-in error:', error);
@@ -364,6 +398,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signInWithEmail,
     signInWithGoogle,
     signInWithPin,
+    checkAssistantExists,
+    setAssistantPin,
     signUp,
     signOut,
     createAssistant,

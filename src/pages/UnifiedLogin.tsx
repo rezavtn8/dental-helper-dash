@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2, LogIn, Eye, EyeOff, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { PinSetupDialog } from '@/components/assistant/PinSetupDialog';
 
 interface Clinic {
   id: string;
@@ -25,9 +26,12 @@ export default function UnifiedLogin() {
 
   // Assistant login state  
   const [assistantFirstName, setAssistantFirstName] = useState('');
-  const [assistantPin, setAssistantPin] = useState('');
+  const [assistantPinValue, setAssistantPinValue] = useState('');
   const [assistantLoading, setAssistantLoading] = useState(false);
   const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(null);
+  const [assistantData, setAssistantData] = useState<any>(null);
+  const [showPinSetup, setShowPinSetup] = useState(false);
+  const [needsPinEntry, setNeedsPinEntry] = useState(false);
   
   // Clinic search state
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,7 +39,7 @@ export default function UnifiedLogin() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const { signInWithEmail, signInWithGoogle, signInWithPin } = useAuth();
+  const { signInWithEmail, signInWithGoogle, signInWithPin, checkAssistantExists, setAssistantPin } = useAuth();
   const navigate = useNavigate();
 
   // Search for clinics
@@ -100,7 +104,7 @@ export default function UnifiedLogin() {
   };
 
   // Assistant login handlers
-  const handleAssistantLogin = async (e: React.FormEvent) => {
+  const handleAssistantNameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedClinic) {
@@ -108,14 +112,48 @@ export default function UnifiedLogin() {
       return;
     }
 
-    if (assistantPin.length !== 4) {
+    if (!assistantFirstName.trim()) {
+      toast.error('Please enter your first name');
+      return;
+    }
+
+    setAssistantLoading(true);
+    
+    const { data, error } = await checkAssistantExists(selectedClinic.id, assistantFirstName.trim());
+    
+    if (error) {
+      toast.error(error);
+      setAssistantLoading(false);
+      return;
+    }
+
+    setAssistantData(data);
+    
+    if (data.must_create_pin) {
+      setShowPinSetup(true);
+    } else {
+      setNeedsPinEntry(true);
+    }
+    
+    setAssistantLoading(false);
+  };
+
+  const handleAssistantLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedClinic || !assistantData) {
+      toast.error('Session expired. Please start over.');
+      return;
+    }
+
+    if (assistantPinValue.length !== 4) {
       toast.error('PIN must be exactly 4 digits');
       return;
     }
 
     setAssistantLoading(true);
     
-    const { error } = await signInWithPin(selectedClinic.id, assistantFirstName.trim(), assistantPin);
+    const { error } = await signInWithPin(selectedClinic.id, assistantFirstName.trim(), assistantPinValue);
     
     if (error) {
       toast.error(error);
@@ -124,6 +162,38 @@ export default function UnifiedLogin() {
       navigate('/dashboard');
     }
     setAssistantLoading(false);
+  };
+
+  const handlePinCreated = async (pin: string) => {
+    if (!selectedClinic || !assistantData) {
+      toast.error('Session expired. Please start over.');
+      return;
+    }
+
+    const { error } = await setAssistantPin(selectedClinic.id, assistantFirstName.trim(), pin);
+    
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
+    // Now sign them in with the new PIN
+    const { error: loginError } = await signInWithPin(selectedClinic.id, assistantFirstName.trim(), pin);
+    
+    if (loginError) {
+      toast.error(loginError);
+    } else {
+      toast.success(`Welcome, ${assistantFirstName}! Your PIN has been created.`);
+      navigate('/dashboard');
+    }
+  };
+
+  const resetAssistantFlow = () => {
+    setAssistantFirstName('');
+    setAssistantPinValue('');
+    setAssistantData(null);
+    setNeedsPinEntry(false);
+    setShowPinSetup(false);
   };
 
   return (
@@ -302,8 +372,7 @@ export default function UnifiedLogin() {
                         size="sm"
                         onClick={() => {
                           setSelectedClinic(null);
-                          setAssistantFirstName('');
-                          setAssistantPin('');
+                          resetAssistantFlow();
                         }}
                       >
                         Change
@@ -312,40 +381,70 @@ export default function UnifiedLogin() {
                   </div>
 
                   {/* Assistant Login Form */}
-                  <form onSubmit={handleAssistantLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="assistant-name">First Name</Label>
-                      <Input
-                        id="assistant-name"
-                        type="text"
-                        value={assistantFirstName}
-                        onChange={(e) => setAssistantFirstName(e.target.value)}
-                        placeholder="Enter your first name"
-                        required
-                      />
-                    </div>
+                  {!needsPinEntry ? (
+                    <form onSubmit={handleAssistantNameSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="assistant-name">First Name</Label>
+                        <Input
+                          id="assistant-name"
+                          type="text"
+                          value={assistantFirstName}
+                          onChange={(e) => setAssistantFirstName(e.target.value)}
+                          placeholder="Enter your first name"
+                          required
+                        />
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="assistant-pin">4-Digit PIN</Label>
-                      <Input
-                        id="assistant-pin"
-                        type="password"
-                        value={assistantPin}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-                          setAssistantPin(value);
-                        }}
-                        placeholder="Enter your 4-digit PIN"
-                        maxLength={4}
-                        required
-                      />
-                    </div>
+                      <Button type="submit" className="w-full" disabled={assistantLoading}>
+                        {assistantLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                        Continue
+                      </Button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleAssistantLogin} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="assistant-name">First Name</Label>
+                        <Input
+                          id="assistant-name"
+                          type="text"
+                          value={assistantFirstName}
+                          disabled
+                          className="bg-muted"
+                        />
+                      </div>
 
-                    <Button type="submit" className="w-full" disabled={assistantLoading}>
-                      {assistantLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                      Sign In as Assistant
-                    </Button>
-                  </form>
+                      <div className="space-y-2">
+                        <Label htmlFor="assistant-pin">4-Digit PIN</Label>
+                        <Input
+                          id="assistant-pin"
+                          type="password"
+                          value={assistantPinValue}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                            setAssistantPinValue(value);
+                          }}
+                          placeholder="Enter your 4-digit PIN"
+                          maxLength={4}
+                          required
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={resetAssistantFlow}
+                          className="flex-1"
+                        >
+                          Back
+                        </Button>
+                        <Button type="submit" className="flex-1" disabled={assistantLoading}>
+                          {assistantLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                          Sign In
+                        </Button>
+                      </div>
+                    </form>
+                  )}
                 </div>
               )}
             </div>
@@ -359,6 +458,15 @@ export default function UnifiedLogin() {
           ← Back to Home
         </Button>
       </div>
+
+      {/* PIN Setup Dialog */}
+      <PinSetupDialog
+        open={showPinSetup}
+        onClose={() => setShowPinSetup(false)}
+        onPinCreated={handlePinCreated}
+        assistantName={assistantFirstName}
+        clinicName={selectedClinic?.name || ''}
+      />
     </div>
   );
 }

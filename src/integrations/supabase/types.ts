@@ -316,6 +316,16 @@ export type Database = {
         Args: { target_role: string }
         Returns: boolean
       }
+      check_assistant_exists: {
+        Args: { p_clinic_id: string; p_first_name: string }
+        Returns: {
+          has_pin: boolean
+          must_create_pin: boolean
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       get_current_user_clinic_id: {
         Args: Record<PropertyKey, never>
         Returns: string

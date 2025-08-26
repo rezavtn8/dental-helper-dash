@@ -6,12 +6,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ClinicProvider } from "@/hooks/useClinic";
 import Home from "./pages/Home";
-import UnifiedLogin from "./pages/UnifiedLogin";
+import SimpleLogin from "./pages/SimpleLogin";
 import ClinicSetup from "./pages/ClinicSetup";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import ClinicManagement from "./pages/ClinicManagement";
 import NotFound from "./pages/NotFound";
+import AcceptInvitation from "./pages/AcceptInvitation";
 
 const queryClient = new QueryClient();
 
@@ -90,7 +91,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/login" element={<UnifiedLogin />} />
+              <Route path="/login" element={<SimpleLogin />} />
               <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/dashboard" element={<RoleBasedRedirect />} />
               <Route 
@@ -117,7 +118,8 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route path="*" element={<NotFound />} />
+          <Route path="/accept-invitation" element={<AcceptInvitation />} />
+          <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>

@@ -39,7 +39,7 @@ export default function UnifiedLogin() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const { signInWithEmail, signInWithGoogle, signInWithPin, checkAssistantExists, setAssistantPin } = useAuth();
+  const { signInWithEmail, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   // Search for clinics

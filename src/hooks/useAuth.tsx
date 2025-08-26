@@ -20,9 +20,9 @@ interface AuthContextType {
   needsClinicSetup: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
-  signInWithPin: (clinicId: string, firstName: string, pin: string) => Promise<{ error?: string }>;
-  checkAssistantExists: (clinicId: string, firstName: string) => Promise<{ data?: any; error?: string }>;
-  setAssistantPin: (clinicId: string, firstName: string, pin: string) => Promise<{ error?: string }>;
+  createAssistantInvitation: (email: string, name: string) => Promise<{ invitationId?: string; token?: string; error?: string }>;
+  acceptInvitation: (token: string) => Promise<{ success: boolean; message: string; clinicId?: string }>;
+  getInvitations: () => Promise<{ invitations: any[]; error?: string }>;
   signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicId?: string }) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   createAssistant: (email: string, name: string, clinicId: string) => Promise<{ error?: string }>;
@@ -244,106 +244,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const checkAssistantExists = async (clinicId: string, firstName: string): Promise<{ data?: any; error?: string }> => {
+  const createAssistantInvitation = async (email: string, name: string): Promise<{ invitationId?: string; token?: string; error?: string }> => {
     try {
-      console.log('Checking assistant exists:', { clinicId, firstName: firstName.trim() });
+      console.log('Creating assistant invitation:', { email, name });
       
-      const { data, error } = await supabase
-        .rpc('check_assistant_exists', {
-          p_clinic_id: clinicId,
-          p_first_name: firstName.trim()
-        });
-
-      if (error) {
-        console.error('Error checking assistant exists:', error);
-        return { error: 'Failed to verify assistant' };
+      if (!userProfile?.clinic_id) {
+        throw new Error('No clinic ID available');
       }
 
-      console.log('Assistant check result:', data);
-
-      if (!data || data.length === 0) {
-        return { error: 'Assistant not found with that name in this clinic' };
-      }
-
-      return { data: data[0] };
-    } catch (error) {
-      console.error('Error checking assistant exists:', error);
-      return { error: 'Failed to verify assistant' };
-    }
-  };
-
-  const setAssistantPin = async (clinicId: string, firstName: string, pin: string): Promise<{ error?: string }> => {
-    try {
-      console.log('Setting PIN for:', { clinicId, firstName: firstName.trim() });
-      
-      const { data, error } = await supabase
-        .rpc('set_assistant_pin', {
-          p_clinic_id: clinicId,
-          p_first_name: firstName.trim(),
-          p_pin: pin
-        });
-
-      if (error) {
-        console.error('Error setting assistant PIN:', error);
-        return { error: `Failed to set PIN: ${error.message}` };
-      }
-
-      console.log('PIN set result:', data);
-      
-      if (!data) {
-        return { error: 'Unable to set PIN. This assistant may already have a PIN or was not found.' };
-      }
-
-      return {};
-    } catch (error) {
-      console.error('Error setting assistant PIN:', error);
-      return { error: 'Failed to set PIN' };
-    }
-  };
-
-  const signInWithPin = async (clinicId: string, firstName: string, pin: string): Promise<{ error?: string }> => {
-    try {
-      // First, authenticate the assistant using the PIN
-      const { data: assistantData, error: pinError } = await supabase
-        .rpc('authenticate_assistant', {
-          p_clinic_id: clinicId,
-          p_first_name: firstName,
-          p_pin: pin
-        });
-
-      if (pinError) {
-        console.error('PIN authentication error:', pinError);
-        return { error: 'Authentication failed' };
-      }
-
-      if (!assistantData || assistantData.length === 0) {
-        return { error: 'Invalid name or PIN' };
-      }
-
-      const assistant = assistantData[0];
-      
-      // Update last login for the assistant
-      await supabase
-        .from('users')
-        .update({ last_login: new Date().toISOString() })
-        .eq('id', assistant.user_id);
-
-      // Set the user profile directly for PIN-based auth
-      setUserProfile({
-        id: assistant.user_id,
-        name: assistant.user_name,
-        email: assistant.user_email,
-        role: 'assistant',
-        clinic_id: clinicId,
-        is_active: true
+      const { data, error } = await supabase.rpc('create_assistant_invitation', {
+        p_clinic_id: userProfile.clinic_id,
+        p_email: email.toLowerCase().trim(),
+        p_name: name.trim()
       });
 
-      setLoading(false);
-      
-      return {};
+      if (error) {
+        console.error('RPC error:', error);
+        throw error;
+      }
+
+      if (data && data.length > 0) {
+        const result = data[0];
+        console.log('Invitation created successfully:', result);
+        return { 
+          invitationId: result.invitation_id, 
+          token: result.invitation_token 
+        };
+      }
+
+      throw new Error('No data returned from invitation creation');
     } catch (error) {
-      console.error('PIN sign-in error:', error);
-      return { error: 'Authentication failed' };
+      console.error('Failed to create invitation:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create invitation';
+      return { error: errorMessage };
+    }
+  };
+
+  const acceptInvitation = async (token: string): Promise<{ success: boolean; message: string; clinicId?: string }> => {
+    try {
+      const { data, error } = await supabase.rpc('accept_invitation', {
+        invitation_token: token
+      });
+
+      if (error) {
+        console.error('Accept invitation error:', error);
+        throw error;
+      }
+
+      if (data && data.length > 0) {
+        const result = data[0];
+        return {
+          success: result.success,
+          message: result.message,
+          clinicId: result.clinic_id
+        };
+      }
+
+      return { success: false, message: 'No response from server' };
+    } catch (error) {
+      console.error('Failed to accept invitation:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to accept invitation';
+      return { success: false, message: errorMessage };
+    }
+  };
+
+  const getInvitations = async (): Promise<{ invitations: any[]; error?: string }> => {
+    try {
+      const { data, error } = await supabase
+        .from('invitations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Get invitations error:', error);
+        throw error;
+      }
+
+      return { invitations: data || [] };
+    } catch (error) {
+      console.error('Failed to get invitations:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to get invitations';
+      return { invitations: [], error: errorMessage };
     }
   };
 
@@ -405,9 +386,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     needsClinicSetup,
     signInWithEmail,
     signInWithGoogle,
-    signInWithPin,
-    checkAssistantExists,
-    setAssistantPin,
+    createAssistantInvitation,
+    acceptInvitation,
+    getInvitations,
     signUp,
     signOut,
     createAssistant,

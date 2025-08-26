@@ -56,6 +56,70 @@ export type Database = {
         }
         Relationships: []
       }
+      invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          clinic_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          clinic_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          role?: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          clinic_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_logs: {
         Row: {
           assistant_id: string | null
@@ -253,7 +317,6 @@ export type Database = {
           last_login: string | null
           name: string | null
           password_hash: string | null
-          pin: string | null
           role: string | null
         }
         Insert: {
@@ -266,7 +329,6 @@ export type Database = {
           last_login?: string | null
           name?: string | null
           password_hash?: string | null
-          pin?: string | null
           role?: string | null
         }
         Update: {
@@ -279,7 +341,6 @@ export type Database = {
           last_login?: string | null
           name?: string | null
           password_hash?: string | null
-          pin?: string | null
           role?: string | null
         }
         Relationships: [
@@ -304,26 +365,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      authenticate_assistant: {
-        Args: { p_clinic_id: string; p_first_name: string; p_pin: string }
+      accept_invitation: {
+        Args: { invitation_token: string }
         Returns: {
-          user_email: string
-          user_id: string
-          user_name: string
+          clinic_id: string
+          message: string
+          success: boolean
         }[]
       }
       can_create_user: {
         Args: { target_role: string }
         Returns: boolean
       }
-      check_assistant_exists: {
-        Args: { p_clinic_id: string; p_first_name: string }
+      create_assistant_invitation: {
+        Args: { p_clinic_id: string; p_email: string; p_name: string }
         Returns: {
-          has_pin: boolean
-          must_create_pin: boolean
-          user_email: string
-          user_id: string
-          user_name: string
+          invitation_id: string
+          invitation_token: string
         }[]
       }
       get_current_user_clinic_id: {
@@ -333,14 +391,6 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      set_assistant_pin: {
-        Args: { p_clinic_id: string; p_first_name: string; p_pin: string }
-        Returns: boolean
-      }
-      update_user_pin: {
-        Args: { new_pin: string; user_id: string }
-        Returns: boolean
       }
     }
     Enums: {

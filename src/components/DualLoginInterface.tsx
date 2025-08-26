@@ -33,7 +33,7 @@ export default function DualLoginInterface({ clinic, onBack }: DualLoginInterfac
   const [firstName, setFirstName] = useState('');
   const [pin, setPin] = useState('');
   
-  const { signInWithEmail, signInWithGoogle } = useAuth();
+  const { signInWithEmail, signInWithGoogle, signInWithPin } = useAuth();
   const navigate = useNavigate();
 
   const handleOwnerLogin = async (e: React.FormEvent) => {
@@ -81,12 +81,27 @@ export default function DualLoginInterface({ clinic, onBack }: DualLoginInterfac
       return;
     }
     
+    if (!firstName.trim()) {
+      toast.error('Please enter your first name');
+      return;
+    }
+    
     setLoading(true);
     
-    // TODO: Implement assistant PIN-based login
-    // This would typically involve a custom authentication flow
-    toast.error('Assistant login not yet implemented');
-    setLoading(false);
+    try {
+      const { error } = await signInWithPin(clinic.id, firstName.trim(), pin);
+      
+      if (error) {
+        toast.error(error);
+      } else {
+        toast.success(`Welcome back, ${firstName}!`);
+        navigate('/assistant');
+      }
+    } catch (error) {
+      toast.error('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

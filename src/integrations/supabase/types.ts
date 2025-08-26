@@ -253,6 +253,7 @@ export type Database = {
           last_login: string | null
           name: string | null
           password_hash: string | null
+          pin: string | null
           role: string | null
         }
         Insert: {
@@ -265,6 +266,7 @@ export type Database = {
           last_login?: string | null
           name?: string | null
           password_hash?: string | null
+          pin?: string | null
           role?: string | null
         }
         Update: {
@@ -277,6 +279,7 @@ export type Database = {
           last_login?: string | null
           name?: string | null
           password_hash?: string | null
+          pin?: string | null
           role?: string | null
         }
         Relationships: [
@@ -301,6 +304,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      authenticate_assistant: {
+        Args: { p_clinic_id: string; p_first_name: string; p_pin: string }
+        Returns: {
+          user_email: string
+          user_id: string
+          user_name: string
+        }[]
+      }
       can_create_user: {
         Args: { target_role: string }
         Returns: boolean

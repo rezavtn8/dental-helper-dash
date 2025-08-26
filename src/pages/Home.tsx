@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogIn, Shield, Users, CheckCircle, ArrowRight, Stethoscope } from 'lucide-react';
+import { LogIn, Shield, Users, CheckCircle, ArrowRight, Stethoscope, Building2 } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -20,12 +20,12 @@ export default function Home() {
             </span>
           </div>
           <Button 
-            onClick={() => navigate('/login')} 
+            onClick={() => navigate('/owner-login')} 
             size="lg"
             className="group hover-scale shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <LogIn className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
-            Sign In
+            Owner Sign In
           </Button>
         </div>
       </header>
@@ -47,20 +47,20 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Button 
               size="lg" 
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/setup')}
               className="group px-8 py-6 text-lg hover-scale shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90"
             >
-              <LogIn className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
-              Get Started Now
+              <Building2 className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
+              Create Your Clinic
               <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button 
               size="lg" 
               variant="outline" 
-              onClick={() => navigate('/setup')}
+              onClick={() => navigate('/owner-login')}
               className="px-8 py-6 text-lg hover-scale border-2 hover:bg-muted/50 transition-all duration-300"
             >
-              Create New Clinic
+              Already have an account? Sign In
             </Button>
           </div>
 
@@ -68,7 +68,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16 max-w-2xl mx-auto">
             <Card 
               className="cursor-pointer hover-scale group border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/owner-login')}
             >
               <CardHeader className="text-center pb-3">
                 <Shield className="w-12 h-12 mx-auto mb-3 text-primary group-hover:scale-110 transition-transform" />
@@ -84,7 +84,7 @@ export default function Home() {
 
             <Card 
               className="cursor-pointer hover-scale group border-2 hover:border-secondary/50 transition-all duration-300 hover:shadow-xl"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/assistant-login')}
             >
               <CardHeader className="text-center pb-3">
                 <Users className="w-12 h-12 mx-auto mb-3 text-secondary group-hover:scale-110 transition-transform" />
@@ -127,10 +127,10 @@ export default function Home() {
                   <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Owner dashboard with full control
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  Assistant access with PIN authentication
-                </li>
+                 <li className="flex items-center">
+                   <CheckCircle className="w-5 h-5 mr-3 text-primary" />
+                   Assistant access with email invitations
+                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="w-5 h-5 mr-3 text-primary" />
                   Secure data protection
@@ -207,10 +207,10 @@ export default function Home() {
             </p>
             <Button 
               size="lg" 
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/setup')}
               className="px-12 py-6 text-lg hover-scale shadow-2xl group bg-gradient-to-r from-primary to-primary/90"
             >
-              <LogIn className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />
+              <Building2 className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />
               Start Your Journey
               <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
             </Button>

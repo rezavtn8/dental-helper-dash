@@ -44,6 +44,7 @@ const AssistantDashboard = () => {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .eq('clinic_id', userProfile?.clinic_id)
         .or(`assigned_to.eq.${user?.id},assigned_to.is.null`)
         .order('created_at', { ascending: false });
 
@@ -63,6 +64,7 @@ const AssistantDashboard = () => {
       const { data, error } = await supabase
         .from('patient_logs')
         .select('patient_count')
+        .eq('clinic_id', userProfile?.clinic_id)
         .eq('assistant_id', user?.id)
         .eq('date', today)
         .maybeSingle();

@@ -19,7 +19,7 @@ const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
   onOpenChange,
   onMemberAdded
 }) => {
-  const { createAssistant, userProfile } = useAuth();
+  const { createAssistantInvitation, userProfile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -51,10 +51,9 @@ const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
     setLoading(true);
 
     try {
-      const result = await createAssistant(
+      const result = await createAssistantInvitation(
         formData.email,
-        formData.name,
-        userProfile.clinic_id
+        formData.name
       );
 
       if (result.error) {
@@ -62,8 +61,8 @@ const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
       }
 
       toast({
-        title: "Success",
-        description: `${formData.name} has been invited to join your team. They will receive an email with login instructions.`
+        title: "Invitation Sent!",
+        description: `${formData.name} has been invited to join your team. They will receive an email with setup instructions.`
       });
 
       setFormData({ name: '', email: '', role: 'assistant' });
@@ -86,7 +85,7 @@ const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Add Team Member</DialogTitle>
           <DialogDescription>
-            Invite a new member to your clinic team. They will receive an email invitation with login credentials.
+            Send an email invitation to add a new assistant to your clinic team. They'll receive setup instructions via email.
           </DialogDescription>
         </DialogHeader>
 

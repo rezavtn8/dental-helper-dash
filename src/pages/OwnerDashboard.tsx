@@ -57,6 +57,7 @@ const OwnerDashboard = () => {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .eq('clinic_id', userProfile?.clinic_id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

@@ -49,7 +49,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
           assigned_to: newTask.assigned_to === 'unassigned' ? null : newTask.assigned_to,
           clinic_id: userProfile?.clinic_id,
           created_by: user?.id,
-          status: 'To Do'
+          status: 'To Do',
+          created_at: new Date().toISOString()
         });
 
       if (error) throw error;
@@ -135,21 +136,21 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Due Time</Label>
-              <Select value={newTask['due-type']} onValueChange={(value) => setNewTask({ ...newTask, 'due-type': value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Before Opening">Before Opening</SelectItem>
-                  <SelectItem value="Before 1PM">Before 1PM</SelectItem>
-                  <SelectItem value="EoD">End of Day</SelectItem>
-                  <SelectItem value="EoW">End of Week</SelectItem>
-                  <SelectItem value="EoM">End of Month</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label>Due Time</Label>
+            <Select value={newTask['due-type']} onValueChange={(value) => setNewTask({ ...newTask, 'due-type': value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Before Opening">Before Opening</SelectItem>
+                <SelectItem value="Before 1PM">Before 1PM</SelectItem>
+                <SelectItem value="EoD">End of Day</SelectItem>
+                <SelectItem value="EoW">End of Week</SelectItem>
+                <SelectItem value="EoM">End of Month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           </div>
 
           <div className="space-y-2">

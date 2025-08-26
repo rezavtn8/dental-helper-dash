@@ -7,6 +7,8 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ClinicProvider } from "@/hooks/useClinic";
 import Home from "./pages/Home";
 import SimpleLogin from "./pages/SimpleLogin";
+import OwnerLogin from "./pages/OwnerLogin";
+import AssistantLogin from "./pages/AssistantLogin";
 import ClinicSetup from "./pages/ClinicSetup";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
@@ -91,6 +93,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/owner-login" element={<OwnerLogin />} />
+              <Route path="/assistant-login" element={<AssistantLogin />} />
               <Route path="/login" element={<SimpleLogin />} />
               <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/dashboard" element={<RoleBasedRedirect />} />
@@ -118,8 +122,8 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-          <Route path="/accept-invitation" element={<AcceptInvitation />} />
-          <Route path="*" element={<NotFound />} />
+              <Route path="/accept-invitation" element={<AcceptInvitation />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>

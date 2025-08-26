@@ -66,8 +66,8 @@ export default function ClinicSetup() {
         return;
       }
 
-      toast.success(`Clinic created successfully! Your clinic is now available at: /clinic/${clinicCode}`);
-      navigate(`/clinic/${clinicCode}`);
+      toast.success('Clinic created successfully! Welcome to ClinicFlow!');
+      navigate('/owner');
     } catch (error) {
       console.error('Setup error:', error);
       toast.error('Failed to create clinic. Please try again.');

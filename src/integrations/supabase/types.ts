@@ -204,14 +204,13 @@ export type Database = {
           attachments: Json | null
           category: string | null
           checklist: Json | null
-          clinic_id: string | null
+          clinic_id: string
           completed_at: string | null
           completed_by: string | null
           created_at: string | null
           created_by: string | null
           custom_due_date: string | null
           description: string | null
-          due_type: string | null
           "due-date": string | null
           "due-type": string | null
           id: string
@@ -227,14 +226,13 @@ export type Database = {
           attachments?: Json | null
           category?: string | null
           checklist?: Json | null
-          clinic_id?: string | null
+          clinic_id: string
           completed_at?: string | null
           completed_by?: string | null
           created_at?: string | null
           created_by?: string | null
           custom_due_date?: string | null
           description?: string | null
-          due_type?: string | null
           "due-date"?: string | null
           "due-type"?: string | null
           id?: string
@@ -250,14 +248,13 @@ export type Database = {
           attachments?: Json | null
           category?: string | null
           checklist?: Json | null
-          clinic_id?: string | null
+          clinic_id?: string
           completed_at?: string | null
           completed_by?: string | null
           created_at?: string | null
           created_by?: string | null
           custom_due_date?: string | null
           description?: string | null
-          due_type?: string | null
           "due-date"?: string | null
           "due-type"?: string | null
           id?: string

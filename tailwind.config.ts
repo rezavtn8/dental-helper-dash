@@ -137,7 +137,12 @@ export default {
 		function({ addUtilities }: any) {
 			addUtilities({
 				'.hover-scale': {
-					'@apply': 'transition-transform duration-300 hover:scale-105'
+					'transition-property': 'transform',
+					'transition-timing-function': 'cubic-bezier(0.4, 0, 0.2, 1)',
+					'transition-duration': '300ms',
+					'&:hover': {
+						'transform': 'scale(1.05)'
+					}
 				}
 			});
 		}

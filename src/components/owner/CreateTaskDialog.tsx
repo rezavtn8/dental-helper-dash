@@ -19,9 +19,10 @@ interface Assistant {
 interface CreateTaskDialogProps {
   assistants: Assistant[];
   onTaskCreated: () => void;
+  trigger?: React.ReactNode;
 }
 
-const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskCreated }) => {
+const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskCreated, trigger }) => {
   const { user, userProfile } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -85,10 +86,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Task
-        </Button>
+        {trigger || (
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Task
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>

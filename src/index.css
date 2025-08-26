@@ -14,14 +14,14 @@ All colors MUST be HSL.
     --card-foreground: 222 22% 5%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 22% 5%;
-    --primary: 217 91% 60%;
+    --primary: 173 58% 39%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217 13% 95%;
-    --secondary-foreground: 217 25% 15%;
-    --muted: 217 13% 95%;
-    --muted-foreground: 217 10% 40%;
-    --accent: 217 91% 95%;
-    --accent-foreground: 217 91% 20%;
+    --secondary: 166 76% 97%;
+    --secondary-foreground: 175 84% 22%;
+    --muted: 166 76% 97%;
+    --muted-foreground: 175 30% 35%;
+    --accent: 167 85% 89%;
+    --accent-foreground: 175 84% 22%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -30,6 +30,14 @@ All colors MUST be HSL.
     --input: 217 13% 91%;
     --ring: 217 91% 60%;
 
+    /* Teal theme colors */
+    --teal-50: 166 76% 97%;
+    --teal-100: 167 85% 89%;
+    --teal-500: 173 58% 39%;
+    --teal-600: 175 77% 26%;
+    --teal-700: 175 84% 22%;
+    --teal-900: 180 84% 17%;
+    
     /* Blue theme colors */
     --blue-50: 217 91% 95%;
     --blue-100: 217 91% 85%;

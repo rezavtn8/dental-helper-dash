@@ -2,26 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import CreateTaskDialog from '@/components/owner/CreateTaskDialog';
-import OwnerTasks from '@/components/owner/OwnerTasks';
-import OwnerTeam from '@/components/owner/OwnerTeam';
-import OwnerAnalytics from '@/components/owner/OwnerAnalytics';
-import OwnerTemplates from '@/components/owner/OwnerTemplates';
-import OwnerSettings from '@/components/owner/OwnerSettings';
-import { 
-  Building2,
-  LogOut,
-  Settings,
-  User,
-  ChevronDown,
-  Clock
-} from 'lucide-react';
+import { Menu, Clock } from 'lucide-react';
+import OwnerSidebar from '@/components/owner/OwnerSidebar';
+import TasksTab from '@/components/owner/TasksTab';
+import TeamTab from '@/components/owner/TeamTab';
+import InsightsTab from '@/components/owner/InsightsTab';
+import SettingsTab from '@/components/owner/SettingsTab';
 
 interface Task {
   id: string;
@@ -47,12 +35,13 @@ interface Assistant {
 }
 
 const OwnerDashboard = () => {
-  const { session, user, userProfile, signOut } = useAuth();
+  const { session, user, userProfile } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tasks');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     console.log('OwnerDashboard - session:', !!session, 'user:', !!user, 'userProfile:', userProfile);
@@ -122,15 +111,6 @@ const OwnerDashboard = () => {
     fetchClinic();
   };
 
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   // Show loading screen if still loading or if user profile doesn't exist yet
   if (loading || !userProfile) {
     return (
@@ -146,98 +126,78 @@ const OwnerDashboard = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="flex h-16 items-center px-6">
-          <div className="flex items-center gap-2 mr-8">
-            <Building2 className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-semibold">{clinic?.name || 'Dental Clinic'}</h1>
-          </div>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-            <TabsList className="grid w-fit grid-cols-5">
-              <TabsTrigger value="tasks">Tasks</TabsTrigger>
-              <TabsTrigger value="team">Team</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="templates">Templates</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
-          </Tabs>
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'tasks':
+        return (
+          <TasksTab 
+            tasks={tasks} 
+            assistants={assistants} 
+            onTaskUpdate={handleDataUpdate}
+          />
+        );
+      case 'team':
+        return (
+          <TeamTab 
+            assistants={assistants} 
+            tasks={tasks} 
+            onTeamUpdate={handleDataUpdate}
+          />
+        );
+      case 'insights':
+        return (
+          <InsightsTab 
+            tasks={tasks} 
+            assistants={assistants} 
+          />
+        );
+      case 'settings':
+        return (
+          <SettingsTab 
+            clinic={clinic} 
+            onUpdate={handleDataUpdate}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
-          <div className="flex items-center gap-4 ml-auto">
-            <CreateTaskDialog 
-              assistants={assistants} 
-              onTaskCreated={handleDataUpdate}
-            />
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <div className="flex items-center gap-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-md p-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                      {getInitials(userProfile?.name || 'Owner')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium">{userProfile?.name}</p>
-                    <p className="text-xs text-muted-foreground">Owner</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => setActiveTab('settings')}>
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setActiveTab('settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+          <h1 className="font-semibold text-gray-900">
+            {clinic?.name || 'Dental Practice'}
+          </h1>
         </div>
-      </header>
+      </div>
+
+      {/* Sidebar */}
+      <OwnerSidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        clinic={clinic}
+        userProfile={userProfile}
+        isCollapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
 
       {/* Main Content */}
-      <div className="flex-1 space-y-4 p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsContent value="tasks" className="space-y-4">
-            <OwnerTasks 
-              tasks={tasks} 
-              assistants={assistants} 
-              onTaskUpdate={handleDataUpdate}
-            />
-          </TabsContent>
-          
-          <TabsContent value="team" className="space-y-4">
-            <OwnerTeam 
-              assistants={assistants} 
-              tasks={tasks} 
-              onTeamUpdate={handleDataUpdate}
-            />
-          </TabsContent>
-          
-          <TabsContent value="analytics" className="space-y-4">
-            <OwnerAnalytics tasks={tasks} />
-          </TabsContent>
-          
-          <TabsContent value="templates" className="space-y-4">
-            <OwnerTemplates onTasksCreated={handleDataUpdate} />
-          </TabsContent>
-          
-          <TabsContent value="settings" className="space-y-4">
-            <OwnerSettings clinic={clinic} onUpdate={handleDataUpdate} />
-          </TabsContent>
-        </Tabs>
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-80'
+      }`}>
+        <div className="p-6 lg:p-8">
+          {renderTabContent()}
+        </div>
       </div>
     </div>
   );

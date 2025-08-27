@@ -34,7 +34,9 @@ const handler = async (req: Request): Promise<Response> => {
       hasToken: !!invitationToken 
     });
     
-    const acceptUrl = `${new URL(req.url).origin}/accept-invitation?token=${invitationToken}`;
+    // Use PUBLIC_APP_URL environment variable, fallback to localhost for development
+    const publicAppUrl = Deno.env.get('PUBLIC_APP_URL') || 'http://localhost:5173';
+    const acceptUrl = `${publicAppUrl}/accept-invitation?token=${invitationToken}`;
     console.log('Accept URL created:', acceptUrl);
 
     // Initialize Supabase client with service role key for updating invitations

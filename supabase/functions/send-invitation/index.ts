@@ -117,13 +117,13 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Clinic Team <onboarding@resend.dev>",
       to: [recipientEmail],
-      subject: `Join ${clinicName} - Complete Your Setup`,
+      subject: `Join ${clinicName} as an Assistant - Setup Your Account`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
             <div style="text-align: center; margin-bottom: 32px;">
-              <h1 style="color: #0f766e; font-size: 28px; margin-bottom: 8px;">You're Invited!</h1>
-              <p style="color: #64748b; font-size: 16px; margin: 0;">Join ${clinicName} as a team member</p>
+              <h1 style="color: #0f766e; font-size: 28px; margin-bottom: 8px;">Assistant Invitation</h1>
+              <p style="color: #64748b; font-size: 16px; margin: 0;">Join ${clinicName} as an Assistant</p>
             </div>
             
             <div style="margin-bottom: 32px;">
@@ -131,12 +131,12 @@ const handler = async (req: Request): Promise<Response> => {
                 Hi ${recipientName},
               </p>
               <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-                You've been invited to join <strong>${clinicName}</strong> as a team member. Click the button below to accept your invitation and complete your account setup.
+                You've been invited to join <strong>${clinicName}</strong> as an <strong>Assistant</strong>. Click the button below to create your assistant account and get started.
               </p>
               
               <div style="text-align: center; margin: 32px 0;">
                 <a href="${acceptUrl}" style="display: inline-block; background-color: #0f766e; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                  Accept Invitation & Setup Account
+                  Create Assistant Account
                 </a>
               </div>
               

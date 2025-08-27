@@ -17,6 +17,7 @@ import {
   Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ChangePinTab() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -54,10 +55,6 @@ export default function ChangePinTab() {
   const validateForm = () => {
     const newErrors: typeof errors = {};
     
-    if (!currentPassword) {
-      newErrors.currentPassword = 'Current password is required';
-    }
-    
     if (!newPassword) {
       newErrors.newPassword = 'New password is required';
     } else if (newPassword.length < 8) {
@@ -86,11 +83,25 @@ export default function ChangePinTab() {
     setLoading(true);
     
     try {
-      // Simulate API call - in real app, this would call the update_user_pin function
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        if (error.message.includes('same as the old password')) {
+          toast.error('New password must be different from your current password');
+        } else if (error.message.includes('weak')) {
+          toast.error('Password is too weak. Please choose a stronger password.');
+        } else if (error.message.includes('Invalid')) {
+          toast.error('Current session invalid. Please log in again.');
+        } else {
+          toast.error('Failed to update password: ' + error.message);
+        }
+        return;
+      }
       
-      toast.success('PIN Updated Successfully! 🎉', {
-        description: 'Your new PIN is now active. Please remember it for future logins.'
+      toast.success('Password Updated Successfully! 🎉', {
+        description: 'Your new password is now active. You remain signed in.'
       });
       
       // Reset form
@@ -100,8 +111,8 @@ export default function ChangePinTab() {
       setErrors({});
       
     } catch (error) {
-      toast.error('Failed to Update PIN', {
-        description: 'Please check your current PIN and try again.'
+      toast.error('Failed to Update Password', {
+        description: 'An unexpected error occurred. Please try again.'
       });
     } finally {
       setLoading(false);
@@ -166,41 +177,6 @@ export default function ChangePinTab() {
           </CardHeader>
           <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Current Password */}
-              <div className="space-y-3">
-                <Label htmlFor="current-password" className="text-base font-semibold text-teal-900">
-                  Current Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="current-password"
-                    type={showPasswords ? 'text' : 'password'}
-                    value={currentPassword}
-                    onChange={(e) => handlePasswordInput(e.target.value, setCurrentPassword)}
-                    placeholder="Enter current password"
-                    className={`text-base h-12 border-2 rounded-xl ${
-                      errors.currentPassword 
-                        ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                        : 'border-teal-200 focus:border-teal-500 bg-teal-50/50'
-                    }`}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-teal-600 hover:bg-teal-100"
-                    onClick={() => setShowPasswords(!showPasswords)}
-                  >
-                    {showPasswords ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </Button>
-                </div>
-                {errors.currentPassword && (
-                  <div className="flex items-center space-x-2 text-red-600 text-sm">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{errors.currentPassword}</span>
-                  </div>
-                )}
-              </div>
 
               {/* New Password */}
               <div className="space-y-3">
@@ -302,7 +278,7 @@ export default function ChangePinTab() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={loading || !currentPassword || !newPassword || !confirmPassword}
+                disabled={loading || !newPassword || !confirmPassword || passwordStrength.strength < 50}
                 className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 rounded-xl shadow-lg shadow-teal-500/25 touch-target"
               >
                 {loading ? (

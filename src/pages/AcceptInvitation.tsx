@@ -124,7 +124,13 @@ export default function AcceptInvitation() {
         setStep('complete');
         toast.success('Account created successfully!');
         setTimeout(() => {
-          navigate('/assistant-dashboard');
+          navigate('/assistant');
+          // Show welcome toast after redirect
+          setTimeout(() => {
+            toast.success('Welcome to your Assistant Dashboard! 🎉', {
+              description: 'You can now manage your tasks and track patient interactions.'
+            });
+          }, 500);
         }, 2000);
       }
     } catch (error) {

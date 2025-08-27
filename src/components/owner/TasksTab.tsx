@@ -18,6 +18,15 @@ import {
   Calendar
 } from 'lucide-react';
 import { TaskStatus, isCompleted, getStatusDisplay, getStatusColor } from '@/lib/taskStatus';
+import { 
+  getPriorityStyles, 
+  getDueText, 
+  getUserInitials,
+  filterTasks,
+  getTodaysTasks,
+  findAssignedAssistant,
+  TaskFilters
+} from '@/lib/taskUtils';
 import { Task, Assistant } from '@/types/task';
 import CreateTaskDialog from './CreateTaskDialog';
 import EditTaskDialog from './EditTaskDialog';
@@ -31,20 +40,6 @@ interface TasksTabProps {
   assistants: Assistant[];
   onTaskUpdate: () => void;
 }
-
-const getPriorityColor = (priority: string) => {
-  switch (priority?.toLowerCase()) {
-    case 'high':
-    case 'urgent':
-      return 'bg-red-100 text-red-700 border-red-200';
-    case 'medium':
-      return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    case 'low':
-      return 'bg-green-100 text-green-700 border-green-200';
-    default:
-      return 'bg-gray-100 text-gray-700 border-gray-200';
-  }
-};
 
 const getStatusIcon = (status: string) => {
   switch (status?.toLowerCase()) {
@@ -60,35 +55,6 @@ const getStatusIcon = (status: string) => {
   }
 };
 
-const getDueText = (task: Task) => {
-  if (task['due-type'] === 'custom' && task.custom_due_date) {
-    const date = new Date(task.custom_due_date);
-    return `Due ${date.toLocaleDateString()}`;
-  }
-  
-  switch (task['due-type']) {
-    case 'morning':
-      return 'Due Morning';
-    case 'afternoon':
-      return 'Due Afternoon';
-    case 'evening':
-      return 'Due Evening';
-    case 'end-of-day':
-      return 'Due End of Day';
-    default:
-      return 'No due date';
-  }
-};
-
-const getInitials = (name: string): string => {
-  return name
-    .split(' ')
-    .map(part => part.charAt(0))
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
-
 export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -102,33 +68,18 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
-      const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           task.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = statusFilter === 'all' || 
-                           (statusFilter === 'pending' && task.status === 'pending') ||
-                           (statusFilter === 'in-progress' && task.status === 'in-progress') ||
-                           (statusFilter === 'completed' && task.status === 'completed');
-      
-      const matchesPriority = priorityFilter === 'all' || task.priority?.toLowerCase() === priorityFilter;
-      
-      const matchesAssignee = assigneeFilter === 'all' || 
-                             (assigneeFilter === 'unassigned' && !task.assigned_to) ||
-                             task.assigned_to === assigneeFilter;
-      
-      return matchesSearch && matchesStatus && matchesPriority && matchesAssignee;
-    });
-  }, [tasks, searchTerm, statusFilter, priorityFilter, assigneeFilter]);
+    const filters: TaskFilters = {
+      searchTerm,
+      statusFilter,
+      priorityFilter,
+      assigneeFilter
+    };
+    return filterTasks(tasks, filters, assistants);
+  }, [tasks, searchTerm, statusFilter, priorityFilter, assigneeFilter, assistants]);
 
-  const todaysTasks = filteredTasks.filter(task => {
-    if (task['due-type'] === 'custom' && task.custom_due_date) {
-      const dueDate = new Date(task.custom_due_date);
-      const today = new Date();
-      return dueDate.toDateString() === today.toDateString();
-    }
-    return task['due-type'] && task['due-type'] !== 'none';
-  });
+  const todaysTasks = useMemo(() => {
+    return getTodaysTasks(filteredTasks);
+  }, [filteredTasks]);
 
   return (
     <div className="space-y-6">
@@ -214,7 +165,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
           </h3>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {todaysTasks.map((task) => {
-              const assignedAssistant = assistants.find(a => a.id === task.assigned_to);
+              const assignedAssistant = findAssignedAssistant(task, assistants);
               
               return (
                 <Card key={task.id} className="hover:shadow-md transition-shadow">
@@ -225,7 +176,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                           {task.title}
                         </CardTitle>
                         <div className="flex items-center space-x-2 mb-2">
-                          <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
+                          <Badge className={`text-xs ${getPriorityStyles(task.priority)}`}>
                             {task.priority || 'Medium'}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
@@ -285,7 +236,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                         <div className="flex items-center space-x-2">
                           <Avatar className="w-6 h-6">
                             <AvatarFallback className="bg-teal-100 text-teal-700 text-xs">
-                              {getInitials(assignedAssistant.name)}
+                              {getUserInitials(assignedAssistant.name)}
                             </AvatarFallback>
                           </Avatar>
                           <span className="text-sm text-gray-600">
@@ -337,7 +288,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filteredTasks.map((task) => {
-              const assignedAssistant = assistants.find(a => a.id === task.assigned_to);
+              const assignedAssistant = findAssignedAssistant(task, assistants);
               
               return (
                 <Card key={task.id} className="hover:shadow-md transition-shadow">
@@ -348,7 +299,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                           {task.title}
                         </CardTitle>
                         <div className="flex items-center space-x-2 mb-2">
-                          <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
+                          <Badge className={`text-xs ${getPriorityStyles(task.priority)}`}>
                             {task.priority || 'Medium'}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
@@ -408,7 +359,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                         <div className="flex items-center space-x-2">
                           <Avatar className="w-6 h-6">
                             <AvatarFallback className="bg-teal-100 text-teal-700 text-xs">
-                              {getInitials(assignedAssistant.name)}
+                              {getUserInitials(assignedAssistant.name)}
                             </AvatarFallback>
                           </Avatar>
                           <span className="text-sm text-gray-600">

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TaskStatus, isCompleted } from '@/lib/taskStatus';
+import { getPriorityStyles } from '@/lib/taskUtils';
 import { Task } from '@/types/task';
 import { Checkbox } from '@/components/ui/checkbox';
 import TaskNoteDialog from './TaskNoteDialog';
@@ -25,20 +26,6 @@ interface TodaysTasksTabProps {
   tasks: Task[];
   onTaskUpdate: () => void;
 }
-
-const getPriorityColor = (priority: string) => {
-  switch (priority?.toLowerCase()) {
-    case 'high':
-    case 'urgent':
-      return 'bg-red-50 text-red-700 border-red-200';
-    case 'medium':
-      return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-    case 'low':
-      return 'bg-green-50 text-green-700 border-green-200';
-    default:
-      return 'bg-teal-50 text-teal-700 border-teal-200';
-  }
-};
 
 export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabProps) {
   const { user } = useAuth();

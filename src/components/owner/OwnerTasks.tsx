@@ -165,8 +165,8 @@ const OwnerTasks: React.FC<OwnerTasksProps> = ({ tasks, assistants, onTaskUpdate
                       )}
                     </div>
                     <div className="flex gap-2 ml-4">
-                      <Badge variant={getPriorityColor(task.priority)} className="flex items-center gap-1">
-                        <PriorityIcon className="h-3 w-3" />
+                      <Badge className={getPriorityStyles(task.priority)} variant="outline">
+                        <PriorityIcon className="h-3 w-3 mr-1" />
                         {task.priority}
                       </Badge>
                       <Badge variant={task.status === 'Done' ? 'secondary' : 'outline'}>

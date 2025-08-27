@@ -163,7 +163,7 @@ const OwnerSettings: React.FC<OwnerSettingsProps> = ({ clinic, onUpdate }) => {
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  {getInitials(userProfile?.name || 'Owner')}
+                  {getUserInitials(userProfile?.name || 'Owner')}
                 </AvatarFallback>
               </Avatar>
               <div>

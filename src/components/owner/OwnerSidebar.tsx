@@ -42,15 +42,6 @@ export default function OwnerSidebar({
 }: OwnerSidebarProps) {
   const { signOut } = useAuth();
 
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <>
       {/* Mobile overlay */}
@@ -114,7 +105,7 @@ export default function OwnerSidebar({
                 <div className={`flex items-center space-x-3 ${isCollapsed ? 'flex-col space-x-0 space-y-1' : ''}`}>
                   <Avatar className="w-10 h-10">
                     <AvatarFallback className="bg-gradient-to-br from-teal-500 to-teal-600 text-white text-sm font-medium">
-                      {getInitials(userProfile?.name || 'Owner')}
+                      {getUserInitials(userProfile?.name || 'Owner')}
                     </AvatarFallback>
                   </Avatar>
                   {!isCollapsed && (

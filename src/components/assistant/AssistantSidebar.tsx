@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { getUserInitials } from '@/lib/taskUtils';
 import {
   Sidebar,
   SidebarContent,
@@ -49,15 +50,6 @@ export default function AssistantSidebar({
   const { open } = useSidebar();
   const [isCollapsed] = useState(false);
 
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   const isActive = (tabId: string) => activeTab === tabId;
 
   return (
@@ -94,7 +86,7 @@ export default function AssistantSidebar({
                 <div className={`flex items-center space-x-3 ${!open || isCollapsed ? 'flex-col space-x-0 space-y-2' : ''}`}>
                   <Avatar className="w-12 h-12 border-2 border-teal-200 shadow-lg">
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold">
-                      {getInitials(userProfile?.name || 'Assistant')}
+                      {getUserInitials(userProfile?.name || 'Assistant')}
                     </AvatarFallback>
                   </Avatar>
                   {open && !isCollapsed && (

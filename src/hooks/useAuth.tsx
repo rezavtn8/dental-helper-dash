@@ -21,7 +21,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
   createAssistantInvitation: (email: string, name: string) => Promise<{ invitationToken?: string; invitationId?: string; error?: string }>;
-  resendInvitation: (invitationId: string) => Promise<{ error?: string }>;
+  resendInvitation: (invitationId: string) => Promise<{ error?: string; token?: string; newExpiryDate?: string; resendCount?: number }>;
   cancelInvitation: (invitationId: string) => Promise<{ error?: string }>;
   acceptInvitation: (token: string) => Promise<{ error?: string; clinicId?: string }>;
   getInvitations: () => Promise<{ invitations: any[]; error?: string }>;
@@ -256,7 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const resendInvitation = async (invitationId: string): Promise<{ error?: string }> => {
+  const resendInvitation = async (invitationId: string): Promise<{ error?: string; token?: string; newExpiryDate?: string; resendCount?: number }> => {
     try {
       if (!userProfile?.clinic_id) {
         return { error: 'Clinic ID not found' };
@@ -286,12 +286,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Update invitation expiry and reset email status  
+      const newExpiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const newResendCount = (invitation?.resend_count || 0) + 1;
+      
       const { error: updateError } = await supabase
         .from('invitations')
         .update({ 
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          expires_at: newExpiryDate,
           email_status: 'pending',
-          resend_count: (invitation?.resend_count || 0) + 1
+          resend_count: newResendCount
         })
         .eq('id', invitationId);
 
@@ -314,7 +317,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: 'Failed to resend email' };
       }
 
-      return {};
+      return { 
+        token: invitation.token,
+        newExpiryDate,
+        resendCount: newResendCount
+      };
     } catch (error) {
       console.error('Failed to resend invitation:', error);
       return { error: 'Failed to resend invitation' };

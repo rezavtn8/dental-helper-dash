@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import ResendInvitationDialog from './ResendInvitationDialog';
 import { 
   Plus, 
   Search, 
@@ -22,7 +23,8 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  XCircle
+  XCircle,
+  AlertTriangle
 } from 'lucide-react';
 import AddMemberDialog from './AddMemberDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,6 +53,7 @@ interface PendingInvitation {
   email_sent_at?: string;
   resend_count: number;
   failure_reason?: string;
+  token?: string;
   type: 'invitation';
 }
 
@@ -129,6 +132,10 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item: TeamItem | null }>({
     open: false,
     item: null
+  });
+  const [resendDialog, setResendDialog] = useState<{ open: boolean; invitation: PendingInvitation | null }>({
+    open: false,
+    invitation: null
   });
 
   const { getInvitations, resendInvitation, cancelInvitation } = useAuth();
@@ -217,12 +224,37 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
 
   const handleResendInvitation = async (invitation: PendingInvitation) => {
     try {
-      const { error } = await resendInvitation(invitation.id);
+      const { error, token, newExpiryDate, resendCount } = await resendInvitation(invitation.id);
       if (error) throw new Error(error);
 
-      toast.success(`Invitation resent to ${invitation.email}`);
+      // Update the invitation in local state
+      setInvitations(prev => prev.map(inv => 
+        inv.id === invitation.id 
+          ? { 
+              ...inv, 
+              expires_at: newExpiryDate || inv.expires_at,
+              resend_count: resendCount || inv.resend_count,
+              token: token || inv.token,
+              email_status: 'sent'
+            }
+          : inv
+      ));
 
-      fetchInvitations();
+      // Show resend dialog with new link and copy options
+      setResendDialog({ 
+        open: true, 
+        invitation: { 
+          ...invitation, 
+          token,
+          expires_at: newExpiryDate || invitation.expires_at,
+          resend_count: resendCount || invitation.resend_count
+        } 
+      });
+
+      toast.success(`Invitation resent to ${invitation.email}`, {
+        description: 'Expiry extended by 7 days. New link available for copying.'
+      });
+
     } catch (error) {
       toast.error("Failed to resend invitation. Please try again.");
     }
@@ -416,7 +448,7 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
                           {isInvitation ? (
                             <>
                               {invitation.status === 'pending' && new Date(invitation.expires_at) > new Date() && (
-                                <DropdownMenuItem onClick={() => handleResendInvitation(invitation)}>
+                                <DropdownMenuItem onClick={() => setResendDialog({ open: true, invitation })}>
                                   <RefreshCw className="mr-2 h-4 w-4" />
                                   Resend Invitation
                                 </DropdownMenuItem>
@@ -482,11 +514,14 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
                             {invitation.failure_reason}
                           </div>
                         )}
-                        {invitation.resend_count > 0 && (
-                          <div className="text-xs text-gray-500">
-                            Resent {invitation.resend_count} time{invitation.resend_count > 1 ? 's' : ''}
-                          </div>
-                        )}
+                         {invitation.resend_count > 0 && (
+                           <div className="text-xs text-gray-500 flex items-center gap-1">
+                             Resent {invitation.resend_count} time{invitation.resend_count > 1 ? 's' : ''}
+                             {invitation.resend_count >= 3 && (
+                               <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                             )}
+                           </div>
+                         )}
                       </div>
                     ) : (
                       <div className="pt-2 border-t border-gray-100">
@@ -559,6 +594,21 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Resend Invitation Dialog */}
+      <ResendInvitationDialog
+        open={resendDialog.open}
+        onOpenChange={(open) => setResendDialog({ open, invitation: null })}
+        email={resendDialog.invitation?.email || ''}
+        token={resendDialog.invitation?.token}
+        resendCount={resendDialog.invitation?.resend_count || 0}
+        onResend={async () => {
+          if (resendDialog.invitation) {
+            await handleResendInvitation(resendDialog.invitation);
+            setResendDialog({ open: false, invitation: null });
+          }
+        }}
+      />
     </div>
   );
 }

@@ -15,8 +15,6 @@ import {
   User,
   Mail,
   Calendar,
-  AlertTriangle,
-  Key,
   UserMinus,
   Trash2
 } from 'lucide-react';
@@ -32,7 +30,6 @@ interface Assistant {
   is_active: boolean;
   created_at: string;
   last_login?: string;
-  must_change_pin?: boolean;
 }
 
 interface TeamTabProps {
@@ -75,31 +72,23 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
     return tasks.filter(task => task.assigned_to === assistantId);
   };
 
-  const handleResetPin = async (assistantId: string) => {
-    try {
-      // This would typically reset the PIN and force a password change
-      // Implementation depends on your PIN system
-      toast({
-        title: "PIN Reset",
-        description: "Assistant will be required to set a new PIN on next login.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to reset PIN. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleToggleActive = async (assistant: Assistant) => {
     try {
-      const { error } = await supabase
+      console.log('Toggling status for assistant:', assistant.id, 'current status:', assistant.is_active);
+      
+      const { data, error } = await supabase
         .from('users')
         .update({ is_active: !assistant.is_active })
-        .eq('id', assistant.id);
+        .eq('id', assistant.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Toggle status error:', error);
+        throw error;
+      }
+
+      console.log('Status updated successfully:', data);
 
       toast({
         title: assistant.is_active ? "Assistant Deactivated" : "Assistant Activated",
@@ -108,6 +97,7 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
 
       onTeamUpdate();
     } catch (error) {
+      console.error('Failed to update assistant status:', error);
       toast({
         title: "Error",
         description: "Failed to update assistant status. Please try again.",
@@ -285,12 +275,6 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
                                 Inactive
                               </Badge>
                             )}
-                            {assistant.must_change_pin && (
-                              <Badge variant="outline" className="text-xs border-yellow-300 text-yellow-700">
-                                <AlertTriangle className="w-3 h-3 mr-1" />
-                                PIN Reset Required
-                              </Badge>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -302,10 +286,6 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleResetPin(assistant.id)}>
-                            <Key className="mr-2 h-4 w-4" />
-                            Reset PIN
-                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleToggleActive(assistant)}>
                             {assistant.is_active ? (
                               <>

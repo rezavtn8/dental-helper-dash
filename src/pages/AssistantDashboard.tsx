@@ -3,32 +3,61 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { toast } from 'sonner';
-import { Clock } from 'lucide-react';
 import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
 import ChangePinTab from '@/components/assistant/ChangePinTab';
 import { Task } from '@/types/task';
+import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
+import { SectionErrorBanner } from '@/components/ui/error-banner';
 
+
+interface AssistantDataLoadingState {
+  tasks: 'loading' | 'loaded' | 'error';
+  clinic: 'loading' | 'loaded' | 'error';
+  patientCount: 'loading' | 'loaded' | 'error';
+}
+
+interface AssistantDataErrors {
+  tasks?: string;
+  clinic?: string;
+  patientCount?: string;
+}
 
 const AssistantDashboard = () => {
   const { session, user, userProfile } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [patientCount, setPatientCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loadingStates, setLoadingStates] = useState<AssistantDataLoadingState>({
+    tasks: 'loading',
+    clinic: 'loading',
+    patientCount: 'loading'
+  });
+  const [errors, setErrors] = useState<AssistantDataErrors>({});
   const [activeTab, setActiveTab] = useState('tasks');
+
+  // Calculate if all data is loaded
+  const isPageLoading = Object.values(loadingStates).some(state => state === 'loading');
+  const hasAnyErrors = Object.values(loadingStates).some(state => state === 'error');
 
   useEffect(() => {
     console.log('AssistantDashboard - session:', !!session, 'user:', !!user, 'userProfile:', userProfile);
     if (session && user && userProfile?.role === 'assistant') {
-      fetchTasks();
-      fetchTodayPatientCount();
-      fetchClinic();
+      fetchAllData();
     }
   }, [session, user, userProfile]);
 
+  const fetchAllData = () => {
+    fetchTasks();
+    fetchTodayPatientCount();
+    fetchClinic();
+  };
+
   const fetchTasks = async () => {
+    setLoadingStates(prev => ({ ...prev, tasks: 'loading' }));
+    setErrors(prev => ({ ...prev, tasks: undefined }));
+    
     try {
       const { data, error } = await supabase
         .from('tasks')
@@ -39,15 +68,21 @@ const AssistantDashboard = () => {
 
       if (error) throw error;
       setTasks((data || []) as Task[]);
+      setLoadingStates(prev => ({ ...prev, tasks: 'loaded' }));
     } catch (error) {
       console.error('Error fetching tasks:', error);
-      toast.error('Failed to load tasks');
-    } finally {
-      setLoading(false);
+      setLoadingStates(prev => ({ ...prev, tasks: 'error' }));
+      setErrors(prev => ({ 
+        ...prev, 
+        tasks: error instanceof Error ? error.message : 'Failed to load tasks'
+      }));
     }
   };
 
   const fetchTodayPatientCount = async () => {
+    setLoadingStates(prev => ({ ...prev, patientCount: 'loading' }));
+    setErrors(prev => ({ ...prev, patientCount: undefined }));
+    
     try {
       const today = new Date().toISOString().split('T')[0];
       const { data, error } = await supabase
@@ -63,15 +98,26 @@ const AssistantDashboard = () => {
       } else {
         setPatientCount(0);
       }
+      setLoadingStates(prev => ({ ...prev, patientCount: 'loaded' }));
     } catch (error) {
       console.error('Error fetching patient count:', error);
       setPatientCount(0);
+      setLoadingStates(prev => ({ ...prev, patientCount: 'error' }));
+      setErrors(prev => ({ 
+        ...prev, 
+        patientCount: error instanceof Error ? error.message : 'Failed to load patient count'
+      }));
     }
   };
 
   const fetchClinic = async () => {
+    setLoadingStates(prev => ({ ...prev, clinic: 'loading' }));
+    setErrors(prev => ({ ...prev, clinic: undefined }));
+    
     try {
-      if (!userProfile?.clinic_id) return;
+      if (!userProfile?.clinic_id) {
+        throw new Error('No clinic ID found');
+      }
       
       const { data, error } = await supabase
         .from('clinics')
@@ -82,50 +128,115 @@ const AssistantDashboard = () => {
       if (data) {
         setClinic(data);
       }
+      setLoadingStates(prev => ({ ...prev, clinic: 'loaded' }));
     } catch (error) {
       console.error('Error fetching clinic:', error);
+      setLoadingStates(prev => ({ ...prev, clinic: 'error' }));
+      setErrors(prev => ({ 
+        ...prev, 
+        clinic: error instanceof Error ? error.message : 'Failed to load clinic information'
+      }));
     }
   };
 
   const handleTaskUpdate = () => {
-    fetchTasks();
+    fetchAllData();
   };
 
   const handlePatientCountUpdate = (newCount: number) => {
     setPatientCount(newCount);
   };
 
-  // Show loading screen if still loading or if user profile doesn't exist yet
-  if (loading || !userProfile) {
+  // Show loading screen if still loading initial data or if user profile doesn't exist yet
+  if (isPageLoading || !userProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-teal-50">
-        <div className="text-center">
-          <Clock className="h-12 w-12 animate-spin mx-auto mb-6 text-teal-600" />
-          <p className="text-teal-900 font-semibold text-lg">Loading dashboard...</p>
-          <p className="text-sm text-teal-600 mt-2">
-            {!userProfile ? 'Setting up your profile...' : 'Loading data...'}
-          </p>
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full bg-gradient-to-br from-teal-50 to-blue-50">
+          {/* Global trigger that is ALWAYS visible */}
+          <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40 lg:hidden">
+            <div className="ml-4 h-6 w-6 bg-teal-200 rounded animate-pulse" />
+            <div className="ml-4 h-6 w-32 bg-teal-200 rounded animate-pulse" />
+          </header>
+
+          {/* Sidebar Skeleton */}
+          <div className="hidden lg:flex lg:w-80 lg:flex-col lg:fixed lg:inset-y-0">
+            <div className="flex flex-col flex-grow bg-white border-r border-teal-100">
+              <div className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <div className="h-8 bg-teal-200 rounded w-32 animate-pulse" />
+                  <div className="h-4 bg-teal-100 rounded w-24 animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="h-10 bg-teal-100 rounded animate-pulse" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <main className="flex-1 pt-16 lg:pt-0 lg:pl-80">
+            <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+              <div 
+                className="sr-only" 
+                aria-live="polite" 
+                aria-label="Loading assistant dashboard data"
+              >
+                {!userProfile ? 'Setting up your profile...' : 'Loading dashboard data...'}
+              </div>
+              <TasksTabSkeleton />
+            </div>
+          </main>
         </div>
-      </div>
+      </SidebarProvider>
     );
   }
 
   const renderTabContent = () => {
+    const renderTabWithErrorHandling = (content: React.ReactNode, dependencies: (keyof AssistantDataLoadingState)[]) => {
+      const tabErrors = dependencies.filter(dep => loadingStates[dep] === 'error');
+      
+      if (tabErrors.length > 0) {
+        return (
+          <div className="space-y-4">
+            {tabErrors.map(dep => (
+              <SectionErrorBanner
+                key={dep}
+                section={dep === 'patientCount' ? 'patient count' : dep}
+                error={errors[dep] || ''}
+                onRetry={() => {
+                  if (dep === 'tasks') fetchTasks();
+                  else if (dep === 'clinic') fetchClinic();
+                  else if (dep === 'patientCount') fetchTodayPatientCount();
+                }}
+              />
+            ))}
+            {tabErrors.length < dependencies.length && content}
+          </div>
+        );
+      }
+      
+      return content;
+    };
+
     switch (activeTab) {
       case 'tasks':
-        return (
+        return renderTabWithErrorHandling(
           <TodaysTasksTab 
             tasks={tasks} 
             onTaskUpdate={handleTaskUpdate}
-          />
+          />,
+          ['tasks']
         );
       case 'stats':
-        return (
+        return renderTabWithErrorHandling(
           <MyStatsTab 
             tasks={tasks} 
             patientCount={patientCount}
             onPatientCountUpdate={handlePatientCountUpdate}
-          />
+          />,
+          ['tasks', 'patientCount']
         );
       case 'pin':
         return <ChangePinTab />;
@@ -155,6 +266,15 @@ const AssistantDashboard = () => {
         {/* Main Content */}
         <main className="flex-1 pt-16 lg:pt-0">
           <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+            {/* Live region for status updates */}
+            <div 
+              className="sr-only" 
+              aria-live="polite" 
+              aria-label="Assistant dashboard status"
+            >
+              {hasAnyErrors && 'Some data failed to load. Please use the retry buttons.'}
+            </div>
+            
             {renderTabContent()}
           </div>
         </main>

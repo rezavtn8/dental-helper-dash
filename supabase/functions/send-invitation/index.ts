@@ -73,7 +73,13 @@ const handler = async (req: Request): Promise<Response> => {
     });
     
     // Use PUBLIC_APP_URL environment variable, fallback to localhost for development
-    const publicAppUrl = Deno.env.get('PUBLIC_APP_URL') || 'http://localhost:5173';
+    let publicAppUrl = Deno.env.get('PUBLIC_APP_URL') || 'http://localhost:5173';
+    
+    // Ensure the URL has a protocol (prepend https:// if missing)
+    if (!publicAppUrl.startsWith('http://') && !publicAppUrl.startsWith('https://')) {
+      publicAppUrl = `https://${publicAppUrl}`;
+    }
+    
     const acceptUrl = `${publicAppUrl}/accept-invitation?token=${invitationToken}`;
     console.log('Accept URL created:', acceptUrl);
 

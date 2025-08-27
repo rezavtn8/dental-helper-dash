@@ -72,6 +72,9 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
           date: today,
           patient_count: newCount,
           clinic_id: user?.user_metadata?.clinic_id
+        }, {
+          onConflict: 'assistant_id,date',
+          ignoreDuplicates: false
         });
 
       if (error) throw error;

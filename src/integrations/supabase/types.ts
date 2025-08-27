@@ -141,21 +141,21 @@ export type Database = {
       patient_logs: {
         Row: {
           assistant_id: string | null
-          clinic_id: string | null
+          clinic_id: string
           date: string | null
           id: string
           patient_count: number | null
         }
         Insert: {
           assistant_id?: string | null
-          clinic_id?: string | null
+          clinic_id: string
           date?: string | null
           id?: string
           patient_count?: number | null
         }
         Update: {
           assistant_id?: string | null
-          clinic_id?: string | null
+          clinic_id?: string
           date?: string | null
           id?: string
           patient_count?: number | null

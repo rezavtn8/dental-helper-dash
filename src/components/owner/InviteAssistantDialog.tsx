@@ -39,12 +39,12 @@ export function InviteAssistantDialog({ open, onClose, onInviteSent }: InviteAss
     setLoading(true);
     
     try {
-      const { invitationId, token, error } = await createAssistantInvitation(email.trim(), name.trim());
+      const { invitationId, invitationToken, error } = await createAssistantInvitation(email.trim(), name.trim());
       
       if (error) {
         toast.error(error);
-      } else if (token) {
-        const link = `${window.location.origin}/accept-invitation?token=${token}`;
+      } else if (invitationToken) {
+        const link = `${window.location.origin}/accept-invitation?token=${invitationToken}`;
         setInvitationLink(link);
         setInvitationSent(true);
         toast.success('Invitation created successfully!');

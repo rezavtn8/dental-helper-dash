@@ -265,7 +265,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Get invitation details
       const { data: invitation, error: fetchError } = await supabase
         .from('invitations')
-        .select('email, token, clinic_id')
+        .select('email, token, clinic_id, resend_count')
         .eq('id', invitationId)
         .eq('clinic_id', userProfile.clinic_id)
         .single();
@@ -285,13 +285,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: 'Failed to fetch clinic details' };
       }
 
-      // Update invitation expiry and reset email status
+      // Update invitation expiry and reset email status  
       const { error: updateError } = await supabase
         .from('invitations')
         .update({ 
           expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           email_status: 'pending',
-          resend_count: supabase.raw('resend_count + 1')
+          resend_count: (invitation?.resend_count || 0) + 1
         })
         .eq('id', invitationId);
 

@@ -106,8 +106,8 @@ export default function AcceptInvitation() {
       // First, accept the invitation
       const invitationResult = await acceptInvitation(token!);
       
-      if (!invitationResult.success) {
-        toast.error(invitationResult.message);
+      if (invitationResult.error) {
+        toast.error(invitationResult.error);
         return;
       }
 

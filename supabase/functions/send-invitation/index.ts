@@ -18,13 +18,51 @@ interface InvitationEmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  // Handle GET requests with service info
+  if (req.method === "GET") {
+    return new Response(
+      JSON.stringify({
+        service: "send-invitation",
+        status: "active",
+        description: "Clinic invitation email service",
+        version: "1.0.0"
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      }
+    );
+  }
+
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Only allow POST for actual email sending
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "Method not allowed. Use POST to send invitations." }),
+      {
+        status: 405,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      }
+    );
+  }
+
+  let requestBody: InvitationEmailRequest;
+  
   try {
     console.log('Starting invitation email process...');
-    const { invitationToken, recipientEmail, recipientName, clinicName, invitationId }: InvitationEmailRequest = await req.json();
+    requestBody = await req.json();
+    
+    const { invitationToken, recipientEmail, recipientName, clinicName, invitationId } = requestBody;
     
     console.log('Invitation details:', { 
       invitationId, 
@@ -175,7 +213,14 @@ const handler = async (req: Request): Promise<Response> => {
     console.error("Error in send-invitation function:", error);
     
     // Try to update invitation status to failed if we have the invitation ID
-    const { invitationId } = await req.json().catch(() => ({}));
+    let invitationId: string | undefined;
+    try {
+      const body = await req.clone().json();
+      invitationId = body.invitationId;
+    } catch {
+      // Ignore parsing errors for already consumed request
+    }
+    
     if (invitationId) {
       try {
         const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -189,6 +234,8 @@ const handler = async (req: Request): Promise<Response> => {
             failure_reason: error.message || 'Unknown error'
           })
           .eq('id', invitationId);
+        
+        console.log('Updated invitation status to failed for ID:', invitationId);
       } catch (updateError) {
         console.error("Failed to update invitation status after error:", updateError);
       }
@@ -198,7 +245,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ 
         success: false,
         error: error.message || 'Unknown error occurred',
-        details: error.stack 
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       }),
       {
         status: 500,

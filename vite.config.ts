@@ -19,4 +19,17 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // SPA fallback configuration for deep linking support
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
+  // Configure for SPA routing - serve index.html for unknown routes
+  preview: {
+    port: 4173,
+    host: true,
+  },
 }));

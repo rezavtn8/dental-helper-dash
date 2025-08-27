@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Loader2, UserCheck, Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, UserCheck, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { getInvitationToken } from '@/utils/tokenExtractor';
 
 export default function AcceptInvitation() {
   const [searchParams] = useSearchParams();
+  const params = useParams();
   const navigate = useNavigate();
-  const token = searchParams.get('token');
+  const token = getInvitationToken(searchParams, params);
   
   const [loading, setLoading] = useState(false);
   const [invitationValid, setInvitationValid] = useState<boolean | null>(null);
@@ -114,8 +116,8 @@ export default function AcceptInvitation() {
       // Then create the user account
       const { error } = await signUp(email, password, {
         clinicId: invitationResult.clinicId,
-        role: 'assistant',
-        name: invitationData?.email?.split('@')[0] || 'Assistant'
+        role: invitationData?.role || 'assistant',
+        name: invitationData?.email?.split('@')[0] || 'User'
       });
 
       if (error) {
@@ -124,11 +126,15 @@ export default function AcceptInvitation() {
         setStep('complete');
         toast.success('Account created successfully!');
         setTimeout(() => {
-          navigate('/assistant');
+          // Determine redirect based on invitation data or default to assistant
+          const targetRole = invitationData?.role || 'assistant';
+          const redirectPath = targetRole === 'owner' ? '/owner' : '/assistant';
+          
+          navigate(redirectPath);
           // Show welcome toast after redirect
           setTimeout(() => {
-            toast.success('Welcome to your Assistant Dashboard! 🎉', {
-              description: 'You can now manage your tasks and track patient interactions.'
+            toast.success('Account ready! Welcome to your dashboard! 🎉', {
+              description: 'You can now start managing your tasks and collaborating with your team.'
             });
           }, 500);
         }, 2000);
@@ -163,10 +169,21 @@ export default function AcceptInvitation() {
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
             <CardTitle className="text-red-700">Invalid Invitation</CardTitle>
             <CardDescription>
-              This invitation link is invalid or has expired.
+              This invitation link is invalid, expired, or has already been used.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Need a new invitation? Contact your clinic administrator or use the button below.</p>
+            </div>
+            <Button 
+              onClick={() => window.location.href = 'mailto:admin@clinic.com?subject=Request%20New%20Invitation&body=Hi,%20I%20need%20a%20new%20invitation%20link%20to%20join%20the%20team.'}
+              variant="outline" 
+              className="w-full"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Request New Invite
+            </Button>
             <Button onClick={() => navigate('/')} className="w-full">
               Back to Home
             </Button>
@@ -204,9 +221,9 @@ export default function AcceptInvitation() {
         <CardHeader className="text-center">
           <UserCheck className="h-12 w-12 text-teal-600 mx-auto" />
           <CardTitle>Complete Your Registration</CardTitle>
-          <CardDescription>
-            You've been invited to join as an assistant. Create your password to get started.
-          </CardDescription>
+            <CardDescription>
+              You've been invited to join as a team member. Create your password to get started.
+            </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

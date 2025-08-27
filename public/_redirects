@@ -1,0 +1,12 @@
+# SPA fallback for client-side routing
+# Serve index.html for all routes that don't match static assets
+/*    /index.html   200
+
+# Specific API endpoints should be excluded from SPA fallback
+/api/*  /api/:splat  200
+/functions/*  /functions/:splat  200
+/.well-known/*  /.well-known/:splat  200
+
+# Cache static assets
+/assets/*  /assets/:splat  200  Cache-Control: max-age=31536000
+/favicon.ico  /favicon.ico  200  Cache-Control: max-age=31536000

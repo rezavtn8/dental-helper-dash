@@ -121,6 +121,7 @@ const App = () => (
                 } 
               />
               <Route path="/accept-invitation" element={<AcceptInvitation />} />
+              <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

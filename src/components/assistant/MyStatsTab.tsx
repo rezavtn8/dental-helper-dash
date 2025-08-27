@@ -20,15 +20,8 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-
-interface Task {
-  id: string;
-  title: string;
-  status: string;
-  completed_at?: string;
-  created_at: string;
-  assigned_to: string | null;
-}
+import { Task } from '@/types/task';
+import { isCompleted, TaskStatus } from '@/lib/taskStatus';
 
 interface MyStatsTabProps {
   tasks: Task[];
@@ -43,11 +36,11 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
   const today = new Date().toISOString().split('T')[0];
   const myTasks = tasks.filter(task => task.assigned_to === user?.id);
   
-  const completedToday = myTasks.filter(task => {
-    if (!task.completed_at) return false;
-    const completedDate = new Date(task.completed_at).toISOString().split('T')[0];
-    return completedDate === today && ['completed', 'done'].includes(task.status?.toLowerCase());
-  }).length;
+  const completedToday = myTasks.filter(task => 
+    task.completed_at && 
+    new Date(task.completed_at).toISOString().split('T')[0] === today &&
+    isCompleted(task.status)
+  ).length;
 
   // Calculate streak (mock data - in real app this would come from database)
   const streak = 7;

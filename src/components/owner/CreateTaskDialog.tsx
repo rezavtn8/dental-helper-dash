@@ -49,7 +49,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
           assigned_to: newTask.assigned_to === 'unassigned' ? null : newTask.assigned_to,
           clinic_id: userProfile?.clinic_id,
           created_by: user?.id,
-          status: 'To Do',
+          status: 'pending',
           created_at: new Date().toISOString()
         });
 

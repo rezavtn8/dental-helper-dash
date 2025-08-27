@@ -235,7 +235,7 @@ export type Database = {
           owner_notes: string | null
           priority: string | null
           recurrence: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["task_status"]
           title: string | null
           updated_at: string | null
         }
@@ -257,7 +257,7 @@ export type Database = {
           owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
           title?: string | null
           updated_at?: string | null
         }
@@ -279,7 +279,7 @@ export type Database = {
           owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
           title?: string | null
           updated_at?: string | null
         }
@@ -409,7 +409,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      task_status: "pending" | "in-progress" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -536,6 +536,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      task_status: ["pending", "in-progress", "completed"],
+    },
   },
 } as const

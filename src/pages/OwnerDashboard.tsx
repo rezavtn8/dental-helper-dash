@@ -10,29 +10,8 @@ import TasksTab from '@/components/owner/TasksTab';
 import UnifiedTeamView from '@/components/owner/UnifiedTeamView';
 import InsightsTab from '@/components/owner/InsightsTab';
 import SettingsTab from '@/components/owner/SettingsTab';
+import { Task, Assistant } from '@/types/task';
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  priority: string;
-  status: string;
-  'due-type': string;
-  category: string;
-  assigned_to: string | null;
-  recurrence: string;
-  created_at: string;
-}
-
-interface Assistant {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  is_active: boolean;
-  created_at: string;
-  last_login?: string;
-}
 
 const OwnerDashboard = () => {
   const { session, user, userProfile } = useAuth();
@@ -61,7 +40,7 @@ const OwnerDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTasks(data || []);
+      setTasks((data || []) as Task[]);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast({
@@ -140,7 +119,7 @@ const OwnerDashboard = () => {
       case 'team':
         return (
           <UnifiedTeamView 
-            assistants={assistants.map(assistant => ({ ...assistant, type: 'member' as const }))} 
+            assistants={assistants} 
             tasks={tasks}
             onTeamUpdate={fetchAssistants}
           />

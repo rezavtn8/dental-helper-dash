@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { TaskStatus, isCompleted, toggleTaskCompletion, getStatusDisplay } from '@/lib/taskStatus';
+import { Task, Assistant } from '@/types/task';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,18 +25,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  priority: string;
-  status: string;
-  'due-type': string;
-  category: string;
-  assigned_to: string | null;
-  created_at: string;
-  completed_at?: string;
-}
 
 interface TodaysTasksTabProps {
   tasks: Task[];
@@ -83,11 +73,11 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
   , [tasks]);
 
   const completedTasks = myTasks.filter(task => 
-    ['completed', 'done'].includes(task.status?.toLowerCase())
+    isCompleted(task.status as TaskStatus)
   );
 
   const pendingTasks = myTasks.filter(task => 
-    !['completed', 'done'].includes(task.status?.toLowerCase())
+    !isCompleted(task.status as TaskStatus)
   );
 
   const pickTask = async (taskId: string) => {
@@ -211,7 +201,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
           {!showPickUp && !showCompleted && (
             <div className="ml-4 flex-shrink-0">
               <Checkbox
-                checked={['completed', 'done'].includes(task.status?.toLowerCase())}
+                checked={isCompleted(task.status as TaskStatus)}
                 onCheckedChange={(checked) => {
                   if (checked) {
                     markTaskDone(task.id);

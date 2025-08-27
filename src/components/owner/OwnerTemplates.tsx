@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { TaskStatus } from '@/lib/taskStatus';
 import { 
   Stethoscope,
   Heart,
@@ -247,7 +248,7 @@ const OwnerTemplates: React.FC<OwnerTemplatesProps> = ({ onTasksCreated }) => {
         ...task,
         clinic_id: userProfile?.clinic_id,
         created_by: user?.id,
-        status: 'To Do',
+        status: 'pending' as TaskStatus,
         assigned_to: null,
         recurrence: 'none'
       }));

@@ -17,28 +17,10 @@ import {
   AlertCircle,
   Calendar
 } from 'lucide-react';
+import { TaskStatus, isCompleted, getStatusDisplay, getStatusColor } from '@/lib/taskStatus';
+import { Task, Assistant } from '@/types/task';
 import CreateTaskDialog from './CreateTaskDialog';
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  priority: string;
-  status: string;
-  'due-type': string;
-  category: string;
-  assigned_to: string | null;
-  recurrence: string;
-  created_at: string;
-  'due-date'?: string;
-  custom_due_date?: string;
-}
-
-interface Assistant {
-  id: string;
-  name: string;
-  email: string;
-}
 
 interface TasksTabProps {
   tasks: Task[];
@@ -115,8 +97,9 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                            task.description?.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = statusFilter === 'all' || 
-                           (statusFilter === 'todo' && ['pending', 'in-progress'].includes(task.status?.toLowerCase())) ||
-                           (statusFilter === 'done' && ['completed', 'done'].includes(task.status?.toLowerCase()));
+                           (statusFilter === 'pending' && task.status === 'pending') ||
+                           (statusFilter === 'in-progress' && task.status === 'in-progress') ||
+                           (statusFilter === 'completed' && task.status === 'completed');
       
       const matchesPriority = priorityFilter === 'all' || task.priority?.toLowerCase() === priorityFilter;
       
@@ -174,8 +157,9 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="todo">To Do</SelectItem>
-                <SelectItem value="done">Done</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in-progress">In-Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>
             </Select>
 
@@ -265,7 +249,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                       <div className="flex items-center space-x-2">
                         {getStatusIcon(task.status)}
                         <span className="text-sm text-gray-600 capitalize">
-                          {task.status || 'Pending'}
+                          {getStatusDisplay(task.status)}
                         </span>
                       </div>
                       
@@ -370,7 +354,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                       <div className="flex items-center space-x-2">
                         {getStatusIcon(task.status)}
                         <span className="text-sm text-gray-600 capitalize">
-                          {task.status || 'Pending'}
+                          {getStatusDisplay(task.status)}
                         </span>
                       </div>
                       

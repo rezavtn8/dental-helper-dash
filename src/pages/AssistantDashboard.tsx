@@ -8,19 +8,8 @@ import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
 import ChangePinTab from '@/components/assistant/ChangePinTab';
+import { Task } from '@/types/task';
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  priority: string;
-  status: string;
-  'due-type': string;
-  category: string;
-  assigned_to: string | null;
-  created_at: string;
-  completed_at?: string;
-}
 
 const AssistantDashboard = () => {
   const { session, user, userProfile } = useAuth();
@@ -49,7 +38,7 @@ const AssistantDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTasks(data || []);
+      setTasks((data || []) as Task[]);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast.error('Failed to load tasks');

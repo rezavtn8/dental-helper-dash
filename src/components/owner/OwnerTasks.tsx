@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { getPriorityStyles } from '@/lib/taskUtils';
 import { 
   Search,
   Filter,
@@ -62,15 +63,6 @@ const OwnerTasks: React.FC<OwnerTasksProps> = ({ tasks, assistants, onTaskUpdate
     } catch (error) {
       console.error('Error reassigning task:', error);
       toast.error("Failed to reassign task");
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'secondary';
-      case 'low': return 'outline';
-      default: return 'outline';
     }
   };
 

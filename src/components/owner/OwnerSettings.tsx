@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from 'sonner';
+import { getUserInitials } from '@/lib/taskUtils';
 import { 
   Building2,
   Bell,
@@ -56,15 +57,6 @@ const OwnerSettings: React.FC<OwnerSettingsProps> = ({ clinic, onUpdate }) => {
   const handleNotificationUpdate = (key: string, value: boolean) => {
     setNotifications(prev => ({ ...prev, [key]: value }));
     toast.success(`${key} ${value ? 'enabled' : 'disabled'}`);
-  };
-
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   return (

@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UserProfile {
   id: string;
-  role: string;
   name: string;
   email: string;
+  role: string;
   clinic_id: string;
   last_login?: string;
   is_active: boolean;
@@ -15,23 +15,25 @@ interface UserProfile {
 interface AuthContextType {
   session: Session | null;
   user: User | null;
-  loading: boolean;
   userProfile: UserProfile | null;
+  loading: boolean;
   needsClinicSetup: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
-  createAssistantInvitation: (email: string, name: string) => Promise<{ invitationId?: string; token?: string; error?: string }>;
-  acceptInvitation: (token: string) => Promise<{ success: boolean; message: string; clinicId?: string }>;
+  createAssistantInvitation: (email: string, name: string) => Promise<{ invitationToken?: string; invitationId?: string; error?: string }>;
+  resendInvitation: (invitationId: string) => Promise<{ error?: string }>;
+  cancelInvitation: (invitationId: string) => Promise<{ error?: string }>;
+  acceptInvitation: (token: string) => Promise<{ error?: string; clinicId?: string }>;
   getInvitations: () => Promise<{ invitations: any[]; error?: string }>;
   signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicId?: string }) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   createAssistant: (email: string, name: string, clinicId: string) => Promise<{ error?: string }>;
-  getClinicUsers: (clinicId: string) => Promise<UserProfile[]>;
+  getClinicUsers: (clinicId: string) => Promise<{ users: any[]; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -45,151 +47,106 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsClinicSetup, setNeedsClinicSetup] = useState(false);
-  const [profileCreationInProgress, setProfileCreationInProgress] = useState(false);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth event:', event, session?.user?.id);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user profile from public.users table
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
-          }, 0);
-        } else {
-          setUserProfile(null);
-        }
-        
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      } else {
         setLoading(false);
       }
-    );
+    });
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Listen for changes on auth state
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserProfile(session.user.id);
+        if (event === 'SIGNED_IN') {
+          await fetchUserProfile(session.user.id);
+        }
+      } else {
+        setUserProfile(null);
+        setNeedsClinicSetup(false);
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
-    if (profileCreationInProgress) {
-      console.log('Profile creation already in progress, skipping...');
-      return;
-    }
-
     try {
-      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .maybeSingle();
+        .single();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', error);
-        return;
-      }
-
-      if (data) {
-        console.log('User profile found:', data);
-        setUserProfile(data);
-        setNeedsClinicSetup(false);
-      } else {
-        console.log('No user profile found, attempting to create one...');
-        setProfileCreationInProgress(true);
-        
-        // Try to create a user profile for users who logged in
-        const { data: authUser } = await supabase.auth.getUser();
-        if (authUser.user) {
-          await createUserProfileFromAuth(authUser.user);
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('User profile not found, will need to create one');
+        } else {
+          throw error;
         }
+      } else {
+        setUserProfile(data);
         
-        setProfileCreationInProgress(false);
+        // Check if this is an owner without a clinic
+        if (data.role === 'owner' && !data.clinic_id) {
+          setNeedsClinicSetup(true);
+        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      setProfileCreationInProgress(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   const createUserProfileFromAuth = async (user: any) => {
     try {
-      console.log('Creating user profile from auth user:', user);
-      const userMetadata = user.user_metadata || {};
-      const userRole = userMetadata.role || 'assistant';
-      
-      // For owners without a clinic_id, set the flag instead of redirecting
-      if (userRole === 'owner' && !userMetadata.clinic_id) {
-        console.log('Owner without clinic_id detected, flagging for clinic setup');
-        setNeedsClinicSetup(true);
-        setLoading(false);
-        return;
-      }
-      
+      const profileData = {
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+        role: user.user_metadata?.role || 'assistant',
+        clinic_id: user.user_metadata?.clinic_id || null,
+        is_active: true
+      };
+
       const { data, error } = await supabase
         .from('users')
-        .insert({
-          id: user.id,
-          email: user.email,
-          name: userMetadata.full_name || userMetadata.name || user.email?.split('@')[0] || 'User',
-          role: userRole,
-          clinic_id: userMetadata.clinic_id || null,
-          is_active: true
-        })
+        .insert([profileData])
         .select()
         .single();
 
-      if (error) {
-        console.error('Error creating user profile:', error);
-        // If it's a constraint error and user is an owner, flag for setup
-        if (error.code === '23502' && userRole === 'owner') {
-          console.log('Flagging owner for clinic setup due to missing clinic_id');
-          setNeedsClinicSetup(true);
-          setLoading(false);
-          return;
-        }
-        return;
+      if (error) throw error;
+      
+      setUserProfile(data);
+      
+      if (data.role === 'owner' && !data.clinic_id) {
+        setNeedsClinicSetup(true);
       }
-
-      if (data) {
-        console.log('User profile created:', data);
-        setUserProfile(data);
-        setNeedsClinicSetup(false);
-      }
+      
+      return data;
     } catch (error) {
       console.error('Error creating user profile:', error);
+      throw error;
     }
   };
 
   const createAssistant = async (email: string, name: string, clinicId: string): Promise<{ error?: string }> => {
     try {
-      // Generate a temporary password
-      const tempPassword = `temp${Math.floor(Math.random() * 100000)}`;
-      
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.admin.createUser({
         email,
-        password: tempPassword,
-        options: {
-          emailRedirectTo: `${window.location.origin}/clinic`,
-          data: { 
-            name, 
-            role: 'assistant',
-            clinic_id: clinicId,
-            must_change_password: true
-          }
-        }
+        password: 'temp-password-' + Math.random(),
+        email_confirm: true,
+        user_metadata: { name, role: 'assistant', clinic_id: clinicId }
       });
 
       if (error) {
@@ -198,40 +155,179 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return {};
     } catch (error) {
-      console.error('Assistant creation error:', error);
-      return { error: 'Failed to create assistant' };
+      console.error('Failed to create assistant:', error);
+      return { error: 'Failed to create assistant account' };
     }
   };
 
-  const getClinicUsers = async (clinicId: string): Promise<UserProfile[]> => {
+  const getClinicUsers = async (clinicId: string): Promise<{ users: any[]; error?: string }> => {
     try {
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('clinic_id', clinicId)
         .eq('is_active', true)
-        .order('role', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching clinic users:', error);
-        return [];
+        console.error('Get clinic users error:', error);
+        throw error;
       }
 
-      return data || [];
+      return { users: data || [] };
     } catch (error) {
-      console.error('Error fetching clinic users:', error);
-      return [];
+      console.error('Failed to get clinic users:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to get clinic users';
+      return { users: [], error: errorMessage };
     }
   };
 
   const signInWithGoogle = async (): Promise<{ error?: string }> => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+
+    if (error) {
+      console.error('Google sign-in error:', error.message);
+      return { error: error.message };
+    }
+    
+    return {};
+  };
+
+  const createAssistantInvitation = async (email: string, name: string): Promise<{ invitationToken?: string; invitationId?: string; error?: string }> => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`
+      if (!userProfile?.clinic_id) {
+        return { error: 'Clinic ID not found' };
+      }
+
+      const { data, error } = await supabase.rpc('create_assistant_invitation', {
+        p_clinic_id: userProfile.clinic_id,
+        p_email: email,
+        p_name: name
+      });
+
+      if (error) {
+        console.error('Create invitation error:', error);
+        return { error: error.message };
+      }
+
+      const { invitation_id, invitation_token } = data[0];
+
+      // Get clinic name for the email
+      const { data: clinicData, error: clinicError } = await supabase
+        .from('clinics')
+        .select('name')
+        .eq('id', userProfile.clinic_id)
+        .single();
+
+      if (clinicError) {
+        console.error('Clinic fetch error:', clinicError);
+        return { error: 'Failed to fetch clinic details' };
+      }
+
+      // Send invitation email via edge function
+      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-invitation', {
+        body: {
+          invitationToken: invitation_token,
+          recipientEmail: email,
+          recipientName: name,
+          clinicName: clinicData.name,
+          invitationId: invitation_id
         }
       });
+
+      if (emailError) {
+        console.error('Email sending error:', emailError);
+        return { error: 'Invitation created but email failed to send' };
+      }
+
+      return { 
+        invitationToken: invitation_token, 
+        invitationId: invitation_id 
+      };
+    } catch (error) {
+      console.error('Failed to create assistant invitation:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create invitation';
+      return { error: errorMessage };
+    }
+  };
+
+  const resendInvitation = async (invitationId: string): Promise<{ error?: string }> => {
+    try {
+      if (!userProfile?.clinic_id) {
+        return { error: 'Clinic ID not found' };
+      }
+
+      // Get invitation details
+      const { data: invitation, error: fetchError } = await supabase
+        .from('invitations')
+        .select('email, token, clinic_id')
+        .eq('id', invitationId)
+        .eq('clinic_id', userProfile.clinic_id)
+        .single();
+
+      if (fetchError || !invitation) {
+        return { error: 'Invitation not found' };
+      }
+
+      // Get clinic name
+      const { data: clinicData, error: clinicError } = await supabase
+        .from('clinics')
+        .select('name')
+        .eq('id', invitation.clinic_id)
+        .single();
+
+      if (clinicError) {
+        return { error: 'Failed to fetch clinic details' };
+      }
+
+      // Update invitation expiry and reset email status
+      const { error: updateError } = await supabase
+        .from('invitations')
+        .update({ 
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          email_status: 'pending',
+          resend_count: supabase.raw('resend_count + 1')
+        })
+        .eq('id', invitationId);
+
+      if (updateError) {
+        return { error: 'Failed to update invitation' };
+      }
+
+      // Resend email
+      const { error: emailError } = await supabase.functions.invoke('send-invitation', {
+        body: {
+          invitationToken: invitation.token,
+          recipientEmail: invitation.email,
+          recipientName: invitation.email.split('@')[0], // Fallback name
+          clinicName: clinicData.name,
+          invitationId: invitationId
+        }
+      });
+
+      if (emailError) {
+        return { error: 'Failed to resend email' };
+      }
+
+      return {};
+    } catch (error) {
+      console.error('Failed to resend invitation:', error);
+      return { error: 'Failed to resend invitation' };
+    }
+  };
+
+  const cancelInvitation = async (invitationId: string): Promise<{ error?: string }> => {
+    try {
+      const { error } = await supabase
+        .from('invitations')
+        .update({ status: 'cancelled' })
+        .eq('id', invitationId)
+        .eq('clinic_id', userProfile?.clinic_id);
 
       if (error) {
         return { error: error.message };
@@ -239,79 +335,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return {};
     } catch (error) {
-      console.error('Google sign-in error:', error);
-      return { error: 'Google authentication failed' };
+      console.error('Failed to cancel invitation:', error);
+      return { error: 'Failed to cancel invitation' };
     }
   };
 
-  const createAssistantInvitation = async (email: string, name: string): Promise<{ invitationId?: string; token?: string; error?: string }> => {
-    try {
-      console.log('Creating assistant invitation:', { email, name });
-      
-      if (!userProfile?.clinic_id) {
-        throw new Error('No clinic ID available');
-      }
-
-      const { data, error } = await supabase.rpc('create_assistant_invitation', {
-        p_clinic_id: userProfile.clinic_id,
-        p_email: email.toLowerCase().trim(),
-        p_name: name.trim()
-      });
-
-      if (error) {
-        console.error('RPC error:', error);
-        throw error;
-      }
-
-      if (data && data.length > 0) {
-        const result = data[0];
-        console.log('Invitation created successfully:', result);
-        
-        // Get clinic info for email
-        const { data: clinicData } = await supabase
-          .from('clinics')
-          .select('name')
-          .eq('id', userProfile.clinic_id)
-          .single();
-
-        // Send invitation email
-        try {
-          const { error: emailError } = await supabase.functions.invoke('send-invitation', {
-            body: {
-              email: email.toLowerCase().trim(),
-              name: name.trim(),
-              invitationToken: result.invitation_token,
-              clinicName: clinicData?.name || 'Your Clinic',
-              inviterName: userProfile.name || 'Clinic Administrator'
-            }
-          });
-
-          if (emailError) {
-            console.error('Error sending invitation email:', emailError);
-            // Don't fail the whole process if email fails, just log it
-          } else {
-            console.log('Invitation email sent successfully');
-          }
-        } catch (emailError) {
-          console.error('Failed to send invitation email:', emailError);
-          // Continue with success since the invitation was created
-        }
-        
-        return { 
-          invitationId: result.invitation_id, 
-          token: result.invitation_token 
-        };
-      }
-
-      throw new Error('No data returned from invitation creation');
-    } catch (error) {
-      console.error('Failed to create invitation:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create invitation';
-      return { error: errorMessage };
-    }
-  };
-
-  const acceptInvitation = async (token: string): Promise<{ success: boolean; message: string; clinicId?: string }> => {
+  const acceptInvitation = async (token: string): Promise<{ error?: string; clinicId?: string }> => {
     try {
       const { data, error } = await supabase.rpc('accept_invitation', {
         invitation_token: token
@@ -319,31 +348,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Accept invitation error:', error);
-        throw error;
+        return { error: error.message };
       }
 
-      if (data && data.length > 0) {
-        const result = data[0];
-        return {
-          success: result.success,
-          message: result.message,
-          clinicId: result.clinic_id
-        };
+      const result = data[0];
+      if (!result.success) {
+        return { error: result.message };
       }
 
-      return { success: false, message: 'No response from server' };
+      return { clinicId: result.clinic_id };
     } catch (error) {
       console.error('Failed to accept invitation:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to accept invitation';
-      return { success: false, message: errorMessage };
+      return { error: errorMessage };
     }
   };
 
   const getInvitations = async (): Promise<{ invitations: any[]; error?: string }> => {
     try {
+      if (!userProfile?.clinic_id) {
+        return { invitations: [], error: 'No clinic ID found' };
+      }
+
       const { data, error } = await supabase
         .from('invitations')
         .select('*')
+        .eq('clinic_id', userProfile.clinic_id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -418,6 +448,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signInWithEmail,
     signInWithGoogle,
     createAssistantInvitation,
+    resendInvitation,
+    cancelInvitation,
     acceptInvitation,
     getInvitations,
     signUp,

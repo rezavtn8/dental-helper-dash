@@ -7,7 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { Menu, Clock } from 'lucide-react';
 import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import TasksTab from '@/components/owner/TasksTab';
-import TeamTab from '@/components/owner/TeamTab';
+import UnifiedTeamView from '@/components/owner/UnifiedTeamView';
 import InsightsTab from '@/components/owner/InsightsTab';
 import SettingsTab from '@/components/owner/SettingsTab';
 
@@ -139,10 +139,10 @@ const OwnerDashboard = () => {
         );
       case 'team':
         return (
-          <TeamTab 
+          <UnifiedTeamView 
             assistants={assistants} 
-            tasks={tasks} 
-            onTeamUpdate={handleDataUpdate}
+            tasks={tasks}
+            onTeamUpdate={fetchAssistants}
           />
         );
       case 'insights':

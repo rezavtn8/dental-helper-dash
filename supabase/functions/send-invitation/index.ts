@@ -5,17 +5,16 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 interface InvitationEmailRequest {
-  email: string;
-  name: string;
   invitationToken: string;
+  recipientEmail: string;
+  recipientName: string;
   clinicName: string;
-  inviterName: string;
+  invitationId: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,78 +23,103 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, name, invitationToken, clinicName, inviterName }: InvitationEmailRequest = await req.json();
+    const { invitationToken, recipientEmail, recipientName, clinicName, invitationId }: InvitationEmailRequest = await req.json();
+    
+    const acceptUrl = `${new URL(req.url).origin}/accept-invitation?token=${invitationToken}`;
 
-    const acceptUrl = `${req.headers.get('origin')}/accept-invitation?token=${invitationToken}`;
+    // Initialize Supabase client with service role key for updating invitations
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Send email via Resend
     const emailResponse = await resend.emails.send({
-      from: "ClinicFlow <onboarding@resend.dev>",
-      to: [email],
-      subject: `You're invited to join ${clinicName} on ClinicFlow`,
+      from: "Clinic Team <onboarding@resend.dev>",
+      to: [recipientEmail],
+      subject: `Join ${clinicName} - Complete Your Setup`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #2563eb; margin: 0;">ClinicFlow</h1>
-            <p style="color: #6b7280; margin: 5px 0;">Professional Clinic Management</p>
-          </div>
-          
-          <div style="background: #f8fafc; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
-            <h2 style="color: #1e293b; margin-top: 0;">You're Invited!</h2>
-            <p style="color: #475569; font-size: 16px; line-height: 1.6;">
-              Hi ${name},<br><br>
-              ${inviterName} has invited you to join <strong>${clinicName}</strong> as a team member on ClinicFlow.
-            </p>
-            <p style="color: #475569; font-size: 16px; line-height: 1.6;">
-              ClinicFlow helps clinical teams manage tasks, track patient care, and collaborate effectively.
-            </p>
-          </div>
-          
-          <div style="text-align: center; margin: 40px 0;">
-            <a href="${acceptUrl}" 
-               style="background: #2563eb; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-              Accept Invitation & Create Account
-            </a>
-          </div>
-          
-          <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin-top: 30px;">
-            <h3 style="color: #1e293b; margin-top: 0; font-size: 16px;">What's Next?</h3>
-            <ol style="color: #475569; margin: 10px 0; padding-left: 20px;">
-              <li>Click the button above to accept your invitation</li>
-              <li>Create your secure password</li>
-              <li>Access your personalized dashboard</li>
-              <li>Start collaborating with your team</li>
-            </ol>
-          </div>
-          
-          <div style="border-top: 1px solid #e2e8f0; margin-top: 30px; padding-top: 20px; text-align: center;">
-            <p style="color: #94a3b8; font-size: 14px; margin: 0;">
-              This invitation will expire in 7 days.<br>
-              If you have any questions, please contact your clinic administrator.
-            </p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+          <div style="background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <h1 style="color: #0f766e; font-size: 28px; margin-bottom: 8px;">You're Invited!</h1>
+              <p style="color: #64748b; font-size: 16px; margin: 0;">Join ${clinicName} as a team member</p>
+            </div>
+            
+            <div style="margin-bottom: 32px;">
+              <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 16px;">
+                Hi ${recipientName},
+              </p>
+              <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+                You've been invited to join <strong>${clinicName}</strong> as a team member. Click the button below to accept your invitation and complete your account setup.
+              </p>
+              
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="${acceptUrl}" style="display: inline-block; background-color: #0f766e; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                  Accept Invitation & Setup Account
+                </a>
+              </div>
+              
+              <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">
+                If the button doesn't work, copy and paste this link into your browser:
+              </p>
+              <p style="color: #0f766e; font-size: 14px; word-break: break-all; background-color: #f1f5f9; padding: 12px; border-radius: 6px;">
+                ${acceptUrl}
+              </p>
+            </div>
+            
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 24px; text-align: center;">
+              <p style="color: #64748b; font-size: 14px; margin: 0;">
+                This invitation will expire in 7 days. If you have any questions, please contact your team administrator.
+              </p>
+            </div>
           </div>
         </div>
       `,
     });
 
-    console.log("Invitation email sent successfully:", emailResponse);
+    // Update invitation record with email status
+    const updateData: any = {
+      email_sent_at: new Date().toISOString(),
+    };
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      messageId: emailResponse.data?.id 
+    if (emailResponse.error) {
+      // Email failed to send
+      updateData.email_status = 'failed';
+      updateData.failure_reason = emailResponse.error.message || 'Unknown error';
+      console.error("Email sending failed:", emailResponse.error);
+    } else {
+      // Email sent successfully
+      updateData.email_status = 'sent';
+      updateData.message_id = emailResponse.data?.id;
+      console.log("Email sent successfully:", emailResponse);
+    }
+
+    // Update invitation in database
+    const { error: updateError } = await supabase
+      .from('invitations')
+      .update(updateData)
+      .eq('id', invitationId);
+
+    if (updateError) {
+      console.error("Failed to update invitation:", updateError);
+    }
+
+    return new Response(JSON.stringify({
+      success: !emailResponse.error,
+      data: emailResponse.data,
+      error: emailResponse.error
     }), {
-      status: 200,
+      status: emailResponse.error ? 500 : 200,
       headers: {
         "Content-Type": "application/json",
         ...corsHeaders,
       },
     });
   } catch (error: any) {
-    console.error("Error sending invitation email:", error);
+    console.error("Error in send-invitation function:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message 
-      }),
+      JSON.stringify({ error: error.message }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

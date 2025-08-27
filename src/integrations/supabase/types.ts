@@ -63,9 +63,14 @@ export type Database = {
           clinic_id: string
           created_at: string
           email: string
+          email_sent_at: string | null
+          email_status: string | null
           expires_at: string
+          failure_reason: string | null
           id: string
           invited_by: string
+          message_id: string | null
+          resend_count: number | null
           role: string
           status: string
           token: string
@@ -76,9 +81,14 @@ export type Database = {
           clinic_id: string
           created_at?: string
           email: string
+          email_sent_at?: string | null
+          email_status?: string | null
           expires_at?: string
+          failure_reason?: string | null
           id?: string
           invited_by: string
+          message_id?: string | null
+          resend_count?: number | null
           role?: string
           status?: string
           token?: string
@@ -89,9 +99,14 @@ export type Database = {
           clinic_id?: string
           created_at?: string
           email?: string
+          email_sent_at?: string | null
+          email_status?: string | null
           expires_at?: string
+          failure_reason?: string | null
           id?: string
           invited_by?: string
+          message_id?: string | null
+          resend_count?: number | null
           role?: string
           status?: string
           token?: string

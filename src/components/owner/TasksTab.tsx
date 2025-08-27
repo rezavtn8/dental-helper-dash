@@ -20,6 +20,10 @@ import {
 import { TaskStatus, isCompleted, getStatusDisplay, getStatusColor } from '@/lib/taskStatus';
 import { Task, Assistant } from '@/types/task';
 import CreateTaskDialog from './CreateTaskDialog';
+import EditTaskDialog from './EditTaskDialog';
+import ReassignTaskDialog from './ReassignTaskDialog';
+import DeleteTaskDialog from './DeleteTaskDialog';
+import TaskNotesView from './TaskNotesView';
 
 
 interface TasksTabProps {
@@ -90,6 +94,12 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [reassignTask, setReassignTask] = useState<Task | null>(null);
+  const [deleteTask, setDeleteTask] = useState<Task | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showReassignDialog, setShowReassignDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
@@ -230,9 +240,27 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit Task</DropdownMenuItem>
-                          <DropdownMenuItem>Reassign</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setEditTask(task);
+                            setShowEditDialog(true);
+                          }}>
+                            Edit Task
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setReassignTask(task);
+                            setShowReassignDialog(true);
+                          }}>
+                            Reassign
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => {
+                              setDeleteTask(task);
+                              setShowDeleteDialog(true);
+                            }}
+                          >
+                            Delete
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -335,9 +363,27 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit Task</DropdownMenuItem>
-                          <DropdownMenuItem>Reassign</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setEditTask(task);
+                            setShowEditDialog(true);
+                          }}>
+                            Edit Task
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setReassignTask(task);
+                            setShowReassignDialog(true);
+                          }}>
+                            Reassign
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => {
+                              setDeleteTask(task);
+                              setShowDeleteDialog(true);
+                            }}
+                          >
+                            Delete
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -399,6 +445,30 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
           }
         />
       </div>
+
+      {/* Dialogs */}
+      <EditTaskDialog
+        task={editTask}
+        isOpen={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onTaskUpdated={onTaskUpdate}
+        assistants={assistants}
+      />
+
+      <ReassignTaskDialog
+        task={reassignTask}
+        isOpen={showReassignDialog}
+        onOpenChange={setShowReassignDialog}
+        onTaskUpdated={onTaskUpdate}
+        assistants={assistants}
+      />
+
+      <DeleteTaskDialog
+        task={deleteTask}
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onTaskDeleted={onTaskUpdate}
+      />
     </div>
   );
 }

@@ -1,22 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TaskStatus, isCompleted, toggleTaskCompletion, getStatusDisplay } from '@/lib/taskStatus';
-import { Task, Assistant } from '@/types/task';
+import { TaskStatus, isCompleted } from '@/lib/taskStatus';
+import { Task } from '@/types/task';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import TaskNoteDialog from './TaskNoteDialog';
 import { 
   Calendar, 
   Clock, 
   CheckCircle2,
   User,
-  MessageSquare,
   Plus,
   ArrowLeft,
-  Undo2,
   Target,
   Sparkles,
   FileText
@@ -24,7 +20,6 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-
 
 interface TodaysTasksTabProps {
   tasks: Task[];
@@ -45,24 +40,11 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
-const getDueText = (dueType: string) => {
-  switch (dueType) {
-    case 'morning':
-      return 'Before 12PM';
-    case 'afternoon':
-      return 'Before 5PM';
-    case 'evening':
-      return 'Before 9PM';
-    case 'end-of-day':
-      return 'End of Day';
-    default:
-      return 'Flexible';
-  }
-};
-
 export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabProps) {
   const { user } = useAuth();
-  const [noteDialog, setNoteDialog] = useState({ open: false, taskId: '', note: '' });
+  const [taskNotes, setTaskNotes] = useState<Record<string, any>>({});
+  const [noteTask, setNoteTask] = useState<Task | null>(null);
+  const [showNoteDialog, setShowNoteDialog] = useState(false);
 
   const myTasks = useMemo(() => 
     tasks.filter(task => task.assigned_to === user?.id)
@@ -72,19 +54,49 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     tasks.filter(task => !task.assigned_to)
   , [tasks]);
 
+  // Fetch task notes for user
+  const fetchTaskNotes = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('task_notes')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      const notesMap = (data || []).reduce((acc, note) => {
+        acc[note.task_id] = note;
+        return acc;
+      }, {});
+      
+      setTaskNotes(notesMap);
+    } catch (error) {
+      console.error('Error fetching task notes:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTaskNotes();
+  }, [user]);
+
   const completedTasks = myTasks.filter(task => 
-    isCompleted(task.status as TaskStatus)
+    isCompleted(task.status)
   );
 
   const pendingTasks = myTasks.filter(task => 
-    !isCompleted(task.status as TaskStatus)
+    !isCompleted(task.status)
   );
 
   const pickTask = async (taskId: string) => {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ assigned_to: user?.id })
+        .update({ 
+          status: 'in-progress' as TaskStatus,
+          assigned_to: user?.id 
+        })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -105,7 +117,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       const { error } = await supabase
         .from('tasks')
         .update({ 
-          status: 'completed',
+          status: 'completed' as TaskStatus,
           completed_by: user?.id,
           completed_at: new Date().toISOString()
         })
@@ -129,7 +141,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       const { error } = await supabase
         .from('tasks')
         .update({ 
-          status: 'pending',
+          status: 'pending' as TaskStatus,
           completed_by: null,
           completed_at: null
         })
@@ -146,11 +158,14 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     }
   };
 
-  const unassignTask = async (taskId: string) => {
+  const returnTask = async (taskId: string) => {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ assigned_to: null })
+        .update({ 
+          status: 'pending' as TaskStatus,
+          assigned_to: null 
+        })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -159,151 +174,124 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       
       onTaskUpdate();
     } catch (error) {
-      console.error('Error unassigning task:', error);
+      console.error('Error returning task:', error);
       toast.error('Failed to return task');
     }
   };
 
-  const saveNote = async () => {
-    toast.success('Note saved! 📝', {
-      description: 'Your note has been saved for this task'
-    });
-    setNoteDialog({ open: false, taskId: '', note: '' });
-  };
-
-  const TaskCard = ({ task, showPickUp = false, showCompleted = false }: { task: Task; showPickUp?: boolean; showCompleted?: boolean }) => (
-    <Card className="group transition-all duration-300 hover:shadow-xl hover:shadow-teal-100/50 border-2 hover:border-teal-200 bg-white/80 backdrop-blur-sm">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1 pr-4">
-            <h3 className="font-bold text-teal-900 text-lg mb-2 group-hover:text-teal-700 transition-colors">
-              {task.title}
-            </h3>
-            {task.description && (
-              <p className="text-teal-700 mb-4 leading-relaxed text-sm">
-                {task.description}
-              </p>
-            )}
-            
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge className={`text-xs font-semibold px-3 py-1.5 ${getPriorityColor(task.priority)}`}>
-                {task.priority || 'Normal'}
-              </Badge>
-              {task['due-type'] && (
-                <Badge variant="outline" className="text-xs border-teal-200 text-teal-700 bg-teal-50/50">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {getDueText(task['due-type'])}
-                </Badge>
+  const TaskCard = ({ task, showPickUp = false, showCompleted = false }: { task: Task; showPickUp?: boolean; showCompleted?: boolean }) => {
+    const hasNote = taskNotes[task.id];
+    
+    return (
+      <Card key={task.id} className="hover:shadow-md transition-all duration-200 border-l-4 border-l-teal-500">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-base font-semibold text-gray-900 mb-2">
+                {task.title}
+              </CardTitle>
+              {task.description && (
+                <CardDescription className="text-sm text-gray-600 line-clamp-2 mb-3">
+                  {task.description}
+                </CardDescription>
               )}
             </div>
           </div>
-          
-          {!showPickUp && !showCompleted && (
-            <div className="ml-4 flex-shrink-0">
-              <Checkbox
-                checked={isCompleted(task.status as TaskStatus)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    markTaskDone(task.id);
-                  } else {
-                    markTaskUndone(task.id);
-                  }
-                }}
-                className="w-7 h-7 border-2 border-teal-300 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600 rounded-lg"
-              />
-            </div>
-          )}
-        </div>
+        </CardHeader>
         
-        <div className="flex items-center gap-3 pt-2">
-          {showPickUp && (
-            <Button 
-              onClick={() => pickTask(task.id)}
-              className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold h-12 shadow-lg shadow-teal-500/25"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Pick Up Task
-            </Button>
-          )}
-          
-          {!showPickUp && !showCompleted && (
-            <>
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={() => unassignTask(task.id)}
-                className="hover:bg-teal-50 border-teal-200 text-teal-700 h-10 px-4"
-              >
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                Return
-              </Button>
-              
-              <Dialog 
-                open={noteDialog.open && noteDialog.taskId === task.id} 
-                onOpenChange={(open) => setNoteDialog(prev => ({ ...prev, open }))}
-              >
-                <DialogTrigger asChild>
-                  <Button 
-                    variant="outline"
+        <CardContent className="pt-0">
+          <div className="space-y-3">
+            {/* Task Actions */}
+            <div className="flex items-center justify-between">
+              {!showPickUp && !showCompleted && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={isCompleted(task.status)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        markTaskDone(task.id);
+                      } else {
+                        markTaskUndone(task.id);
+                      }
+                    }}
+                  />
+                  <span className="text-sm text-gray-700 select-none">
+                    Mark as {isCompleted(task.status) ? 'pending' : 'complete'}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 ml-auto">
+                {/* Note Button */}
+                <Button
+                  size="sm"
+                  variant={hasNote ? "default" : "outline"}
+                  onClick={() => {
+                    setNoteTask(task);
+                    setShowNoteDialog(true);
+                  }}
+                  className="h-7 text-xs"
+                >
+                  <FileText className="w-3 h-3 mr-1" />
+                  {hasNote ? 'Edit Note' : 'Add Note'}
+                </Button>
+
+                {/* Pick Up / Put Back Buttons */}
+                {showPickUp && (
+                  <Button
                     size="sm"
-                    onClick={() => setNoteDialog({ open: true, taskId: task.id, note: '' })}
-                    className="hover:bg-blue-50 border-blue-200 text-blue-700 h-10 px-4"
+                    onClick={() => pickTask(task.id)}
+                    className="h-7 text-xs bg-teal-600 hover:bg-teal-700"
                   >
-                    <MessageSquare className="w-4 h-4 mr-1" />
-                    Note
+                    Pick Up
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center text-teal-900">
-                      <FileText className="w-5 h-5 mr-2 text-teal-600" />
-                      Add Task Note
-                    </DialogTitle>
-                    <DialogDescription>
-                      Leave a note about this task for the practice owner
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="note" className="text-teal-900 font-medium">Note</Label>
-                      <Textarea
-                        id="note"
-                        placeholder="Enter your note here..."
-                        value={noteDialog.note}
-                        onChange={(e) => setNoteDialog(prev => ({ ...prev, note: e.target.value }))}
-                        rows={4}
-                        className="mt-2 border-teal-200 focus:border-teal-500"
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-3">
-                      <Button variant="outline" onClick={() => setNoteDialog({ open: false, taskId: '', note: '' })}>
-                        Cancel
-                      </Button>
-                      <Button onClick={saveNote} className="bg-teal-600 hover:bg-teal-700">
-                        Save Note
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </>
-          )}
-          
-          {showCompleted && (
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => markTaskUndone(task.id)}
-              className="hover:bg-gray-50 h-10 px-4"
-            >
-              <Undo2 className="w-4 h-4 mr-1" />
-              Undo
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+                )}
+
+                {!showPickUp && !showCompleted && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => returnTask(task.id)}
+                    className="h-7 text-xs"
+                  >
+                    Put Back
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Task Note Preview */}
+            {hasNote && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-center mb-1">
+                  <FileText className="w-3 h-3 mr-1 text-blue-600" />
+                  <span className="text-xs font-medium text-blue-800">Your Note</span>
+                </div>
+                <p className="text-xs text-blue-700 line-clamp-2">
+                  {hasNote.note}
+                </p>
+              </div>
+            )}
+
+            {/* Task Details */}
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <div className="flex items-center space-x-3">
+                <Badge variant="outline" className="text-xs">
+                  {task.priority || 'Medium'} Priority
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {task['due-type']}
+                </Badge>
+              </div>
+              <div className="text-xs text-gray-400">
+                {new Date(task.created_at).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-8">
@@ -427,49 +415,16 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
         </Card>
       )}
 
-      {/* Floating Leave Note Button */}
-      <div className="fixed bottom-8 right-8 z-50">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button 
-              size="lg"
-              className="rounded-full w-16 h-16 shadow-2xl hover:shadow-3xl transition-all duration-300 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-110"
-            >
-              <MessageSquare className="w-6 h-6" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="flex items-center text-teal-900">
-                <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                Leave a Shift Note
-              </DialogTitle>
-              <DialogDescription>
-                Share any updates, observations, or feedback from your shift with the practice owner
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="shift-note" className="text-teal-900 font-medium">Shift Note</Label>
-                <Textarea
-                  id="shift-note"
-                  placeholder="Share any updates, observations, or feedback from your shift..."
-                  rows={5}
-                  className="mt-2 border-teal-200 focus:border-teal-500"
-                />
-              </div>
-              <div className="flex justify-end space-x-3">
-                <Button variant="outline">
-                  Cancel
-                </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  Save Note
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+      {/* Task Note Dialog */}
+      <TaskNoteDialog
+        task={noteTask}
+        isOpen={showNoteDialog}
+        onOpenChange={setShowNoteDialog}
+        onNoteSaved={() => {
+          fetchTaskNotes();
+          onTaskUpdate();
+        }}
+      />
     </div>
   );
 }

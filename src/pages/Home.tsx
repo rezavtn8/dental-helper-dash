@@ -20,7 +20,7 @@ export default function Home() {
             </span>
           </div>
           <Button 
-            onClick={() => navigate('/owner-login')} 
+            onClick={() => navigate('/login')} 
             size="sm"
             variant="outline"
             className="group hover-scale transition-all duration-300"
@@ -58,7 +58,7 @@ export default function Home() {
             <Button 
               size="lg" 
               variant="outline" 
-              onClick={() => navigate('/owner-login')}
+              onClick={() => navigate('/login')}
               className="px-8 py-6 text-lg hover-scale border-2 hover:bg-muted/50 transition-all duration-300"
             >
               Already have an account? Sign In

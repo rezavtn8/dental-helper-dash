@@ -6,9 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ClinicProvider } from "@/hooks/useClinic";
 import Home from "./pages/Home";
-import SimpleLogin from "./pages/SimpleLogin";
-import OwnerLogin from "./pages/OwnerLogin";
-import AssistantLogin from "./pages/AssistantLogin";
+import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import ClinicSetup from "./pages/ClinicSetup";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
@@ -93,9 +92,10 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/owner-login" element={<OwnerLogin />} />
-              <Route path="/assistant-login" element={<AssistantLogin />} />
-              <Route path="/login" element={<SimpleLogin />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/owner-login" element={<Navigate to="/login" replace />} />
+              <Route path="/assistant-login" element={<Navigate to="/login" replace />} />
               <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/dashboard" element={<RoleBasedRedirect />} />
               <Route 

@@ -266,6 +266,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data && data.length > 0) {
         const result = data[0];
         console.log('Invitation created successfully:', result);
+        
+        // Get clinic info for email
+        const { data: clinicData } = await supabase
+          .from('clinics')
+          .select('name')
+          .eq('id', userProfile.clinic_id)
+          .single();
+
+        // Send invitation email
+        try {
+          const { error: emailError } = await supabase.functions.invoke('send-invitation', {
+            body: {
+              email: email.toLowerCase().trim(),
+              name: name.trim(),
+              invitationToken: result.invitation_token,
+              clinicName: clinicData?.name || 'Your Clinic',
+              inviterName: userProfile.name || 'Clinic Administrator'
+            }
+          });
+
+          if (emailError) {
+            console.error('Error sending invitation email:', emailError);
+            // Don't fail the whole process if email fails, just log it
+          } else {
+            console.log('Invitation email sent successfully');
+          }
+        } catch (emailError) {
+          console.error('Failed to send invitation email:', emailError);
+          // Continue with success since the invitation was created
+        }
+        
         return { 
           invitationId: result.invitation_id, 
           token: result.invitation_token 

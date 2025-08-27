@@ -21,11 +21,12 @@ export default function Home() {
           </div>
           <Button 
             onClick={() => navigate('/owner-login')} 
-            size="lg"
-            className="group hover-scale shadow-lg hover:shadow-xl transition-all duration-300"
+            size="sm"
+            variant="outline"
+            className="group hover-scale transition-all duration-300"
           >
             <LogIn className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
-            Owner Sign In
+            Sign In
           </Button>
         </div>
       </header>
@@ -64,39 +65,35 @@ export default function Home() {
             </Button>
           </div>
 
-          {/* Quick Login Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16 max-w-2xl mx-auto">
-            <Card 
-              className="cursor-pointer hover-scale group border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl"
-              onClick={() => navigate('/owner-login')}
-            >
-              <CardHeader className="text-center pb-3">
-                <Shield className="w-12 h-12 mx-auto mb-3 text-primary group-hover:scale-110 transition-transform" />
-                <CardTitle className="text-xl">Clinic Owner</CardTitle>
-                <CardDescription>Full access & management</CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <Button variant="secondary" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                  Owner Login
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="cursor-pointer hover-scale group border-2 hover:border-secondary/50 transition-all duration-300 hover:shadow-xl"
-              onClick={() => navigate('/assistant-login')}
-            >
-              <CardHeader className="text-center pb-3">
-                <Users className="w-12 h-12 mx-auto mb-3 text-secondary group-hover:scale-110 transition-transform" />
-                <CardTitle className="text-xl">Assistant</CardTitle>
-                <CardDescription>Task management & tracking</CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <Button variant="secondary" className="w-full group-hover:bg-secondary group-hover:text-secondary-foreground transition-all">
-                  Assistant Login
-                </Button>
-              </CardContent>
-            </Card>
+          {/* Onboarding Info */}
+          <div className="max-w-3xl mx-auto mt-16 p-8 bg-muted/30 border-2 border-dashed border-primary/20 rounded-2xl">
+            <div className="text-center space-y-4">
+              <Users className="w-16 h-16 mx-auto text-primary/60" />
+              <h3 className="text-2xl font-semibold">How It Works</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-muted-foreground">
+                <div className="space-y-2">
+                  <div className="w-8 h-8 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-primary font-bold">1</span>
+                  </div>
+                  <p><strong>Owners</strong> create and manage clinics</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="w-8 h-8 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-primary font-bold">2</span>
+                  </div>
+                  <p><strong>Invite assistants</strong> via email automatically</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="w-8 h-8 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-primary font-bold">3</span>
+                  </div>
+                  <p><strong>Assistants</strong> click email links to join</p>
+                </div>
+              </div>
+              <p className="text-primary/80 font-medium">
+                New assistants will receive email invitations to create their accounts
+              </p>
+            </div>
           </div>
         </div>
       </section>

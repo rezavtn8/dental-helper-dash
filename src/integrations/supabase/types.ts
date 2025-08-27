@@ -74,6 +74,7 @@ export type Database = {
           role: string
           status: string
           token: string
+          updated_at: string | null
         }
         Insert: {
           accepted_at?: string | null
@@ -92,6 +93,7 @@ export type Database = {
           role?: string
           status?: string
           token?: string
+          updated_at?: string | null
         }
         Update: {
           accepted_at?: string | null
@@ -110,6 +112,7 @@ export type Database = {
           role?: string
           status?: string
           token?: string
+          updated_at?: string | null
         }
         Relationships: [
           {

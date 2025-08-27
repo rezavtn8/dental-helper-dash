@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('id, name, email, role, clinic_id, is_active, created_at, last_login, created_by')
         .eq('id', userId)
         .single();
 
@@ -164,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('id, name, email, role, clinic_id, is_active, created_at, last_login, created_by')
         .eq('clinic_id', clinicId)
         .eq('is_active', true)
         .order('created_at', { ascending: false });

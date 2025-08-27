@@ -13,6 +13,7 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import ClinicManagement from "./pages/ClinicManagement";
 import NotFound from "./pages/NotFound";
 import AcceptInvitation from "./pages/AcceptInvitation";
+import AssistantSignup from "./pages/AssistantSignup";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,7 @@ const App = () => (
               />
               <Route path="/accept-invitation" element={<AcceptInvitation />} />
               <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
+              <Route path="/assistant-signup" element={<AssistantSignup />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

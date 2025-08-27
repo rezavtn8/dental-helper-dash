@@ -80,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
       publicAppUrl = `https://${publicAppUrl}`;
     }
     
-    const acceptUrl = `${publicAppUrl}/accept-invitation?token=${invitationToken}`;
+    const acceptUrl = `${publicAppUrl}/assistant-signup?token=${invitationToken}`;
     console.log('Accept URL created:', acceptUrl);
 
     // Initialize Supabase client with service role key for updating invitations

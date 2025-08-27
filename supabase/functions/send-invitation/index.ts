@@ -23,15 +23,55 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log('Starting invitation email process...');
     const { invitationToken, recipientEmail, recipientName, clinicName, invitationId }: InvitationEmailRequest = await req.json();
     
+    console.log('Invitation details:', { 
+      invitationId, 
+      recipientEmail, 
+      recipientName, 
+      clinicName,
+      hasToken: !!invitationToken 
+    });
+    
     const acceptUrl = `${new URL(req.url).origin}/accept-invitation?token=${invitationToken}`;
+    console.log('Accept URL created:', acceptUrl);
 
     // Initialize Supabase client with service role key for updating invitations
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase configuration');
+      throw new Error('Missing Supabase configuration');
+    }
+    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    console.log('Supabase client initialized');
+
+    // Verify invitation exists and is valid before sending email
+    const { data: invitationCheck, error: checkError } = await supabase
+      .from('invitations')
+      .select('id, status, expires_at')
+      .eq('id', invitationId)
+      .single();
+
+    if (checkError) {
+      console.error('Error checking invitation:', checkError);
+      throw new Error(`Failed to verify invitation: ${checkError.message}`);
+    }
+
+    if (!invitationCheck) {
+      console.error('Invitation not found:', invitationId);
+      throw new Error('Invitation not found');
+    }
+
+    if (invitationCheck.status !== 'pending') {
+      console.error('Invitation is not pending:', invitationCheck.status);
+      throw new Error(`Invitation is ${invitationCheck.status}, cannot send email`);
+    }
+
+    console.log('Invitation verified, sending email...');
 
     // Send email via Resend
     const emailResponse = await resend.emails.send({
@@ -95,6 +135,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Email sent successfully:", emailResponse);
     }
 
+    console.log('Updating invitation record with:', updateData);
+
     // Update invitation in database
     const { error: updateError } = await supabase
       .from('invitations')
@@ -103,13 +145,24 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (updateError) {
       console.error("Failed to update invitation:", updateError);
+      // Don't fail the request if email was sent but update failed
+      if (!emailResponse.error) {
+        console.warn("Email sent but failed to update database status");
+      }
+    } else {
+      console.log("Invitation record updated successfully");
     }
 
-    return new Response(JSON.stringify({
+    const responseData = {
       success: !emailResponse.error,
       data: emailResponse.data,
-      error: emailResponse.error
-    }), {
+      error: emailResponse.error,
+      invitation_updated: !updateError
+    };
+
+    console.log('Sending response:', responseData);
+
+    return new Response(JSON.stringify(responseData), {
       status: emailResponse.error ? 500 : 200,
       headers: {
         "Content-Type": "application/json",
@@ -118,8 +171,33 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("Error in send-invitation function:", error);
+    
+    // Try to update invitation status to failed if we have the invitation ID
+    const { invitationId } = await req.json().catch(() => ({}));
+    if (invitationId) {
+      try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        
+        await supabase
+          .from('invitations')
+          .update({ 
+            email_status: 'failed',
+            failure_reason: error.message || 'Unknown error'
+          })
+          .eq('id', invitationId);
+      } catch (updateError) {
+        console.error("Failed to update invitation status after error:", updateError);
+      }
+    }
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        success: false,
+        error: error.message || 'Unknown error occurred',
+        details: error.stack 
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

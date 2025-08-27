@@ -323,11 +323,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const cancelInvitation = async (invitationId: string): Promise<{ error?: string }> => {
     try {
+      if (!userProfile || userProfile.role !== 'owner') {
+        return { error: 'Only owners can cancel invitations' };
+      }
+
       const { error } = await supabase
         .from('invitations')
         .update({ status: 'cancelled' })
         .eq('id', invitationId)
-        .eq('clinic_id', userProfile?.clinic_id);
+        .eq('clinic_id', userProfile.clinic_id);
 
       if (error) {
         return { error: error.message };

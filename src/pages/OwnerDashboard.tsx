@@ -119,7 +119,10 @@ const OwnerDashboard = () => {
       case 'team':
         return (
           <UnifiedTeamView 
-            assistants={assistants} 
+            assistants={assistants.map(assistant => ({ 
+              ...assistant, 
+              type: 'member' as const
+            }))} 
             tasks={tasks}
             onTeamUpdate={fetchAssistants}
           />

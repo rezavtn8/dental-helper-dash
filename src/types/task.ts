@@ -9,7 +9,7 @@ export interface Task {
   'due-type': string;
   'due-date'?: string;
   category?: string;
-  assigned_to?: string | null;
+  assigned_to: string | null;
   recurrence?: string;
   created_at: string;
   updated_at?: string;
@@ -27,6 +27,8 @@ export interface Assistant {
   id: string;
   name: string;
   email: string;
-  role?: string;
-  is_active?: boolean;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+  last_login?: string;
 }

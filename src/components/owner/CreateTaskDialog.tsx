@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 
 interface Assistant {
@@ -55,10 +55,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
 
       if (error) throw error;
 
-      toast({
-        title: "Task Created",
-        description: "New task has been created successfully"
-      });
+      toast.success("Task created successfully!");
 
       setNewTask({
         title: '',
@@ -74,11 +71,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
       onTaskCreated();
     } catch (error) {
       console.error('Error creating task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create task",
-        variant: "destructive"
-      });
+      toast.error("Failed to create task");
     } finally {
       setLoading(false);
     }

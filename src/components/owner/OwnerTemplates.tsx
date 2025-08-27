@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -258,19 +258,12 @@ const OwnerTemplates: React.FC<OwnerTemplatesProps> = ({ onTasksCreated }) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Tasks Created",
-        description: `${template.tasks.length} tasks from "${template.title}" have been added to your task list.`
-      });
+      toast.success(`${template.tasks.length} tasks from "${template.title}" added successfully!`);
 
       onTasksCreated();
     } catch (error) {
       console.error('Error creating tasks from template:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create tasks from template",
-        variant: "destructive"
-      });
+      toast.error("Failed to create tasks from template");
     }
   };
 

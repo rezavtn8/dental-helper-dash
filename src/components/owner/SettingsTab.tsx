@@ -19,7 +19,7 @@ import {
   AlertTriangle,
   Shield
 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -52,18 +52,11 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
 
       if (error) throw error;
 
-      toast({
-        title: "Settings Updated",
-        description: "Clinic information has been saved successfully.",
-      });
+      toast.success("Clinic information saved successfully!");
 
       onUpdate();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update clinic settings. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to update clinic settings. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -73,10 +66,7 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
     if (clinic?.clinic_code) {
       navigator.clipboard.writeText(clinic.clinic_code);
       setCopied(true);
-      toast({
-        title: "Copied!",
-        description: "Clinic code has been copied to clipboard.",
-      });
+      toast.success("Clinic code copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -93,19 +83,12 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
 
       if (error) throw error;
 
-      toast({
-        title: "Clinic Archived",
-        description: "Your clinic has been archived. Contact support if you need to restore it.",
-      });
+      toast.success("Clinic archived successfully. Contact support if you need to restore it.");
 
       // Redirect to home or login page
       window.location.href = '/';
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to archive clinic. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to archive clinic. Please try again.");
     }
   };
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { 
   Search,
   Filter,
@@ -56,19 +56,12 @@ const OwnerTasks: React.FC<OwnerTasksProps> = ({ tasks, assistants, onTaskUpdate
 
       if (error) throw error;
       
-      toast({
-        title: "Task Reassigned",
-        description: "Task assignment has been updated"
-      });
+      toast.success("Task assignment updated!");
       
       onTaskUpdate();
     } catch (error) {
       console.error('Error reassigning task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reassign task",
-        variant: "destructive"
-      });
+      toast.error("Failed to reassign task");
     }
   };
 

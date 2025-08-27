@@ -27,7 +27,7 @@ import {
 import AddMemberDialog from './AddMemberDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface TeamMember {
   id: string;
@@ -189,18 +189,11 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
 
       if (error) throw error;
 
-      toast({
-        title: assistant.is_active ? "Assistant Deactivated" : "Assistant Activated",
-        description: `${assistant.name} has been ${assistant.is_active ? 'deactivated' : 'activated'}.`,
-      });
+      toast.success(`${assistant.name} has been ${assistant.is_active ? 'deactivated' : 'activated'}`);
 
       onTeamUpdate();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update assistant status. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to update assistant status. Please try again.");
     }
   };
 
@@ -213,19 +206,12 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
 
       if (error) throw error;
 
-      toast({
-        title: "Assistant Deleted",
-        description: `${assistant.name} has been removed from your team.`,
-      });
+      toast.success(`${assistant.name} has been removed from your team`);
 
       onTeamUpdate();
       setDeleteDialog({ open: false, item: null });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete assistant. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to delete assistant. Please try again.");
     }
   };
 
@@ -234,18 +220,11 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
       const { error } = await resendInvitation(invitation.id);
       if (error) throw new Error(error);
 
-      toast({
-        title: "Invitation Resent",
-        description: `Invitation has been resent to ${invitation.email}.`,
-      });
+      toast.success(`Invitation resent to ${invitation.email}`);
 
       fetchInvitations();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to resend invitation. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to resend invitation. Please try again.");
     }
   };
 
@@ -254,19 +233,12 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
       const { error } = await cancelInvitation(invitation.id);
       if (error) throw new Error(error);
 
-      toast({
-        title: "Invitation Cancelled",
-        description: `Invitation to ${invitation.email} has been cancelled.`,
-      });
+      toast.success(`Invitation to ${invitation.email} has been cancelled`);
 
       fetchInvitations();
       setDeleteDialog({ open: false, item: null });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to cancel invitation. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to cancel invitation. Please try again.");
     }
   };
 

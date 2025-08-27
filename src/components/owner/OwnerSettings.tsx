@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { 
   Building2,
   Bell,
@@ -49,19 +49,13 @@ const OwnerSettings: React.FC<OwnerSettingsProps> = ({ clinic, onUpdate }) => {
 
   const handleClinicUpdate = async () => {
     // This would typically update the clinic in the database
-    toast({
-      title: "Settings Updated",
-      description: "Clinic settings have been saved successfully."
-    });
+    toast.success("Clinic settings saved successfully!");
     onUpdate();
   };
 
   const handleNotificationUpdate = (key: string, value: boolean) => {
     setNotifications(prev => ({ ...prev, [key]: value }));
-    toast({
-      title: "Notification Updated",
-      description: `${key} ${value ? 'enabled' : 'disabled'}`
-    });
+    toast.success(`${key} ${value ? 'enabled' : 'disabled'}`);
   };
 
   const getInitials = (name: string): string => {

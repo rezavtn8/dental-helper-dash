@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import AddMemberDialog from './AddMemberDialog';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface Assistant {
   id: string;
@@ -90,19 +90,12 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
 
       console.log('Status updated successfully:', data);
 
-      toast({
-        title: assistant.is_active ? "Assistant Deactivated" : "Assistant Activated",
-        description: `${assistant.name} has been ${assistant.is_active ? 'deactivated' : 'activated'}.`,
-      });
+      toast.success(`${assistant.name} has been ${assistant.is_active ? 'deactivated' : 'activated'}`);
 
       onTeamUpdate();
     } catch (error) {
       console.error('Failed to update assistant status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update assistant status. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to update assistant status. Please try again.");
     }
   };
 
@@ -115,19 +108,12 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
 
       if (error) throw error;
 
-      toast({
-        title: "Assistant Deleted",
-        description: `${assistant.name} has been removed from your team.`,
-      });
+      toast.success(`${assistant.name} has been removed from your team`);
 
       onTeamUpdate();
       setDeleteDialog({ open: false, assistant: null });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete assistant. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Failed to delete assistant. Please try again.");
     }
   };
 

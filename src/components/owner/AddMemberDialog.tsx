@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Loader2, Mail, User } from 'lucide-react';
 
 interface AddMemberDialogProps {
@@ -31,20 +31,12 @@ const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
     e.preventDefault();
     
     if (!formData.name.trim() || !formData.email.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
+      toast.error("Please fill in all required fields");
       return;
     }
 
     if (!userProfile?.clinic_id) {
-      toast({
-        title: "Error",
-        description: "No clinic ID found",
-        variant: "destructive"
-      });
+      toast.error("No clinic ID found");
       return;
     }
 
@@ -60,20 +52,13 @@ const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
         throw new Error(result.error);
       }
 
-      toast({
-        title: "Invitation Sent!",
-        description: `${formData.name} has been invited to join your team. They will receive an email with setup instructions.`
-      });
+      toast.success(`Invitation sent! ${formData.name} has been invited to join your team.`);
 
       setFormData({ name: '', email: '', role: 'assistant' });
       onMemberAdded();
       onOpenChange(false);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create team member",
-        variant: "destructive"
-      });
+      toast.error(error.message || "Failed to create team member");
     } finally {
       setLoading(false);
     }

@@ -34,8 +34,15 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to get clinic from URL or localStorage
+    // Only try to load clinic on specific routes that need it
     const urlPath = window.location.pathname;
+    const needsClinic = urlPath.startsWith('/clinic/') || urlPath.startsWith('/owner') || urlPath.startsWith('/assistant');
+    
+    if (!needsClinic) {
+      setLoading(false);
+      return;
+    }
+    
     const codeFromUrl = urlPath.startsWith('/clinic/') ? urlPath.split('/clinic/')[1] : null;
     const savedClinicCode = localStorage.getItem('clinic_code');
     
@@ -50,6 +57,15 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const setClinicFromCode = async (code: string): Promise<boolean> => {
     setLoading(true);
+    
+    // Check if we already failed to load this code recently to prevent spam
+    const failedKey = `clinic_failed_${code}`;
+    const lastFailed = localStorage.getItem(failedKey);
+    if (lastFailed && Date.now() - parseInt(lastFailed) < 60000) { // 1 minute cooldown
+      setLoading(false);
+      return false;
+    }
+    
     try {
       const { data, error } = await supabase
         .from('clinics')
@@ -59,7 +75,8 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .single();
 
       if (error || !data) {
-        console.error('Clinic not found:', error);
+        // Cache the failure to prevent repeated attempts
+        localStorage.setItem(failedKey, Date.now().toString());
         setLoading(false);
         return false;
       }
@@ -67,10 +84,11 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setClinic(data);
       setClinicCode(code);
       localStorage.setItem('clinic_code', code);
+      localStorage.removeItem(failedKey); // Clear any previous failure cache
       setLoading(false);
       return true;
     } catch (error) {
-      console.error('Error fetching clinic:', error);
+      localStorage.setItem(failedKey, Date.now().toString());
       setLoading(false);
       return false;
     }

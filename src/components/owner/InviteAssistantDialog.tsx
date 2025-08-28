@@ -42,7 +42,16 @@ export function InviteAssistantDialog({ open, onClose, onInviteSent }: InviteAss
       const { invitationId, invitationToken, error } = await createAssistantInvitation(email.trim(), name.trim());
       
       if (error) {
-        toast.error(error);
+        // Show more user-friendly error messages
+        let errorMessage = error;
+        if (error.includes('already a member of your clinic')) {
+          errorMessage = 'This person is already on your team! Check the Team section to see all your current members.';
+        } else if (error.includes('already has an account with another clinic')) {
+          errorMessage = 'This email is already registered with another clinic. Please ask them to use a different email address or contact support for assistance.';
+        } else if (error.includes('pending invitation already exists')) {
+          errorMessage = 'An invitation is already pending for this email. Check the Team section to resend or manage existing invitations.';
+        }
+        toast.error(errorMessage);
       } else if (invitationToken) {
         const link = `${window.location.origin}/accept-invitation?token=${invitationToken}`;
         setInvitationLink(link);

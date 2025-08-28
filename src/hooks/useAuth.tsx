@@ -26,6 +26,8 @@ interface AuthContextType {
   cancelInvitation: (invitationId: string) => Promise<{ error?: string }>;
   acceptInvitation: (token: string) => Promise<{ error?: string; clinicId?: string }>;
   getInvitations: () => Promise<{ invitations: any[]; error?: string }>;
+  getPendingInvitationsByEmail: (email: string) => Promise<{ invitations: any[]; error?: string }>;
+  checkAndLinkPendingInvitation: (userId: string, email: string) => Promise<{ linked: boolean; clinicId?: string }>;
   signUp: (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicId?: string }) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   createAssistant: (email: string, name: string, clinicId: string) => Promise<{ error?: string }>;
@@ -470,6 +472,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const getPendingInvitationsByEmail = async (email: string): Promise<{ invitations: any[]; error?: string }> => {
+    try {
+      const { data, error } = await supabase
+        .from('invitations')
+        .select(`
+          *,
+          clinics!inner(name)
+        `)
+        .eq('email', email)
+        .eq('status', 'pending')
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Get pending invitations error:', error);
+        throw error;
+      }
+
+      return { invitations: data || [] };
+    } catch (error) {
+      console.error('Failed to get pending invitations:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to get pending invitations';
+      return { invitations: [], error: errorMessage };
+    }
+  };
+
+  const checkAndLinkPendingInvitation = async (userId: string, email: string): Promise<{ linked: boolean; clinicId?: string }> => {
+    try {
+      // Check for pending invitations
+      const { data: invitation, error } = await supabase
+        .from('invitations')
+        .select('clinic_id, token')
+        .eq('email', email)
+        .eq('status', 'pending')
+        .gt('expires_at', new Date().toISOString())
+        .single();
+
+      if (error || !invitation) {
+        return { linked: false };
+      }
+
+      // Auto-accept the invitation
+      const acceptResult = await acceptInvitation(invitation.token);
+      
+      if (acceptResult.error) {
+        console.error('Auto-accept invitation failed:', acceptResult.error);
+        return { linked: false };
+      }
+
+      return { linked: true, clinicId: acceptResult.clinicId };
+    } catch (error) {
+      console.error('Error checking pending invitations:', error);
+      return { linked: false };
+    }
+  };
+
   const signInWithEmail = async (email: string, password: string): Promise<{ error?: string }> => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -537,6 +595,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     cancelInvitation,
     acceptInvitation,
     getInvitations,
+    getPendingInvitationsByEmail,
+    checkAndLinkPendingInvitation,
     signUp,
     signOut,
     createAssistant,

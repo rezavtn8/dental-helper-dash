@@ -7,6 +7,7 @@ import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
 import SettingsTab from '@/components/assistant/SettingsTab';
+import { InvitationHandler } from '@/components/assistant/InvitationHandler';
 import { Task } from '@/types/task';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 
@@ -119,6 +120,18 @@ const AssistantDashboard = () => {
           </main>
         </div>
       </SidebarProvider>
+    );
+  }
+
+  // If user has no clinic assigned, show invitation handler
+  if (!userProfile.clinic_id) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
+        <InvitationHandler 
+          userEmail={userProfile.email || user?.email || ''} 
+          onInvitationAccepted={() => window.location.reload()}
+        />
+      </div>
     );
   }
 

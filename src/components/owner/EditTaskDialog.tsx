@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Task, Assistant } from '@/types/task';
+import { sanitizeText } from '@/utils/sanitize';
 
 interface EditTaskDialogProps {
   task: Task | null;
@@ -56,10 +57,28 @@ export default function EditTaskDialog({
     
     setLoading(true);
 
+    // Sanitize inputs to prevent XSS
+    const sanitizedData = {
+      title: sanitizeText(formData.title),
+      description: sanitizeText(formData.description),
+      category: sanitizeText(formData.category),
+      priority: formData.priority,
+      'due-type': formData['due-type'],
+      recurrence: formData.recurrence,
+      assigned_to: formData.assigned_to
+    };
+    
+    // Validate required fields after sanitization
+    if (!sanitizedData.title) {
+      toast.error('Task title is required');
+      setLoading(false);
+      return;
+    }
+
     try {
       const updateData = {
-        ...formData,
-        assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to,
+        ...sanitizedData,
+        assigned_to: sanitizedData.assigned_to === 'unassigned' ? null : sanitizedData.assigned_to,
         updated_at: new Date().toISOString()
       };
 

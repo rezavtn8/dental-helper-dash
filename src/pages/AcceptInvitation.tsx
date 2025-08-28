@@ -105,17 +105,19 @@ export default function AcceptInvitation() {
     setLoading(true);
 
     try {
-      // First, accept the invitation
-      const invitationResult = await acceptInvitation(token!);
+      // First, accept the invitation using the rate-limited function
+      const { data: result, error: invitationError } = await supabase
+        .rpc('accept_invitation_with_rate_limit', { invitation_token: token! });
       
-      if (invitationResult.error) {
-        toast.error(invitationResult.error);
+      if (invitationError || !result?.[0]?.success) {
+        const errorMessage = result?.[0]?.message || invitationError?.message || 'Failed to accept invitation';
+        toast.error(errorMessage);
         return;
       }
 
       // Then create the user account
       const { error } = await signUp(email, password, {
-        clinicId: invitationResult.clinicId,
+        clinicId: result[0].clinic_id,
         role: invitationData?.role || 'assistant',
         name: invitationData?.email?.split('@')[0] || 'User'
       });

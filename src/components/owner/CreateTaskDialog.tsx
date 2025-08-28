@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
+import { sanitizeText } from '@/utils/sanitize';
 
 interface Assistant {
   id: string;
@@ -41,12 +42,30 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
     e.preventDefault();
     setLoading(true);
     
+    // Sanitize inputs to prevent XSS
+    const sanitizedTask = {
+      title: sanitizeText(newTask.title),
+      description: sanitizeText(newTask.description),
+      category: sanitizeText(newTask.category),
+      priority: newTask.priority,
+      'due-type': newTask['due-type'],
+      recurrence: newTask.recurrence,
+      assigned_to: newTask.assigned_to
+    };
+    
+    // Validate required fields after sanitization
+    if (!sanitizedTask.title) {
+      toast.error('Task title is required');
+      setLoading(false);
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('tasks')
         .insert({
-          ...newTask,
-          assigned_to: newTask.assigned_to === 'unassigned' ? null : newTask.assigned_to,
+          ...sanitizedTask,
+          assigned_to: sanitizedTask.assigned_to === 'unassigned' ? null : sanitizedTask.assigned_to,
           clinic_id: userProfile?.clinic_id,
           created_by: user?.id,
           status: 'pending',

@@ -28,15 +28,32 @@ export default function ClinicSetup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Enhanced validation
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+    
+    // Sanitize inputs to prevent XSS
+    const sanitizedClinicName = clinicName.trim().replace(/[<>]/g, '');
+    const sanitizedClinicCode = clinicCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const sanitizedOwnerName = ownerName.trim().replace(/[<>]/g, '');
+    
+    if (!sanitizedClinicName || !sanitizedClinicCode || !sanitizedOwnerName) {
+      toast.error('Please fill in all required fields with valid characters');
+      return;
+    }
+    
     setLoading(true);
 
     try {
-      // Create the clinic
+      // Create the clinic with sanitized data
       const { data: clinic, error: clinicError } = await supabase
         .from('clinics')
         .insert({
-          name: clinicName,
-          clinic_code: clinicCode,
+          name: sanitizedClinicName,
+          clinic_code: sanitizedClinicCode,
           is_active: true,
           subscription_status: 'active'
         })
@@ -53,9 +70,9 @@ export default function ClinicSetup() {
         return;
       }
 
-      // Create the owner account
+      // Create the owner account with sanitized data
       const { error: authError } = await signUp(email, password, {
-        name: ownerName,
+        name: sanitizedOwnerName,
         role: 'owner',
         clinicId: clinic.id
       });
@@ -146,10 +163,13 @@ export default function ClinicSetup() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="Enter your password (min 8 characters)"
                 required
-                minLength={6}
+                minLength={8}
               />
+              {password && password.length > 0 && password.length < 8 && (
+                <p className="text-xs text-red-600">Password must be at least 8 characters long</p>
+              )}
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>

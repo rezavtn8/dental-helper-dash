@@ -430,6 +430,14 @@ export type Database = {
           success: boolean
         }[]
       }
+      accept_invitation_with_rate_limit: {
+        Args: { invitation_token: string }
+        Returns: {
+          clinic_id: string
+          message: string
+          success: boolean
+        }[]
+      }
       can_create_user: {
         Args: { target_role: string }
         Returns: boolean
@@ -448,6 +456,14 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      lookup_clinic_by_code: {
+        Args: { p_code: string }
+        Returns: {
+          clinic_code: string
+          id: string
+          name: string
+        }[]
       }
     }
     Enums: {

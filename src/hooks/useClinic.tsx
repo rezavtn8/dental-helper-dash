@@ -56,10 +56,16 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   const setClinicFromCode = async (code: string): Promise<boolean> => {
+    if (!code) return false;
+    
+    // Sanitize clinic code input - only allow alphanumeric characters
+    const sanitizedCode = code.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!sanitizedCode || sanitizedCode.length < 3) return false;
+    
     setLoading(true);
     
     // Check if we already failed to load this code recently to prevent spam
-    const failedKey = `clinic_failed_${code}`;
+    const failedKey = `clinic_failed_${sanitizedCode}`;
     const lastFailed = localStorage.getItem(failedKey);
     if (lastFailed && Date.now() - parseInt(lastFailed) < 60000) { // 1 minute cooldown
       setLoading(false);
@@ -67,23 +73,33 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
     
     try {
-      const { data, error } = await supabase
-        .from('clinics')
-        .select('*')
-        .eq('clinic_code', code)
-        .eq('is_active', true)
-        .single();
+      // Use secure clinic lookup function that only returns minimal data
+      const { data: clinics, error } = await supabase
+        .rpc('lookup_clinic_by_code', { p_code: sanitizedCode });
 
-      if (error || !data) {
-        // Cache the failure to prevent repeated attempts
+      if (error) {
+        console.error('Error fetching clinic:', error);
         localStorage.setItem(failedKey, Date.now().toString());
         setLoading(false);
         return false;
       }
 
-      setClinic(data);
-      setClinicCode(code);
-      localStorage.setItem('clinic_code', code);
+      if (!clinics || clinics.length === 0) {
+        localStorage.setItem(failedKey, Date.now().toString());
+        setLoading(false);
+        return false;
+      }
+
+      const clinic = clinics[0];
+      setClinic({
+        id: clinic.id,
+        name: clinic.name,
+        clinic_code: clinic.clinic_code,
+        is_active: true,
+        subscription_status: 'active'
+      });
+      setClinicCode(sanitizedCode);
+      localStorage.setItem('clinic_code', sanitizedCode);
       localStorage.removeItem(failedKey); // Clear any previous failure cache
       setLoading(false);
       return true;

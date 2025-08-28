@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -11,7 +11,6 @@ import InvitationPendingCard from '@/components/assistant/InvitationPendingCard'
 import { Task } from '@/types/task';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 import { SectionErrorBanner } from '@/components/ui/error-banner';
-
 
 interface AssistantDataLoadingState {
   tasks: 'loading' | 'loaded' | 'error';
@@ -42,30 +41,7 @@ const AssistantDashboard = () => {
   const isPageLoading = Object.values(loadingStates).some(state => state === 'loading');
   const hasAnyErrors = Object.values(loadingStates).some(state => state === 'error');
 
-  useEffect(() => {
-    console.log('AssistantDashboard - session:', !!session, 'user:', !!user, 'userProfile:', userProfile);
-    if (session && user && userProfile?.role === 'assistant') {
-      fetchAllData();
-    }
-  }, [session, user, userProfile]);
-
-  const handleInvitationAccepted = () => {
-    // Force a page reload to refresh user profile and data
-    window.location.reload();
-  };
-
-  // Show invitation screen if user has no clinic_id
-  if (userProfile && !userProfile.clinic_id) {
-    return <InvitationPendingCard onInvitationAccepted={handleInvitationAccepted} />;
-  }
-
-  const fetchAllData = () => {
-    fetchTasks();
-    fetchTodayPatientCount();
-    fetchClinic();
-  };
-
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     if (!userProfile?.clinic_id) {
       setLoadingStates(prev => ({ ...prev, tasks: 'loaded' }));
       setTasks([]);
@@ -94,9 +70,9 @@ const AssistantDashboard = () => {
         tasks: error instanceof Error ? error.message : 'Failed to load tasks'
       }));
     }
-  };
+  }, [userProfile?.clinic_id, user?.id]);
 
-  const fetchTodayPatientCount = async () => {
+  const fetchTodayPatientCount = useCallback(async () => {
     if (!userProfile?.clinic_id) {
       setLoadingStates(prev => ({ ...prev, patientCount: 'loaded' }));
       setPatientCount(0);
@@ -131,9 +107,9 @@ const AssistantDashboard = () => {
         patientCount: error instanceof Error ? error.message : 'Failed to load patient count'
       }));
     }
-  };
+  }, [userProfile?.clinic_id, user?.id]);
 
-  const fetchClinic = async () => {
+  const fetchClinic = useCallback(async () => {
     if (!userProfile?.clinic_id) {
       setLoadingStates(prev => ({ ...prev, clinic: 'loaded' }));
       setClinic(null);
@@ -162,15 +138,30 @@ const AssistantDashboard = () => {
         clinic: error instanceof Error ? error.message : 'Failed to load clinic information'
       }));
     }
+  }, [userProfile?.clinic_id]);
+
+  const fetchAllData = useCallback(() => {
+    fetchTasks();
+    fetchTodayPatientCount();
+    fetchClinic();
+  }, [fetchTasks, fetchTodayPatientCount, fetchClinic]);
+
+  useEffect(() => {
+    console.log('AssistantDashboard - session:', !!session, 'user:', !!user, 'userProfile:', userProfile);
+    if (session && user && userProfile?.role === 'assistant') {
+      fetchAllData();
+    }
+  }, [session, user, userProfile, fetchAllData]);
+
+  const handleInvitationAccepted = () => {
+    // Force a page reload to refresh user profile and data
+    window.location.reload();
   };
 
-  const handleTaskUpdate = () => {
-    fetchAllData();
-  };
-
-  const handlePatientCountUpdate = (newCount: number) => {
-    setPatientCount(newCount);
-  };
+  // Show invitation screen if user has no clinic_id
+  if (userProfile && !userProfile.clinic_id) {
+    return <InvitationPendingCard onInvitationAccepted={handleInvitationAccepted} />;
+  }
 
   // Show loading screen if still loading initial data or if user profile doesn't exist yet
   if (isPageLoading || !userProfile) {
@@ -224,20 +215,28 @@ const AssistantDashboard = () => {
       
       if (tabErrors.length > 0) {
         return (
-          <div className="space-y-4">
-            {tabErrors.map(dep => (
+          <div className="space-y-6">
+            {tabErrors.map(errorType => (
               <SectionErrorBanner
-                key={dep}
-                section={dep === 'patientCount' ? 'patient count' : dep}
-                error={errors[dep] || ''}
+                key={errorType}
+                section={errorType}
+                error={errors[errorType] || `Error loading ${errorType} data`}
                 onRetry={() => {
-                  if (dep === 'tasks') fetchTasks();
-                  else if (dep === 'clinic') fetchClinic();
-                  else if (dep === 'patientCount') fetchTodayPatientCount();
+                  switch(errorType) {
+                    case 'tasks':
+                      fetchTasks();
+                      break;
+                    case 'clinic':
+                      fetchClinic();
+                      break;
+                    case 'patientCount':
+                      fetchTodayPatientCount();
+                      break;
+                  }
                 }}
               />
             ))}
-            {tabErrors.length < dependencies.length && content}
+            {content}
           </div>
         );
       }
@@ -249,24 +248,30 @@ const AssistantDashboard = () => {
       case 'tasks':
         return renderTabWithErrorHandling(
           <TodaysTasksTab 
-            tasks={tasks} 
-            onTaskUpdate={handleTaskUpdate}
-          />,
+            tasks={tasks}
+            onTaskUpdate={fetchTasks}
+          />, 
           ['tasks']
         );
       case 'stats':
         return renderTabWithErrorHandling(
           <MyStatsTab 
-            tasks={tasks} 
+            tasks={tasks}
             patientCount={patientCount}
-            onPatientCountUpdate={handlePatientCountUpdate}
-          />,
+            onPatientCountUpdate={setPatientCount}
+          />, 
           ['tasks', 'patientCount']
         );
       case 'settings':
         return <SettingsTab />;
       default:
-        return null;
+        return renderTabWithErrorHandling(
+          <TodaysTasksTab 
+            tasks={tasks}
+            onTaskUpdate={fetchTasks}
+          />, 
+          ['tasks']
+        );
     }
   };
 
@@ -275,13 +280,14 @@ const AssistantDashboard = () => {
       <div className="min-h-screen flex w-full bg-gradient-to-br from-teal-50 to-blue-50">
         {/* Global trigger that is ALWAYS visible */}
         <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40 lg:hidden">
-          <SidebarTrigger className="ml-4 text-teal-600 hover:bg-teal-50" />
-          <h1 className="ml-4 font-semibold text-teal-900">
-            {clinic?.name || 'Assistant Portal'}
-          </h1>
+          <SidebarTrigger className="ml-4" />
+          <div className="ml-4">
+            <h1 className="font-semibold text-teal-900">{clinic?.name || 'Assistant Portal'}</h1>
+          </div>
         </header>
 
-        <AssistantSidebar
+        {/* Sidebar */}
+        <AssistantSidebar 
           activeTab={activeTab}
           onTabChange={setActiveTab}
           clinic={clinic}
@@ -289,17 +295,11 @@ const AssistantDashboard = () => {
         />
 
         {/* Main Content */}
-        <main className="flex-1 pt-16 lg:pt-0">
+        <main className="flex-1 pt-16 lg:pt-0 lg:pl-80">
           <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-            {/* Live region for status updates */}
-            <div 
-              className="sr-only" 
-              aria-live="polite" 
-              aria-label="Assistant dashboard status"
-            >
-              {hasAnyErrors && 'Some data failed to load. Please use the retry buttons.'}
+            <div className="sr-only" aria-live="polite">
+              Currently viewing: {activeTab === 'tasks' ? 'Today\'s Tasks' : activeTab === 'stats' ? 'My Statistics' : 'Settings'}
             </div>
-            
             {renderTabContent()}
           </div>
         </main>

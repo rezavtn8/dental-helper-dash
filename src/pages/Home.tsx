@@ -62,7 +62,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start items-center">
+            <div className="flex justify-center lg:justify-start">
               <Button 
                 size="lg" 
                 onClick={() => navigate('/clinic-setup')}
@@ -71,14 +71,6 @@ export default function Home() {
                 <Building2 className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
                 Create Your Clinic
                 <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                onClick={() => document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-6 text-lg hover-scale border-2 hover:bg-muted/50 transition-all duration-300"
-              >
-                Already have an account?
               </Button>
             </div>
           </div>

@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ClinicProvider } from "@/hooks/useClinic";
+import { AuthErrorBoundary } from "@/components/auth/AuthErrorBoundary";
+import React from "react";
 import Home from "./pages/Home";
 import ForgotPassword from "./pages/ForgotPassword";
 import ClinicSetup from "./pages/ClinicSetup";
@@ -41,19 +43,33 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const RoleBasedRedirect = () => {
   const { userProfile, loading, session, needsClinicSetup } = useAuth();
+  const [redirectTimeout, setRedirectTimeout] = React.useState(false);
 
-  if (loading) {
+  // Set a timeout for profile loading to prevent infinite loading
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (loading && session) {
+        console.warn('Profile loading timeout - redirecting to home');
+        setRedirectTimeout(true);
+      }
+    }, 15000); // 15 second timeout
+
+    return () => clearTimeout(timer);
+  }, [loading, session]);
+
+  if (loading && !redirectTimeout) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading user profile...</p>
+          <p className="text-xs text-muted-foreground mt-2">This shouldn't take long...</p>
         </div>
       </div>
     );
   }
 
-  if (!session) {
+  if (!session || redirectTimeout) {
     return <Navigate to="/" replace />;
   }
 
@@ -62,22 +78,22 @@ const RoleBasedRedirect = () => {
     return <Navigate to="/setup" replace />;
   }
 
-  if (userProfile?.role === 'owner') {
+  if (userProfile?.role === 'owner' || userProfile?.role === 'admin') {
     return <Navigate to="/owner" replace />;
   } else if (userProfile?.role === 'assistant') {
     return <Navigate to="/assistant" replace />;
-  } else if (userProfile?.role === 'admin') {
-    return <Navigate to="/owner" replace />; // Admins use owner dashboard
   } else {
-    // If no profile or unknown role, wait a bit more or redirect to home
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Setting up your profile...</p>
-        </div>
-      </div>
-    );
+    // Progressive fallback - try to determine role from session metadata
+    const userRole = session.user?.user_metadata?.role;
+    if (userRole === 'owner' || userRole === 'admin') {
+      return <Navigate to="/owner" replace />;
+    } else if (userRole === 'assistant') {
+      return <Navigate to="/assistant" replace />;
+    }
+    
+    // Final fallback - redirect to home with error indication
+    console.warn('Unknown user role or profile unavailable, redirecting to home');
+    return <Navigate to="/" replace />;
   }
 };
 
@@ -85,49 +101,51 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <AuthProvider>
-        <ClinicProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/owner-login" element={<Navigate to="/" replace />} />
-              <Route path="/assistant-login" element={<Navigate to="/" replace />} />
-              <Route path="/login" element={<Navigate to="/" replace />} />
-              <Route path="/setup" element={<ClinicSetup />} />
-              <Route path="/dashboard" element={<RoleBasedRedirect />} />
-              <Route 
-                path="/assistant" 
-                element={
-                  <ProtectedRoute>
-                    <AssistantDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/owner" 
-                element={
-                  <ProtectedRoute>
-                    <OwnerDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/clinic" 
-                element={
-                  <ProtectedRoute>
-                    <ClinicManagement />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/accept-invitation" element={<AcceptInvitation />} />
-              <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
-              <Route path="/assistant-signup" element={<AssistantSignup />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ClinicProvider>
-      </AuthProvider>
+      <AuthErrorBoundary>
+        <AuthProvider>
+          <ClinicProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/owner-login" element={<Navigate to="/" replace />} />
+                <Route path="/assistant-login" element={<Navigate to="/" replace />} />
+                <Route path="/login" element={<Navigate to="/" replace />} />
+                <Route path="/setup" element={<ClinicSetup />} />
+                <Route path="/dashboard" element={<RoleBasedRedirect />} />
+                <Route 
+                  path="/assistant" 
+                  element={
+                    <ProtectedRoute>
+                      <AssistantDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/owner" 
+                  element={
+                    <ProtectedRoute>
+                      <OwnerDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/clinic" 
+                  element={
+                    <ProtectedRoute>
+                      <ClinicManagement />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/accept-invitation" element={<AcceptInvitation />} />
+                <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
+                <Route path="/assistant-signup" element={<AssistantSignup />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </ClinicProvider>
+        </AuthProvider>
+      </AuthErrorBoundary>
     </TooltipProvider>
   </QueryClientProvider>
 );

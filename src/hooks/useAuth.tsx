@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuthError } from './useAuthError';
 
 interface UserProfile {
   id: string;
@@ -47,9 +48,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsClinicSetup, setNeedsClinicSetup] = useState(false);
+  const { handleAuthError } = useAuthError();
 
   useEffect(() => {
-    // Get initial session
+    // Set up auth state listener FIRST to avoid missing events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      // Defer async operations to prevent deadlocks
+      if (session?.user && event === 'SIGNED_IN') {
+        setTimeout(() => {
+          fetchUserProfile(session.user.id);
+        }, 0);
+      } else if (!session?.user) {
+        setUserProfile(null);
+        setNeedsClinicSetup(false);
+        setLoading(false);
+      }
+    });
+
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -60,37 +79,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // Listen for changes on auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        if (event === 'SIGNED_IN') {
-          await fetchUserProfile(session.user.id);
-        }
-      } else {
-        setUserProfile(null);
-        setNeedsClinicSetup(false);
-        setLoading(false);
-      }
-    });
-
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = async (userId: string, retryCount = 0) => {
+    const MAX_RETRIES = 3;
+    const TIMEOUT_MS = 10000;
+    
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Create timeout promise
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), TIMEOUT_MS)
+      );
+      
+      // Race between profile fetch and timeout
+      const profilePromise = supabase
         .from('users')
         .select('id, name, email, role, clinic_id, is_active, created_at, last_login, created_by')
         .eq('id', userId)
         .single();
+      
+      const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
 
       if (error) {
         if (error.code === 'PGRST116') {
           console.log('User profile not found, will need to create one');
+          // Try to create profile from auth user data
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await createUserProfileFromAuth(user);
+          }
         } else {
           throw error;
         }
@@ -104,6 +124,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      
+      // Retry logic for transient failures
+      if (retryCount < MAX_RETRIES && error.message !== 'Profile fetch timeout') {
+        console.log(`Retrying profile fetch (${retryCount + 1}/${MAX_RETRIES})`);
+        setTimeout(() => fetchUserProfile(userId, retryCount + 1), 1000 * (retryCount + 1));
+        return;
+      }
+      
+      // If all retries failed, set a fallback state
+      console.error('Profile fetch failed after retries:', error);
     } finally {
       setLoading(false);
     }
@@ -184,19 +214,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithGoogle = async (): Promise<{ error?: string }> => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
 
-    if (error) {
-      console.error('Google sign-in error:', error.message);
-      return { error: error.message };
+      if (error) {
+        const userMessage = handleAuthError(error);
+        return { error: userMessage };
+      }
+      
+      return {};
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      const userMessage = handleAuthError(error);
+      return { error: userMessage };
     }
-    
-    return {};
   };
 
   const createAssistantInvitation = async (email: string, name: string): Promise<{ invitationToken?: string; invitationId?: string; error?: string }> => {
@@ -409,19 +449,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        return { error: error.message };
+        const userMessage = handleAuthError(error);
+        return { error: userMessage };
       }
 
       return {};
     } catch (error) {
       console.error('Email sign-in error:', error);
-      return { error: 'Authentication failed' };
+      const userMessage = handleAuthError(error);
+      return { error: userMessage };
     }
   };
 
   const signUp = async (email: string, password: string, userData: { name: string; role: 'owner' | 'assistant'; clinicId?: string }): Promise<{ error?: string }> => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/dashboard`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -433,14 +475,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        return { error: error.message };
+        const userMessage = handleAuthError(error);
+        return { error: userMessage };
       }
 
       // The user profile will be created automatically by the handle_new_user trigger
       return {};
     } catch (error) {
       console.error('Sign-up error:', error);
-      return { error: 'Registration failed' };
+      const userMessage = handleAuthError(error);
+      return { error: userMessage };
     }
   };
 

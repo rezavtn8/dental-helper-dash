@@ -30,7 +30,7 @@ interface MyStatsTabProps {
 }
 
 export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }: MyStatsTabProps) {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   
   // Calculate today's metrics
   const today = new Date().toISOString().split('T')[0];
@@ -71,7 +71,7 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
           assistant_id: user?.id,
           date: today,
           patient_count: newCount,
-          clinic_id: user?.user_metadata?.clinic_id
+          clinic_id: userProfile?.clinic_id || user?.user_metadata?.clinic_id
         }, {
           onConflict: 'assistant_id,date',
           ignoreDuplicates: false

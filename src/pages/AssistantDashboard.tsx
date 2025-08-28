@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
-import ChangePinTab from '@/components/assistant/ChangePinTab';
+import SettingsTab from '@/components/assistant/SettingsTab';
 import { Task } from '@/types/task';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 import { SectionErrorBanner } from '@/components/ui/error-banner';
@@ -238,8 +238,8 @@ const AssistantDashboard = () => {
           />,
           ['tasks', 'patientCount']
         );
-      case 'pin':
-        return <ChangePinTab />;
+      case 'settings':
+        return <SettingsTab />;
       default:
         return null;
     }

@@ -19,7 +19,7 @@ import {
 import { 
   CheckSquare, 
   BarChart3, 
-  Key, 
+  Settings, 
   LogOut, 
   Building2, 
   ChevronDown,
@@ -37,7 +37,7 @@ interface AssistantSidebarProps {
 const navigationItems = [
   { id: 'tasks', label: 'Today\'s Tasks', icon: CheckSquare },
   { id: 'stats', label: 'My Stats', icon: BarChart3 },
-  { id: 'pin', label: 'Change PIN', icon: Key },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 export default function AssistantSidebar({ 
@@ -109,9 +109,9 @@ export default function AssistantSidebar({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={!open || isCollapsed ? "start" : "end"} className="w-56 shadow-xl border-teal-100">
-              <DropdownMenuItem onClick={() => onTabChange('pin')} className="hover:bg-teal-50">
-                <Key className="mr-2 h-4 w-4 text-teal-600" />
-                Change PIN
+              <DropdownMenuItem onClick={() => onTabChange('settings')} className="hover:bg-teal-50">
+                <Settings className="mr-2 h-4 w-4 text-teal-600" />
+                Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-teal-100" />
               <DropdownMenuItem onClick={signOut} className="text-red-600 hover:bg-red-50">

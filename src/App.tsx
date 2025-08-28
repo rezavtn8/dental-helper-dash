@@ -52,7 +52,7 @@ const RoleBasedRedirect = () => {
         console.warn('Profile loading timeout - redirecting to home');
         setRedirectTimeout(true);
       }
-    }, 15000); // 15 second timeout
+    }, 20000); // 20 second timeout to allow for auto-linking
 
     return () => clearTimeout(timer);
   }, [loading, session]);
@@ -63,7 +63,7 @@ const RoleBasedRedirect = () => {
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading user profile...</p>
-          <p className="text-xs text-muted-foreground mt-2">This shouldn't take long...</p>
+          <p className="text-xs text-muted-foreground mt-2">Checking for clinic assignments...</p>
         </div>
       </div>
     );

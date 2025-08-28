@@ -457,6 +457,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      link_user_to_pending_invitation: {
+        Args: { user_email: string }
+        Returns: {
+          clinic_id: string
+          message: string
+          success: boolean
+        }[]
+      }
       lookup_clinic_by_code: {
         Args: { p_code: string }
         Returns: {

@@ -90,7 +90,11 @@ export const InvitationHandler: React.FC<InvitationHandlerProps> = ({
       }
 
       toast.success(`Successfully joined ${clinicName}!`);
-      onInvitationAccepted();
+      
+      // Refresh the page to trigger auth state update and proper routing
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error('Error accepting invitation:', error);
       toast.error('Failed to accept invitation');

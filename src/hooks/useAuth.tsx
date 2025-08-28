@@ -54,14 +54,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Set up auth state listener FIRST to avoid missing events
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       
       // Defer async operations to prevent deadlocks
-      if (session?.user && event === 'SIGNED_IN') {
-        setTimeout(() => {
-          fetchUserProfile(session.user.id);
+      if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        setTimeout(async () => {
+          await fetchUserProfile(session.user.id);
+          
+          // After profile is loaded, check for pending invitations if no clinic assigned
+          if (session.user.email) {
+            await autoLinkPendingInvitation(session.user.email);
+          }
         }, 0);
       } else if (!session?.user) {
         setUserProfile(null);
@@ -71,11 +76,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserProfile(session.user.id);
+        await fetchUserProfile(session.user.id);
+        
+        // Check for pending invitations after initial load
+        if (session.user.email) {
+          await autoLinkPendingInvitation(session.user.email);
+        }
       } else {
         setLoading(false);
       }
@@ -495,6 +505,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Failed to get pending invitations:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to get pending invitations';
       return { invitations: [], error: errorMessage };
+    }
+  };
+
+  const autoLinkPendingInvitation = async (email: string): Promise<void> => {
+    try {
+      // Only proceed if user exists and has no clinic_id
+      if (!userProfile || userProfile.clinic_id) {
+        return;
+      }
+
+      const { data, error } = await supabase.rpc('link_user_to_pending_invitation', {
+        user_email: email
+      });
+
+      if (error) {
+        console.log('Auto-link pending invitation error:', error);
+        return;
+      }
+
+      const result = data[0];
+      if (result.success && result.clinic_id) {
+        // Update local state
+        setUserProfile(prev => prev ? { ...prev, clinic_id: result.clinic_id } : null);
+        console.log('Successfully auto-linked to clinic:', result.clinic_id);
+      }
+    } catch (error) {
+      console.error('Error auto-linking pending invitation:', error);
     }
   };
 

@@ -150,6 +150,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         is_active: true
       };
 
+      // For assistants without clinic_id, check for pending invitations
+      if (profileData.role === 'assistant' && !profileData.clinic_id) {
+        const { data: invitationData } = await supabase
+          .from('invitations')
+          .select('clinic_id')
+          .eq('email', user.email)
+          .eq('status', 'pending')
+          .single();
+        
+        if (invitationData) {
+          profileData.clinic_id = invitationData.clinic_id;
+        }
+      }
+
       const { data, error } = await supabase
         .from('users')
         .insert([profileData])
@@ -406,6 +420,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = data[0];
       if (!result.success) {
         return { error: result.message };
+      }
+
+      // If user is logged in and accepts invitation, update their profile with clinic_id
+      if (user && userProfile && !userProfile.clinic_id) {
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ clinic_id: result.clinic_id })
+          .eq('id', user.id);
+
+        if (updateError) {
+          console.error('Error updating user profile with clinic_id:', updateError);
+        } else {
+          // Update local state
+          setUserProfile({ ...userProfile, clinic_id: result.clinic_id });
+        }
       }
 
       return { clinicId: result.clinic_id };

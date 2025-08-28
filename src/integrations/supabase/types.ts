@@ -365,7 +365,7 @@ export type Database = {
       }
       users: {
         Row: {
-          clinic_id: string
+          clinic_id: string | null
           created_at: string
           created_by: string | null
           email: string | null
@@ -377,7 +377,7 @@ export type Database = {
           role: string | null
         }
         Insert: {
-          clinic_id?: string
+          clinic_id?: string | null
           created_at?: string
           created_by?: string | null
           email?: string | null
@@ -389,7 +389,7 @@ export type Database = {
           role?: string | null
         }
         Update: {
-          clinic_id?: string
+          clinic_id?: string | null
           created_at?: string
           created_by?: string | null
           email?: string | null

@@ -64,6 +64,11 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
   const updatePatientCount = async (increment: boolean) => {
     const newCount = increment ? patientCount + 1 : Math.max(0, patientCount - 1);
     
+    if (!userProfile?.clinic_id) {
+      toast.error('No clinic assigned to your account');
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('patient_logs')
@@ -71,10 +76,9 @@ export default function MyStatsTab({ tasks, patientCount, onPatientCountUpdate }
           assistant_id: user?.id,
           date: today,
           patient_count: newCount,
-          clinic_id: userProfile?.clinic_id || user?.user_metadata?.clinic_id
+          clinic_id: userProfile.clinic_id
         }, {
-          onConflict: 'assistant_id,date',
-          ignoreDuplicates: false
+          onConflict: 'assistant_id,date,clinic_id'
         });
 
       if (error) throw error;

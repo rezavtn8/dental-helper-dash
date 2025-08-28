@@ -35,7 +35,7 @@ interface AssistantSidebarProps {
 }
 
 const navigationItems = [
-  { id: 'tasks', label: 'Today\'s Tasks', icon: CheckSquare },
+  { id: 'home', label: 'Home', icon: CheckSquare },
   { id: 'stats', label: 'My Stats', icon: BarChart3 },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];

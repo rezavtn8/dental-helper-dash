@@ -16,7 +16,7 @@ const AssistantDashboard = () => {
   const [clinic, setClinic] = useState<any>(null);
   const [patientCount, setPatientCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('tasks');
+  const [activeTab, setActiveTab] = useState('home');
 
   const fetchTasks = async () => {
     if (!userProfile?.clinic_id || !user?.id) return;
@@ -124,8 +124,14 @@ const AssistantDashboard = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'tasks':
-        return <TodaysTasksTab tasks={tasks} onTaskUpdate={fetchTasks} />;
+      case 'home':
+        return (
+          <MyStatsTab 
+            tasks={tasks}
+            patientCount={patientCount}
+            onPatientCountUpdate={setPatientCount}
+          />
+        );
       case 'stats':
         return (
           <MyStatsTab 
@@ -137,7 +143,13 @@ const AssistantDashboard = () => {
       case 'settings':
         return <SettingsTab />;
       default:
-        return <TodaysTasksTab tasks={tasks} onTaskUpdate={fetchTasks} />;
+        return (
+          <MyStatsTab 
+            tasks={tasks}
+            patientCount={patientCount}
+            onPatientCountUpdate={setPatientCount}
+          />
+        );
     }
   };
 

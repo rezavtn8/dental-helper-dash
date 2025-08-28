@@ -4,6 +4,24 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+// Production email configuration
+const getFromAddress = () => {
+  const fromEmail = Deno.env.get("FROM_EMAIL");
+  const fromName = Deno.env.get("FROM_NAME") || "Clinic Team";
+  
+  // For production, use verified domain. For testing, fallback to resend test address
+  if (fromEmail && fromEmail.includes('@') && !fromEmail.includes('resend.dev')) {
+    return `${fromName} <${fromEmail}>`;
+  }
+  
+  // Fallback to Resend test address (only works for verified email)
+  return "Clinic Team <onboarding@resend.dev>";
+};
+
+// Retry configuration for transient failures
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1000;
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -119,50 +137,87 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Invitation verified, sending email...');
 
-    // Send email via Resend
-    const emailResponse = await resend.emails.send({
-      from: "Clinic Team <onboarding@resend.dev>",
-      to: [recipientEmail],
-      subject: `Join ${clinicName} as an Assistant - Setup Your Account`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
-          <div style="background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-            <div style="text-align: center; margin-bottom: 32px;">
-              <h1 style="color: #0f766e; font-size: 28px; margin-bottom: 8px;">Assistant Invitation</h1>
-              <p style="color: #64748b; font-size: 16px; margin: 0;">Join ${clinicName} as an Assistant</p>
-            </div>
-            
-            <div style="margin-bottom: 32px;">
-              <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 16px;">
-                Hi ${recipientName},
-              </p>
-              <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-                You've been invited to join <strong>${clinicName}</strong> as an <strong>Assistant</strong>. Click the button below to create your assistant account and get started.
-              </p>
-              
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="${acceptUrl}" style="display: inline-block; background-color: #0f766e; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                  Create Assistant Account
-                </a>
+    // Production-ready email sending with retry logic
+    const fromAddress = getFromAddress();
+    console.log('Using from address:', fromAddress);
+    
+    let emailResponse: any;
+    let lastError: any;
+    
+    // Retry logic for transient failures
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        console.log(`Email attempt ${attempt}/${MAX_RETRIES}`);
+        
+        emailResponse = await resend.emails.send({
+          from: fromAddress,
+          to: [recipientEmail],
+          subject: `Join ${clinicName} as an Assistant - Setup Your Account`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+              <div style="background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <div style="text-align: center; margin-bottom: 32px;">
+                  <h1 style="color: #0f766e; font-size: 28px; margin-bottom: 8px;">Assistant Invitation</h1>
+                  <p style="color: #64748b; font-size: 16px; margin: 0;">Join ${clinicName} as an Assistant</p>
+                </div>
+                
+                <div style="margin-bottom: 32px;">
+                  <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 16px;">
+                    Hi ${recipientName},
+                  </p>
+                  <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+                    You've been invited to join <strong>${clinicName}</strong> as an <strong>Assistant</strong>. Click the button below to create your assistant account and get started.
+                  </p>
+                  
+                  <div style="text-align: center; margin: 32px 0;">
+                    <a href="${acceptUrl}" style="display: inline-block; background-color: #0f766e; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                      Create Assistant Account
+                    </a>
+                  </div>
+                  
+                  <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">
+                    If the button doesn't work, copy and paste this link into your browser:
+                  </p>
+                  <p style="color: #0f766e; font-size: 14px; word-break: break-all; background-color: #f1f5f9; padding: 12px; border-radius: 6px;">
+                    ${acceptUrl}
+                  </p>
+                </div>
+                
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 24px; text-align: center;">
+                  <p style="color: #64748b; font-size: 14px; margin: 0;">
+                    This invitation will expire in 7 days. If you have any questions, please contact your team administrator.
+                  </p>
+                </div>
               </div>
-              
-              <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">
-                If the button doesn't work, copy and paste this link into your browser:
-              </p>
-              <p style="color: #0f766e; font-size: 14px; word-break: break-all; background-color: #f1f5f9; padding: 12px; border-radius: 6px;">
-                ${acceptUrl}
-              </p>
             </div>
-            
-            <div style="border-top: 1px solid #e2e8f0; padding-top: 24px; text-align: center;">
-              <p style="color: #64748b; font-size: 14px; margin: 0;">
-                This invitation will expire in 7 days. If you have any questions, please contact your team administrator.
-              </p>
-            </div>
-          </div>
-        </div>
-      `,
-    });
+          `,
+        });
+        
+        // If we get here, the email was sent successfully
+        break;
+        
+      } catch (error: any) {
+        lastError = error;
+        console.error(`Email attempt ${attempt} failed:`, error);
+        
+        // Check if this is a retryable error
+        const isRetryable = error.message?.includes('rate limit') || 
+                           error.message?.includes('timeout') ||
+                           error.message?.includes('network') ||
+                           (error.statusCode >= 500 && error.statusCode < 600);
+        
+        if (attempt === MAX_RETRIES || !isRetryable) {
+          // Final attempt or non-retryable error
+          emailResponse = { error: lastError };
+          break;
+        }
+        
+        // Wait before retry (exponential backoff)
+        const delay = RETRY_DELAY_MS * Math.pow(2, attempt - 1);
+        console.log(`Waiting ${delay}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
 
     // Update invitation record with email status
     const updateData: any = {

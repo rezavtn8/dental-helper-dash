@@ -2,9 +2,24 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogIn, Shield, Users, CheckCircle, ArrowRight, Stethoscope, Building2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from 'react';
+import LoginWidget from '@/components/auth/LoginWidget';
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user, userProfile } = useAuth();
+
+  // Redirect authenticated users to their dashboard
+  useEffect(() => {
+    if (user && userProfile) {
+      if (userProfile.role === 'owner') {
+        navigate('/owner');
+      } else if (userProfile.role === 'assistant') {
+        navigate('/assistant');
+      }
+    }
+  }, [user, userProfile, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -20,7 +35,7 @@ export default function Home() {
             </span>
           </div>
           <Button 
-            onClick={() => navigate('/login')} 
+            onClick={() => document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' })} 
             size="sm"
             variant="outline"
             className="group hover-scale transition-all duration-300"
@@ -31,69 +46,46 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-24 text-center">
-        <div className="max-w-4xl mx-auto space-y-12 animate-fade-in">
-          <div className="space-y-6">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent leading-tight">
-              Streamline Your
-              <br />
-              <span className="text-primary">Clinic Operations</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Manage tasks, track progress, and empower your team with our comprehensive clinic management platform.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/setup')}
-              className="group px-8 py-6 text-lg hover-scale shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90"
-            >
-              <Building2 className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
-              Create Your Clinic
-              <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              onClick={() => navigate('/login')}
-              className="px-8 py-6 text-lg hover-scale border-2 hover:bg-muted/50 transition-all duration-300"
-            >
-              Already have an account? Sign In
-            </Button>
-          </div>
-
-          {/* Onboarding Info */}
-          <div className="max-w-3xl mx-auto mt-16 p-8 bg-muted/30 border-2 border-dashed border-primary/20 rounded-2xl">
-            <div className="text-center space-y-4">
-              <Users className="w-16 h-16 mx-auto text-primary/60" />
-              <h3 className="text-2xl font-semibold">How It Works</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-muted-foreground">
-                <div className="space-y-2">
-                  <div className="w-8 h-8 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="text-primary font-bold">1</span>
-                  </div>
-                  <p><strong>Owners</strong> create and manage clinics</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="w-8 h-8 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="text-primary font-bold">2</span>
-                  </div>
-                  <p><strong>Invite assistants</strong> via email automatically</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="w-8 h-8 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="text-primary font-bold">3</span>
-                  </div>
-                  <p><strong>Assistants</strong> click email links to join</p>
-                </div>
-              </div>
-              <p className="text-primary/80 font-medium">
-                New assistants will receive email invitations to create their accounts
+      {/* Hero Section with Login */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Hero Content */}
+          <div className="space-y-8 text-center lg:text-left">
+            <div className="space-y-6">
+              <h1 className="text-4xl lg:text-6xl font-bold tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent leading-tight">
+                Streamline Your
+                <br />
+                <span className="text-primary">Clinic Operations</span>
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                Manage tasks, track progress, and empower your team with our comprehensive clinic management platform.
               </p>
             </div>
+
+            <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start items-center">
+              <Button 
+                size="lg" 
+                onClick={() => navigate('/clinic-setup')}
+                className="group px-8 py-6 text-lg hover-scale shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90"
+              >
+                <Building2 className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
+                Create Your Clinic
+                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={() => document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-6 text-lg hover-scale border-2 hover:bg-muted/50 transition-all duration-300"
+              >
+                Already have an account?
+              </Button>
+            </div>
+          </div>
+          
+          {/* Login Widget */}
+          <div id="login-section" className="flex justify-center">
+            <LoginWidget />
           </div>
         </div>
       </section>
@@ -204,7 +196,7 @@ export default function Home() {
             </p>
             <Button 
               size="lg" 
-              onClick={() => navigate('/setup')}
+              onClick={() => navigate('/clinic-setup')}
               className="px-12 py-6 text-lg hover-scale shadow-2xl group bg-gradient-to-r from-primary to-primary/90"
             >
               <Building2 className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />

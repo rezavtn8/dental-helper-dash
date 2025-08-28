@@ -7,6 +7,7 @@ import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
 import SettingsTab from '@/components/assistant/SettingsTab';
+import InvitationPendingCard from '@/components/assistant/InvitationPendingCard';
 import { Task } from '@/types/task';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 import { SectionErrorBanner } from '@/components/ui/error-banner';
@@ -48,6 +49,16 @@ const AssistantDashboard = () => {
     }
   }, [session, user, userProfile]);
 
+  const handleInvitationAccepted = () => {
+    // Force a page reload to refresh user profile and data
+    window.location.reload();
+  };
+
+  // Show invitation screen if user has no clinic_id
+  if (userProfile && !userProfile.clinic_id) {
+    return <InvitationPendingCard onInvitationAccepted={handleInvitationAccepted} />;
+  }
+
   const fetchAllData = () => {
     fetchTasks();
     fetchTodayPatientCount();
@@ -55,6 +66,12 @@ const AssistantDashboard = () => {
   };
 
   const fetchTasks = async () => {
+    if (!userProfile?.clinic_id) {
+      setLoadingStates(prev => ({ ...prev, tasks: 'loaded' }));
+      setTasks([]);
+      return;
+    }
+
     setLoadingStates(prev => ({ ...prev, tasks: 'loading' }));
     setErrors(prev => ({ ...prev, tasks: undefined }));
     
@@ -62,7 +79,7 @@ const AssistantDashboard = () => {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .eq('clinic_id', userProfile?.clinic_id)
+        .eq('clinic_id', userProfile.clinic_id)
         .or(`assigned_to.eq.${user?.id},assigned_to.is.null`)
         .order('created_at', { ascending: false });
 
@@ -80,6 +97,12 @@ const AssistantDashboard = () => {
   };
 
   const fetchTodayPatientCount = async () => {
+    if (!userProfile?.clinic_id) {
+      setLoadingStates(prev => ({ ...prev, patientCount: 'loaded' }));
+      setPatientCount(0);
+      return;
+    }
+
     setLoadingStates(prev => ({ ...prev, patientCount: 'loading' }));
     setErrors(prev => ({ ...prev, patientCount: undefined }));
     
@@ -88,7 +111,7 @@ const AssistantDashboard = () => {
       const { data, error } = await supabase
         .from('patient_logs')
         .select('patient_count')
-        .eq('clinic_id', userProfile?.clinic_id)
+        .eq('clinic_id', userProfile.clinic_id)
         .eq('assistant_id', user?.id)
         .eq('date', today)
         .maybeSingle();
@@ -111,14 +134,16 @@ const AssistantDashboard = () => {
   };
 
   const fetchClinic = async () => {
+    if (!userProfile?.clinic_id) {
+      setLoadingStates(prev => ({ ...prev, clinic: 'loaded' }));
+      setClinic(null);
+      return;
+    }
+
     setLoadingStates(prev => ({ ...prev, clinic: 'loading' }));
     setErrors(prev => ({ ...prev, clinic: undefined }));
     
     try {
-      if (!userProfile?.clinic_id) {
-        throw new Error('No clinic ID found');
-      }
-      
       const { data, error } = await supabase
         .from('clinics')
         .select('*')

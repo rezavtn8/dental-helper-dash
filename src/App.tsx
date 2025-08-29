@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import AdminAssistants from "./pages/AdminAssistants";
 import InviteCallback from "./pages/InviteCallback";
+import InviteExpired from "./pages/InviteExpired";
 
 const queryClient = new QueryClient();
 
@@ -139,7 +140,7 @@ const App: React.FC = () => (
                   } 
                 />
                 <Route path="/accept-invitation" element={<AcceptInvitation />} />
-                <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
+                <Route path="/invite-expired" element={<InviteExpired />} />
                 <Route 
                   path="/admin/assistants" 
                   element={

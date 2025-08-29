@@ -30,7 +30,7 @@ const corsHeaders = {
 interface InvitationEmailRequest {
   invitationId: string;
   email: string;
-  magicLinkUrl: string;
+  actionLinkUrl: string;
   clinicName?: string;
   isResend?: boolean;
 }
@@ -80,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
     const {
       invitationId,
       email: recipientEmail,
-      magicLinkUrl,
+      actionLinkUrl,
       clinicName,
       isResend = false
     }: InvitationEmailRequest = await req.json();
@@ -89,11 +89,11 @@ const handler = async (req: Request): Promise<Response> => {
       invitationId, 
       recipientEmail, 
       clinicName,
-      magicLinkUrl,
+      actionLinkUrl,
       isResend
     });
 
-    console.log('Using provided magic link URL:', magicLinkUrl);
+    console.log('Using provided action link URL:', actionLinkUrl);
 
     // Initialize Supabase client with service role key for updating invitations
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -184,9 +184,9 @@ const handler = async (req: Request): Promise<Response> => {
                     
                     <!-- Call-to-Action Button -->
                     <div style="text-align: center; margin: 32px 0;">
-                      <a href="${magicLinkUrl}" 
+                      <a href="${actionLinkUrl}" 
                          style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); transition: transform 0.2s;">
-                        Accept Invitation & Sign In
+                        Accept Invitation & Sign Up
                       </a>
                     </div>
                     
@@ -206,7 +206,7 @@ const handler = async (req: Request): Promise<Response> => {
                       If you're having trouble with the button above, copy and paste this link into your browser:
                     </p>
                     <p style="margin: 8px 0 0 0; font-size: 14px; word-break: break-all; color: #3b82f6;">
-                      ${magicLinkUrl}
+                      ${actionLinkUrl}
                     </p>
                   </div>
                   

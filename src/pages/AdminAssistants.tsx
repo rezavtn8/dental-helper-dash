@@ -149,24 +149,46 @@ const AdminAssistants = () => {
 
       if (inviteError) throw inviteError;
 
-      // Generate Supabase magic link
-      const siteUrl = window.location.origin;
+      // Generate Supabase signup link with metadata  
+      const siteUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://your-domain.com' // Replace with actual production URL
+        : window.location.origin;
+        
       const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
         type: 'magiclink',
         email: inviteEmail.trim(),
         options: {
-          redirectTo: `${siteUrl}/auth/invite-callback?clinic_id=${userProfile?.clinic_id}&invitation_id=${invitation.id}&role=assistant`
+          redirectTo: `${siteUrl}/auth/invite-callback`,
+          data: {
+            role: 'assistant',
+            clinic_id: userProfile?.clinic_id,
+            invitation_id: invitation.id
+          }
         }
       });
 
       if (linkError) throw linkError;
+
+      // Update invitation with action_link (expires in 7 days by default)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+      
+      const { error: updateError } = await supabase
+        .from('invitations')
+        .update({
+          action_link: linkData.properties.action_link,
+          expires_at: expiresAt.toISOString()
+        })
+        .eq('id', invitation.id);
+
+      if (updateError) throw updateError;
 
       // Send email via edge function
       const { error: emailError } = await supabase.functions.invoke('send-invitation', {
         body: {
           invitationId: invitation.id,
           email: inviteEmail.trim(),
-          magicLinkUrl: linkData.properties.action_link,
+          actionLinkUrl: linkData.properties.action_link,
           clinicName: 'Your Clinic' // You might want to fetch this from clinic data
         }
       });
@@ -192,32 +214,47 @@ const AdminAssistants = () => {
     }
 
     try {
-      // Update resend count first
-      const { error: updateError } = await supabase
-        .from('invitations')
-        .update({ resend_count: currentResendCount + 1 })
-        .eq('id', invitationId);
-
-      if (updateError) throw updateError;
-
-      // Generate new magic link
-      const siteUrl = window.location.origin;
+      // Generate new signup link with metadata
+      const siteUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://your-domain.com' // Replace with actual production URL
+        : window.location.origin;
+        
       const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
         type: 'magiclink',
         email: email,
         options: {
-          redirectTo: `${siteUrl}/auth/invite-callback?clinic_id=${userProfile?.clinic_id}&invitation_id=${invitationId}&role=assistant`
+          redirectTo: `${siteUrl}/auth/invite-callback`,
+          data: {
+            role: 'assistant',
+            clinic_id: userProfile?.clinic_id,
+            invitation_id: invitationId
+          }
         }
       });
 
       if (linkError) throw linkError;
+
+      // Update resend count and new action_link (expires in 7 days by default)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+      
+      const { error: updateError } = await supabase
+        .from('invitations')
+        .update({ 
+          resend_count: currentResendCount + 1,
+          action_link: linkData.properties.action_link,
+          expires_at: expiresAt.toISOString()
+        })
+        .eq('id', invitationId);
+
+      if (updateError) throw updateError;
 
       // Resend email
       const { error: emailError } = await supabase.functions.invoke('send-invitation', {
         body: {
           invitationId: invitationId,
           email: email,
-          magicLinkUrl: linkData.properties.action_link,
+          actionLinkUrl: linkData.properties.action_link,
           clinicName: 'Your Clinic',
           isResend: true
         }

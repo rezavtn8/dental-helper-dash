@@ -79,14 +79,15 @@ export const SecureInput: React.FC<SecureInputProps> = ({
 
     setIsValidating(true);
     try {
-      const result = await sanitizeAndValidateInput(type, inputValue);
-      setIsValid(result.isValid);
-      setError(result.error || '');
-      onValidation?.(result.isValid, result.error);
+      await sanitizeAndValidateInput(type, inputValue);
+      setIsValid(true);
+      setError('');
+      onValidation?.(true);
     } catch (err) {
       setIsValid(false);
-      setError('Validation failed');
-      onValidation?.(false, 'Validation failed');
+      const errorMessage = err instanceof Error ? err.message : 'Validation failed';
+      setError(errorMessage);
+      onValidation?.(false, errorMessage);
     } finally {
       setIsValidating(false);
     }

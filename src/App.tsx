@@ -96,7 +96,7 @@ const RoleBasedRedirect = () => {
   }
 };
 
-const App = () => (
+const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />

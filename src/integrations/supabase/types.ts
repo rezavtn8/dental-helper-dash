@@ -60,6 +60,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           accepted_by: string | null
+          action_link: string | null
           clinic_id: string
           created_at: string
           email: string
@@ -79,6 +80,7 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           accepted_by?: string | null
+          action_link?: string | null
           clinic_id: string
           created_at?: string
           email: string
@@ -98,6 +100,7 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           accepted_by?: string | null
+          action_link?: string | null
           clinic_id?: string
           created_at?: string
           email?: string

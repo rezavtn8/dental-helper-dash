@@ -7,7 +7,7 @@ import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
 import SettingsTab from '@/components/assistant/SettingsTab';
-import { InvitationHandler } from '@/components/assistant/InvitationHandler';
+import InviteRedirect from '@/components/assistant/InviteRedirect';
 import { Task } from '@/types/task';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 
@@ -123,14 +123,11 @@ const AssistantDashboard = () => {
     );
   }
 
-  // If user has no clinic assigned, show invitation handler
-  if (!userProfile.clinic_id) {
+  // If no clinic assigned, show redirect page instead of invitation handler
+  if (!userProfile?.clinic_id) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
-        <InvitationHandler 
-          userEmail={userProfile.email || user?.email || ''} 
-          onInvitationAccepted={() => window.location.reload()}
-        />
+        <InviteRedirect />
       </div>
     );
   }

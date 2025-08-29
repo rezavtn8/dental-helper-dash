@@ -28,11 +28,11 @@ const corsHeaders = {
 };
 
 interface InvitationEmailRequest {
-  invitationToken: string;
-  recipientEmail: string;
-  recipientName: string;
-  clinicName: string;
   invitationId: string;
+  email: string;
+  magicLinkUrl: string;
+  clinicName?: string;
+  isResend?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -77,29 +77,23 @@ const handler = async (req: Request): Promise<Response> => {
   let requestBody: InvitationEmailRequest;
   
   try {
-    console.log('Starting invitation email process...');
-    requestBody = await req.json();
-    
-    const { invitationToken, recipientEmail, recipientName, clinicName, invitationId } = requestBody;
+    const {
+      invitationId,
+      email: recipientEmail,
+      magicLinkUrl,
+      clinicName,
+      isResend = false
+    }: InvitationEmailRequest = await req.json();
     
     console.log('Invitation details:', { 
       invitationId, 
       recipientEmail, 
-      recipientName, 
       clinicName,
-      hasToken: !!invitationToken 
+      magicLinkUrl,
+      isResend
     });
-    
-    // Use PUBLIC_APP_URL environment variable, fallback to localhost for development
-    let publicAppUrl = Deno.env.get('PUBLIC_APP_URL') || 'http://localhost:5173';
-    
-    // Ensure the URL has a protocol (prepend https:// if missing)
-    if (!publicAppUrl.startsWith('http://') && !publicAppUrl.startsWith('https://')) {
-      publicAppUrl = `https://${publicAppUrl}`;
-    }
-    
-    const acceptUrl = `${publicAppUrl}/accept-invitation?token=${invitationToken}`;
-    console.log('Accept URL created:', acceptUrl);
+
+    console.log('Using provided magic link URL:', magicLinkUrl);
 
     // Initialize Supabase client with service role key for updating invitations
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -152,44 +146,79 @@ const handler = async (req: Request): Promise<Response> => {
         emailResponse = await resend.emails.send({
           from: fromAddress,
           to: [recipientEmail],
-          subject: `Join ${clinicName} as an Assistant - Setup Your Account`,
+          subject: isResend 
+            ? `Reminder: Join ${clinicName || 'our team'} as a Dental Assistant`
+            : `Join ${clinicName || 'our team'} as a Dental Assistant`,
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
-              <div style="background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                <div style="text-align: center; margin-bottom: 32px;">
-                  <h1 style="color: #0f766e; font-size: 28px; margin-bottom: 8px;">Assistant Invitation</h1>
-                  <p style="color: #64748b; font-size: 16px; margin: 0;">Join ${clinicName} as an Assistant</p>
-                </div>
-                
-                <div style="margin-bottom: 32px;">
-                  <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 16px;">
-                    Hi ${recipientName},
-                  </p>
-                  <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-                    You've been invited to join <strong>${clinicName}</strong> as an <strong>Assistant</strong>. Click the button below to create your assistant account and get started.
-                  </p>
-                  
-                  <div style="text-align: center; margin: 32px 0;">
-                    <a href="${acceptUrl}" style="display: inline-block; background-color: #0f766e; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                      Accept Invitation
-                    </a>
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${isResend ? 'Reminder: ' : ''}Invitation to join ${clinicName || 'our team'}</title>
+              </head>
+              <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0;">
+                <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                  <!-- Header -->
+                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600; letter-spacing: -0.5px;">
+                      ${isResend ? 'Reminder: ' : ''}You're Invited!
+                    </h1>
+                    <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">
+                      Join ${clinicName || 'our dental practice'} team
+                    </p>
                   </div>
                   
-                  <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">
-                    If the button doesn't work, copy and paste this link into your browser:
-                  </p>
-                  <p style="color: #0f766e; font-size: 14px; word-break: break-all; background-color: #f1f5f9; padding: 12px; border-radius: 6px;">
-                    ${acceptUrl}
-                  </p>
+                  <!-- Content -->
+                  <div style="padding: 40px 30px;">
+                    <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+                      Hello,
+                    </p>
+                    
+                    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+                      ${isResend 
+                        ? `This is a reminder that you have been invited to join <strong>${clinicName || 'our dental practice'}</strong> as a dental assistant.` 
+                        : `You have been invited to join <strong>${clinicName || 'our dental practice'}</strong> as a dental assistant.`
+                      } Click the button below to accept your invitation and access your account.
+                    </p>
+                    
+                    <!-- Call-to-Action Button -->
+                    <div style="text-align: center; margin: 32px 0;">
+                      <a href="${magicLinkUrl}" 
+                         style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); transition: transform 0.2s;">
+                        Accept Invitation & Sign In
+                      </a>
+                    </div>
+                    
+                    <div style="margin: 32px 0; padding: 20px; background-color: #f8fafc; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                      <h3 style="margin: 0 0 12px 0; color: #1f2937; font-size: 16px; font-weight: 600;">
+                        What happens next?
+                      </h3>
+                      <ul style="margin: 0; padding-left: 20px; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        <li style="margin-bottom: 6px;">Click the button to sign in or create your account</li>
+                        <li style="margin-bottom: 6px;">You'll be automatically added to the clinic team</li>
+                        <li style="margin-bottom: 6px;">Access your assistant dashboard immediately</li>
+                        <li style="margin-bottom: 6px;">Start managing your daily tasks and patient logs</li>
+                      </ul>
+                    </div>
+                    
+                    <p style="margin: 24px 0 0 0; font-size: 14px; line-height: 1.6; color: #6b7280;">
+                      If you're having trouble with the button above, copy and paste this link into your browser:
+                    </p>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; word-break: break-all; color: #3b82f6;">
+                      ${magicLinkUrl}
+                    </p>
+                  </div>
+                  
+                  <!-- Footer -->
+                  <div style="background-color: #f8fafc; padding: 20px 30px; border-top: 1px solid #e5e7eb; text-align: center;">
+                    <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+                      This invitation will expire in 7 days. If you didn't expect this invitation, you can safely ignore this email.
+                    </p>
+                  </div>
                 </div>
-                
-                <div style="border-top: 1px solid #e2e8f0; padding-top: 24px; text-align: center;">
-                  <p style="color: #64748b; font-size: 14px; margin: 0;">
-                    This invitation will expire in 7 days. If you have any questions, please contact your team administrator.
-                  </p>
-                </div>
-              </div>
-            </div>
+              </body>
+            </html>
           `,
         });
         

@@ -14,6 +14,8 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import ClinicManagement from "./pages/ClinicManagement";
 import NotFound from "./pages/NotFound";
 import AcceptInvitation from "./pages/AcceptInvitation";
+import AdminAssistants from "./pages/AdminAssistants";
+import InviteCallback from "./pages/InviteCallback";
 
 const queryClient = new QueryClient();
 
@@ -138,6 +140,15 @@ const App: React.FC = () => (
                 />
                 <Route path="/accept-invitation" element={<AcceptInvitation />} />
                 <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
+                <Route 
+                  path="/admin/assistants" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminAssistants />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/auth/invite-callback" element={<InviteCallback />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>

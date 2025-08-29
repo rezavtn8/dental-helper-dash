@@ -271,7 +271,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: 'Clinic ID not found' };
       }
 
-      const { data, error } = await supabase.rpc('create_assistant_invitation', {
+      // Use the secure invitation creation function with built-in validation
+      const { data, error } = await supabase.rpc('create_assistant_invitation_secure', {
         p_clinic_id: userProfile.clinic_id,
         p_email: email,
         p_name: name

@@ -572,6 +572,14 @@ export type Database = {
           value: number
         }[]
       }
+      get_security_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_name: string
+          details: string
+          status: string
+        }[]
+      }
       link_user_to_pending_invitation: {
         Args: { user_email: string }
         Returns: {

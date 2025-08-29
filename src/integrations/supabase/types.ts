@@ -152,13 +152,6 @@ export type Database = {
             foreignKeyName: "invitations_accepted_by_fkey"
             columns: ["accepted_by"]
             isOneToOne: false
-            referencedRelation: "safe_user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitations_accepted_by_fkey"
-            columns: ["accepted_by"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -167,13 +160,6 @@ export type Database = {
             columns: ["clinic_id"]
             isOneToOne: false
             referencedRelation: "clinics"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitations_invited_by_fkey"
-            columns: ["invited_by"]
-            isOneToOne: false
-            referencedRelation: "safe_user_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -209,6 +195,36 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          attempts: number | null
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          operation: string
+          user_id: string | null
+          window_start: string | null
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          operation: string
+          user_id?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          operation?: string
+          user_id?: string | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       task_notes: {
         Row: {
           created_at: string
@@ -240,13 +256,6 @@ export type Database = {
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "task_notes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "safe_user_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -466,13 +475,6 @@ export type Database = {
             foreignKeyName: "users_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "safe_user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "users_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -480,47 +482,7 @@ export type Database = {
       }
     }
     Views: {
-      safe_user_profiles: {
-        Row: {
-          clinic_id: string | null
-          created_at: string | null
-          email: string | null
-          id: string | null
-          is_active: boolean | null
-          last_login: string | null
-          name: string | null
-          role: string | null
-        }
-        Insert: {
-          clinic_id?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          last_login?: string | null
-          name?: string | null
-          role?: string | null
-        }
-        Update: {
-          clinic_id?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          last_login?: string | null
-          name?: string | null
-          role?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_users_clinic_id"
-            columns: ["clinic_id"]
-            isOneToOne: false
-            referencedRelation: "clinics"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       accept_invitation: {
@@ -543,11 +505,26 @@ export type Database = {
         Args: { target_role: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: {
+          max_attempts?: number
+          operation_name: string
+          window_minutes?: number
+        }
+        Returns: boolean
+      }
       cleanup_expired_sessions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
       create_assistant_invitation: {
+        Args: { p_clinic_id: string; p_email: string; p_name: string }
+        Returns: {
+          invitation_id: string
+          invitation_token: string
+        }[]
+      }
+      create_assistant_invitation_secure: {
         Args: { p_clinic_id: string; p_email: string; p_name: string }
         Returns: {
           invitation_id: string
@@ -574,6 +551,19 @@ export type Database = {
           status: string
         }[]
       }
+      get_safe_user_profile: {
+        Args: { user_id_param?: string }
+        Returns: {
+          clinic_id: string
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          last_login: string
+          name: string
+          role: string
+        }[]
+      }
       link_user_to_pending_invitation: {
         Args: { user_email: string }
         Returns: {
@@ -589,6 +579,18 @@ export type Database = {
           id: string
           name: string
         }[]
+      }
+      sanitize_text_input: {
+        Args: { input_text: string }
+        Returns: string
+      }
+      validate_clinic_code: {
+        Args: { code_input: string }
+        Returns: boolean
+      }
+      validate_email: {
+        Args: { email_input: string }
+        Returns: boolean
       }
     }
     Enums: {

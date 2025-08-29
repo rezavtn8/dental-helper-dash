@@ -98,7 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
       publicAppUrl = `https://${publicAppUrl}`;
     }
     
-    const acceptUrl = `${publicAppUrl}/assistant-signup?token=${invitationToken}`;
+    const acceptUrl = `${publicAppUrl}/accept-invitation?token=${invitationToken}`;
     console.log('Accept URL created:', acceptUrl);
 
     // Initialize Supabase client with service role key for updating invitations
@@ -171,7 +171,7 @@ const handler = async (req: Request): Promise<Response> => {
                   
                   <div style="text-align: center; margin: 32px 0;">
                     <a href="${acceptUrl}" style="display: inline-block; background-color: #0f766e; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                      Create Assistant Account
+                      Accept Invitation
                     </a>
                   </div>
                   

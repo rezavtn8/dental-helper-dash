@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
@@ -18,39 +17,38 @@ import {
   Clock, 
   CheckCircle, 
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  Ban
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-interface Assistant {
+interface TeamMember {
   id: string;
-  name: string;
+  name?: string;
   email: string;
   role: string;
-  is_active: boolean;
+  status: 'active' | 'pending' | 'failed' | 'revoked';
   created_at: string;
-  last_login?: string;
-}
-
-interface Invitation {
-  id: string;
-  email: string;
-  role: string;
-  status: string;
-  created_at: string;
-  expires_at: string;
-  email_status: string;
+  expires_at?: string;
+  resend_count?: number;
+  type: 'assistant' | 'invitation';
+  is_active?: boolean;
 }
 
 const AdminAssistants = () => {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
-  const [assistants, setAssistants] = useState<Assistant[]>([]);
-  const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    pending: 0,
+    admins: 0
+  });
 
   useEffect(() => {
     if (userProfile?.role === 'owner') {
@@ -62,30 +60,67 @@ const AdminAssistants = () => {
     try {
       setLoading(true);
       
-      // Fetch assistants
+      // Fetch assistants and admins
       const { data: assistantsData, error: assistantsError } = await supabase
         .from('users')
         .select('*')
         .eq('clinic_id', userProfile?.clinic_id)
-        .eq('role', 'assistant');
+        .in('role', ['assistant', 'admin']);
 
       if (assistantsError) throw assistantsError;
 
-      // Fetch pending invitations
+      // Fetch all invitations (not just pending)
       const { data: invitationsData, error: invitationsError } = await supabase
         .from('invitations')
         .select('*')
         .eq('clinic_id', userProfile?.clinic_id)
-        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (invitationsError) throw invitationsError;
 
-      setAssistants(assistantsData || []);
-      setInvitations(invitationsData || []);
+      // Combine data into team members array
+      const members: TeamMember[] = [
+        ...(assistantsData || []).map(assistant => ({
+          id: assistant.id,
+          name: assistant.name,
+          email: assistant.email,
+          role: assistant.role,
+          status: assistant.is_active ? 'active' as const : 'pending' as const,
+          created_at: assistant.created_at,
+          type: 'assistant' as const,
+          is_active: assistant.is_active
+        })),
+        ...(invitationsData || []).map(invitation => ({
+          id: invitation.id,
+          email: invitation.email,
+          role: invitation.role,
+          status: invitation.status === 'accepted' ? 'active' as const : 
+                 invitation.status === 'revoked' ? 'revoked' as const :
+                 invitation.email_status === 'failed' ? 'failed' as const : 'pending' as const,
+          created_at: invitation.created_at,
+          expires_at: invitation.expires_at,
+          resend_count: invitation.resend_count || 0,
+          type: 'invitation' as const
+        }))
+      ];
+
+      // Calculate stats
+      const totalMembers = members.filter(m => m.type === 'assistant').length;
+      const activeMembers = members.filter(m => m.type === 'assistant' && m.status === 'active').length;
+      const pendingInvites = members.filter(m => m.type === 'invitation' && m.status === 'pending').length;
+      const adminMembers = members.filter(m => m.type === 'assistant' && m.role === 'admin').length;
+
+      setStats({
+        total: totalMembers,
+        active: activeMembers,
+        pending: pendingInvites,
+        admins: adminMembers
+      });
+
+      setTeamMembers(members.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to load assistants and invitations');
+      toast.error('Failed to load team data');
     } finally {
       setLoading(false);
     }
@@ -114,7 +149,7 @@ const AdminAssistants = () => {
 
       if (inviteError) throw inviteError;
 
-      // Generate Supabase magic link instead of signup link (no password required)
+      // Generate Supabase magic link
       const siteUrl = window.location.origin;
       const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
         type: 'magiclink',
@@ -150,8 +185,21 @@ const AdminAssistants = () => {
     }
   };
 
-  const handleResendInvitation = async (invitationId: string, email: string) => {
+  const handleResendInvitation = async (invitationId: string, email: string, currentResendCount: number) => {
+    if (currentResendCount >= 3) {
+      toast.error('Maximum resend limit (3) reached for this invitation');
+      return;
+    }
+
     try {
+      // Update resend count first
+      const { error: updateError } = await supabase
+        .from('invitations')
+        .update({ resend_count: currentResendCount + 1 })
+        .eq('id', invitationId);
+
+      if (updateError) throw updateError;
+
       // Generate new magic link
       const siteUrl = window.location.origin;
       const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
@@ -177,11 +225,43 @@ const AdminAssistants = () => {
 
       if (emailError) throw emailError;
 
-      toast.success('Invitation resent successfully!');
+      toast.success(`Invitation resent successfully! (${currentResendCount + 1}/3)`);
       fetchData();
     } catch (error: any) {
       console.error('Error resending invitation:', error);
       toast.error(error.message || 'Failed to resend invitation');
+    }
+  };
+
+  const handleDeleteInvitation = async (invitationId: string, email: string) => {
+    try {
+      // First, try to delete any unaccepted auth user for this email
+      const { data: authUsers, error: listError } = await supabase.auth.admin.listUsers();
+      if (!listError && authUsers?.users) {
+        const unacceptedUser = authUsers.users.find((user: any) => 
+          user.email === email && 
+          !user.email_confirmed_at && 
+          !user.last_sign_in_at
+        );
+        
+        if (unacceptedUser) {
+          await supabase.auth.admin.deleteUser(unacceptedUser.id);
+        }
+      }
+
+      // Delete the invitation
+      const { error } = await supabase
+        .from('invitations')
+        .delete()
+        .eq('id', invitationId);
+
+      if (error) throw error;
+
+      toast.success('Invitation deleted successfully. Email can now be reused.');
+      fetchData();
+    } catch (error: any) {
+      console.error('Error deleting invitation:', error);
+      toast.error(error.message || 'Failed to delete invitation');
     }
   };
 
@@ -202,21 +282,31 @@ const AdminAssistants = () => {
     }
   };
 
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const isExpired = (expiresAt: string): boolean => {
-    return new Date(expiresAt) < new Date();
+  const isExpired = (expiresAt?: string): boolean => {
+    return expiresAt ? new Date(expiresAt) < new Date() : false;
+  };
+
+  const getStatusBadge = (member: TeamMember) => {
+    if (member.type === 'invitation' && member.expires_at && isExpired(member.expires_at)) {
+      return <Badge variant="destructive">Expired</Badge>;
+    }
+    
+    switch (member.status) {
+      case 'active':
+        return <Badge className="bg-green-500 hover:bg-green-600 text-white">Active</Badge>;
+      case 'pending':
+        return <Badge className="bg-blue-500 hover:bg-blue-600 text-white">Pending</Badge>;
+      case 'failed':
+        return <Badge variant="destructive">Failed</Badge>;
+      case 'revoked':
+        return <Badge variant="outline" className="text-muted-foreground">Revoked</Badge>;
+      default:
+        return <Badge variant="outline">{member.status}</Badge>;
+    }
   };
 
   if (loading) {
@@ -232,7 +322,7 @@ const AdminAssistants = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -241,128 +331,178 @@ const AdminAssistants = () => {
               Back to Dashboard
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Manage Assistants</h1>
-              <p className="text-muted-foreground">Invite and manage your dental assistants</p>
+              <h1 className="text-2xl font-bold text-foreground">Team Management</h1>
+              <p className="text-muted-foreground">Manage your dental practice team</p>
             </div>
           </div>
-          <Button onClick={() => setShowInviteDialog(true)}>
+          <Button onClick={() => setShowInviteDialog(true)} className="bg-primary hover:bg-primary/90">
             <UserPlus className="h-4 w-4 mr-2" />
-            Invite Assistant
+            Invite Member
           </Button>
         </div>
 
-        {/* Current Assistants */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Current Assistants</CardTitle>
-            <CardDescription>
-              Active members of your dental practice
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {assistants.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                No assistants yet. Send your first invitation to get started.
-              </p>
-            ) : (
-              <div className="grid gap-4">
-                {assistants.map((assistant) => (
-                  <div key={assistant.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        {getInitials(assistant.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="font-medium">{assistant.name}</h3>
-                      <p className="text-sm text-muted-foreground">{assistant.email}</p>
-                    </div>
-                    <Badge variant={assistant.is_active ? 'secondary' : 'outline'}>
-                      {assistant.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                    <p className="text-sm text-muted-foreground">
-                      Joined {formatDate(assistant.created_at)}
-                    </p>
-                  </div>
-                ))}
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="border-border">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <UserPlus className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+                  <p className="text-sm text-muted-foreground">Team Members</p>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-border">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-500/10 rounded-full">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{stats.active}</p>
+                  <p className="text-sm text-muted-foreground">Active</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-border">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-full">
+                  <Clock className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{stats.pending}</p>
+                  <p className="text-sm text-muted-foreground">Pending</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-border">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-500/10 rounded-full">
+                  <UserPlus className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{stats.admins}</p>
+                  <p className="text-sm text-muted-foreground">Admins</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Pending Invitations */}
-        <Card>
+        {/* Team Table */}
+        <Card className="border-border">
           <CardHeader>
-            <CardTitle>Pending Invitations</CardTitle>
+            <CardTitle className="text-foreground">Team Overview</CardTitle>
             <CardDescription>
-              Invitations waiting for acceptance
+              All team members and pending invitations
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {invitations.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                No pending invitations
-              </p>
+            {teamMembers.length === 0 ? (
+              <div className="text-center py-12">
+                <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-lg">No team members yet</p>
+                <p className="text-muted-foreground">Send your first invitation to get started</p>
+              </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Sent</TableHead>
-                    <TableHead>Expires</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {invitations.map((invitation) => (
-                    <TableRow key={invitation.id}>
-                      <TableCell className="font-medium">{invitation.email}</TableCell>
-                      <TableCell>{formatDate(invitation.created_at)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {isExpired(invitation.expires_at) ? (
-                            <>
-                              <AlertCircle className="h-4 w-4 text-destructive" />
-                              <span className="text-destructive">Expired</span>
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="h-4 w-4 text-muted-foreground" />
-                              <span>{formatDate(invitation.expires_at)}</span>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={invitation.email_status === 'sent' ? 'secondary' : 'outline'}>
-                          {invitation.email_status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleResendInvitation(invitation.id, invitation.email)}
-                          >
-                            <RefreshCw className="h-3 w-3 mr-1" />
-                            Resend
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleRevokeInvitation(invitation.id)}
-                          >
-                            <Trash2 className="h-3 w-3 mr-1" />
-                            Revoke
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="rounded-lg border border-border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border">
+                      <TableHead className="font-semibold text-foreground">Name</TableHead>
+                      <TableHead className="font-semibold text-foreground">Email</TableHead>
+                      <TableHead className="font-semibold text-foreground">Role</TableHead>
+                      <TableHead className="font-semibold text-foreground">Status</TableHead>
+                      <TableHead className="font-semibold text-foreground">Invited On</TableHead>
+                      <TableHead className="font-semibold text-foreground">Expires On</TableHead>
+                      <TableHead className="font-semibold text-foreground">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {teamMembers.map((member) => (
+                      <TableRow key={member.id} className="border-border hover:bg-muted/50">
+                        <TableCell className="font-medium text-foreground">
+                          {member.name || '-'}
+                        </TableCell>
+                        <TableCell className="text-foreground">{member.email}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="capitalize">
+                            {member.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(member)}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatDate(member.created_at)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {member.expires_at ? (
+                            <div className="flex items-center gap-2">
+                              {isExpired(member.expires_at) ? (
+                                <>
+                                  <AlertCircle className="h-4 w-4 text-destructive" />
+                                  <span className="text-destructive">Expired</span>
+                                </>
+                              ) : (
+                                formatDate(member.expires_at)
+                              )}
+                            </div>
+                          ) : (
+                            '-'
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {member.type === 'invitation' && member.status !== 'revoked' && (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleResendInvitation(member.id, member.email, member.resend_count || 0)}
+                                disabled={(member.resend_count || 0) >= 3}
+                                className="border-border hover:bg-muted"
+                              >
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Resend {member.resend_count ? `(${member.resend_count}/3)` : ''}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRevokeInvitation(member.id)}
+                                className="border-border hover:bg-muted"
+                              >
+                                <Ban className="h-3 w-3 mr-1" />
+                                Revoke
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteInvitation(member.id, member.email)}
+                                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                              >
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                Delete
+                              </Button>
+                            </div>
+                          )}
+                          {member.type === 'assistant' && (
+                            <span className="text-muted-foreground text-sm">No actions</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -370,29 +510,30 @@ const AdminAssistants = () => {
 
       {/* Invite Dialog */}
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-        <DialogContent>
+        <DialogContent className="border-border">
           <DialogHeader>
-            <DialogTitle>Invite New Assistant</DialogTitle>
+            <DialogTitle className="text-foreground">Invite New Team Member</DialogTitle>
             <DialogDescription>
-              Send an invitation to join your dental practice as an assistant.
+              Send an invitation to join your dental practice.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email" className="text-foreground">Email Address</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="assistant@example.com"
+                placeholder="member@example.com"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
+                className="border-border bg-background text-foreground"
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
+              <Button variant="outline" onClick={() => setShowInviteDialog(false)} className="border-border">
                 Cancel
               </Button>
-              <Button onClick={handleInvite} disabled={inviting}>
+              <Button onClick={handleInvite} disabled={inviting} className="bg-primary hover:bg-primary/90">
                 {inviting ? (
                   <>
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin" />

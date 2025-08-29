@@ -564,6 +564,14 @@ export type Database = {
           role: string
         }[]
       }
+      get_security_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          metric: string
+          period: string
+          value: number
+        }[]
+      }
       link_user_to_pending_invitation: {
         Args: { user_email: string }
         Returns: {
@@ -572,6 +580,10 @@ export type Database = {
           success: boolean
         }[]
       }
+      log_security_event: {
+        Args: { event_details?: Json; event_type: string; severity?: string }
+        Returns: undefined
+      }
       lookup_clinic_by_code: {
         Args: { p_code: string }
         Returns: {
@@ -579,6 +591,10 @@ export type Database = {
           id: string
           name: string
         }[]
+      }
+      sanitize_and_validate_input: {
+        Args: { input_type: string; input_value: string }
+        Returns: string
       }
       sanitize_text_input: {
         Args: { input_text: string }

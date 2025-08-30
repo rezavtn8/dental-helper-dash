@@ -555,6 +555,21 @@ export type Database = {
           invitation_token: string
         }[]
       }
+      create_clinic_with_owner: {
+        Args: {
+          p_clinic_code: string
+          p_clinic_name: string
+          p_owner_email: string
+          p_owner_id: string
+          p_owner_name: string
+        }
+        Returns: {
+          clinic_id: string
+          message: string
+          success: boolean
+          user_id: string
+        }[]
+      }
       create_simple_invitation: {
         Args: { p_clinic_id?: string; p_email: string; p_name: string }
         Returns: {

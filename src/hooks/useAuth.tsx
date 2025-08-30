@@ -19,11 +19,12 @@ interface AuthContextType {
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, name: string, role: 'owner' | 'assistant') => Promise<{ error?: string }>;
+  signUp: (email: string, password: string, name: string, role?: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   createInvitation: (email: string, name: string) => Promise<{ token?: string; error?: string }>;
   acceptInvitation: (token: string) => Promise<{ error?: string }>;
   getInvitations: () => Promise<{ invitations: any[]; error?: string }>;
+  refreshUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -266,6 +267,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Function to refresh user profile (expose it)
+  const refreshUserProfile = async () => {
+    if (user) {
+      await fetchUserProfile(user.id);
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       session,
@@ -279,6 +287,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createInvitation,
       acceptInvitation,
       getInvitations,
+      refreshUserProfile,
     }}>
       {children}
     </AuthContext.Provider>

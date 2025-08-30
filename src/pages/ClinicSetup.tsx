@@ -19,7 +19,7 @@ export default function ClinicSetup() {
   const [step, setStep] = useState<'form' | 'creating' | 'success'>('form');
   const [progress, setProgress] = useState('');
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, refreshUserProfile } = useAuth();
 
   const generateClinicCode = () => {
     if (clinicName.trim()) {
@@ -105,7 +105,11 @@ export default function ClinicSetup() {
         return;
       }
 
-      // Step 4: Success
+      // Step 4: Refresh user profile to get updated clinic_id
+      setProgress('Finalizing setup...');
+      await refreshUserProfile();
+
+      // Step 5: Success
       setProgress('Complete! Redirecting...');
       setStep('success');
       

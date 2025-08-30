@@ -63,10 +63,16 @@ const OwnerDashboard = () => {
     setErrors(prev => ({ ...prev, tasks: undefined }));
     
     try {
+      if (!userProfile?.clinic_id) {
+        setTasks([]);
+        setLoadingStates(prev => ({ ...prev, tasks: 'loaded' }));
+        return;
+      }
+
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .eq('clinic_id', userProfile?.clinic_id)
+        .eq('clinic_id', userProfile.clinic_id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -87,11 +93,17 @@ const OwnerDashboard = () => {
     setErrors(prev => ({ ...prev, assistants: undefined }));
     
     try {
+      if (!userProfile?.clinic_id) {
+        setAssistants([]);
+        setLoadingStates(prev => ({ ...prev, assistants: 'loaded' }));
+        return;
+      }
+
       const { data, error } = await supabase
         .from('users')
         .select('id, name, email, role, is_active, created_at, last_login')
         .eq('role', 'assistant')
-        .eq('clinic_id', userProfile?.clinic_id);
+        .eq('clinic_id', userProfile.clinic_id);
 
       if (error) throw error;
       setAssistants(data || []);

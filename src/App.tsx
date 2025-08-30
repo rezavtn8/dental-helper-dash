@@ -78,7 +78,7 @@ const App: React.FC = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/setup" element={<ProtectedRoute><ClinicSetup /></ProtectedRoute>} />
+              <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/dashboard" element={<DashboardRedirect />} />
               <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
               <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />

@@ -245,18 +245,30 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
 
   const handleCancelInvitation = async (invitation: PendingInvitation) => {
     try {
+      console.log('Cancelling invitation:', invitation.id);
+      
       const { error } = await supabase
         .from('invitations')
-        .update({ status: 'cancelled' })
+        .update({ 
+          status: 'cancelled',
+          updated_at: new Date().toISOString()
+        })
         .eq('id', invitation.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error cancelling invitation:', error);
+        throw error;
+      }
 
+      console.log('Invitation cancelled successfully');
       toast.success(`Invitation to ${invitation.email} has been cancelled`);
-      fetchInvitations();
+      
+      // Refresh the data
+      await fetchInvitations();
       setDeleteDialog({ open: false, item: null });
-    } catch (error) {
-      toast.error("Failed to cancel invitation. Please try again.");
+    } catch (error: any) {
+      console.error('Failed to cancel invitation:', error);
+      toast.error(`Failed to cancel invitation: ${error.message || 'Please try again.'}`);
     }
   };
 

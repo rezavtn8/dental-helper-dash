@@ -22,6 +22,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
   createAssistantInvitation: (email: string, name: string) => Promise<{ invitationToken?: string; invitationId?: string; error?: string }>;
+  createUnifiedInvitation: (email: string, name: string, role?: 'assistant' | 'admin') => Promise<{ invitationToken?: string; invitationId?: string; error?: string }>;
   resendInvitation: (invitationId: string) => Promise<{ error?: string; token?: string; newExpiryDate?: string; resendCount?: number }>;
   cancelInvitation: (invitationId: string) => Promise<{ error?: string }>;
   acceptInvitation: (token: string) => Promise<{ error?: string; clinicId?: string }>;
@@ -266,16 +267,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const createAssistantInvitation = async (email: string, name: string): Promise<{ invitationToken?: string; invitationId?: string; error?: string }> => {
+    // Keep existing function for backward compatibility
+    return createUnifiedInvitation(email, name, 'assistant');
+  };
+
+  const createUnifiedInvitation = async (email: string, name: string, role: 'assistant' | 'admin' = 'assistant'): Promise<{ invitationToken?: string; invitationId?: string; error?: string }> => {
     try {
       if (!userProfile?.clinic_id) {
         return { error: 'Clinic ID not found' };
       }
 
-      // Use the secure invitation creation function with built-in validation
-      const { data, error } = await supabase.rpc('create_assistant_invitation_secure', {
+      // Use the unified invitation creation function
+      const { data, error } = await supabase.rpc('create_unified_invitation', {
         p_clinic_id: userProfile.clinic_id,
         p_email: email,
-        p_name: name
+        p_name: name,
+        p_role: role,
+        p_invitation_type: 'email_signup'
       });
 
       if (error) {
@@ -283,42 +291,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: error.message };
       }
 
-      const { invitation_id, invitation_token } = data[0];
-
-      // Get clinic name for the email
-      const { data: clinicData, error: clinicError } = await supabase
-        .from('clinics')
-        .select('name')
-        .eq('id', userProfile.clinic_id)
-        .single();
-
-      if (clinicError) {
-        console.error('Clinic fetch error:', clinicError);
-        return { error: 'Failed to fetch clinic details' };
-      }
-
-      // Send invitation email via edge function
-      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-invitation', {
-        body: {
-          invitationToken: invitation_token,
-          recipientEmail: email,
-          recipientName: name,
-          clinicName: clinicData.name,
-          invitationId: invitation_id
-        }
-      });
-
-      if (emailError) {
-        console.error('Email sending error:', emailError);
-        return { error: 'Invitation created but email failed to send' };
-      }
+      const result = data[0];
+      const { invitation_id, invitation_token } = result;
 
       return { 
         invitationToken: invitation_token, 
         invitationId: invitation_id 
       };
     } catch (error) {
-      console.error('Failed to create assistant invitation:', error);
+      console.error('Failed to create invitation:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create invitation';
       return { error: errorMessage };
     }
@@ -629,6 +610,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signInWithEmail,
     signInWithGoogle,
     createAssistantInvitation,
+    createUnifiedInvitation,
     resendInvitation,
     cancelInvitation,
     acceptInvitation,

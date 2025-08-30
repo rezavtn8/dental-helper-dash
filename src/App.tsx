@@ -17,6 +17,8 @@ import NotFound from "./pages/NotFound";
 import AdminAssistants from "./pages/AdminAssistants";
 import InviteCallback from "./pages/InviteCallback";
 import InviteExpired from "./pages/InviteExpired";
+import JoinTeam from "./pages/JoinTeam";
+import AcceptInvitation from "./pages/AcceptInvitation";
 
 const queryClient = new QueryClient();
 
@@ -141,6 +143,12 @@ const App: React.FC = () => (
                 />
                 <Route path="/invite-expired" element={<InviteExpired />} />
                 <Route path="/auth/invite-callback" element={<InviteCallback />} />
+                
+                {/* Unified invitation routes */}
+                <Route path="/join" element={<JoinTeam />} />
+                <Route path="/accept-invitation" element={<AcceptInvitation />} />
+                <Route path="/invite/:token" element={<JoinTeam />} />
+                
                 <Route 
                   path="/admin/assistants" 
                   element={

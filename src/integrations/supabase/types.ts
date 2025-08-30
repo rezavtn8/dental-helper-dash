@@ -91,6 +91,7 @@ export type Database = {
           accepted_at: string | null
           accepted_by: string | null
           action_link: string | null
+          click_count: number | null
           clinic_id: string
           created_at: string
           email: string
@@ -99,18 +100,22 @@ export type Database = {
           expires_at: string
           failure_reason: string | null
           id: string
+          invitation_type: Database["public"]["Enums"]["invitation_type"] | null
           invited_by: string
+          last_email_sent_at: string | null
           message_id: string | null
           resend_count: number | null
           role: string
           status: string
           token: string
           updated_at: string | null
+          user_agent: string | null
         }
         Insert: {
           accepted_at?: string | null
           accepted_by?: string | null
           action_link?: string | null
+          click_count?: number | null
           clinic_id: string
           created_at?: string
           email: string
@@ -119,18 +124,24 @@ export type Database = {
           expires_at?: string
           failure_reason?: string | null
           id?: string
+          invitation_type?:
+            | Database["public"]["Enums"]["invitation_type"]
+            | null
           invited_by: string
+          last_email_sent_at?: string | null
           message_id?: string | null
           resend_count?: number | null
           role?: string
           status?: string
           token?: string
           updated_at?: string | null
+          user_agent?: string | null
         }
         Update: {
           accepted_at?: string | null
           accepted_by?: string | null
           action_link?: string | null
+          click_count?: number | null
           clinic_id?: string
           created_at?: string
           email?: string
@@ -139,13 +150,18 @@ export type Database = {
           expires_at?: string
           failure_reason?: string | null
           id?: string
+          invitation_type?:
+            | Database["public"]["Enums"]["invitation_type"]
+            | null
           invited_by?: string
+          last_email_sent_at?: string | null
           message_id?: string | null
           resend_count?: number | null
           role?: string
           status?: string
           token?: string
           updated_at?: string | null
+          user_agent?: string | null
         }
         Relationships: [
           {
@@ -531,6 +547,20 @@ export type Database = {
           invitation_token: string
         }[]
       }
+      create_unified_invitation: {
+        Args: {
+          p_clinic_id: string
+          p_email: string
+          p_invitation_type?: Database["public"]["Enums"]["invitation_type"]
+          p_name: string
+          p_role?: string
+        }
+        Returns: {
+          invitation_id: string
+          invitation_token: string
+          invitation_url: string
+        }[]
+      }
       get_current_user_clinic_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -618,6 +648,7 @@ export type Database = {
       }
     }
     Enums: {
+      invitation_type: "email_signup" | "magic_link"
       task_status: "pending" | "in-progress" | "completed"
     }
     CompositeTypes: {
@@ -746,6 +777,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      invitation_type: ["email_signup", "magic_link"],
       task_status: ["pending", "in-progress", "completed"],
     },
   },

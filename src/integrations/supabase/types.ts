@@ -517,6 +517,14 @@ export type Database = {
           success: boolean
         }[]
       }
+      accept_simple_invitation: {
+        Args: { p_token: string; p_user_id?: string }
+        Returns: {
+          clinic_id: string
+          message: string
+          success: boolean
+        }[]
+      }
       can_create_user: {
         Args: { target_role: string }
         Returns: boolean
@@ -547,6 +555,13 @@ export type Database = {
           invitation_token: string
         }[]
       }
+      create_simple_invitation: {
+        Args: { p_clinic_id?: string; p_email: string; p_name: string }
+        Returns: {
+          invitation_id: string
+          token: string
+        }[]
+      }
       create_unified_invitation: {
         Args: {
           p_clinic_id: string
@@ -560,6 +575,14 @@ export type Database = {
           invitation_token: string
           invitation_url: string
         }[]
+      }
+      generate_clinic_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_timestamp: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_current_user_clinic_id: {
         Args: Record<PropertyKey, never>

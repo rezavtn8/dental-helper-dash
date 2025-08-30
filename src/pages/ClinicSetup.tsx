@@ -57,10 +57,26 @@ export default function ClinicSetup() {
         return;
       }
 
-      // Wait a moment for the user to be created
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wait for authentication session to be established
+      let retries = 0;
+      let user = null;
+      while (retries < 10) {
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          user = currentUser;
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+        retries++;
+      }
 
-      // Now create the clinic
+      if (!user) {
+        toast.error('Authentication failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Now create the clinic with the authenticated user
       const { data: clinic, error: clinicError } = await supabase
         .from('clinics')
         .insert({
@@ -84,7 +100,6 @@ export default function ClinicSetup() {
       }
 
       // Update the user profile with clinic_id
-      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { error: updateError } = await supabase
           .from('users')

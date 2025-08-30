@@ -65,7 +65,7 @@ export default function Home() {
             <div className="flex justify-center lg:justify-start">
               <Button 
                 size="lg" 
-                onClick={() => navigate('/clinic-setup')}
+                onClick={() => navigate('/setup')}
                 className="group px-8 py-6 text-lg hover-scale shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90"
               >
                 <Building2 className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
@@ -188,7 +188,7 @@ export default function Home() {
             </p>
             <Button 
               size="lg" 
-              onClick={() => navigate('/clinic-setup')}
+              onClick={() => navigate('/setup')}
               className="px-12 py-6 text-lg hover-scale shadow-2xl group bg-gradient-to-r from-primary to-primary/90"
             >
               <Building2 className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />

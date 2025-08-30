@@ -209,6 +209,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const result = data[0];
+      if (!result) {
+        return { error: 'Failed to create invitation' };
+      }
+
+      // Send invitation email via edge function
+      try {
+        // Get clinic details for the email
+        const { data: clinicData } = await supabase
+          .from('clinics')
+          .select('name')
+          .eq('id', userProfile.clinic_id)
+          .single();
+
+        const clinicName = clinicData?.name || 'Your Clinic';
+
+        // Create the action link URL
+        const baseUrl = window.location.origin;
+        const actionLinkUrl = `${baseUrl}/join?token=${result.token}`;
+
+        // Call the email sending edge function
+        const { error: emailError } = await supabase.functions.invoke('send-invitation', {
+          body: {
+            invitationId: result.invitation_id,
+            email: email.trim(),
+            actionLinkUrl: actionLinkUrl,
+            clinicName: clinicName
+          }
+        });
+
+        if (emailError) {
+          console.error('Failed to send invitation email:', emailError);
+          // Don't fail the invitation creation if email fails
+          // The invitation is still created and can be resent
+        } else {
+          console.log('Invitation email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending invitation email:', emailError);
+        // Don't fail the invitation creation if email fails
+      }
+
       return { token: result.token };
     } catch (error) {
       console.error('Failed to create invitation:', error);

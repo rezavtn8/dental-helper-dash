@@ -48,7 +48,19 @@ export default function ClinicSetup() {
     setLoading(true);
 
     try {
-      // Create the clinic with sanitized data
+      // First create the user account
+      const { error: authError } = await signUp(email, password, sanitizedOwnerName, 'owner');
+
+      if (authError) {
+        toast.error('Failed to create account: ' + authError);
+        setLoading(false);
+        return;
+      }
+
+      // Wait a moment for the user to be created
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Now create the clinic
       const { data: clinic, error: clinicError } = await supabase
         .from('clinics')
         .insert({
@@ -61,6 +73,7 @@ export default function ClinicSetup() {
         .single();
 
       if (clinicError) {
+        console.error('Clinic creation error:', clinicError);
         if (clinicError.code === '23505') {
           toast.error('Clinic code already exists. Please choose a different one.');
         } else {
@@ -70,13 +83,20 @@ export default function ClinicSetup() {
         return;
       }
 
-      // Create the owner account with sanitized data
-      const { error: authError } = await signUp(email, password, sanitizedOwnerName, 'owner');
+      // Update the user profile with clinic_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ clinic_id: clinic.id })
+          .eq('id', user.id);
 
-      if (authError) {
-        toast.error('Failed to create account: ' + authError);
-        setLoading(false);
-        return;
+        if (updateError) {
+          console.error('Profile update error:', updateError);
+          toast.error('Failed to link user to clinic');
+          setLoading(false);
+          return;
+        }
       }
 
       toast.success('Clinic created successfully! Welcome to ClinicFlow!');

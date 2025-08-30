@@ -138,7 +138,7 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
     invitation: null
   });
 
-  const { getInvitations, resendInvitation, cancelInvitation } = useAuth();
+  const { getInvitations } = useAuth();
 
   const fetchInvitations = async () => {
     setLoading(true);
@@ -224,37 +224,20 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
 
   const handleResendInvitation = async (invitation: PendingInvitation) => {
     try {
-      const { error, token, newExpiryDate, resendCount } = await resendInvitation(invitation.id);
-      if (error) throw new Error(error);
+      // Simple resend - just update the expiry date
+      const { error } = await supabase
+        .from('invitations')
+        .update({ 
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          resend_count: invitation.resend_count + 1,
+          email_status: 'pending'
+        })
+        .eq('id', invitation.id);
 
-      // Update the invitation in local state
-      setInvitations(prev => prev.map(inv => 
-        inv.id === invitation.id 
-          ? { 
-              ...inv, 
-              expires_at: newExpiryDate || inv.expires_at,
-              resend_count: resendCount || inv.resend_count,
-              token: token || inv.token,
-              email_status: 'sent'
-            }
-          : inv
-      ));
+      if (error) throw error;
 
-      // Show resend dialog with new link and copy options
-      setResendDialog({ 
-        open: true, 
-        invitation: { 
-          ...invitation, 
-          token,
-          expires_at: newExpiryDate || invitation.expires_at,
-          resend_count: resendCount || invitation.resend_count
-        } 
-      });
-
-      toast.success(`Invitation resent to ${invitation.email}`, {
-        description: 'Expiry extended by 7 days. New link available for copying.'
-      });
-
+      toast.success(`Invitation resent to ${invitation.email}`);
+      fetchInvitations();
     } catch (error) {
       toast.error("Failed to resend invitation. Please try again.");
     }
@@ -262,11 +245,14 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
 
   const handleCancelInvitation = async (invitation: PendingInvitation) => {
     try {
-      const { error } = await cancelInvitation(invitation.id);
-      if (error) throw new Error(error);
+      const { error } = await supabase
+        .from('invitations')
+        .update({ status: 'cancelled' })
+        .eq('id', invitation.id);
+
+      if (error) throw error;
 
       toast.success(`Invitation to ${invitation.email} has been cancelled`);
-
       fetchInvitations();
       setDeleteDialog({ open: false, item: null });
     } catch (error) {

@@ -21,7 +21,7 @@ export function InviteAssistantDialog({ open, onClose, onInviteSent }: InviteAss
   const [invitationSent, setInvitationSent] = useState(false);
   const [invitationLink, setInvitationLink] = useState('');
   
-  const { createAssistantInvitation } = useAuth();
+  const { createInvitation } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +39,7 @@ export function InviteAssistantDialog({ open, onClose, onInviteSent }: InviteAss
     setLoading(true);
     
     try {
-      const { invitationId, invitationToken, error } = await createAssistantInvitation(email.trim(), name.trim());
+      const { token, error } = await createInvitation(email.trim(), name.trim());
       
       if (error) {
         // Show more user-friendly error messages
@@ -52,8 +52,8 @@ export function InviteAssistantDialog({ open, onClose, onInviteSent }: InviteAss
           errorMessage = 'An invitation is already pending for this email. Check the Team section to resend or manage existing invitations.';
         }
         toast.error(errorMessage);
-      } else if (invitationToken) {
-        const link = `${window.location.origin}/accept-invitation?token=${invitationToken}`;
+      } else if (token) {
+        const link = `${window.location.origin}/join?token=${token}`;
         setInvitationLink(link);
         setInvitationSent(true);
         toast.success('Invitation created successfully!');

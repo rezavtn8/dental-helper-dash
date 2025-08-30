@@ -187,11 +187,7 @@ export default function AcceptInvitation() {
       }
 
       // Then create the user account
-      const { error } = await signUp(email, password, {
-        clinicId: result[0].clinic_id,
-        role: invitationData?.role || 'assistant',
-        name: invitationData?.email?.split('@')[0] || 'User'
-      });
+      const { error } = await signUp(email, password, invitationData?.email?.split('@')[0] || 'User', 'assistant');
 
       if (error) {
         toast.error(error);

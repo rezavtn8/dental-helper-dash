@@ -71,11 +71,7 @@ export default function ClinicSetup() {
       }
 
       // Create the owner account with sanitized data
-      const { error: authError } = await signUp(email, password, {
-        name: sanitizedOwnerName,
-        role: 'owner',
-        clinicId: clinic.id
-      });
+      const { error: authError } = await signUp(email, password, sanitizedOwnerName, 'owner');
 
       if (authError) {
         toast.error('Failed to create account: ' + authError);

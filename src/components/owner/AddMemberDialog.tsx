@@ -19,7 +19,7 @@ const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
   onOpenChange,
   onMemberAdded
 }) => {
-  const { createAssistantInvitation, userProfile } = useAuth();
+  const { createInvitation, userProfile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -43,7 +43,7 @@ const AddMemberDialog: React.FC<AddMemberDialogProps> = ({
     setLoading(true);
 
     try {
-      const result = await createAssistantInvitation(
+      const result = await createInvitation(
         formData.email,
         formData.name
       );

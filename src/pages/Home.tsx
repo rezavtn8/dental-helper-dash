@@ -16,7 +16,7 @@ export default function Home() {
       if (userProfile.role === 'owner') {
         navigate('/owner');
       } else if (userProfile.role === 'assistant') {
-        navigate('/assistant');
+        navigate('/hub');
       }
     }
   }, [user, userProfile, navigate]);
@@ -48,36 +48,38 @@ export default function Home() {
 
       {/* Hero Section with Login */}
       <section className="container mx-auto px-4 py-16">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Hero Content */}
-          <div className="space-y-8 text-center lg:text-left">
-            <div className="space-y-6">
-              <h1 className="text-4xl lg:text-6xl font-bold tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent leading-tight">
-                Streamline Your
-                <br />
-                <span className="text-primary">Clinic Operations</span>
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                Manage tasks, track progress, and empower your team with our comprehensive clinic management platform.
-              </p>
-            </div>
-
-            <div className="flex justify-center lg:justify-start">
-              <Button 
-                size="lg" 
-                onClick={() => navigate('/setup')}
-                className="group px-8 py-6 text-lg hover-scale shadow-xl hover:shadow-2xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90"
-              >
-                <Building2 className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" />
-                Create Your Clinic
-                <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
+        <div className="space-y-8">
+          <div className="text-center space-y-4">
+            <h1 className="text-3xl font-bold">Welcome to ClinicFlow</h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              The complete solution for modern dental practice management. Sign in to access your dashboard or create a new clinic account.
+            </p>
           </div>
-          
-          {/* Login Widget */}
-          <div id="login-section" className="flex justify-center">
-            <LoginWidget />
+
+          <Card className="shadow-lg max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <CardTitle>Sign In to Your Account</CardTitle>
+              <CardDescription>
+                Access your clinic dashboard or assistant workspace
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LoginWidget />
+            </CardContent>
+          </Card>
+
+          <div className="text-center">
+            <p className="text-muted-foreground mb-4">
+              Don't have a clinic yet?
+            </p>
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/setup')}
+              className="px-8 py-3"
+            >
+              <Building2 className="w-5 h-5 mr-2" />
+              Create Your Clinic
+            </Button>
           </div>
         </div>
       </section>
@@ -110,7 +112,7 @@ export default function Home() {
                 </li>
                  <li className="flex items-center">
                    <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                   Assistant access with email invitations
+                   Assistant access with clinic codes
                  </li>
                 <li className="flex items-center">
                   <CheckCircle className="w-5 h-5 mr-3 text-primary" />

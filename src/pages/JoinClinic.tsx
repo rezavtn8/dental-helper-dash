@@ -1,0 +1,251 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Building2, Clock, CheckCircle, XCircle, ArrowLeft, Shield } from 'lucide-react';
+
+interface JoinRequest {
+  id: string;
+  clinic_id: string;
+  requested_at: string;
+  status: 'pending' | 'approved' | 'denied';
+  reviewed_at: string | null;
+  denial_reason: string | null;
+  clinic: {
+    name: string;
+    clinic_code: string;
+  };
+}
+
+export default function JoinClinic() {
+  const navigate = useNavigate();
+  const { user, session } = useAuth();
+  const [clinicCode, setClinicCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+
+  useEffect(() => {
+    if (!session) {
+      navigate('/', { replace: true });
+      return;
+    }
+    fetchJoinRequests();
+  }, [session, navigate]);
+
+  const fetchJoinRequests = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('join_requests')
+        .select(`
+          *,
+          clinic:clinics(name, clinic_code)
+        `)
+        .eq('user_id', user?.id)
+        .order('requested_at', { ascending: false });
+
+      if (error) throw error;
+      setJoinRequests((data || []) as JoinRequest[]);
+    } catch (error) {
+      console.error('Error fetching join requests:', error);
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
+
+  const handleSubmitRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!clinicCode.trim()) {
+      toast.error('Please enter a clinic code');
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase.rpc('submit_join_request_with_rate_limit', {
+        p_clinic_code: clinicCode.trim()
+      });
+
+      if (error) throw error;
+
+      const result = data[0];
+      if (result.success) {
+        toast.success(result.message);
+        setClinicCode('');
+        fetchJoinRequests();
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error: any) {
+      console.error('Error submitting join request:', error);
+      toast.error('Failed to submit request. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+      case 'approved':
+        return <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
+      case 'denied':
+        return <Badge variant="secondary" className="bg-red-100 text-red-800 border-red-200"><XCircle className="w-3 h-3 mr-1" />Denied</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  if (!session) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Header */}
+      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="hover:bg-muted"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <div className="flex items-center space-x-2">
+              <Building2 className="w-6 h-6 text-primary" />
+              <span className="text-xl font-semibold">Join Clinic</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="grid gap-8">
+          {/* Join Form */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Building2 className="w-5 h-5 text-primary" />
+                <span>Join a Clinic</span>
+              </CardTitle>
+              <CardDescription>
+                Enter your clinic's code to request access. Your request will need approval from the clinic owner.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmitRequest} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="clinicCode">Clinic Code</Label>
+                  <Input
+                    id="clinicCode"
+                    value={clinicCode}
+                    onChange={(e) => setClinicCode(e.target.value.toUpperCase())}
+                    placeholder="Enter clinic code (e.g., ABC123)"
+                    className="font-mono"
+                    maxLength={10}
+                    disabled={loading}
+                  />
+                </div>
+                
+                <Alert>
+                  <Shield className="w-4 h-4" />
+                  <AlertDescription>
+                    Your request will be reviewed by the clinic owner. You'll be notified once it's processed.
+                  </AlertDescription>
+                </Alert>
+
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={loading || !clinicCode.trim()}
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                      Submitting Request...
+                    </>
+                  ) : (
+                    <>
+                      <Building2 className="w-4 h-4 mr-2" />
+                      Submit Join Request
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Request History */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>Your Join Requests</CardTitle>
+              <CardDescription>
+                Track the status of your clinic join requests
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingRequests ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <span className="ml-2 text-muted-foreground">Loading requests...</span>
+                </div>
+              ) : joinRequests.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No join requests yet</p>
+                  <p className="text-sm">Submit a request above to get started</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {joinRequests.map((request) => (
+                    <div
+                      key={request.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium">{request.clinic.name}</span>
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {request.clinic.clinic_code}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Requested {new Date(request.requested_at).toLocaleDateString()}
+                          {request.reviewed_at && (
+                            <span> • Reviewed {new Date(request.reviewed_at).toLocaleDateString()}</span>
+                          )}
+                        </p>
+                        {request.denial_reason && (
+                          <p className="text-sm text-red-600 mt-2">
+                            <strong>Reason:</strong> {request.denial_reason}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {getStatusBadge(request.status)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

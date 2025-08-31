@@ -8,8 +8,9 @@ import React from "react";
 import Home from "./pages/Home";
 import ClinicSetup from "./pages/ClinicSetup";
 import AssistantDashboard from "./pages/AssistantDashboard";
+import AssistantHub from "./pages/AssistantHub";
 import OwnerDashboard from "./pages/OwnerDashboard";
-import JoinTeam from "./pages/JoinTeam";
+import JoinClinic from "./pages/JoinClinic";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,7 +63,7 @@ const DashboardRedirect = () => {
   if (userProfile?.role === 'owner') {
     return <Navigate to="/owner" replace />;
   } else if (userProfile?.role === 'assistant') {
-    return <Navigate to="/assistant" replace />;
+    return <Navigate to="/hub" replace />;
   }
 
   // Fallback to home
@@ -80,9 +81,10 @@ const App: React.FC = () => (
               <Route path="/" element={<Home />} />
               <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/dashboard" element={<DashboardRedirect />} />
+              <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
               <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
               <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
-              <Route path="/join" element={<JoinTeam />} />
+              <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -1,13 +1,22 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, BarChart3, Settings } from 'lucide-react';
+import { Users, BarChart3, Settings, Clock } from 'lucide-react';
 import SimpleTeamView from './SimpleTeamView';
+import PendingRequestsTab from './PendingRequestsTab';
 
-export default function OwnerDashboardTabs() {
+interface OwnerDashboardTabsProps {
+  clinicId?: string;
+}
+
+export default function OwnerDashboardTabs({ clinicId }: OwnerDashboardTabsProps) {
   return (
-    <Tabs defaultValue="team" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-3">
+    <Tabs defaultValue="requests" className="space-y-6">
+      <TabsList className="grid w-full grid-cols-4">
+        <TabsTrigger value="requests" className="flex items-center gap-2">
+          <Clock className="w-4 h-4" />
+          Requests
+        </TabsTrigger>
         <TabsTrigger value="team" className="flex items-center gap-2">
           <Users className="w-4 h-4" />
           Team
@@ -21,6 +30,10 @@ export default function OwnerDashboardTabs() {
           Settings
         </TabsTrigger>
       </TabsList>
+
+      <TabsContent value="requests">
+        {clinicId && <PendingRequestsTab clinicId={clinicId} />}
+      </TabsContent>
 
       <TabsContent value="team">
         <SimpleTeamView />

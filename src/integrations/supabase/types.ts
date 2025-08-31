@@ -44,6 +44,41 @@ export type Database = {
         }
         Relationships: []
       }
+      clinic_memberships: {
+        Row: {
+          clinic_id: string
+          id: string
+          is_active: boolean
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          clinic_id: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          clinic_id?: string
+          id?: string
+          is_active?: boolean
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_memberships_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinics: {
         Row: {
           address: string | null
@@ -183,6 +218,47 @@ export type Database = {
             columns: ["invited_by"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      join_requests: {
+        Row: {
+          clinic_id: string
+          denial_reason: string | null
+          id: string
+          requested_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          clinic_id: string
+          denial_reason?: string | null
+          id?: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          clinic_id?: string
+          denial_reason?: string | null
+          id?: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "join_requests_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
             referencedColumns: ["id"]
           },
         ]
@@ -668,6 +744,17 @@ export type Database = {
           name: string
         }[]
       }
+      process_join_request: {
+        Args: {
+          p_action: string
+          p_denial_reason?: string
+          p_request_id: string
+        }
+        Returns: {
+          message: string
+          success: boolean
+        }[]
+      }
       sanitize_and_validate_input: {
         Args: { input_type: string; input_value: string }
         Returns: string
@@ -675,6 +762,22 @@ export type Database = {
       sanitize_text_input: {
         Args: { input_text: string }
         Returns: string
+      }
+      submit_join_request: {
+        Args: { p_clinic_code: string }
+        Returns: {
+          message: string
+          request_id: string
+          success: boolean
+        }[]
+      }
+      submit_join_request_with_rate_limit: {
+        Args: { p_clinic_code: string }
+        Returns: {
+          message: string
+          request_id: string
+          success: boolean
+        }[]
       }
       validate_clinic_code: {
         Args: { code_input: string }

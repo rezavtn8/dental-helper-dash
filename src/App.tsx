@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
@@ -71,23 +72,25 @@ const DashboardRedirect = () => {
 
 const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
-    <Toaster />
-    <AuthErrorBoundary>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/setup" element={<ClinicSetup />} />
-            <Route path="/dashboard" element={<DashboardRedirect />} />
-            <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
-            <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
-            <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
-            <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </AuthErrorBoundary>
+    <TooltipProvider>
+      <Toaster />
+      <AuthErrorBoundary>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/setup" element={<ClinicSetup />} />
+              <Route path="/dashboard" element={<DashboardRedirect />} />
+              <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
+              <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
+              <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
+              <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </AuthErrorBoundary>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 

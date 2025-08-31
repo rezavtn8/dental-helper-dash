@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogIn, Shield, Users, CheckCircle, ArrowRight, Stethoscope, Building2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LogIn, Shield, Users, CheckCircle, ArrowRight, Stethoscope, Building2, UserCheck, Crown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
-import LoginWidget from '@/components/auth/LoginWidget';
+import AuthWidget from '@/components/auth/AuthWidget';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -46,41 +47,62 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section with Login */}
-      <section className="container mx-auto px-4 py-16">
+      {/* Hero Section with Authentication */}
+      <section id="login-section" className="container mx-auto px-4 py-16">
         <div className="space-y-8">
           <div className="text-center space-y-4">
-            <h1 className="text-3xl font-bold">Welcome to ClinicFlow</h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              The complete solution for modern dental practice management. Sign in to access your dashboard or create a new clinic account.
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Welcome to ClinicFlow
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              The complete solution for modern healthcare practice management. Choose your role to get started.
             </p>
           </div>
 
-          <Card className="shadow-lg max-w-md mx-auto">
-            <CardHeader className="text-center">
-              <CardTitle>Sign In to Your Account</CardTitle>
-              <CardDescription>
-                Access your clinic dashboard or assistant workspace
+          <Card className="shadow-2xl max-w-2xl mx-auto border-0">
+            <CardHeader className="text-center pb-6">
+              <CardTitle className="text-2xl">Get Started</CardTitle>
+              <CardDescription className="text-base">
+                Sign in to your account or create a new one
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <LoginWidget />
+              <Tabs defaultValue="owner" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-8">
+                  <TabsTrigger value="owner" className="flex items-center space-x-2 py-3">
+                    <Crown className="w-4 h-4" />
+                    <span>Clinic Owner</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="assistant" className="flex items-center space-x-2 py-3">
+                    <UserCheck className="w-4 h-4" />
+                    <span>Assistant</span>
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="owner" className="space-y-4">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                      <Crown className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-semibold">Clinic Owner Access</h3>
+                    <p className="text-muted-foreground">Manage your clinic, team, and patients</p>
+                  </div>
+                  <AuthWidget role="owner" />
+                </TabsContent>
+                
+                <TabsContent value="assistant" className="space-y-4">
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-gradient-to-r from-secondary/30 to-secondary/40 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                      <UserCheck className="w-8 h-8 text-secondary-foreground" />
+                    </div>
+                    <h3 className="text-xl font-semibold">Assistant Access</h3>
+                    <p className="text-muted-foreground">Access your tasks and clinic workspace</p>
+                  </div>
+                  <AuthWidget role="assistant" />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
-
-          <div className="text-center">
-            <p className="text-muted-foreground mb-4">
-              Don't have a clinic yet?
-            </p>
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/setup')}
-              className="px-8 py-3"
-            >
-              <Building2 className="w-5 h-5 mr-2" />
-              Create Your Clinic
-            </Button>
-          </div>
         </div>
       </section>
 
@@ -112,7 +134,7 @@ export default function Home() {
                 </li>
                  <li className="flex items-center">
                    <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                   Assistant access with clinic codes
+                   Assistant joins via clinic codes
                  </li>
                 <li className="flex items-center">
                   <CheckCircle className="w-5 h-5 mr-3 text-primary" />
@@ -190,11 +212,11 @@ export default function Home() {
             </p>
             <Button 
               size="lg" 
-              onClick={() => navigate('/setup')}
+              onClick={() => document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-12 py-6 text-lg hover-scale shadow-2xl group bg-gradient-to-r from-primary to-primary/90"
             >
               <Building2 className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />
-              Start Your Journey
+              Get Started Today
               <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>

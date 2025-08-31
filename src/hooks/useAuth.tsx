@@ -19,6 +19,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
+  signInWithMagicLink: (email: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, name: string, role?: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   refreshUserProfile: () => Promise<void>;
@@ -144,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/`,
         },
       });
 
@@ -156,6 +157,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Google sign-in error:', error);
       return { error: 'Failed to sign in with Google' };
+    }
+  };
+
+  const signInWithMagicLink = async (email: string): Promise<{ error?: string }> => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+      
+      return {};
+    } catch (error) {
+      console.error('Magic link error:', error);
+      return { error: 'Failed to send magic link' };
     }
   };
 
@@ -204,6 +225,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading,
       signInWithEmail,
       signInWithGoogle,
+      signInWithMagicLink,
       signUp,
       signOut,
       refreshUserProfile,

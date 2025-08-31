@@ -147,7 +147,7 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ assigned_to: newAssignee || null })
+        .update({ assigned_to: newAssignee === 'unassigned' ? null : newAssignee })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -166,7 +166,9 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                          task.assigned_assistant_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-    const matchesAssistant = assistantFilter === 'all' || task.assigned_to === assistantFilter;
+    const matchesAssistant = assistantFilter === 'all' || 
+                            (assistantFilter === 'unassigned' && !task.assigned_to) ||
+                            task.assigned_to === assistantFilter;
 
     return matchesSearch && matchesStatus && matchesAssistant;
   });
@@ -303,12 +305,12 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="assigned_to">Assign To</Label>
-                <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask(prev => ({ ...prev, assigned_to: value }))}>
+                <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask(prev => ({ ...prev, assigned_to: value === 'unassigned' ? '' : value }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select assistant (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Unassigned</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
                     {assistants.map(assistant => (
                       <SelectItem key={assistant.id} value={assistant.id}>
                         {assistant.name}
@@ -362,7 +364,7 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Assistants</SelectItem>
-                <SelectItem value="">Unassigned</SelectItem>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
                 {assistants.map(assistant => (
                   <SelectItem key={assistant.id} value={assistant.id}>
                     {assistant.name}
@@ -410,14 +412,14 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                     </TableCell>
                     <TableCell>
                       <Select 
-                        value={task.assigned_to || ''} 
+                        value={task.assigned_to || 'unassigned'} 
                         onValueChange={(value) => handleReassignTask(task.id, value)}
                       >
                         <SelectTrigger className="w-40">
                           <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Unassigned</SelectItem>
+                          <SelectItem value="unassigned">Unassigned</SelectItem>
                           {assistants.map(assistant => (
                             <SelectItem key={assistant.id} value={assistant.id}>
                               {assistant.name}

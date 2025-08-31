@@ -50,7 +50,7 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedAssistant, setSelectedAssistant] = useState('');
+  const [selectedAssistant, setSelectedAssistant] = useState('all');
   const [newFeedback, setNewFeedback] = useState({
     assistant_id: '',
     title: '',
@@ -358,7 +358,7 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
                   <SelectValue placeholder="All Assistants" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Assistants</SelectItem>
+                  <SelectItem value="all">All Assistants</SelectItem>
                   {assistants.map(assistant => (
                     <SelectItem key={assistant.id} value={assistant.id}>
                       {assistant.name}
@@ -370,7 +370,7 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
 
             <Accordion type="single" collapsible className="w-full">
               {assistants
-                .filter(assistant => !selectedAssistant || assistant.id === selectedAssistant)
+                .filter(assistant => !selectedAssistant || selectedAssistant === "all" || assistant.id === selectedAssistant)
                 .map((assistant) => {
                   const history = getAssistantFeedbackHistory(assistant.id);
                   return (

@@ -35,7 +35,9 @@ const OwnerDashboard = () => {
   const fetchClinic = async () => {
     try {
       if (!userProfile?.clinic_id) {
-        throw new Error('No clinic ID found');
+        // No clinic setup yet, redirect to setup
+        navigate('/setup', { replace: true });
+        return;
       }
       
       const { data, error } = await supabase
@@ -48,7 +50,8 @@ const OwnerDashboard = () => {
       setClinic(data);
     } catch (error) {
       console.error('Error fetching clinic:', error);
-      toast.error('Failed to load clinic information');
+      // If clinic not found or other error, redirect to setup
+      navigate('/setup', { replace: true });
     } finally {
       setLoading(false);
     }

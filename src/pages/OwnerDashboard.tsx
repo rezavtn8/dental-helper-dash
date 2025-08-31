@@ -35,8 +35,8 @@ const OwnerDashboard = () => {
   const fetchClinic = async () => {
     try {
       if (!userProfile?.clinic_id) {
-        // No clinic setup yet, redirect to setup
-        navigate('/setup', { replace: true });
+        // No clinic setup yet, redirect to home
+        navigate('/', { replace: true });
         return;
       }
       
@@ -50,8 +50,8 @@ const OwnerDashboard = () => {
       setClinic(data);
     } catch (error) {
       console.error('Error fetching clinic:', error);
-      // If clinic not found or other error, redirect to setup
-      navigate('/setup', { replace: true });
+      // If clinic not found or other error, redirect to home
+      navigate('/', { replace: true });
     } finally {
       setLoading(false);
     }

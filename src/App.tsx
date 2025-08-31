@@ -6,7 +6,6 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthErrorBoundary } from "@/components/auth/AuthErrorBoundary";
 import React from "react";
 import Home from "./pages/Home";
-import ClinicSetup from "./pages/ClinicSetup";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import AssistantHub from "./pages/AssistantHub";
 import OwnerDashboard from "./pages/OwnerDashboard";
@@ -54,9 +53,9 @@ const DashboardRedirect = () => {
     return <Navigate to="/" replace />;
   }
 
-  // If owner has no clinic, go to setup
+  // If owner has no clinic, redirect to home to create one
   if (userProfile?.role === 'owner' && !userProfile?.clinic_id) {
-    return <Navigate to="/setup" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // Redirect based on role
@@ -79,7 +78,6 @@ const App: React.FC = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/setup" element={<ClinicSetup />} />
               <Route path="/dashboard" element={<DashboardRedirect />} />
               <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
               <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />

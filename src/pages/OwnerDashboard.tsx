@@ -24,11 +24,14 @@ const OwnerDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session && user && userProfile?.role === 'owner') {
-      fetchClinic();
-    } else if (session && user && userProfile?.role !== 'owner') {
-      // Redirect non-owners
-      navigate('/hub', { replace: true });
+    if (session && user && userProfile) {
+      if (userProfile.role === 'owner' && userProfile.clinic_id) {
+        fetchClinic();
+      } else if (userProfile.role !== 'owner') {
+        // Redirect non-owners
+        navigate('/hub', { replace: true });
+      }
+      // If owner has no clinic_id, let them stay to create one
     }
   }, [session, user, userProfile, navigate]);
 

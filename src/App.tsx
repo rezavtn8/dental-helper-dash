@@ -35,40 +35,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const DashboardRedirect = () => {
-  const { userProfile, loading, session } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return <Navigate to="/" replace />;
-  }
-
-  // If owner has no clinic, redirect to home to create one
-  if (userProfile?.role === 'owner' && !userProfile?.clinic_id) {
-    return <Navigate to="/" replace />;
-  }
-
-  // Redirect based on role
-  if (userProfile?.role === 'owner') {
-    return <Navigate to="/owner" replace />;
-  } else if (userProfile?.role === 'assistant') {
-    return <Navigate to="/hub" replace />;
-  }
-
-  // Fallback to home
-  return <Navigate to="/" replace />;
-};
-
 const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -78,7 +44,6 @@ const App: React.FC = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/dashboard" element={<DashboardRedirect />} />
               <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
               <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
               <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />

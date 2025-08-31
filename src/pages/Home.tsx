@@ -6,6 +6,7 @@ import { LogIn, Shield, Users, CheckCircle, ArrowRight, Stethoscope, Building2, 
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import AuthWidget from '@/components/auth/AuthWidget';
+import ClinicSetupForm from '@/components/ClinicSetupForm';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -49,60 +50,74 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section with Authentication */}
+      {/* Hero Section with Authentication or Clinic Setup */}
       <section id="login-section" className="container mx-auto px-4 py-16">
         <div className="space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Welcome to ClinicFlow
+              {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
+                ? 'Complete Your Clinic Setup' 
+                : 'Welcome to ClinicFlow'}
             </h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              The complete solution for modern healthcare practice management. Choose your role to get started.
+              {user && userProfile?.role === 'owner' && !userProfile?.clinic_id
+                ? 'Create your clinic to start managing your team and tasks.'
+                : 'The complete solution for modern healthcare practice management. Choose your role to get started.'}
             </p>
           </div>
 
           <Card className="shadow-2xl max-w-2xl mx-auto border-0">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl">Get Started</CardTitle>
+              <CardTitle className="text-2xl">
+                {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
+                  ? 'Create Your Clinic' 
+                  : 'Get Started'}
+              </CardTitle>
               <CardDescription className="text-base">
-                Sign in to your account or create a new one
+                {user && userProfile?.role === 'owner' && !userProfile?.clinic_id
+                  ? 'Set up your clinic information and get your unique clinic code'
+                  : 'Sign in to your account or create a new one'}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="owner" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-8">
-                  <TabsTrigger value="owner" className="flex items-center space-x-2 py-3">
-                    <Crown className="w-4 h-4" />
-                    <span>Clinic Owner</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="assistant" className="flex items-center space-x-2 py-3">
-                    <UserCheck className="w-4 h-4" />
-                    <span>Assistant</span>
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="owner" className="space-y-4">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                      <Crown className="w-8 h-8 text-primary" />
+              {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? (
+                <ClinicSetupForm userProfile={userProfile} />
+              ) : (
+                <Tabs defaultValue="owner" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-8">
+                    <TabsTrigger value="owner" className="flex items-center space-x-2 py-3">
+                      <Crown className="w-4 h-4" />
+                      <span>Clinic Owner</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="assistant" className="flex items-center space-x-2 py-3">
+                      <UserCheck className="w-4 h-4" />
+                      <span>Assistant</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="owner" className="space-y-4">
+                    <div className="text-center mb-6">
+                      <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <Crown className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-semibold">Clinic Owner Access</h3>
+                      <p className="text-muted-foreground">Manage your clinic, team, and patients</p>
                     </div>
-                    <h3 className="text-xl font-semibold">Clinic Owner Access</h3>
-                    <p className="text-muted-foreground">Manage your clinic, team, and patients</p>
-                  </div>
-                  <AuthWidget role="owner" />
-                </TabsContent>
-                
-                <TabsContent value="assistant" className="space-y-4">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-secondary/30 to-secondary/40 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                      <UserCheck className="w-8 h-8 text-secondary-foreground" />
+                    <AuthWidget role="owner" />
+                  </TabsContent>
+                  
+                  <TabsContent value="assistant" className="space-y-4">
+                    <div className="text-center mb-6">
+                      <div className="w-16 h-16 bg-gradient-to-r from-secondary/30 to-secondary/40 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <UserCheck className="w-8 h-8 text-secondary-foreground" />
+                      </div>
+                      <h3 className="text-xl font-semibold">Assistant Access</h3>
+                      <p className="text-muted-foreground">Access your tasks and clinic workspace</p>
                     </div>
-                    <h3 className="text-xl font-semibold">Assistant Access</h3>
-                    <p className="text-muted-foreground">Access your tasks and clinic workspace</p>
-                  </div>
-                  <AuthWidget role="assistant" />
-                </TabsContent>
-              </Tabs>
+                    <AuthWidget role="assistant" />
+                  </TabsContent>
+                </Tabs>
+              )}
             </CardContent>
           </Card>
         </div>

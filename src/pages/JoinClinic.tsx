@@ -21,7 +21,7 @@ interface JoinRequest {
   clinic: {
     name: string;
     clinic_code: string;
-  };
+  } | null;
 }
 
 export default function JoinClinic() {
@@ -218,9 +218,11 @@ export default function JoinClinic() {
                     >
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium">{request.clinic.name}</span>
+                          <span className="font-medium">
+                            {request.clinic?.name || 'Unknown Clinic'}
+                          </span>
                           <Badge variant="outline" className="font-mono text-xs">
-                            {request.clinic.clinic_code}
+                            {request.clinic?.clinic_code || 'N/A'}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">

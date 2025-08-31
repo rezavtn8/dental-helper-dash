@@ -26,12 +26,19 @@ const OwnerDashboard = () => {
   useEffect(() => {
     if (session && user && userProfile) {
       if (userProfile.role === 'owner' && userProfile.clinic_id) {
-        fetchClinic();
+        // Only fetch if we don't already have clinic data for this clinic_id
+        if (!clinic || clinic.id !== userProfile.clinic_id) {
+          fetchClinic();
+        } else {
+          setLoading(false);
+        }
       } else if (userProfile.role !== 'owner') {
         // Redirect non-owners
         navigate('/hub', { replace: true });
+      } else {
+        // Owner with no clinic_id
+        setLoading(false);
       }
-      // If owner has no clinic_id, let them stay to create one
     }
   }, [session, user, userProfile, navigate]);
 

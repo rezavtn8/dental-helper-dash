@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import ResendInvitationDialog from './ResendInvitationDialog';
 import { 
   Plus, 
   Search, 
@@ -26,7 +25,6 @@ import {
   XCircle,
   AlertTriangle
 } from 'lucide-react';
-import AddMemberDialog from './AddMemberDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -126,40 +124,19 @@ const getStatusIcon = (item: TeamItem) => {
 
 export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: UnifiedTeamViewProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [invitations, setInvitations] = useState<PendingInvitation[]>([]);
   const [loading, setLoading] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item: TeamItem | null }>({
     open: false,
     item: null
   });
-  const [resendDialog, setResendDialog] = useState<{ open: boolean; invitation: PendingInvitation | null }>({
-    open: false,
-    invitation: null
-  });
 
-  const { getInvitations } = useAuth();
+  const { userProfile } = useAuth();
 
   const fetchInvitations = async () => {
-    setLoading(true);
-    try {
-      const { invitations: invitationData, error } = await getInvitations();
-      if (error) {
-        console.error('Failed to fetch invitations:', error);
-        return;
-      }
-      
-      const formattedInvitations: PendingInvitation[] = invitationData.map(inv => ({
-        ...inv,
-        type: 'invitation' as const
-      }));
-      
-      setInvitations(formattedInvitations);
-    } catch (error) {
-      console.error('Error fetching invitations:', error);
-    } finally {
-      setLoading(false);
-    }
+    // Since we're moving to clinic codes, we don't need to fetch invitations anymore
+    setInvitations([]);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -282,13 +259,12 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Team Management</h2>
-          <p className="text-gray-600">Manage your practice team members and invitations</p>
+          <p className="text-gray-600">Manage your practice team members</p>
         </div>
         
-        <Button onClick={() => setAddMemberOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Assistant
-        </Button>
+        <div className="text-sm text-muted-foreground">
+          Share clinic code to add assistants
+        </div>
       </div>
 
       {/* Search */}
@@ -383,14 +359,13 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
               <p className="text-gray-600 mb-6">
                 {searchTerm 
                   ? "Try adjusting your search terms."
-                  : "Add your first team member to get started."
+                  : "Share your clinic code with assistants to have them join your team."
                 }
               </p>
               {!searchTerm && (
-                <Button onClick={() => setAddMemberOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Assistant
-                </Button>
+                <div className="text-sm text-muted-foreground">
+                  Assistants can join using your clinic code
+                </div>
               )}
             </CardContent>
           </Card>
@@ -444,21 +419,13 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           {isInvitation ? (
-                            <>
-                              {invitation.status === 'pending' && new Date(invitation.expires_at) > new Date() && (
-                                <DropdownMenuItem onClick={() => setResendDialog({ open: true, invitation })}>
-                                  <RefreshCw className="mr-2 h-4 w-4" />
-                                  Resend Invitation
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem 
-                                onClick={() => setDeleteDialog({ open: true, item: invitation })}
-                                className="text-red-600"
-                              >
-                                <X className="mr-2 h-4 w-4" />
-                                Cancel Invitation
-                              </DropdownMenuItem>
-                            </>
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteDialog({ open: true, item: invitation })}
+                              className="text-red-600"
+                            >
+                              <X className="mr-2 h-4 w-4" />
+                              Cancel Invitation
+                            </DropdownMenuItem>
                           ) : (
                             <>
                               <DropdownMenuItem onClick={() => handleToggleActive(member)}>
@@ -547,17 +514,6 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
         )}
       </div>
 
-      {/* Add Member Dialog */}
-      <AddMemberDialog 
-        open={addMemberOpen} 
-        onOpenChange={setAddMemberOpen} 
-        onMemberAdded={() => {
-          onTeamUpdate();
-          fetchInvitations();
-          setAddMemberOpen(false);
-        }} 
-      />
-
       {/* Delete Confirmation Dialog */}
       <AlertDialog 
         open={deleteDialog.open} 
@@ -592,21 +548,6 @@ export default function UnifiedTeamView({ assistants, tasks, onTeamUpdate }: Uni
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Resend Invitation Dialog */}
-      <ResendInvitationDialog
-        open={resendDialog.open}
-        onOpenChange={(open) => setResendDialog({ open, invitation: null })}
-        email={resendDialog.invitation?.email || ''}
-        token={resendDialog.invitation?.token}
-        resendCount={resendDialog.invitation?.resend_count || 0}
-        onResend={async () => {
-          if (resendDialog.invitation) {
-            await handleResendInvitation(resendDialog.invitation);
-            setResendDialog({ open: false, invitation: null });
-          }
-        }}
-      />
     </div>
   );
 }

@@ -32,7 +32,6 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { TeamInvitationDialog } from './TeamInvitationDialog';
 import { formatDistanceToNow } from 'date-fns';
 
 interface TeamMember {
@@ -311,9 +310,9 @@ export function TeamManagement() {
             <Users className="h-5 w-5" />
             Team Members & Invitations
           </CardTitle>
-          <Button onClick={() => setInviteDialogOpen(true)}>
+          <Button disabled>
             <UserPlus className="h-4 w-4 mr-2" />
-            Invite Member
+            Share Clinic Code
           </Button>
         </CardHeader>
         <CardContent>
@@ -338,9 +337,9 @@ export function TeamManagement() {
                         <p className="text-muted-foreground">No team members yet</p>
                         <Button 
                           variant="outline" 
-                          onClick={() => setInviteDialogOpen(true)}
+                          disabled
                         >
-                          Invite your first team member
+                          Share clinic code to add members
                         </Button>
                       </div>
                     </TableCell>
@@ -420,13 +419,6 @@ export function TeamManagement() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Team Invitation Dialog */}
-      <TeamInvitationDialog
-        open={inviteDialogOpen}
-        onClose={() => setInviteDialogOpen(false)}
-        onInviteSent={fetchTeamData}
-      />
     </div>
   );
 }

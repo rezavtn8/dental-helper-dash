@@ -21,9 +21,6 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ error?: string }>;
   signUp: (email: string, password: string, name: string, role?: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
-  createInvitation: (email: string, name: string) => Promise<{ token?: string; error?: string }>;
-  acceptInvitation: (token: string) => Promise<{ error?: string }>;
-  getInvitations: () => Promise<{ invitations: any[]; error?: string }>;
   refreshUserProfile: () => Promise<void>;
 }
 
@@ -192,123 +189,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserProfile(null);
   };
 
-  const createInvitation = async (email: string, name: string): Promise<{ token?: string; error?: string }> => {
-    try {
-      if (!userProfile?.clinic_id) {
-        return { error: 'No clinic found' };
-      }
-
-      // Create invitation in database first
-      const { data, error } = await supabase.rpc('create_simple_invitation', {
-        p_email: email,
-        p_name: name,
-        p_clinic_id: userProfile.clinic_id
-      });
-
-      if (error) {
-        return { error: error.message };
-      }
-
-      const result = data[0];
-      if (!result) {
-        return { error: 'Failed to create invitation' };
-      }
-
-      // Send invitation email via the proper edge function
-      try {
-        // Get clinic details
-        const { data: clinicData } = await supabase
-          .from('clinics')
-          .select('name')
-          .eq('id', userProfile.clinic_id)
-          .single();
-
-        const clinicName = clinicData?.name || 'Your Clinic';
-        const baseUrl = window.location.origin;
-        const joinUrl = `${baseUrl}/join?token=${result.token}`;
-
-        // Call the team invitation edge function
-        const { error: emailError } = await supabase.functions.invoke('send-team-invitation', {
-          body: {
-            invitationId: result.invitation_id,
-            recipientEmail: email.trim(),
-            recipientName: name.trim(),
-            senderName: userProfile.name || 'Team Admin',
-            clinicName: clinicName,
-            role: 'assistant',
-            joinUrl: joinUrl
-          }
-        });
-
-        if (emailError) {
-          console.error('Failed to send invitation email:', emailError);
-          // Don't fail the invitation creation if email fails
-        } else {
-          console.log('Invitation email sent successfully');
-        }
-      } catch (emailError) {
-        console.error('Error sending invitation email:', emailError);
-        // Don't fail the invitation creation if email fails
-      }
-
-      return { token: result.token };
-    } catch (error) {
-      console.error('Failed to create invitation:', error);
-      return { error: 'Failed to create invitation' };
-    }
-  };
-
-  const acceptInvitation = async (token: string): Promise<{ error?: string }> => {
-    try {
-      const { data, error } = await supabase.rpc('accept_simple_invitation', {
-        p_token: token
-      });
-
-      if (error) {
-        return { error: error.message };
-      }
-
-      const result = data[0];
-      if (!result.success) {
-        return { error: result.message };
-      }
-
-      // Refresh user profile after accepting invitation
-      if (user) {
-        await fetchUserProfile(user.id);
-      }
-
-      return {};
-    } catch (error) {
-      console.error('Failed to accept invitation:', error);
-      return { error: 'Failed to accept invitation' };
-    }
-  };
-
-  const getInvitations = async (): Promise<{ invitations: any[]; error?: string }> => {
-    try {
-      if (!userProfile?.clinic_id) {
-        return { invitations: [] };
-      }
-
-      const { data, error } = await supabase
-        .from('invitations')
-        .select('*')
-        .eq('clinic_id', userProfile.clinic_id)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        return { invitations: [], error: error.message };
-      }
-
-      return { invitations: data || [] };
-    } catch (error) {
-      console.error('Failed to get invitations:', error);
-      return { invitations: [], error: 'Failed to get invitations' };
-    }
-  };
-
   // Function to refresh user profile (expose it)
   const refreshUserProfile = async () => {
     if (user) {
@@ -326,9 +206,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signInWithGoogle,
       signUp,
       signOut,
-      createInvitation,
-      acceptInvitation,
-      getInvitations,
       refreshUserProfile,
     }}>
       {children}

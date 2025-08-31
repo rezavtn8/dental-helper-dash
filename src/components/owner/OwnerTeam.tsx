@@ -14,7 +14,6 @@ import {
   Clock,
   Users
 } from 'lucide-react';
-import AddMemberDialog from './AddMemberDialog';
 
 interface TeamMember {
   id: string;
@@ -41,7 +40,6 @@ interface OwnerTeamProps {
 
 const OwnerTeam: React.FC<OwnerTeamProps> = ({ assistants, tasks, onTeamUpdate }) => {
   const [teamStats, setTeamStats] = useState<Record<string, { completed: number; pending: number; total: number }>>({});
-  const [showAddMember, setShowAddMember] = useState(false);
 
   useEffect(() => {
     calculateTeamStats();
@@ -142,10 +140,9 @@ const OwnerTeam: React.FC<OwnerTeamProps> = ({ assistants, tasks, onTeamUpdate }
       {/* Add Member Button */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Team Members</h2>
-        <Button onClick={() => setShowAddMember(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Member
-        </Button>
+        <div className="text-muted-foreground text-sm">
+          Use clinic code to add new members
+        </div>
       </div>
 
       {/* Team Member Cards */}
@@ -154,7 +151,7 @@ const OwnerTeam: React.FC<OwnerTeamProps> = ({ assistants, tasks, onTeamUpdate }
           <Card className="col-span-full">
             <CardContent className="py-8">
               <p className="text-center text-muted-foreground">
-                No team members yet. Add your first team member to get started.
+                No team members yet. Share your clinic code with assistants to have them join your team.
               </p>
             </CardContent>
           </Card>
@@ -214,13 +211,6 @@ const OwnerTeam: React.FC<OwnerTeamProps> = ({ assistants, tasks, onTeamUpdate }
           })
         )}
       </div>
-
-      {/* Add Member Dialog */}
-      <AddMemberDialog
-        open={showAddMember}
-        onOpenChange={setShowAddMember}
-        onMemberAdded={onTeamUpdate}
-      />
     </div>
   );
 };

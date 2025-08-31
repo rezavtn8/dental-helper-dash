@@ -7,7 +7,6 @@ import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
 import SettingsTab from '@/components/assistant/SettingsTab';
-import InviteRedirect from '@/components/assistant/InviteRedirect';
 import { Task } from '@/types/task';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 
@@ -123,11 +122,20 @@ const AssistantDashboard = () => {
     );
   }
 
-  // If no clinic assigned, show redirect page instead of invitation handler
+  // If no clinic assigned, redirect to hub
   if (!userProfile?.clinic_id) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
-        <InviteRedirect />
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold">No Clinic Access</h2>
+          <p className="text-muted-foreground">You need to join a clinic to access the assistant dashboard.</p>
+          <button 
+            onClick={() => window.location.href = '/hub'}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+          >
+            Go to Assistant Hub
+          </button>
+        </div>
       </div>
     );
   }

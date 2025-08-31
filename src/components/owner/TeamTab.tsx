@@ -18,7 +18,6 @@ import {
   UserMinus,
   Trash2
 } from 'lucide-react';
-import AddMemberDialog from './AddMemberDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -57,7 +56,6 @@ const formatDate = (dateString: string) => {
 
 export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; assistant: Assistant | null }>({
     open: false,
     assistant: null
@@ -126,10 +124,9 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
           <p className="text-gray-600">Manage your practice team members</p>
         </div>
         
-        <Button onClick={() => setAddMemberOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Assistant
-        </Button>
+        <div className="text-sm text-muted-foreground">
+          Share clinic code to add assistants
+        </div>
       </div>
 
       {/* Search */}
@@ -214,14 +211,13 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
               <p className="text-gray-600 mb-6">
                 {searchTerm 
                   ? "Try adjusting your search terms."
-                  : "Add your first team member to get started."
+                  : "Share your clinic code with assistants to have them join your team."
                 }
               </p>
               {!searchTerm && (
-                <Button onClick={() => setAddMemberOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Assistant
-                </Button>
+                <div className="text-sm text-muted-foreground">
+                  Assistants can join using your clinic code
+                </div>
               )}
             </CardContent>
           </Card>
@@ -333,16 +329,6 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
           </div>
         )}
       </div>
-
-      {/* Add Member Dialog */}
-      <AddMemberDialog 
-        open={addMemberOpen} 
-        onOpenChange={setAddMemberOpen} 
-        onMemberAdded={() => {
-          onTeamUpdate();
-          setAddMemberOpen(false);
-        }} 
-      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog 

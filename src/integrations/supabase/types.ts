@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      certifications: {
+        Row: {
+          certification_type: string
+          created_at: string
+          expiry_date: string | null
+          file_url: string | null
+          id: string
+          issued_date: string | null
+          issuing_organization: string | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          certification_type: string
+          created_at?: string
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          issued_date?: string | null
+          issuing_organization?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          certification_type?: string
+          created_at?: string
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          issued_date?: string | null
+          issuing_organization?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clinic_memberships: {
         Row: {
           clinic_id: string
@@ -120,6 +159,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      feedback: {
+        Row: {
+          assistant_id: string
+          clinic_id: string
+          created_at: string
+          feedback_type: string
+          id: string
+          is_visible: boolean
+          message: string
+          owner_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assistant_id: string
+          clinic_id: string
+          created_at?: string
+          feedback_type?: string
+          id?: string
+          is_visible?: boolean
+          message: string
+          owner_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assistant_id?: string
+          clinic_id?: string
+          created_at?: string
+          feedback_type?: string
+          id?: string
+          is_visible?: boolean
+          message?: string
+          owner_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invitations: {
         Row: {
@@ -263,6 +349,50 @@ export type Database = {
           },
         ]
       }
+      milestones: {
+        Row: {
+          achieved_at: string
+          badge_color: string | null
+          badge_type: string
+          clinic_id: string
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          badge_color?: string | null
+          badge_type: string
+          clinic_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          badge_color?: string | null
+          badge_type?: string
+          clinic_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_logs: {
         Row: {
           assistant_id: string | null
@@ -316,6 +446,100 @@ export type Database = {
           window_start?: string | null
         }
         Relationships: []
+      }
+      schedules: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          created_by: string
+          id: string
+          is_published: boolean
+          month: number
+          notes: string | null
+          title: string | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_published?: boolean
+          month: number
+          notes?: string | null
+          title?: string | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_published?: boolean
+          month?: number
+          notes?: string | null
+          title?: string | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedules_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shifts: {
+        Row: {
+          break_minutes: number | null
+          created_at: string
+          date: string
+          end_time: string
+          id: string
+          notes: string | null
+          schedule_id: string
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          break_minutes?: number | null
+          created_at?: string
+          date: string
+          end_time: string
+          id?: string
+          notes?: string | null
+          schedule_id: string
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          break_minutes?: number | null
+          created_at?: string
+          date?: string
+          end_time?: string
+          id?: string
+          notes?: string | null
+          schedule_id?: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       task_notes: {
         Row: {

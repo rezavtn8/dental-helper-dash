@@ -4,8 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { toast } from 'sonner';
 import AssistantSidebar from '@/components/assistant/AssistantSidebar';
-import TodaysTasksTab from '@/components/assistant/TodaysTasksTab';
+import HomeTab from '@/components/assistant/HomeTab';
+import TasksTab from '@/components/assistant/TasksTab';
+import ScheduleTab from '@/components/assistant/ScheduleTab';
 import MyStatsTab from '@/components/assistant/MyStatsTab';
+import LearningTab from '@/components/assistant/LearningTab';
+import CertificationsTab from '@/components/assistant/CertificationsTab';
+import FeedbackTab from '@/components/assistant/FeedbackTab';
 import SettingsTab from '@/components/assistant/SettingsTab';
 import { Task } from '@/types/task';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
@@ -144,12 +149,20 @@ const AssistantDashboard = () => {
     switch (activeTab) {
       case 'home':
         return (
-          <MyStatsTab 
+          <HomeTab 
             tasks={tasks}
             patientCount={patientCount}
-            onPatientCountUpdate={setPatientCount}
           />
         );
+      case 'tasks':
+        return (
+          <TasksTab 
+            tasks={tasks}
+            onTaskUpdate={fetchTasks}
+          />
+        );
+      case 'schedule':
+        return <ScheduleTab />;
       case 'stats':
         return (
           <MyStatsTab 
@@ -158,14 +171,19 @@ const AssistantDashboard = () => {
             onPatientCountUpdate={setPatientCount}
           />
         );
+      case 'learning':
+        return <LearningTab />;
+      case 'certifications':
+        return <CertificationsTab />;
+      case 'feedback':
+        return <FeedbackTab />;
       case 'settings':
         return <SettingsTab />;
       default:
         return (
-          <MyStatsTab 
+          <HomeTab 
             tasks={tasks}
             patientCount={patientCount}
-            onPatientCountUpdate={setPatientCount}
           />
         );
     }

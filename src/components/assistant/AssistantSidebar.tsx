@@ -23,7 +23,11 @@ import {
   LogOut, 
   Building2, 
   ChevronDown,
-  Sparkles
+  Sparkles,
+  Calendar,
+  BookOpen,
+  Award,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -36,7 +40,12 @@ interface AssistantSidebarProps {
 
 const navigationItems = [
   { id: 'home', label: 'Home', icon: CheckSquare },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare },
+  { id: 'schedule', label: 'Schedule', icon: Calendar },
   { id: 'stats', label: 'My Stats', icon: BarChart3 },
+  { id: 'learning', label: 'Learning', icon: BookOpen },
+  { id: 'certifications', label: 'Certifications', icon: Award },
+  { id: 'feedback', label: 'Feedback & Growth', icon: TrendingUp },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 

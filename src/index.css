@@ -14,14 +14,14 @@ All colors MUST be HSL.
     --card-foreground: 222 22% 5%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 22% 5%;
-    --primary: 173 58% 39%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 166 76% 97%;
-    --secondary-foreground: 175 84% 22%;
-    --muted: 166 76% 97%;
-    --muted-foreground: 175 30% 35%;
-    --accent: 167 85% 89%;
-    --accent-foreground: 175 84% 22%;
+    --secondary: 217 91% 95%;
+    --secondary-foreground: 217 91% 20%;
+    --muted: 217 91% 95%;
+    --muted-foreground: 217 30% 35%;
+    --accent: 217 91% 85%;
+    --accent-foreground: 217 91% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -39,15 +39,23 @@ All colors MUST be HSL.
     --teal-900: 180 84% 17%;
     
     /* Blue theme colors */
-    --blue-50: 217 91% 95%;
-    --blue-100: 217 91% 85%;
+    --blue-50: 217 91% 98%;
+    --blue-100: 217 91% 95%;
+    --blue-200: 217 91% 85%;
+    --blue-300: 217 91% 75%;
+    --blue-400: 217 91% 65%;
     --blue-500: 217 91% 60%;
     --blue-600: 217 91% 50%;
+    --blue-700: 217 91% 40%;
+    --blue-800: 217 91% 30%;
     --blue-900: 217 91% 20%;
+    --blue-950: 217 91% 15%;
     
     /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 40%));
     --gradient-blue: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 45%));
-    --gradient-dark-blue: linear-gradient(135deg, hsl(217 91% 20%), hsl(217 91% 10%));
+    --gradient-dark-blue: linear-gradient(135deg, hsl(217 91% 30%), hsl(217 91% 15%));
+    --gradient-subtle: linear-gradient(180deg, hsl(217 91% 98%), hsl(217 91% 95%));
 
     --radius: 0.5rem;
 

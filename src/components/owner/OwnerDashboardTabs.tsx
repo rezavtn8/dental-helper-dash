@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import OwnerDashboardTab from './OwnerDashboardTab';
 import OwnerTasksTab from './OwnerTasksTab';
+import OwnerTemplatesTab from './OwnerTemplatesTab';
 import OwnerScheduleTab from './OwnerScheduleTab';
 import OwnerTeamTab from './OwnerTeamTab';
 import OwnerAnalyticsTab from './OwnerAnalyticsTab';
@@ -69,6 +70,10 @@ export default function OwnerDashboardTabs({
 
       <TabsContent value="tasks">
         {clinicId && <OwnerTasksTab clinicId={clinicId} />}
+      </TabsContent>
+
+      <TabsContent value="templates">
+        {clinicId && <OwnerTemplatesTab clinicId={clinicId} />}
       </TabsContent>
 
       <TabsContent value="schedule">

@@ -44,6 +44,7 @@ interface OwnerSidebarProps {
 const navigationItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare },
+  { id: 'templates', label: 'Templates', icon: FileText },
   { id: 'team', label: 'Team', icon: Users },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },

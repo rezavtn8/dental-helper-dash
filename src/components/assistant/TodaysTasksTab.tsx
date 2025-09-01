@@ -229,7 +229,12 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     const hasNote = taskNotes[task.id];
     
     return (
-      <div className="bg-white rounded-lg border border-teal-100 hover:border-teal-200 hover:shadow-sm transition-all duration-200 p-3">
+      <div className="relative overflow-hidden bg-white rounded-lg border border-teal-100 hover:border-teal-200 hover:shadow-sm transition-all duration-500 p-3 cursor-pointer group">
+        {/* Rotating Border Effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-teal-400 to-teal-600 rounded-lg opacity-0 group-hover:opacity-20 transition-all duration-700 group-hover:animate-pulse" />
+        
+        {/* Content */}
+        <div className="relative z-10">
         <div className="flex items-start justify-between gap-2">
           {/* Task Content */}
           <div className="flex-1 min-w-0">
@@ -346,7 +351,8 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                 </Button>
               </>
             )}
-          </div>
+        </div>
+      </div>
         </div>
       </div>
     );
@@ -360,46 +366,94 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
         <p className="text-teal-600 text-lg">Manage your daily assignments and pick up new tasks</p>
       </div>
 
-      {/* Quick Stats */}
+      {/* Interactive Wheel-Style Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-                <Target className="w-5 h-5 text-white" />
+        <Card className="relative overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 shadow-lg hover:shadow-xl">
+          <CardContent className="p-0">
+            {/* Animated Background Wheel */}
+            <div className="absolute inset-0 bg-blue-50 transition-opacity duration-300 opacity-50 hover:opacity-100" />
+            
+            {/* Rotating Border Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg opacity-20 transition-all duration-700 hover:animate-pulse hover:opacity-40" />
+            
+            {/* Content */}
+            <div className="relative p-4 z-10">
+              <div className="flex items-center space-x-3">
+                {/* Rotating Icon Wheel */}
+                <div className="relative w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center shadow-lg transform transition-all duration-500 hover:rotate-180 hover:scale-110">
+                  {/* Inner rotating circle */}
+                  <div className="absolute inset-1 rounded-full bg-white/20 transition-all duration-700 hover:rotate-[-180deg]" />
+                  <Target className="w-5 h-5 text-white z-10 transition-all duration-500 hover:scale-125" />
+                </div>
+                
+                <div>
+                  <p className="text-xl font-bold text-blue-900 transition-all duration-300 hover:scale-110">{myTasks.length}</p>
+                  <p className="text-xs text-blue-700 font-medium">My Tasks</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xl font-bold text-blue-900">{myTasks.length}</p>
-                <p className="text-xs text-blue-700 font-medium">My Tasks</p>
-              </div>
+              
+              {/* Progress ring effect */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 hover:h-2" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm">
-                <CheckCircle2 className="w-5 h-5 text-white" />
+        <Card className="relative overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 shadow-lg hover:shadow-xl">
+          <CardContent className="p-0">
+            {/* Animated Background Wheel */}
+            <div className="absolute inset-0 bg-green-50 transition-opacity duration-300 opacity-50 hover:opacity-100" />
+            
+            {/* Rotating Border Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-green-600 rounded-lg opacity-20 transition-all duration-700 hover:animate-pulse hover:opacity-40" />
+            
+            {/* Content */}
+            <div className="relative p-4 z-10">
+              <div className="flex items-center space-x-3">
+                {/* Rotating Icon Wheel */}
+                <div className="relative w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center shadow-lg transform transition-all duration-500 hover:rotate-180 hover:scale-110">
+                  {/* Inner rotating circle */}
+                  <div className="absolute inset-1 rounded-full bg-white/20 transition-all duration-700 hover:rotate-[-180deg]" />
+                  <CheckCircle2 className="w-5 h-5 text-white z-10 transition-all duration-500 hover:scale-125" />
+                </div>
+                
+                <div>
+                  <p className="text-xl font-bold text-green-900 transition-all duration-300 hover:scale-110">{completedTasks.length}</p>
+                  <p className="text-xs text-green-700 font-medium">Completed</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xl font-bold text-green-900">{completedTasks.length}</p>
-                <p className="text-xs text-green-700 font-medium">Completed</p>
-              </div>
+              
+              {/* Progress ring effect */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-green-600 transition-all duration-500 hover:h-2" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
-                <Plus className="w-5 h-5 text-white" />
+        <Card className="relative overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 shadow-lg hover:shadow-xl">
+          <CardContent className="p-0">
+            {/* Animated Background Wheel */}
+            <div className="absolute inset-0 bg-teal-50 transition-opacity duration-300 opacity-50 hover:opacity-100" />
+            
+            {/* Rotating Border Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg opacity-20 transition-all duration-700 hover:animate-pulse hover:opacity-40" />
+            
+            {/* Content */}
+            <div className="relative p-4 z-10">
+              <div className="flex items-center space-x-3">
+                {/* Rotating Icon Wheel */}
+                <div className="relative w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 flex items-center justify-center shadow-lg transform transition-all duration-500 hover:rotate-180 hover:scale-110">
+                  {/* Inner rotating circle */}
+                  <div className="absolute inset-1 rounded-full bg-white/20 transition-all duration-700 hover:rotate-[-180deg]" />
+                  <Plus className="w-5 h-5 text-white z-10 transition-all duration-500 hover:scale-125" />
+                </div>
+                
+                <div>
+                  <p className="text-xl font-bold text-teal-900 transition-all duration-300 hover:scale-110">{unassignedTasks.length}</p>
+                  <p className="text-xs text-teal-700 font-medium">Available</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xl font-bold text-teal-900">{unassignedTasks.length}</p>
-                <p className="text-xs text-teal-700 font-medium">Available</p>
-              </div>
+              
+              {/* Progress ring effect */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-teal-600 transition-all duration-500 hover:h-2" />
             </div>
           </CardContent>
         </Card>

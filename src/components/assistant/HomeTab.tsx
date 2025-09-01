@@ -107,7 +107,7 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
         />
       </div>
 
-      {/* Compact Stats */}
+      {/* Interactive Wheel-Style Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {quickStats.map((stat, index) => {
           const Icon = stat.icon;
@@ -115,26 +115,53 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
           return (
             <Card 
               key={index} 
-              className={`relative overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-[1.02] ${
-                isHovered ? 'shadow-md' : 'hover:shadow-sm'
+              className={`relative overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 ${
+                isHovered ? 'shadow-xl' : 'hover:shadow-lg'
               }`}
               onMouseEnter={() => setHoveredStat(index)}
               onMouseLeave={() => setHoveredStat(null)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-sm`}>
-                    <Icon className="w-5 h-5 text-white" />
+              <CardContent className="p-0">
+                {/* Animated Background Wheel */}
+                <div className={`absolute inset-0 ${stat.bgColor} transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-50'}`} />
+                
+                {/* Rotating Border Effect */}
+                <div className={`absolute -inset-1 bg-gradient-to-r ${stat.color} rounded-lg opacity-20 transition-all duration-700 ${
+                  isHovered ? 'animate-pulse opacity-40' : ''
+                }`} />
+                
+                {/* Content */}
+                <div className="relative p-4 z-10">
+                  <div className="flex items-center space-x-3">
+                    {/* Rotating Icon Wheel */}
+                    <div className={`relative w-10 h-10 rounded-full bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-lg transform transition-all duration-500 ${
+                      isHovered ? 'rotate-180 scale-110' : ''
+                    }`}>
+                      {/* Inner rotating circle */}
+                      <div className={`absolute inset-1 rounded-full bg-white/20 transition-all duration-700 ${
+                        isHovered ? 'rotate-[-180deg]' : ''
+                      }`} />
+                      <Icon className={`w-5 h-5 text-white z-10 transition-all duration-500 ${
+                        isHovered ? 'scale-125' : ''
+                      }`} />
+                    </div>
+                    
+                    <div>
+                      <div className={`text-xl font-bold transition-all duration-300 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent ${
+                        isHovered ? 'scale-110' : ''
+                      }`}>
+                        {stat.value}
+                      </div>
+                      <div className="text-xs text-slate-500 font-medium">
+                        {stat.title}
+                      </div>
+                    </div>
                   </div>
                   
-                  <div>
-                    <div className={`text-xl font-bold transition-all duration-300 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
-                      {stat.value}
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">
-                      {stat.title}
-                    </div>
-                  </div>
+                  {/* Progress ring effect */}
+                  <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.color} transition-all duration-500 ${
+                    isHovered ? 'h-2' : ''
+                  }`} />
                 </div>
               </CardContent>
             </Card>
@@ -182,7 +209,7 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
         </CardContent>
       </Card>
 
-      {/* Compact Quick Actions */}
+      {/* Interactive Quick Actions Wheel */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {quickActions.map((action, index) => {
           const Icon = action.icon;
@@ -190,34 +217,84 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
           return (
             <Card 
               key={index} 
-              className={`group relative overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-[1.02] ${
-                isHovered ? 'shadow-md' : 'hover:shadow-sm'
+              className={`group relative overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 ${
+                isHovered ? 'shadow-xl' : 'hover:shadow-lg'
               }`}
               onMouseEnter={() => setHoveredAction(index)}
               onMouseLeave={() => setHoveredAction(null)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-center mb-3">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${action.color} flex items-center justify-center mr-3 shadow-sm`}>
-                    <Icon className="w-5 h-5 text-white" />
+              <CardContent className="p-0 h-full">
+                {/* Animated Background */}
+                <div className={`absolute inset-0 ${action.bgColor} transition-all duration-500 ${
+                  isHovered ? 'opacity-100' : 'opacity-60'
+                }`} />
+                
+                {/* Rotating Border Wheel */}
+                <div className={`absolute -inset-1 bg-gradient-to-r ${action.color} rounded-lg opacity-30 transition-all duration-700 ${
+                  isHovered ? 'animate-pulse opacity-60 scale-105' : ''
+                }`} />
+                
+                {/* Content */}
+                <div className="relative p-4 h-full flex flex-col justify-between z-10">
+                  {/* Icon and Title */}
+                  <div>
+                    <div className={`flex items-center mb-3 transition-all duration-500 ${
+                      isHovered ? 'transform translate-y-[-2px]' : ''
+                    }`}>
+                      {/* Rotating Icon Wheel */}
+                      <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mr-3 shadow-lg transform transition-all duration-500 ${
+                        isHovered ? 'rotate-180 scale-110' : ''
+                      }`}>
+                        <Icon className={`w-5 h-5 text-white transition-all duration-500 ${
+                          isHovered ? 'scale-125' : ''
+                        }`} />
+                      </div>
+                      
+                      <h3 className={`text-lg font-bold transition-all duration-300 bg-gradient-to-r ${action.color} bg-clip-text text-transparent`}>
+                        {action.title}
+                      </h3>
+                    </div>
+                    
+                    <p className={`text-slate-600 text-sm mb-3 transition-all duration-300 ${
+                      isHovered ? 'text-slate-700' : ''
+                    }`}>
+                      {action.description}
+                    </p>
                   </div>
                   
-                  <h3 className={`text-lg font-bold transition-all duration-300 bg-gradient-to-r ${action.color} bg-clip-text text-transparent`}>
-                    {action.title}
-                  </h3>
+                  {/* Interactive Button */}
+                  <Button 
+                    className={`group relative overflow-hidden w-full bg-gradient-to-r ${action.color} text-white border-0 transition-all duration-300 ${
+                      isHovered ? 'shadow-lg transform scale-105' : ''
+                    }`}
+                    size="sm"
+                  >
+                    {/* Button background wheel effect */}
+                    <div className={`absolute inset-0 bg-white/20 transition-all duration-500 ${
+                      isHovered ? 'scale-110 rotate-180' : 'scale-100'
+                    }`} />
+                    
+                    <span className="relative z-10 flex items-center justify-center">
+                      Get Started
+                      <ChevronRight className={`w-4 h-4 ml-2 transition-all duration-300 ${
+                        isHovered ? 'transform translate-x-1' : ''
+                      }`} />
+                    </span>
+                  </Button>
                 </div>
                 
-                <p className="text-slate-600 text-sm mb-3">
-                  {action.description}
-                </p>
+                {/* Bottom progress wheel effect */}
+                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${action.color} transition-all duration-500 ${
+                  isHovered ? 'h-2' : ''
+                }`} />
                 
-                <Button 
-                  className={`w-full bg-gradient-to-r ${action.color} text-white border-0 transition-all duration-300`}
-                  size="sm"
-                >
-                  Get Started
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
+                {/* Sparkle effects on hover */}
+                {isHovered && (
+                  <>
+                    <Sparkles className="absolute top-2 right-2 w-3 h-3 text-yellow-400 animate-pulse" />
+                    <Sparkles className="absolute bottom-2 left-2 w-2 h-2 text-yellow-300 animate-pulse delay-300" />
+                  </>
+                )}
               </CardContent>
             </Card>
           );

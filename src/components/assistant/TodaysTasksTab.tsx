@@ -101,6 +101,16 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
   const markTaskDone = async (taskId: string) => {
     try {
+      // Get the task details first to check for recurrence
+      const { data: taskData, error: fetchError } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('id', taskId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Mark the current task as completed
       const { error } = await supabase
         .from('tasks')
         .update({ 
@@ -111,6 +121,34 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
         .eq('id', taskId);
 
       if (error) throw error;
+
+      // Handle recurring tasks - create a new instance if task has recurrence
+      if (taskData.recurrence && taskData.recurrence !== 'none') {
+        const newTaskData = {
+          title: taskData.title,
+          description: taskData.description,
+          priority: taskData.priority,
+          'due-type': taskData['due-type'],
+          category: taskData.category,
+          recurrence: taskData.recurrence,
+          owner_notes: taskData.owner_notes,
+          clinic_id: taskData.clinic_id,
+          created_by: taskData.created_by,
+          assigned_to: null, // Reset assignment for new recurring task
+          status: 'pending' as TaskStatus,
+          custom_due_date: taskData.custom_due_date ? calculateNextDueDate(taskData.custom_due_date, taskData.recurrence) : null
+        };
+
+        const { error: createError } = await supabase
+          .from('tasks')
+          .insert([newTaskData]);
+
+        if (createError) {
+          console.error('Error creating recurring task:', createError);
+        } else {
+          toast.success('Recurring task created for next cycle');
+        }
+      }
       
       toast.success('Task completed! 🎉', {
         description: 'Great job! Keep up the excellent work.'
@@ -121,6 +159,27 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       console.error('Error marking task done:', error);
       toast.error('Failed to complete task');
     }
+  };
+
+  // Helper function to calculate next due date for recurring tasks
+  const calculateNextDueDate = (currentDueDate: string, recurrence: string): string => {
+    const date = new Date(currentDueDate);
+    
+    switch (recurrence) {
+      case 'daily':
+        date.setDate(date.getDate() + 1);
+        break;
+      case 'weekly':
+        date.setDate(date.getDate() + 7);
+        break;
+      case 'monthly':
+        date.setMonth(date.getMonth() + 1);
+        break;
+      default:
+        date.setDate(date.getDate() + 1); // Default to daily
+    }
+    
+    return date.toISOString();
   };
 
   const markTaskUndone = async (taskId: string) => {
@@ -170,113 +229,105 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     const hasNote = taskNotes[task.id];
     
     return (
-      <Card key={task.id} className="hover:shadow-md transition-all duration-200 border-l-4 border-l-teal-500">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-base font-semibold text-gray-900 mb-2">
-                {task.title}
-              </CardTitle>
-              {task.description && (
-                <CardDescription className="text-sm text-gray-600 line-clamp-2 mb-3">
-                  {task.description}
-                </CardDescription>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="pt-0">
-          <div className="space-y-3">
-            {/* Task Actions */}
-            <div className="flex items-center justify-between">
+      <div className="bg-white rounded-lg border border-teal-100 hover:border-teal-200 hover:shadow-sm transition-all duration-200 p-4">
+        <div className="flex items-start justify-between gap-3">
+          {/* Task Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-3">
+              {/* Checkbox for completion */}
               {!showPickUp && !showCompleted && (
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={isCompleted(task.status)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        markTaskDone(task.id);
-                      } else {
-                        markTaskUndone(task.id);
-                      }
-                    }}
-                  />
-                  <span className="text-sm text-gray-700 select-none">
-                    Mark as {isCompleted(task.status) ? 'pending' : 'complete'}
+                <Checkbox
+                  checked={isCompleted(task.status)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      markTaskDone(task.id);
+                    } else {
+                      markTaskUndone(task.id);
+                    }
+                  }}
+                  className="mt-0.5"
+                />
+              )}
+              
+              <div className="flex-1 min-w-0">
+                <h3 className={`font-medium text-sm ${isCompleted(task.status) ? 'text-gray-500 line-through' : 'text-gray-900'} mb-1`}>
+                  {task.title}
+                </h3>
+                
+                {task.description && (
+                  <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                    {task.description}
+                  </p>
+                )}
+                
+                {/* Task Details in one line */}
+                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                  <Badge variant="outline" className="h-5 text-xs px-2">
+                    {task.priority || 'Medium'}
+                  </Badge>
+                  <Badge variant="outline" className="h-5 text-xs px-2">
+                    {task['due-type']}
+                  </Badge>
+                  {task.recurrence && task.recurrence !== 'none' && (
+                    <Badge variant="outline" className="h-5 text-xs px-2 bg-blue-50">
+                      ↻ {task.recurrence}
+                    </Badge>
+                  )}
+                  <span className="text-gray-400">
+                    {new Date(task.created_at).toLocaleDateString()}
                   </span>
                 </div>
-              )}
-
-              <div className="flex items-center gap-2 ml-auto">
-                {/* Note Button */}
-                <Button
-                  size="sm"
-                  variant={hasNote ? "default" : "outline"}
-                  onClick={() => {
-                    setNoteTask(task);
-                    setShowNoteDialog(true);
-                  }}
-                  className="h-7 text-xs"
-                >
-                  <FileText className="w-3 h-3 mr-1" />
-                  {hasNote ? 'Edit Note' : 'Add Note'}
-                </Button>
-
-                {/* Pick Up / Put Back Buttons */}
-                {showPickUp && (
-                  <Button
-                    size="sm"
-                    onClick={() => pickTask(task.id)}
-                    className="h-7 text-xs bg-teal-600 hover:bg-teal-700"
-                  >
-                    Pick Up
-                  </Button>
+                
+                {/* Task Note Preview - Compact */}
+                {hasNote && (
+                  <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-2">
+                    <p className="text-xs text-blue-700 line-clamp-1">
+                      💬 {hasNote.note}
+                    </p>
+                  </div>
                 )}
-
-                {!showPickUp && !showCompleted && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => returnTask(task.id)}
-                    className="h-7 text-xs"
-                  >
-                    Put Back
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Task Note Preview */}
-            {hasNote && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="flex items-center mb-1">
-                  <FileText className="w-3 h-3 mr-1 text-blue-600" />
-                  <span className="text-xs font-medium text-blue-800">Your Note</span>
-                </div>
-                <p className="text-xs text-blue-700 line-clamp-2">
-                  {hasNote.note}
-                </p>
-              </div>
-            )}
-
-            {/* Task Details */}
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center space-x-3">
-                <Badge variant="outline" className="text-xs">
-                  {task.priority || 'Medium'} Priority
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  {task['due-type']}
-                </Badge>
-              </div>
-              <div className="text-xs text-gray-400">
-                {new Date(task.created_at).toLocaleDateString()}
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+          
+          {/* Action Buttons */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Button
+              size="sm"
+              variant={hasNote ? "default" : "outline"}
+              onClick={() => {
+                setNoteTask(task);
+                setShowNoteDialog(true);
+              }}
+              className="h-7 w-7 p-0"
+              title={hasNote ? 'Edit Note' : 'Add Note'}
+            >
+              <FileText className="w-3 h-3" />
+            </Button>
+
+            {showPickUp && (
+              <Button
+                size="sm"
+                onClick={() => pickTask(task.id)}
+                className="h-7 text-xs bg-teal-600 hover:bg-teal-700 px-2"
+              >
+                Pick Up
+              </Button>
+            )}
+
+            {!showPickUp && !showCompleted && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => returnTask(task.id)}
+                className="h-7 text-xs px-2"
+              >
+                Return
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -340,7 +391,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
             <User className="w-6 h-6 mr-3 text-teal-600" />
             My Tasks ({pendingTasks.length})
           </h2>
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-3 lg:grid-cols-1">
             {pendingTasks.map((task) => (
               <TaskCard key={task.id} task={task} />
             ))}
@@ -366,7 +417,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-3 lg:grid-cols-1">
             {unassignedTasks.map((task) => (
               <TaskCard key={task.id} task={task} showPickUp={true} />
             ))}
@@ -381,7 +432,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
             <CheckCircle2 className="w-6 h-6 mr-3 text-green-600" />
             Completed Today ({completedTasks.length})
           </h2>
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-3 lg:grid-cols-1">
             {completedTasks.map((task) => (
               <TaskCard key={task.id} task={task} showCompleted={true} />
             ))}

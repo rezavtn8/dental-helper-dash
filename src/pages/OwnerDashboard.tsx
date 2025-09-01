@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Menu, LogOut, Building2 } from 'lucide-react';
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import OwnerDashboardTabs from '@/components/owner/OwnerDashboardTabs';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 
 interface Clinic {
   id: string;
@@ -18,10 +17,11 @@ interface Clinic {
 }
 
 const OwnerDashboard = () => {
-  const { session, user, userProfile, signOut } = useAuth();
+  const { session, user, userProfile } = useAuth();
   const navigate = useNavigate();
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
     if (session && user && userProfile) {
@@ -67,23 +67,6 @@ const OwnerDashboard = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/', { replace: true });
-    } catch (error) {
-      console.error('Error signing out:', error);
-      toast.error('Failed to sign out');
-    }
-  };
-
-  const copyClinicCode = () => {
-    if (clinic?.clinic_code) {
-      navigator.clipboard.writeText(clinic.clinic_code);
-      toast.success('Clinic code copied to clipboard!');
-    }
-  };
-
   // Show loading screen if still loading initial data or if user profile doesn't exist yet
   if (loading || !userProfile) {
     return (
@@ -94,52 +77,45 @@ const OwnerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Header */}
-      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-                <Building2 className="w-6 h-6 text-primary-foreground" />
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen w-full flex bg-gradient-to-br from-background via-background to-muted/20">
+        <OwnerSidebar 
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          clinic={clinic}
+          userProfile={userProfile}
+        />
+        
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <SidebarTrigger />
+                <h1 className="text-lg font-semibold text-foreground">
+                  {clinic?.name || 'Clinic Management'}
+                </h1>
               </div>
-              <div>
-                <h1 className="text-xl font-bold">{clinic?.name || 'Clinic Owner'}</h1>
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                  {clinic?.clinic_code && (
-                    <>
-                      <span>Code:</span>
-                      <button
-                        onClick={copyClinicCode}
-                        className="font-mono font-semibold px-2 py-1 bg-muted rounded hover:bg-muted/80 transition-colors"
-                        title="Click to copy clinic code"
-                      >
-                        {clinic.clinic_code}
-                      </button>
-                    </>
-                  )}
-                </div>
+              
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground hidden sm:block">
+                  {userProfile?.email}
+                </span>
               </div>
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground hidden sm:block">
-                {userProfile.email}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+          </header>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <OwnerDashboardTabs clinicId={clinic?.id} />
+          {/* Main Content */}
+          <main className="flex-1 container mx-auto px-4 py-6">
+            <OwnerDashboardTabs 
+              clinicId={clinic?.id} 
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

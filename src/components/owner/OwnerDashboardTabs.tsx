@@ -19,12 +19,19 @@ import OwnerSettingsTab from './OwnerSettingsTab';
 
 interface OwnerDashboardTabsProps {
   clinicId?: string;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
-export default function OwnerDashboardTabs({ clinicId }: OwnerDashboardTabsProps) {
+export default function OwnerDashboardTabs({ 
+  clinicId, 
+  activeTab = 'dashboard', 
+  onTabChange 
+}: OwnerDashboardTabsProps) {
   return (
-    <Tabs defaultValue="dashboard" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-7">
+    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-6">
+      <div className="hidden"> {/* Hide the original tabs list since we're using sidebar */}
+        <TabsList className="grid w-full grid-cols-7">
         <TabsTrigger value="dashboard" className="flex items-center gap-2">
           <LayoutDashboard className="w-4 h-4" />
           Dashboard
@@ -53,7 +60,8 @@ export default function OwnerDashboardTabs({ clinicId }: OwnerDashboardTabsProps
           <Settings className="w-4 h-4" />
           Settings
         </TabsTrigger>
-      </TabsList>
+        </TabsList>
+      </div>
 
       <TabsContent value="dashboard">
         {clinicId && <OwnerDashboardTab clinicId={clinicId} />}

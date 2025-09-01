@@ -229,9 +229,9 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     const hasNote = taskNotes[task.id];
     
     return (
-      <div className="relative overflow-hidden bg-white rounded-lg border border-teal-100 hover:border-teal-200 hover:shadow-sm transition-all duration-500 p-3 cursor-pointer group">
+      <div className="relative overflow-hidden bg-white rounded-lg border border-blue-100 hover:border-blue-200 hover:shadow-sm transition-all duration-500 p-3 cursor-pointer group">
         {/* Rotating Border Effect */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-teal-400 to-teal-600 rounded-lg opacity-0 group-hover:opacity-20 transition-all duration-700 group-hover:animate-pulse" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg opacity-0 group-hover:opacity-20 transition-all duration-700 group-hover:animate-pulse" />
         
         {/* Content */}
         <div className="relative z-10">
@@ -335,7 +335,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                   <Button
                     size="sm"
                     onClick={() => markTaskDone(task.id)}
-                    className="h-6 text-xs px-2 bg-green-600 hover:bg-green-700 text-white"
+                    className="h-6 text-xs px-2 bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     Done
                   </Button>
@@ -362,8 +362,8 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center lg:text-left">
-        <h1 className="text-4xl font-bold text-teal-900 mb-3">Today's Tasks</h1>
-        <p className="text-teal-600 text-lg">Manage your daily assignments and pick up new tasks</p>
+        <h1 className="text-4xl font-bold text-blue-900 mb-3">Today's Tasks</h1>
+        <p className="text-blue-600 text-lg">Manage your daily assignments and pick up new tasks</p>
       </div>
 
       {/* Interactive Wheel-Style Stats */}
@@ -431,29 +431,29 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
         <Card className="relative overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 shadow-lg hover:shadow-xl">
           <CardContent className="p-0">
             {/* Animated Background Wheel */}
-            <div className="absolute inset-0 bg-teal-50 transition-opacity duration-300 opacity-50 hover:opacity-100" />
+            <div className="absolute inset-0 bg-blue-50 transition-opacity duration-300 opacity-50 hover:opacity-100" />
             
             {/* Rotating Border Effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg opacity-20 transition-all duration-700 hover:animate-pulse hover:opacity-40" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg opacity-20 transition-all duration-700 hover:animate-pulse hover:opacity-40" />
             
             {/* Content */}
             <div className="relative p-4 z-10">
               <div className="flex items-center space-x-3">
                 {/* Rotating Icon Wheel */}
-                <div className="relative w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 flex items-center justify-center shadow-lg transform transition-all duration-500 hover:rotate-180 hover:scale-110">
+                <div className="relative w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center shadow-lg transform transition-all duration-500 hover:rotate-180 hover:scale-110">
                   {/* Inner rotating circle */}
                   <div className="absolute inset-1 rounded-full bg-white/20 transition-all duration-700 hover:rotate-[-180deg]" />
                   <Plus className="w-5 h-5 text-white z-10 transition-all duration-500 hover:scale-125" />
                 </div>
                 
                 <div>
-                  <p className="text-xl font-bold text-teal-900 transition-all duration-300 hover:scale-110">{unassignedTasks.length}</p>
-                  <p className="text-xs text-teal-700 font-medium">Available</p>
+                  <p className="text-xl font-bold text-blue-900 transition-all duration-300 hover:scale-110">{unassignedTasks.length}</p>
+                  <p className="text-xs text-blue-700 font-medium">Available</p>
                 </div>
               </div>
               
               {/* Progress ring effect */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-teal-600 transition-all duration-500 hover:h-2" />
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 hover:h-2" />
             </div>
           </CardContent>
         </Card>
@@ -462,7 +462,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       {/* My Active Tasks */}
       {pendingTasks.length > 0 && (
         <div>
-          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center">
+          <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
             <User className="w-6 h-6 mr-3 text-teal-600" />
             My Tasks ({pendingTasks.length})
           </h2>

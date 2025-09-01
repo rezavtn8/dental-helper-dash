@@ -125,18 +125,18 @@ export default function FeedbackTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-2xl p-6 border border-green-100">
+      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-100">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-green-900 mb-2">
+            <h1 className="text-2xl font-bold text-blue-900 mb-2">
               Feedback & Growth
             </h1>
-            <p className="text-green-700">
+            <p className="text-blue-700">
               Track your professional development and achievements.
             </p>
           </div>
           <div className="hidden sm:flex items-center space-x-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
+            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
               <TrendingUp className="w-3 h-3 mr-1" />
               Growing
             </Badge>

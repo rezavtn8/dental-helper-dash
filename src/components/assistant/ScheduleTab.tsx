@@ -181,7 +181,7 @@ export default function ScheduleTab() {
               </Button>
             </div>
             {schedule && (
-              <Badge variant="default" className="bg-teal-100 text-teal-700">
+              <Badge variant="default" className="bg-blue-100 text-blue-700">
                 <Calendar className="w-3 h-3 mr-1" />
                 Schedule Published
               </Badge>
@@ -226,7 +226,7 @@ export default function ScheduleTab() {
                       className={`min-h-[80px] p-2 border rounded-lg ${
                         !day ? 'bg-slate-50' : 
                         isToday ? 'bg-blue-50 border-blue-200' : 
-                        shift ? 'bg-teal-50 border-teal-200' : 'bg-white border-slate-200 hover:bg-slate-50'
+                        shift ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-200 hover:bg-slate-50'
                       }`}
                     >
                       {day && (
@@ -238,7 +238,7 @@ export default function ScheduleTab() {
                           </div>
                           {shift && (
                             <div className="space-y-1">
-                              <div className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded font-medium">
+                              <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">
                                 {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
                               </div>
                               {shift.notes && (
@@ -265,13 +265,13 @@ export default function ScheduleTab() {
 
               {/* Shift Summary */}
               <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="bg-teal-50 border-teal-200">
+                <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-2">
-                      <Calendar className="w-5 h-5 text-teal-600" />
+                      <Calendar className="w-5 h-5 text-blue-600" />
                       <div>
-                        <p className="font-semibold text-teal-900">{schedule.shifts.length}</p>
-                        <p className="text-sm text-teal-600">Shifts This Month</p>
+                        <p className="font-semibold text-blue-900">{schedule.shifts.length}</p>
+                        <p className="text-sm text-blue-600">Shifts This Month</p>
                       </div>
                     </div>
                   </CardContent>

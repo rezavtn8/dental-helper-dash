@@ -69,7 +69,7 @@ export default function AssistantSidebar({
         <div className="p-3 border-b border-slate-100/80">
           {open && !isCollapsed ? (
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
@@ -81,7 +81,7 @@ export default function AssistantSidebar({
             </div>
           ) : (
             <div className="flex justify-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
             </div>
@@ -105,7 +105,7 @@ export default function AssistantSidebar({
                         <p className="font-medium text-slate-800 truncate text-sm">
                           {userProfile?.name || 'Assistant'}
                         </p>
-                        <Badge variant="secondary" className="bg-teal-50 text-teal-600 text-xs border-teal-100 h-4 px-1.5">
+                        <Badge variant="secondary" className="bg-blue-50 text-blue-600 text-xs border-blue-100 h-4 px-1.5">
                           {userProfile?.role === 'admin' ? 'Admin' : 'Assistant'}
                         </Badge>
                       </div>
@@ -148,7 +148,7 @@ export default function AssistantSidebar({
                         h-9 transition-all duration-150 rounded-lg mx-1
                         ${!open || isCollapsed ? 'justify-center px-0 w-9' : 'px-3'}
                         ${active 
-                          ? 'bg-teal-500 text-white shadow-sm hover:bg-teal-600' 
+                          ? 'bg-blue-500 text-white shadow-sm hover:bg-blue-600' 
                           : 'hover:bg-slate-50 hover:text-slate-700 text-slate-600'
                         }
                       `}

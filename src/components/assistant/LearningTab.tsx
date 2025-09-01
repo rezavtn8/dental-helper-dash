@@ -179,7 +179,7 @@ export default function LearningTab() {
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category ? "bg-teal-600 hover:bg-teal-700" : ""}
+                className={selectedCategory === category ? "bg-blue-600 hover:bg-blue-700" : ""}
               >
                 {category}
               </Button>
@@ -225,7 +225,7 @@ export default function LearningTab() {
                       <Button 
                         size="sm" 
                         variant={resource.status === 'completed' ? 'outline' : 'default'}
-                        className={resource.status !== 'completed' ? "bg-teal-600 hover:bg-teal-700" : ""}
+                        className={resource.status !== 'completed' ? "bg-blue-600 hover:bg-blue-700" : ""}
                       >
                         {resource.status === 'completed' ? 'Review' : 
                          resource.status === 'in-progress' ? 'Continue' : 'Start'}

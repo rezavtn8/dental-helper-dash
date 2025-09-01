@@ -36,8 +36,8 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
       title: "Completed",
       value: completedTasks,
       icon: Target,
-      color: "from-green-400 to-emerald-500",
-      bgColor: "bg-green-50", 
+      color: "from-blue-400 to-blue-500",
+      bgColor: "bg-blue-50",
       metric: "done"
     },
     {
@@ -71,8 +71,8 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
       title: "Growth Tracking",
       description: "Track your progress, feedback, and professional milestones",
       icon: TrendingUp,
-      color: "from-green-500 to-teal-500",
-      bgColor: "bg-green-50", 
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
       action: "growth"
     }
   ];
@@ -81,18 +81,18 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
     <div className="space-y-8">
       {/* Welcome Header with Patient Counter */}
       <div className="space-y-4">
-        <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-2xl p-6 border border-teal-100">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-100">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-teal-900 mb-2">
+              <h1 className="text-2xl font-bold text-blue-900 mb-2">
                 Welcome to Your Dashboard
               </h1>
-              <p className="text-teal-700">
+              <p className="text-blue-700">
                 Here's your daily overview and quick access to key features.
               </p>
             </div>
             <div className="hidden sm:flex items-center space-x-2">
-              <Badge variant="secondary" className="bg-teal-100 text-teal-700">
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700">
                 <CheckCircle className="w-3 h-3 mr-1" />
                 Active
               </Badge>
@@ -186,7 +186,7 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
               <div key={task.id || index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <div className={`w-3 h-3 rounded-full ${
-                    task.status === 'completed' ? 'bg-green-500' : 
+                    task.status === 'completed' ? 'bg-blue-500' : 
                     task.status === 'in-progress' ? 'bg-blue-500' : 'bg-slate-400'
                   }`} />
                   <div>

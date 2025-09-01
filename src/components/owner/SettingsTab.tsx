@@ -104,7 +104,7 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Building2 className="w-5 h-5 mr-2 text-teal-600" />
+            <Building2 className="w-5 h-5 mr-2 text-blue-600" />
             Clinic Information
           </CardTitle>
           <CardDescription>
@@ -181,7 +181,7 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Key className="w-5 h-5 mr-2 text-teal-600" />
+            <Key className="w-5 h-5 mr-2 text-blue-600" />
             Clinic Access Code
           </CardTitle>
           <CardDescription>
@@ -191,12 +191,12 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
         <CardContent>
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
-                <Key className="w-5 h-5 text-teal-600" />
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Key className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="font-medium text-gray-900">Clinic Code</p>
-                <p className="font-mono text-lg font-bold text-teal-600 tracking-wider">
+                <p className="font-mono text-lg font-bold text-blue-600 tracking-wider">
                   {clinic?.clinic_code || 'N/A'}
                 </p>
               </div>
@@ -241,7 +241,7 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Shield className="w-5 h-5 mr-2 text-teal-600" />
+            <Shield className="w-5 h-5 mr-2 text-blue-600" />
             Account Security
           </CardTitle>
           <CardDescription>
@@ -293,7 +293,7 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
                   Unlimited tasks, team members, and analytics
                 </p>
               </div>
-              <Badge className="bg-gradient-to-r from-teal-500 to-teal-600 text-white">
+              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                 Active
               </Badge>
             </div>

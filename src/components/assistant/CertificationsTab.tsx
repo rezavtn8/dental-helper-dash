@@ -265,7 +265,7 @@ export default function CertificationsTab() {
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-teal-600 hover:bg-teal-700">
+                <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Certification
                 </Button>
@@ -343,7 +343,7 @@ export default function CertificationsTab() {
                   </div>
                   
                   <div className="flex space-x-3 pt-4">
-                    <Button onClick={handleAddCertification} className="flex-1 bg-teal-600 hover:bg-teal-700">
+                    <Button onClick={handleAddCertification} className="flex-1 bg-blue-600 hover:bg-blue-700">
                       Add Certification
                     </Button>
                     <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
@@ -363,7 +363,7 @@ export default function CertificationsTab() {
               <p className="text-slate-500 mb-4">
                 Add your professional certifications to track expiry dates and maintain compliance.
               </p>
-              <Button onClick={() => setIsAddDialogOpen(true)} className="bg-teal-600 hover:bg-teal-700">
+              <Button onClick={() => setIsAddDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Your First Certification
               </Button>

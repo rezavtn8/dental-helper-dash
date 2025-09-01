@@ -212,7 +212,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     const variants = {
       owner: { variant: 'default' as const, color: 'bg-blue-600' },
       admin: { variant: 'secondary' as const, color: 'bg-purple-600' },
-      assistant: { variant: 'outline' as const, color: 'bg-green-600' }
+      assistant: { variant: 'outline' as const, color: 'bg-blue-600' }
     };
     
     return variants[role as keyof typeof variants] || variants.assistant;
@@ -284,7 +284,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                       size="sm"
                       onClick={() => handleApproveRequest(request)}
                       disabled={processingRequest === request.id}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       {processingRequest === request.id ? (
                         <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

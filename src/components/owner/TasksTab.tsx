@@ -160,7 +160,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
       {todaysTasks.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <Calendar className="w-5 h-5 mr-2 text-teal-600" />
+            <Calendar className="w-5 h-5 mr-2 text-blue-600" />
             Today's Tasks ({todaysTasks.length})
           </h3>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -235,7 +235,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                       {assignedAssistant ? (
                         <div className="flex items-center space-x-2">
                           <Avatar className="w-6 h-6">
-                            <AvatarFallback className="bg-teal-100 text-teal-700 text-xs">
+                            <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                               {getUserInitials(assignedAssistant.name)}
                             </AvatarFallback>
                           </Avatar>
@@ -358,7 +358,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                       {assignedAssistant ? (
                         <div className="flex items-center space-x-2">
                           <Avatar className="w-6 h-6">
-                            <AvatarFallback className="bg-teal-100 text-teal-700 text-xs">
+                            <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                               {getUserInitials(assignedAssistant.name)}
                             </AvatarFallback>
                           </Avatar>
@@ -389,7 +389,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
           trigger={
             <Button 
               size="lg"
-              className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
+              className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
             >
               <Plus className="w-6 h-6" />
             </Button>

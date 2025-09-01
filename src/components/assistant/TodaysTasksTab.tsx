@@ -229,11 +229,11 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     const hasNote = taskNotes[task.id];
     
     return (
-      <div className="bg-white rounded-lg border border-teal-100 hover:border-teal-200 hover:shadow-sm transition-all duration-200 p-4">
-        <div className="flex items-start justify-between gap-3">
+      <div className="bg-white rounded-lg border border-teal-100 hover:border-teal-200 hover:shadow-sm transition-all duration-200 p-3">
+        <div className="flex items-start justify-between gap-2">
           {/* Task Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-2">
               {/* Checkbox for completion */}
               {!showPickUp && !showCompleted && (
                 <Checkbox
@@ -262,14 +262,14 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                 
                 {/* Task Details in one line */}
                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                  <Badge variant="outline" className="h-5 text-xs px-2">
+                  <Badge variant="outline" className="h-4 text-xs px-1.5">
                     {task.priority || 'Medium'}
                   </Badge>
-                  <Badge variant="outline" className="h-5 text-xs px-2">
+                  <Badge variant="outline" className="h-4 text-xs px-1.5">
                     {task['due-type']}
                   </Badge>
                   {task.recurrence && task.recurrence !== 'none' && (
-                    <Badge variant="outline" className="h-5 text-xs px-2 bg-blue-50">
+                    <Badge variant="outline" className="h-4 text-xs px-1.5 bg-blue-50">
                       ↻ {task.recurrence}
                     </Badge>
                   )}
@@ -280,7 +280,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                 
                 {/* Task Note Preview - Compact */}
                 {hasNote && (
-                  <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-2">
+                  <div className="bg-blue-50 border border-blue-200 rounded p-1.5 mb-2">
                     <p className="text-xs text-blue-700 line-clamp-1">
                       💬 {hasNote.note}
                     </p>
@@ -299,7 +299,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                 setNoteTask(task);
                 setShowNoteDialog(true);
               }}
-              className="h-7 w-7 p-0"
+              className="h-6 w-6 p-0"
               title={hasNote ? 'Edit Note' : 'Add Note'}
             >
               <FileText className="w-3 h-3" />
@@ -309,7 +309,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
               <Button
                 size="sm"
                 onClick={() => pickTask(task.id)}
-                className="h-7 text-xs bg-teal-600 hover:bg-teal-700 px-2"
+                className="h-6 text-xs bg-teal-600 hover:bg-teal-700 px-2"
               >
                 Pick Up
               </Button>
@@ -322,7 +322,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     size="sm"
                     variant="outline"
                     onClick={() => markTaskUndone(task.id)}
-                    className="h-7 text-xs px-2 border-green-200 text-green-700 hover:bg-green-50"
+                    className="h-6 text-xs px-2 border-green-200 text-green-700 hover:bg-green-50"
                   >
                     Undo
                   </Button>
@@ -330,7 +330,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                   <Button
                     size="sm"
                     onClick={() => markTaskDone(task.id)}
-                    className="h-7 text-xs px-2 bg-green-600 hover:bg-green-700 text-white"
+                    className="h-6 text-xs px-2 bg-green-600 hover:bg-green-700 text-white"
                   >
                     Done
                   </Button>
@@ -340,7 +340,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                   size="sm"
                   variant="outline"
                   onClick={() => returnTask(task.id)}
-                  className="h-7 text-xs px-2"
+                  className="h-6 text-xs px-2"
                 >
                   Return
                 </Button>
@@ -361,44 +361,44 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Target className="w-7 h-7 text-white" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                <Target className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-blue-900">{myTasks.length}</p>
-                <p className="text-sm text-blue-700 font-medium">My Tasks</p>
+                <p className="text-xl font-bold text-blue-900">{myTasks.length}</p>
+                <p className="text-xs text-blue-700 font-medium">My Tasks</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <CheckCircle2 className="w-7 h-7 text-white" />
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm">
+                <CheckCircle2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-green-900">{completedTasks.length}</p>
-                <p className="text-sm text-green-700 font-medium">Completed</p>
+                <p className="text-xl font-bold text-green-900">{completedTasks.length}</p>
+                <p className="text-xs text-green-700 font-medium">Completed</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Plus className="w-7 h-7 text-white" />
+        <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
+                <Plus className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-teal-900">{unassignedTasks.length}</p>
-                <p className="text-sm text-teal-700 font-medium">Available</p>
+                <p className="text-xl font-bold text-teal-900">{unassignedTasks.length}</p>
+                <p className="text-xs text-teal-700 font-medium">Available</p>
               </div>
             </div>
           </CardContent>

@@ -47,8 +47,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       
-      // Defer profile fetching to avoid deadlock
-      if (session?.user) {
+      // Update last_login on sign_in events
+      if (event === 'SIGNED_IN' && session?.user) {
+        setTimeout(() => {
+          updateLastLogin(session.user.id);
+          fetchUserProfile(session.user.id);
+        }, 0);
+      } else if (session?.user) {
         setTimeout(() => {
           fetchUserProfile(session.user.id);
         }, 0);
@@ -127,13 +132,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithEmail = async (email: string, password: string): Promise<{ error?: string }> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
         return { error: error.message };
+      }
+
+      // Update last_login timestamp
+      if (data.user) {
+        await updateLastLogin(data.user.id);
       }
 
       return {};
@@ -145,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = async (): Promise<{ error?: string }> => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error, data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/`,
@@ -155,7 +165,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         return { error: error.message };
       }
-      
+
+      // Update last_login timestamp when auth state changes
       return {};
     } catch (error) {
       console.error('Google sign-in error:', error);
@@ -211,6 +222,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async (): Promise<void> => {
     await supabase.auth.signOut();
     setUserProfile(null);
+  };
+
+  // Function to update last login timestamp
+  const updateLastLogin = async (userId: string) => {
+    try {
+      await supabase
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', userId);
+    } catch (error) {
+      console.error('Error updating last login:', error);
+    }
   };
 
   // Function to refresh user profile (expose it)

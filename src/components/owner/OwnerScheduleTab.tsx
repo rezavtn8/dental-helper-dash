@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { 
   Calendar,
@@ -50,6 +51,7 @@ interface OwnerScheduleTabProps {
 }
 
 export default function OwnerScheduleTab({ clinicId }: OwnerScheduleTabProps) {
+  const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'monthly' | 'weekly' | 'daily'>('monthly');
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -97,35 +99,32 @@ export default function OwnerScheduleTab({ clinicId }: OwnerScheduleTabProps) {
 
       if (schedulesError) throw schedulesError;
 
-      // Fetch shifts for current month
-      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      // Fetch shifts separately to avoid complex joins
+      if (schedulesData && schedulesData.length > 0) {
+        const scheduleIds = schedulesData.map(s => s.id);
+        const { data: shiftsData, error: shiftsError } = await supabase
+          .from('shifts')
+          .select('*')
+          .in('schedule_id', scheduleIds);
 
-      const { data: shiftsData, error: shiftsError } = await supabase
-        .from('shifts')
-        .select(`
-          *,
-          schedules!inner(clinic_id)
-        `)
-        .eq('schedules.clinic_id', clinicId)
-        .gte('date', startOfMonth.toISOString().split('T')[0])
-        .lte('date', endOfMonth.toISOString().split('T')[0]);
+        if (shiftsError) throw shiftsError;
 
-      if (shiftsError) throw shiftsError;
+        // Add assistant names to shifts
+        const shiftsWithAssistants = shiftsData?.map(shift => ({
+          ...shift,
+          assistant_name: assistantsData?.find(a => a.id === shift.user_id)?.name || 'Unknown'
+        })) || [];
 
-      // Add assistant names to shifts
-      const shiftsWithAssistants = shiftsData?.map(shift => ({
-        ...shift,
-        assistant_name: assistantsData?.find(a => a.id === shift.user_id)?.name || 'Unknown'
-      })) || [];
+        // Group shifts by schedule
+        const schedulesWithShifts = schedulesData.map(schedule => ({
+          ...schedule,
+          shifts: shiftsWithAssistants.filter(shift => shift.schedule_id === schedule.id)
+        }));
 
-      // Group shifts by schedule
-      const schedulesWithShifts = schedulesData?.map(schedule => ({
-        ...schedule,
-        shifts: shiftsWithAssistants.filter(shift => shift.schedule_id === schedule.id)
-      })) || [];
-
-      setSchedules(schedulesWithShifts);
+        setSchedules(schedulesWithShifts);
+      } else {
+        setSchedules([]);
+      }
     } catch (error) {
       console.error('Error fetching schedule data:', error);
       toast.error('Failed to load schedule data');
@@ -137,6 +136,11 @@ export default function OwnerScheduleTab({ clinicId }: OwnerScheduleTabProps) {
   const handleCreateShift = async () => {
     if (!selectedDate || !newShift.user_id) {
       toast.error('Please select a date and assistant');
+      return;
+    }
+
+    if (!user?.id) {
+      toast.error('User authentication required');
       return;
     }
 
@@ -152,7 +156,7 @@ export default function OwnerScheduleTab({ clinicId }: OwnerScheduleTabProps) {
           .from('schedules')
           .insert({
             clinic_id: clinicId,
-            created_by: clinicId, // Using clinicId as placeholder
+            created_by: user.id, // Use current user ID
             month: currentDate.getMonth() + 1,
             year: currentDate.getFullYear(),
             title: `${currentDate.toLocaleString('default', { month: 'long' })} ${currentDate.getFullYear()}`,

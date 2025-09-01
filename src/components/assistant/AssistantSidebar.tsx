@@ -27,7 +27,8 @@ import {
   Calendar,
   BookOpen,
   Award,
-  TrendingUp
+  TrendingUp,
+  LayoutDashboard
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -39,7 +40,7 @@ interface AssistantSidebarProps {
 }
 
 const navigationItems = [
-  { id: 'home', label: 'Home', icon: CheckSquare },
+  { id: 'home', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
   { id: 'stats', label: 'My Stats', icon: BarChart3 },

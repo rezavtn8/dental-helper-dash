@@ -168,8 +168,6 @@ const AssistantDashboard = () => {
         return (
           <MyStatsTab 
             tasks={tasks}
-            patientCount={patientCount}
-            onPatientCountUpdate={setPatientCount}
           />
         );
       case 'learning':

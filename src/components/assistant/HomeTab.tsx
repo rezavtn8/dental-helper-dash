@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Clock, AlertTriangle, Award, Calendar, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Clock, AlertTriangle, Award, Calendar, TrendingUp, Users, Target, Sparkles, ChevronRight } from 'lucide-react';
 
 interface HomeTabProps {
   tasks: any[];
@@ -9,6 +10,9 @@ interface HomeTabProps {
 }
 
 export default function HomeTab({ tasks, patientCount }: HomeTabProps) {
+  const [hoveredStat, setHoveredStat] = useState<number | null>(null);
+  const [hoveredAction, setHoveredAction] = useState<number | null>(null);
+  
   const completedTasks = tasks.filter(task => task.status === 'completed').length;
   const pendingTasks = tasks.filter(task => task.status === 'pending').length;
   const overdueTasks = tasks.filter(task => {
@@ -19,32 +23,67 @@ export default function HomeTab({ tasks, patientCount }: HomeTabProps) {
 
   const quickStats = [
     {
-      title: "Today's Patients",
+      title: "Patients Assisted",
       value: patientCount,
-      icon: CheckCircle,
-      color: "text-emerald-600 bg-emerald-50",
-      description: "patients assisted today"
+      icon: Users,
+      color: "from-emerald-400 to-teal-500",
+      bgColor: "bg-emerald-50",
+      description: "helped today",
+      metric: "patients"
     },
     {
-      title: "Pending Tasks",
+      title: "Tasks Pending",
       value: pendingTasks,
       icon: Clock,
-      color: "text-blue-600 bg-blue-50",
-      description: "tasks to complete"
+      color: "from-blue-400 to-indigo-500", 
+      bgColor: "bg-blue-50",
+      description: "to complete",
+      metric: "tasks"
     },
     {
-      title: "Completed Tasks",
+      title: "Tasks Completed",
       value: completedTasks,
-      icon: CheckCircle,
-      color: "text-green-600 bg-green-50",
-      description: "tasks finished"
+      icon: Target,
+      color: "from-green-400 to-emerald-500",
+      bgColor: "bg-green-50", 
+      description: "finished today",
+      metric: "completed"
     },
     {
       title: "Overdue Items",
       value: overdueTasks,
       icon: AlertTriangle,
-      color: "text-red-600 bg-red-50",
-      description: "items past due"
+      color: "from-red-400 to-rose-500",
+      bgColor: "bg-red-50",
+      description: "need attention",
+      metric: "overdue"
+    }
+  ];
+
+  const quickActions = [
+    {
+      title: "Schedule",
+      description: "View your upcoming shifts and schedule for the week",
+      icon: Calendar,
+      color: "from-blue-500 to-cyan-500",
+      bgColor: "bg-blue-50",
+      action: "schedule"
+    },
+    {
+      title: "Certifications", 
+      description: "Manage your professional certifications and track expiry dates",
+      icon: Award,
+      color: "from-purple-500 to-pink-500", 
+      bgColor: "bg-purple-50",
+      action: "certifications"
+    },
+    {
+      title: "Growth Tracking",
+      description: "Track your progress, feedback, and professional milestones",
+      icon: TrendingUp,
+      color: "from-green-500 to-teal-500",
+      bgColor: "bg-green-50", 
+      action: "growth"
     }
   ];
 
@@ -70,24 +109,68 @@ export default function HomeTab({ tasks, patientCount }: HomeTabProps) {
         </div>
       </div>
 
-      {/* Quick Stats Grid */}
+      {/* Interactive Wheel-Style Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickStats.map((stat, index) => {
           const Icon = stat.icon;
+          const isHovered = hoveredStat === index;
           return (
-            <Card key={index} className="hover:shadow-lg transition-shadow duration-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-xl ${stat.color}`}>
-                    <Icon className="w-6 h-6" />
+            <Card 
+              key={index} 
+              className={`relative overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 ${
+                isHovered ? 'shadow-2xl' : 'hover:shadow-xl'
+              }`}
+              onMouseEnter={() => setHoveredStat(index)}
+              onMouseLeave={() => setHoveredStat(null)}
+            >
+              <CardContent className="p-0">
+                {/* Animated Background Wheel */}
+                <div className={`absolute inset-0 ${stat.bgColor} transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-50'}`} />
+                
+                {/* Rotating Border Effect */}
+                <div className={`absolute -inset-1 bg-gradient-to-r ${stat.color} rounded-lg opacity-20 transition-all duration-700 ${
+                  isHovered ? 'animate-pulse opacity-40' : ''
+                }`} />
+                
+                {/* Content */}
+                <div className="relative p-6 z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    {/* Rotating Icon Wheel */}
+                    <div className={`relative w-16 h-16 rounded-full bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-lg transform transition-all duration-500 ${
+                      isHovered ? 'rotate-180 scale-110' : ''
+                    }`}>
+                      {/* Inner rotating circle */}
+                      <div className={`absolute inset-2 rounded-full bg-white/20 transition-all duration-700 ${
+                        isHovered ? 'rotate-[-180deg]' : ''
+                      }`} />
+                      <Icon className={`w-8 h-8 text-white z-10 transition-all duration-500 ${
+                        isHovered ? 'scale-125' : ''
+                      }`} />
+                    </div>
+                    
+                    {/* Animated Value */}
+                    <div className="text-right">
+                      <div className={`text-4xl font-bold transition-all duration-300 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent ${
+                        isHovered ? 'scale-110' : ''
+                      }`}>
+                        {stat.value}
+                      </div>
+                      <div className="text-xs text-slate-500 font-medium uppercase tracking-wide">
+                        {stat.metric}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-slate-900">{stat.value}</div>
+                  
+                  {/* Content with slide effect */}
+                  <div className={`transition-all duration-300 ${isHovered ? 'transform translate-y-[-2px]' : ''}`}>
+                    <h3 className="font-bold text-slate-800 mb-1 text-lg">{stat.title}</h3>
+                    <p className="text-sm text-slate-600">{stat.description}</p>
                   </div>
-                </div>
-                <div>
-                  <p className="font-semibold text-slate-700 mb-1">{stat.title}</p>
-                  <p className="text-sm text-slate-500">{stat.description}</p>
+                  
+                  {/* Progress ring effect */}
+                  <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.color} transition-all duration-500 ${
+                    isHovered ? 'h-2' : ''
+                  }`} />
                 </div>
               </CardContent>
             </Card>
@@ -95,58 +178,96 @@ export default function HomeTab({ tasks, patientCount }: HomeTabProps) {
         })}
       </div>
 
-      {/* Quick Actions */}
+      {/* Interactive Quick Actions Wheel */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow duration-200">
-          <CardHeader className="pb-3">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-5 h-5 text-blue-600" />
-              <CardTitle className="text-lg">Schedule</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="mb-4">
-              View your upcoming shifts and schedule for the week.
-            </CardDescription>
-            <Badge variant="outline" className="text-blue-600 border-blue-200">
-              View Schedule →
-            </Badge>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow duration-200">
-          <CardHeader className="pb-3">
-            <div className="flex items-center space-x-2">
-              <Award className="w-5 h-5 text-purple-600" />
-              <CardTitle className="text-lg">Certifications</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="mb-4">
-              Manage your professional certifications and track expiry dates.
-            </CardDescription>
-            <Badge variant="outline" className="text-purple-600 border-purple-200">
-              Manage Certs →
-            </Badge>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow duration-200">
-          <CardHeader className="pb-3">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-              <CardTitle className="text-lg">Growth</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="mb-4">
-              Track your progress, feedback, and professional milestones.
-            </CardDescription>
-            <Badge variant="outline" className="text-green-600 border-green-200">
-              View Progress →
-            </Badge>
-          </CardContent>
-        </Card>
+        {quickActions.map((action, index) => {
+          const Icon = action.icon;
+          const isHovered = hoveredAction === index;
+          return (
+            <Card 
+              key={index} 
+              className={`group relative overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 ${
+                isHovered ? 'shadow-2xl' : 'hover:shadow-xl'
+              }`}
+              onMouseEnter={() => setHoveredAction(index)}
+              onMouseLeave={() => setHoveredAction(null)}
+            >
+              <CardContent className="p-0 h-full">
+                {/* Animated Background */}
+                <div className={`absolute inset-0 ${action.bgColor} transition-all duration-500 ${
+                  isHovered ? 'opacity-100' : 'opacity-60'
+                }`} />
+                
+                {/* Rotating Border Wheel */}
+                <div className={`absolute -inset-1 bg-gradient-to-r ${action.color} rounded-lg opacity-30 transition-all duration-700 ${
+                  isHovered ? 'animate-pulse opacity-60 scale-105' : ''
+                }`} />
+                
+                {/* Content */}
+                <div className="relative p-6 h-full flex flex-col justify-between z-10">
+                  {/* Icon and Title */}
+                  <div>
+                    <div className={`flex items-center mb-4 transition-all duration-500 ${
+                      isHovered ? 'transform translate-y-[-4px]' : ''
+                    }`}>
+                      {/* Rotating Icon Wheel */}
+                      <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${action.color} flex items-center justify-center mr-4 shadow-lg transform transition-all duration-500 ${
+                        isHovered ? 'rotate-180 scale-110' : ''
+                      }`}>
+                        <Icon className={`w-6 h-6 text-white transition-all duration-500 ${
+                          isHovered ? 'scale-125' : ''
+                        }`} />
+                      </div>
+                      
+                      <h3 className={`text-xl font-bold transition-all duration-300 bg-gradient-to-r ${action.color} bg-clip-text text-transparent`}>
+                        {action.title}
+                      </h3>
+                    </div>
+                    
+                    <p className={`text-slate-600 text-sm mb-4 transition-all duration-300 ${
+                      isHovered ? 'text-slate-700' : ''
+                    }`}>
+                      {action.description}
+                    </p>
+                  </div>
+                  
+                  {/* Interactive Button */}
+                  <Button 
+                    className={`group relative overflow-hidden bg-gradient-to-r ${action.color} text-white border-0 transition-all duration-300 ${
+                      isHovered ? 'shadow-lg transform scale-105' : ''
+                    }`}
+                    size="sm"
+                  >
+                    {/* Button background wheel effect */}
+                    <div className={`absolute inset-0 bg-white/20 transition-all duration-500 ${
+                      isHovered ? 'scale-110 rotate-180' : 'scale-100'
+                    }`} />
+                    
+                    <span className="relative z-10 flex items-center">
+                      Get Started
+                      <ChevronRight className={`w-4 h-4 ml-2 transition-all duration-300 ${
+                        isHovered ? 'transform translate-x-1' : ''
+                      }`} />
+                    </span>
+                  </Button>
+                </div>
+                
+                {/* Bottom progress wheel effect */}
+                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${action.color} transition-all duration-500 ${
+                  isHovered ? 'h-2' : ''
+                }`} />
+                
+                {/* Sparkle effects on hover */}
+                {isHovered && (
+                  <>
+                    <Sparkles className="absolute top-4 right-4 w-4 h-4 text-yellow-400 animate-pulse" />
+                    <Sparkles className="absolute bottom-4 left-4 w-3 h-3 text-yellow-300 animate-pulse delay-300" />
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Recent Activity */}

@@ -2,7 +2,27 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LogIn, Shield, Users, CheckCircle, ArrowRight, Stethoscope, Building2, UserCheck, Crown } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  LogIn, 
+  Shield, 
+  Users, 
+  CheckCircle, 
+  ArrowRight, 
+  Stethoscope, 
+  Building2, 
+  UserCheck, 
+  Crown,
+  Calendar,
+  BarChart3,
+  Zap,
+  Heart,
+  Star,
+  Globe,
+  Lock,
+  Clock,
+  TrendingUp
+} from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import AuthWidget from '@/components/auth/AuthWidget';
@@ -26,93 +46,210 @@ export default function Home() {
   }, [user, userProfile, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Header */}
-      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-              <Stethoscope className="w-6 h-6 text-primary-foreground" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50/30 relative overflow-hidden">
+      
+      {/* Floating Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-gradient-to-br from-blue-200 to-blue-300 rounded-full opacity-15 animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full opacity-10 animate-pulse delay-500"></div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="relative z-50 bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg rotate-3 hover:rotate-0 transition-transform duration-300">
+                <Stethoscope className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <span className="text-2xl font-display font-bold bg-gradient-to-r from-blue-900 to-blue-600 bg-clip-text text-transparent">
+                  ClinicFlow
+                </span>
+                <div className="text-xs text-blue-600 font-medium tracking-wide">HEALTHCARE PLATFORM</div>
+              </div>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              ClinicFlow
-            </span>
+            
+            <Button 
+              onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })} 
+              variant="default"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
+            >
+              <LogIn className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Get Started
+            </Button>
           </div>
-          <Button 
-            onClick={() => document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' })} 
-            size="sm"
-            variant="outline"
-            className="group hover-scale transition-all duration-300"
-          >
-            <LogIn className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
-            Sign In
-          </Button>
         </div>
-      </header>
+      </nav>
 
-      {/* Hero Section with Authentication or Clinic Setup */}
-      <section id="login-section" className="container mx-auto px-4 py-16">
-        <div className="space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
-                ? 'Complete Your Clinic Setup' 
-                : 'Welcome to ClinicFlow'}
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              {user && userProfile?.role === 'owner' && !userProfile?.clinic_id
-                ? 'Create your clinic to start managing your team and tasks.'
-                : 'The complete solution for modern healthcare practice management. Choose your role to get started.'}
-            </p>
+      {/* Hero Section */}
+      <section className="relative z-10 container mx-auto px-6 py-20">
+        <div className="text-center max-w-5xl mx-auto">
+          
+          {/* Badge */}
+          <Badge className="mb-6 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-1 text-sm font-medium border-0">
+            <Zap className="w-4 h-4 mr-2" />
+            Trusted by 500+ Healthcare Practices
+          </Badge>
+
+          {/* Main Headline */}
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-600 bg-clip-text text-transparent">
+              Healthcare
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-transparent">
+              Made Simple
+            </span>
+          </h1>
+
+          {/* Subheadline */}
+          <p className="text-xl md:text-2xl text-blue-800/80 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
+            Streamline your clinic operations with intelligent task management, 
+            team collaboration, and patient care optimization.
+          </p>
+
+          {/* Stats Row */}
+          <div className="flex justify-center items-center gap-8 mb-12 flex-wrap">
+            <div className="text-center">
+              <div className="text-3xl font-display font-bold text-blue-900">500+</div>
+              <div className="text-blue-600 text-sm font-medium">Active Clinics</div>
+            </div>
+            <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
+            <div className="text-center">
+              <div className="text-3xl font-display font-bold text-blue-900">50K+</div>
+              <div className="text-blue-600 text-sm font-medium">Tasks Completed</div>
+            </div>
+            <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
+            <div className="text-center">
+              <div className="text-3xl font-display font-bold text-blue-900">99.9%</div>
+              <div className="text-blue-600 text-sm font-medium">Uptime</div>
+            </div>
           </div>
 
-          <Card className="shadow-2xl max-w-2xl mx-auto border-0">
-            <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <Button 
+              size="lg" 
+              onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group transform hover:scale-105"
+            >
+              <Crown className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Start Free Trial
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+            </Button>
+            
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              className="border-2 border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-4 text-lg font-semibold transition-all duration-300 group"
+            >
+              <Heart className="w-5 h-5 mr-2 group-hover:text-red-500 transition-colors duration-300" />
+              See How It Works
+            </Button>
+          </div>
+
+          {/* Social Proof */}
+          <div className="flex items-center justify-center gap-2 text-blue-600">
+            <div className="flex -space-x-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+              ))}
+            </div>
+            <span className="font-medium">4.9/5 from 200+ reviews</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Auth Section */}
+      <section id="auth-section" className="relative z-10 container mx-auto px-6 py-20">
+        <div className="max-w-4xl mx-auto">
+          <Card className="shadow-2xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
+            <CardHeader className="text-center py-12 bg-gradient-to-r from-blue-50 to-blue-100/50">
+              <CardTitle className="text-3xl font-display font-bold text-blue-900 mb-4">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
-                  ? 'Create Your Clinic' 
-                  : 'Get Started'}
+                  ? '🏥 Complete Your Clinic Setup' 
+                  : '🚀 Choose Your Role'}
               </CardTitle>
-              <CardDescription className="text-base">
+              <CardDescription className="text-lg text-blue-700 max-w-2xl mx-auto">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id
-                  ? 'Set up your clinic information and get your unique clinic code'
-                  : 'Sign in to your account or create a new one'}
+                  ? 'Just one more step! Set up your clinic information and get your unique clinic code.'
+                  : 'Select your role to access the right dashboard for your healthcare practice.'}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            
+            <CardContent className="p-12">
               {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? (
                 <ClinicSetupForm userProfile={userProfile} />
               ) : (
                 <Tabs defaultValue="owner" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-8">
-                    <TabsTrigger value="owner" className="flex items-center space-x-2 py-3">
-                      <Crown className="w-4 h-4" />
+                  <TabsList className="grid w-full grid-cols-2 mb-12 bg-blue-50 p-1 h-14">
+                    <TabsTrigger 
+                      value="owner" 
+                      className="flex items-center space-x-3 py-4 text-lg font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md"
+                    >
+                      <Crown className="w-5 h-5" />
                       <span>Clinic Owner</span>
                     </TabsTrigger>
-                    <TabsTrigger value="assistant" className="flex items-center space-x-2 py-3">
-                      <UserCheck className="w-4 h-4" />
+                    <TabsTrigger 
+                      value="assistant" 
+                      className="flex items-center space-x-3 py-4 text-lg font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md"
+                    >
+                      <UserCheck className="w-5 h-5" />
                       <span>Assistant</span>
                     </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="owner" className="space-y-4">
-                    <div className="text-center mb-6">
-                      <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                        <Crown className="w-8 h-8 text-primary" />
+                  <TabsContent value="owner" className="space-y-8">
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <Crown className="w-10 h-10 text-blue-600" />
                       </div>
-                      <h3 className="text-xl font-semibold">Clinic Owner Access</h3>
-                      <p className="text-muted-foreground">Manage your clinic, team, and patients</p>
+                      <h3 className="text-2xl font-display font-bold text-blue-900 mb-3">Practice Owner Access</h3>
+                      <p className="text-blue-700 text-lg mb-6">Manage your entire clinic, team, and operations from one powerful dashboard</p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                          <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                          <div className="text-sm font-medium text-blue-800">Team Management</div>
+                        </div>
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                          <BarChart3 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                          <div className="text-sm font-medium text-blue-800">Analytics & Reports</div>
+                        </div>
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                          <Calendar className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                          <div className="text-sm font-medium text-blue-800">Schedule Management</div>
+                        </div>
+                      </div>
                     </div>
                     <AuthWidget role="owner" />
                   </TabsContent>
                   
-                  <TabsContent value="assistant" className="space-y-4">
-                    <div className="text-center mb-6">
-                      <div className="w-16 h-16 bg-gradient-to-r from-secondary/30 to-secondary/40 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                        <UserCheck className="w-8 h-8 text-secondary-foreground" />
+                  <TabsContent value="assistant" className="space-y-8">
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <UserCheck className="w-10 h-10 text-blue-600" />
                       </div>
-                      <h3 className="text-xl font-semibold">Assistant Access</h3>
-                      <p className="text-muted-foreground">Access your tasks and clinic workspace</p>
+                      <h3 className="text-2xl font-display font-bold text-blue-900 mb-3">Assistant Access</h3>
+                      <p className="text-blue-700 text-lg mb-6">Access your personalized workspace with tasks, schedules, and clinic tools</p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                          <CheckCircle className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                          <div className="text-sm font-medium text-blue-800">Task Tracking</div>
+                        </div>
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                          <TrendingUp className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                          <div className="text-sm font-medium text-blue-800">Performance Stats</div>
+                        </div>
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                          <Clock className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                          <div className="text-sm font-medium text-blue-800">Real-time Updates</div>
+                        </div>
+                      </div>
                     </div>
                     <AuthWidget role="assistant" />
                   </TabsContent>
@@ -124,132 +261,186 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="container mx-auto px-4 py-20 animate-fade-in">
-        <div className="text-center space-y-6 mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold">Why Choose ClinicFlow?</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Built specifically for healthcare teams to improve efficiency and patient care.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="hover-scale group border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Shield className="w-8 h-8 text-primary" />
-              </div>
-              <CardTitle className="text-2xl">Role-Based Access</CardTitle>
-              <CardDescription className="text-base">
-                Secure login system with different access levels for owners and assistants
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  Owner dashboard with full control
-                </li>
-                 <li className="flex items-center">
-                   <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                   Assistant joins via clinic codes
-                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  Secure data protection
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="hover-scale group border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-secondary/10 to-secondary/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Users className="w-8 h-8 text-secondary" />
-              </div>
-              <CardTitle className="text-2xl">Team Management</CardTitle>
-              <CardDescription className="text-base">
-                Add team members, assign tasks, and track performance across your clinic
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  Task assignment and tracking
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  Real-time progress updates
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  Performance analytics
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="hover-scale group border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-accent/10 to-accent/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <LogIn className="w-8 h-8 text-accent-foreground" />
-              </div>
-              <CardTitle className="text-2xl">Simple & Secure</CardTitle>
-              <CardDescription className="text-base">
-                Easy-to-use interface with enterprise-grade security for healthcare environments
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  Intuitive user interface
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  HIPAA-compliant security
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 mr-3 text-primary" />
-                  Cloud-based reliability
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="bg-gradient-to-r from-primary/5 via-muted/30 to-secondary/5 py-24">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold">Ready to Transform Your Clinic?</h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              Join healthcare teams already using ClinicFlow to improve their operations and patient care.
+      <section id="features" className="relative z-10 py-24 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900">
+        <div className="container mx-auto px-6">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <Badge className="mb-6 bg-blue-100 text-blue-700 px-4 py-1 text-sm font-medium border-0">
+              <Star className="w-4 h-4 mr-2" />
+              Why Healthcare Teams Choose ClinicFlow
+            </Badge>
+            
+            <h2 className="text-5xl md:text-6xl font-display font-bold text-white mb-6 leading-tight">
+              Everything You Need,
+              <br />
+              <span className="bg-gradient-to-r from-blue-300 to-blue-100 bg-clip-text text-transparent">
+                Nothing You Don't
+              </span>
+            </h2>
+            
+            <p className="text-xl text-blue-100 leading-relaxed">
+              Built specifically for healthcare teams who want to focus on patient care, not paperwork.
             </p>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+            
+            {/* Feature 1 */}
+            <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Shield className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Enterprise Security</CardTitle>
+                <CardDescription className="text-blue-200 text-base leading-relaxed">
+                  HIPAA-compliant infrastructure with role-based access controls and encrypted data storage
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">End-to-end encryption</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Role-based permissions</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Audit trail logging</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">HIPAA compliance</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Feature 2 */}
+            <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Smart Collaboration</CardTitle>
+                <CardDescription className="text-blue-200 text-base leading-relaxed">
+                  Seamless team coordination with real-time task updates and intelligent workflow automation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Real-time task updates</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Team performance analytics</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Automated scheduling</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Mobile notifications</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Feature 3 */}
+            <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Growth Analytics</CardTitle>
+                <CardDescription className="text-blue-200 text-base leading-relaxed">
+                  Data-driven insights to optimize operations, improve patient satisfaction, and grow your practice
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Performance dashboards</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Patient flow analysis</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Revenue optimization</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
+                    <span className="text-sm">Custom reporting</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="text-center">
             <Button 
-              size="lg" 
-              onClick={() => document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-12 py-6 text-lg hover-scale shadow-2xl group bg-gradient-to-r from-primary to-primary/90"
+              size="lg"
+              onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-white text-blue-900 hover:bg-blue-50 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group transform hover:scale-105"
             >
-              <Building2 className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />
-              Get Started Today
-              <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
+              <Globe className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Join 500+ Healthcare Practices
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-background/50 backdrop-blur-sm py-12">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <Stethoscope className="w-5 h-5 text-primary-foreground" />
+      <footer className="relative z-10 bg-blue-950 border-t border-blue-800 py-16">
+        <div className="container mx-auto px-6">
+          <div className="text-center">
+            
+            {/* Logo */}
+            <div className="flex items-center justify-center space-x-4 mb-8">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Stethoscope className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <span className="text-2xl font-display font-bold text-white">ClinicFlow</span>
+                <div className="text-xs text-blue-300 font-medium tracking-wide">HEALTHCARE PLATFORM</div>
+              </div>
             </div>
-            <span className="text-lg font-semibold">ClinicFlow</span>
+
+            {/* Trust Badges */}
+            <div className="flex justify-center items-center gap-8 mb-8 flex-wrap">
+              <div className="flex items-center space-x-2 text-blue-300">
+                <Lock className="w-4 h-4" />
+                <span className="text-sm font-medium">HIPAA Compliant</span>
+              </div>
+              <div className="flex items-center space-x-2 text-blue-300">
+                <Shield className="w-4 h-4" />
+                <span className="text-sm font-medium">Enterprise Security</span>
+              </div>
+              <div className="flex items-center space-x-2 text-blue-300">
+                <Globe className="w-4 h-4" />
+                <span className="text-sm font-medium">99.9% Uptime</span>
+              </div>
+            </div>
+
+            {/* Copyright */}
+            <div className="border-t border-blue-800 pt-8">
+              <p className="text-blue-300 text-sm">
+                &copy; 2024 ClinicFlow. All rights reserved. Empowering healthcare teams worldwide with intelligent practice management.
+              </p>
+            </div>
           </div>
-          <p>&copy; 2024 ClinicFlow. All rights reserved. Empowering healthcare teams worldwide.</p>
         </div>
       </footer>
     </div>

@@ -33,9 +33,10 @@ interface CertificationAlert {
 
 interface OwnerDashboardTabProps {
   clinicId: string;
+  onTabChange?: (tab: string) => void;
 }
 
-export default function OwnerDashboardTab({ clinicId }: OwnerDashboardTabProps) {
+export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashboardTabProps) {
   const [stats, setStats] = useState<DashboardStats>({
     activeAssistants: 0,
     pendingRequests: 0,
@@ -227,8 +228,9 @@ export default function OwnerDashboardTab({ clinicId }: OwnerDashboardTabProps) 
                 variant="outline" 
                 className="w-full justify-start"
                 onClick={() => {
-                  // This would switch to the team tab - for now just show a message
-                  toast.info('Switch to Team tab to approve pending requests');
+                  if (onTabChange) {
+                    onTabChange('team');
+                  }
                 }}
               >
                 <UserCheck className="w-4 h-4 mr-2" />
@@ -239,7 +241,9 @@ export default function OwnerDashboardTab({ clinicId }: OwnerDashboardTabProps) 
               variant="outline" 
               className="w-full justify-start"
               onClick={() => {
-                toast.info('Switch to Tasks tab to review tasks');
+                if (onTabChange) {
+                  onTabChange('tasks');
+                }
               }}
             >
               <FileText className="w-4 h-4 mr-2" />
@@ -249,7 +253,9 @@ export default function OwnerDashboardTab({ clinicId }: OwnerDashboardTabProps) 
               variant="outline" 
               className="w-full justify-start"
               onClick={() => {
-                toast.info('Switch to Schedule tab to manage schedules');
+                if (onTabChange) {
+                  onTabChange('schedule');
+                }
               }}
             >
               <Calendar className="w-4 h-4 mr-2" />

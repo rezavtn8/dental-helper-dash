@@ -93,8 +93,8 @@ export default function MyStatsTab({ tasks }: MyStatsTabProps) {
       title: "Average",
       value: weeklyAverage,
       icon: Target,
-      color: "from-teal-400 to-teal-500",
-      bgColor: "bg-teal-50",
+      color: "from-blue-400 to-blue-500",
+      bgColor: "bg-blue-50",
       metric: "daily"
     }
   ];
@@ -179,7 +179,7 @@ export default function MyStatsTab({ tasks }: MyStatsTabProps) {
 
       {/* Weekly Performance Chart - Simplified */}
       <Card className="shadow-xl border-blue-100 bg-white/50 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100">
           <CardTitle className="flex items-center text-blue-900">
             <BarChart3 className="w-6 h-6 mr-3 text-blue-600" />
             Weekly Task Completion

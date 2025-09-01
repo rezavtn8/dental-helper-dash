@@ -64,7 +64,7 @@ export default function OwnerDashboardTabs({
       </div>
 
       <TabsContent value="dashboard">
-        {clinicId && <OwnerDashboardTab clinicId={clinicId} />}
+        {clinicId && <OwnerDashboardTab clinicId={clinicId} onTabChange={onTabChange} />}
       </TabsContent>
 
       <TabsContent value="tasks">

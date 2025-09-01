@@ -153,6 +153,7 @@ const AssistantDashboard = () => {
             tasks={tasks}
             patientCount={patientCount}
             onPatientCountUpdate={setPatientCount}
+            onTabChange={setActiveTab}
           />
         );
       case 'tasks':
@@ -184,6 +185,7 @@ const AssistantDashboard = () => {
             tasks={tasks}
             patientCount={patientCount}
             onPatientCountUpdate={setPatientCount}
+            onTabChange={setActiveTab}
           />
         );
     }

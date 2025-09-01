@@ -8,6 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { getUserInitials } from '@/lib/taskUtils';
+import EditProfileDialog from './EditProfileDialog';
+import PrivacySettingsDialog from './PrivacySettingsDialog';
 import { 
   Settings,
   Eye, 
@@ -31,10 +37,6 @@ import {
   Volume2,
   VolumeX
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { getUserInitials } from '@/lib/taskUtils';
 
 export default function SettingsTab() {
   const { user, userProfile } = useAuth();
@@ -241,14 +243,18 @@ export default function SettingsTab() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="h-12">
-              <User className="w-4 h-4 mr-2" />
-              Edit Profile
-            </Button>
-            <Button variant="outline" className="h-12">
-              <Shield className="w-4 h-4 mr-2" />
-              Privacy Settings
-            </Button>
+            <EditProfileDialog>
+              <Button variant="outline" className="h-12">
+                <User className="w-4 h-4 mr-2" />
+                Edit Profile
+              </Button>
+            </EditProfileDialog>
+            <PrivacySettingsDialog>
+              <Button variant="outline" className="h-12">
+                <Shield className="w-4 h-4 mr-2" />
+                Privacy Settings
+              </Button>
+            </PrivacySettingsDialog>
           </div>
         </CardContent>
       </Card>

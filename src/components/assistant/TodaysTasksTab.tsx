@@ -314,7 +314,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
               <Button
                 size="sm"
                 onClick={() => pickTask(task.id)}
-                className="h-6 text-xs bg-teal-600 hover:bg-teal-700 px-2"
+                className="h-6 text-xs bg-blue-600 hover:bg-blue-700 px-2"
               >
                 Pick Up
               </Button>
@@ -463,7 +463,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       {pendingTasks.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
-            <User className="w-6 h-6 mr-3 text-teal-600" />
+            <User className="w-6 h-6 mr-3 text-blue-600" />
             My Tasks ({pendingTasks.length})
           </h2>
           <div className="grid gap-3 lg:grid-cols-1">
@@ -476,19 +476,19 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
       {/* Available Tasks */}
       <div>
-        <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center">
-          <Sparkles className="w-6 h-6 mr-3 text-teal-600" />
+        <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
+          <Sparkles className="w-6 h-6 mr-3 text-blue-600" />
           Available Tasks ({unassignedTasks.length})
         </h2>
         
         {unassignedTasks.length === 0 ? (
-          <Card className="bg-gradient-to-br from-teal-50 to-blue-50 border-teal-200">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
             <CardContent className="p-12 text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-teal-600" />
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-teal-900 mb-3">All caught up!</h3>
-              <p className="text-teal-700">No available tasks to pick up right now. Great work!</p>
+              <h3 className="text-xl font-bold text-blue-900 mb-3">All caught up!</h3>
+              <p className="text-blue-700">No available tasks to pick up right now. Great work!</p>
             </CardContent>
           </Card>
         ) : (
@@ -503,7 +503,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       {/* Completed Tasks */}
       {completedTasks.length > 0 && (
         <div>
-          <h2 className="text-2xl font-bold text-teal-900 mb-6 flex items-center">
+          <h2 className="text-2xl font-bold text-blue-900 mb-6 flex items-center">
             <CheckCircle2 className="w-6 h-6 mr-3 text-green-600" />
             Completed Today ({completedTasks.length})
           </h2>
@@ -517,13 +517,13 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
       {/* No Tasks Message */}
       {myTasks.length === 0 && unassignedTasks.length === 0 && (
-        <Card className="bg-gradient-to-br from-teal-50 to-blue-50 border-teal-200">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardContent className="p-12 text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Calendar className="w-10 h-10 text-teal-600" />
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Calendar className="w-10 h-10 text-blue-600" />
             </div>
-            <h3 className="text-xl font-bold text-teal-900 mb-3">No tasks yet</h3>
-            <p className="text-teal-700">Tasks will appear here when they're created by your practice owner.</p>
+            <h3 className="text-xl font-bold text-blue-900 mb-3">No tasks yet</h3>
+            <p className="text-blue-700">Tasks will appear here when they're created by your practice owner.</p>
           </CardContent>
         </Card>
       )}

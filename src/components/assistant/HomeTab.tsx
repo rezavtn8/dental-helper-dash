@@ -9,9 +9,10 @@ interface HomeTabProps {
   tasks: any[];
   patientCount: number;
   onPatientCountUpdate: (count: number) => void;
+  onTabChange?: (tab: string) => void;
 }
 
-export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: HomeTabProps) {
+export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onTabChange }: HomeTabProps) {
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
   const [hoveredAction, setHoveredAction] = useState<number | null>(null);
   
@@ -268,6 +269,11 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
                       isHovered ? 'shadow-lg transform scale-105' : ''
                     }`}
                     size="sm"
+                    onClick={() => {
+                      if (onTabChange) {
+                        onTabChange(action.action === 'growth' ? 'stats' : action.action);
+                      }
+                    }}
                   >
                     {/* Button background wheel effect */}
                     <div className={`absolute inset-0 bg-white/20 transition-all duration-500 ${
@@ -275,7 +281,7 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
                     }`} />
                     
                     <span className="relative z-10 flex items-center justify-center">
-                      Get Started
+                      View {action.title}
                       <ChevronRight className={`w-4 h-4 ml-2 transition-all duration-300 ${
                         isHovered ? 'transform translate-x-1' : ''
                       }`} />

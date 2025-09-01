@@ -119,50 +119,6 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
         />
       </div>
 
-      {/* Today's Summary */}
-      <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-blue-200 shadow-xl">
-        <CardHeader>
-          <CardTitle className="flex items-center text-blue-900">
-            <Target className="w-6 h-6 mr-3 text-blue-600" />
-            Today's Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 bg-white/60 rounded-2xl">
-              <p className="text-2xl font-bold text-blue-900">{completedTasks}</p>
-              <p className="text-sm text-blue-600">Tasks Done</p>
-            </div>
-            <div className="text-center p-4 bg-white/60 rounded-2xl">
-              <p className="text-2xl font-bold text-blue-900">{pendingTasks}</p>
-              <p className="text-sm text-blue-600">Tasks Pending</p>
-            </div>
-          </div>
-          
-          {patientCount > 0 && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-2xl border border-green-200">
-              <div className="flex items-center justify-center space-x-2">
-                <Sparkles className="w-5 h-5 text-green-600" />
-                <p className="text-green-700 font-medium">
-                  You've helped {patientCount} patient{patientCount !== 1 ? 's' : ''} today!
-                </p>
-              </div>
-            </div>
-          )}
-          
-          {overdueTasks > 0 && (
-            <div className="bg-gradient-to-r from-red-50 to-rose-50 p-4 rounded-2xl border border-red-200">
-              <div className="flex items-center justify-center space-x-2">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
-                <p className="text-red-700 font-medium">
-                  {overdueTasks} overdue task{overdueTasks !== 1 ? 's' : ''} need attention
-                </p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Interactive Wheel-Style Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickStats.map((stat, index) => {
@@ -231,6 +187,46 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
           );
         })}
       </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Clock className="w-5 h-5 text-slate-600" />
+            <span>Recent Activity</span>
+          </CardTitle>
+          <CardDescription>
+            Your latest tasks and updates
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {tasks.slice(0, 5).map((task, index) => (
+              <div key={task.id || index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-3 h-3 rounded-full ${
+                    task.status === 'completed' ? 'bg-green-500' : 
+                    task.status === 'in-progress' ? 'bg-blue-500' : 'bg-slate-400'
+                  }`} />
+                  <div>
+                    <p className="font-medium text-slate-900">{task.title}</p>
+                    <p className="text-sm text-slate-500">{task.category || 'General'}</p>
+                  </div>
+                </div>
+                <Badge variant={task.status === 'completed' ? 'default' : 'secondary'}>
+                  {task.status === 'completed' ? 'Done' : 'Pending'}
+                </Badge>
+              </div>
+            ))}
+            {tasks.length === 0 && (
+              <div className="text-center py-8 text-slate-500">
+                <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No recent activity</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Interactive Quick Actions Wheel */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -323,46 +319,6 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate }: H
           );
         })}
       </div>
-
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Clock className="w-5 h-5 text-slate-600" />
-            <span>Recent Activity</span>
-          </CardTitle>
-          <CardDescription>
-            Your latest tasks and updates
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {tasks.slice(0, 5).map((task, index) => (
-              <div key={task.id || index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    task.status === 'completed' ? 'bg-green-500' : 
-                    task.status === 'in-progress' ? 'bg-blue-500' : 'bg-slate-400'
-                  }`} />
-                  <div>
-                    <p className="font-medium text-slate-900">{task.title}</p>
-                    <p className="text-sm text-slate-500">{task.category || 'General'}</p>
-                  </div>
-                </div>
-                <Badge variant={task.status === 'completed' ? 'default' : 'secondary'}>
-                  {task.status === 'completed' ? 'Done' : 'Pending'}
-                </Badge>
-              </div>
-            ))}
-            {tasks.length === 0 && (
-              <div className="text-center py-8 text-slate-500">
-                <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No recent activity</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

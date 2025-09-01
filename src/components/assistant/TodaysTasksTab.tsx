@@ -316,14 +316,35 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
             )}
 
             {!showPickUp && !showCompleted && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => returnTask(task.id)}
-                className="h-7 text-xs px-2"
-              >
-                Return
-              </Button>
+              <>
+                {isCompleted(task.status) ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => markTaskUndone(task.id)}
+                    className="h-7 text-xs px-2 border-green-200 text-green-700 hover:bg-green-50"
+                  >
+                    Undo
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={() => markTaskDone(task.id)}
+                    className="h-7 text-xs px-2 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Done
+                  </Button>
+                )}
+                
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => returnTask(task.id)}
+                  className="h-7 text-xs px-2"
+                >
+                  Return
+                </Button>
+              </>
             )}
           </div>
         </div>

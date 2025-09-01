@@ -62,82 +62,79 @@ export default function AssistantSidebar({
   const isActive = (tabId: string) => activeTab === tabId;
 
   return (
-    <Sidebar className="border-r border-teal-100 bg-white">
-      <SidebarContent>
-        {/* Clinic Header */}
-        <div className="p-6 border-b border-teal-50 bg-gradient-to-r from-teal-50 to-blue-50">
+    <Sidebar className="border-r border-slate-200/60 bg-white/95 backdrop-blur-sm">
+      <SidebarContent className="px-2">
+        {/* Clinic Header - Compact */}
+        <div className="p-3 border-b border-slate-100/80">
           {open && !isCollapsed ? (
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Building2 className="w-6 h-6 text-white" />
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="font-bold text-teal-900 truncate text-lg">
+                <h1 className="font-semibold text-slate-800 truncate text-sm">
                   {clinic?.name || 'Dental Clinic'}
                 </h1>
-                <p className="text-sm text-teal-600 font-medium">Assistant Portal</p>
+                <p className="text-xs text-slate-500">Assistant Portal</p>
               </div>
             </div>
           ) : (
             <div className="flex justify-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Building2 className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-white" />
               </div>
             </div>
           )}
         </div>
 
-        {/* User Profile */}
-        <div className="p-6 border-b border-teal-50">
+        {/* User Profile - Compact */}
+        <div className="p-3 border-b border-slate-100/80">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className={`w-full justify-start p-0 h-auto hover:bg-teal-50 ${!open || isCollapsed ? 'justify-center' : ''}`}>
-                <div className={`flex items-center space-x-3 ${!open || isCollapsed ? 'flex-col space-x-0 space-y-2' : ''}`}>
-                  <Avatar className="w-12 h-12 border-2 border-teal-200 shadow-lg">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold">
+              <Button variant="ghost" className={`w-full justify-start p-1 h-auto hover:bg-slate-50 rounded-lg ${!open || isCollapsed ? 'justify-center' : ''}`}>
+                <div className={`flex items-center space-x-2 ${!open || isCollapsed ? 'flex-col space-x-0' : ''}`}>
+                  <Avatar className="w-8 h-8 border border-slate-200">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-medium">
                       {getUserInitials(userProfile?.name || 'Assistant')}
                     </AvatarFallback>
                   </Avatar>
                   {open && !isCollapsed && (
                     <>
                       <div className="flex-1 text-left min-w-0">
-                        <p className="font-semibold text-teal-900 truncate text-base">
+                        <p className="font-medium text-slate-800 truncate text-sm">
                           {userProfile?.name || 'Assistant'}
                         </p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="secondary" className="bg-teal-100 text-teal-700 text-xs font-medium border-teal-200">
-                            <Sparkles className="w-3 h-3 mr-1" />
-                            {userProfile?.role === 'admin' ? 'Admin Assistant' : 'Assistant'}
-                          </Badge>
-                        </div>
+                        <Badge variant="secondary" className="bg-teal-50 text-teal-600 text-xs border-teal-100 h-4 px-1.5">
+                          {userProfile?.role === 'admin' ? 'Admin' : 'Assistant'}
+                        </Badge>
                       </div>
-                      <ChevronDown className="w-4 h-4 text-teal-500" />
+                      <ChevronDown className="w-3 h-3 text-slate-400" />
                     </>
                   )}
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align={!open || isCollapsed ? "start" : "end"} className="w-56 shadow-xl border-teal-100">
-              <DropdownMenuItem onClick={() => onTabChange('settings')} className="hover:bg-teal-50">
-                <Settings className="mr-2 h-4 w-4 text-teal-600" />
+            <DropdownMenuContent align={!open || isCollapsed ? "start" : "end"} className="w-48 shadow-lg border-slate-200">
+              <DropdownMenuItem onClick={() => onTabChange('settings')} className="hover:bg-slate-50 text-sm">
+                <Settings className="mr-2 h-3.5 w-3.5 text-slate-500" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-teal-100" />
-              <DropdownMenuItem onClick={signOut} className="text-red-600 hover:bg-red-50">
-                <LogOut className="mr-2 h-4 w-4" />
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut} className="text-red-600 hover:bg-red-50 text-sm">
+                <LogOut className="mr-2 h-3.5 w-3.5" />
                 Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
-        {/* Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-teal-700 font-semibold tracking-wide">
-            {(open && !isCollapsed) && "Navigation"}
+        {/* Navigation - Compact */}
+        <SidebarGroup className="py-2">
+          <SidebarGroupLabel className="text-slate-500 font-medium text-xs mb-2 px-2">
+            {(open && !isCollapsed) && "NAVIGATION"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-0.5">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.id);
@@ -147,21 +144,21 @@ export default function AssistantSidebar({
                     <SidebarMenuButton 
                       asChild
                       className={`
-                        h-12 transition-all duration-200 rounded-xl mx-2 mb-1
-                        ${!open || isCollapsed ? 'justify-center px-0' : 'px-4'}
+                        h-9 transition-all duration-150 rounded-lg mx-1
+                        ${!open || isCollapsed ? 'justify-center px-0 w-9' : 'px-3'}
                         ${active 
-                          ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 hover:from-teal-600 hover:to-teal-700' 
-                          : 'hover:bg-teal-50 hover:text-teal-700 text-teal-600'
+                          ? 'bg-teal-500 text-white shadow-sm hover:bg-teal-600' 
+                          : 'hover:bg-slate-50 hover:text-slate-700 text-slate-600'
                         }
                       `}
                     >
                       <button onClick={() => onTabChange(item.id)} className="w-full flex items-center">
-                        <Icon className={`w-5 h-5 ${(!open || isCollapsed) ? '' : 'mr-3'}`} />
+                        <Icon className={`w-4 h-4 ${(!open || isCollapsed) ? '' : 'mr-2.5'} flex-shrink-0`} />
                         {(open && !isCollapsed) && (
                           <>
-                            <span className="font-medium">{item.label}</span>
+                            <span className="font-medium text-sm truncate">{item.label}</span>
                             {active && (
-                              <div className="ml-auto w-2 h-2 bg-white/80 rounded-full" />
+                              <div className="ml-auto w-1.5 h-1.5 bg-white/90 rounded-full flex-shrink-0" />
                             )}
                           </>
                         )}
@@ -175,17 +172,15 @@ export default function AssistantSidebar({
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with Clinic Code */}
+      {/* Footer with Clinic Code - Compact */}
       {clinic?.clinic_code && (
-        <SidebarFooter className="border-t border-teal-50">
+        <SidebarFooter className="border-t border-slate-100/80 p-2">
           {(open && !isCollapsed) && (
-            <div className="p-4">
-              <div className="bg-teal-50 rounded-xl p-3 border border-teal-100">
-                <p className="text-xs font-semibold text-teal-600 mb-1 uppercase tracking-wide">Clinic Code</p>
-                <p className="font-mono text-sm font-bold text-teal-900 tracking-wider">
-                  {clinic.clinic_code}
-                </p>
-              </div>
+            <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100">
+              <p className="text-xs font-medium text-slate-500 mb-0.5">Clinic Code</p>
+              <p className="font-mono text-xs font-semibold text-slate-700 tracking-wide">
+                {clinic.clinic_code}
+              </p>
             </div>
           )}
         </SidebarFooter>

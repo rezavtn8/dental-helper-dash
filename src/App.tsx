@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthErrorBoundary } from "@/components/auth/AuthErrorBoundary";
-import React from "react";
 import Home from "./pages/Home";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import AssistantHub from "./pages/AssistantHub";
@@ -12,7 +11,14 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import JoinClinic from "./pages/JoinClinic";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
@@ -35,22 +41,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const App: React.FC = () => (
+const AppRoutes = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
+      <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
+      <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
+      <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </BrowserRouter>
+);
+
+const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <AuthErrorBoundary>
         <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
-              <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
-              <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
-              <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <AppRoutes />
         </AuthProvider>
       </AuthErrorBoundary>
     </TooltipProvider>

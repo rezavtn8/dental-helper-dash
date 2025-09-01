@@ -152,6 +152,7 @@ const AssistantDashboard = () => {
           <HomeTab 
             tasks={tasks}
             patientCount={patientCount}
+            onPatientCountUpdate={setPatientCount}
           />
         );
       case 'tasks':
@@ -184,6 +185,7 @@ const AssistantDashboard = () => {
           <HomeTab 
             tasks={tasks}
             patientCount={patientCount}
+            onPatientCountUpdate={setPatientCount}
           />
         );
     }

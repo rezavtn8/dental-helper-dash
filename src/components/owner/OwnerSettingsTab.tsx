@@ -112,16 +112,6 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
     }
   };
 
-  const handleRegenerateCode = async () => {
-    try {
-      // This would typically call a stored procedure to regenerate the code
-      toast.info('Code regeneration feature coming soon');
-    } catch (error) {
-      console.error('Error regenerating code:', error);
-      toast.error('Failed to regenerate clinic code');
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -144,20 +134,20 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h3 className="text-lg font-semibold">Clinic Settings</h3>
-        <p className="text-muted-foreground">Manage your clinic information and preferences</p>
+      <div className="text-center lg:text-left">
+        <h1 className="text-4xl font-bold text-blue-900 mb-3">Clinic Settings</h1>
+        <p className="text-blue-600 text-lg">Manage your clinic information and preferences</p>
       </div>
 
       {/* Clinic Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-blue-600" />
+      <Card className="shadow-xl border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-100">
+          <CardTitle className="flex items-center text-blue-900">
+            <Building2 className="w-6 h-6 mr-3 text-blue-600" />
             Clinic Information
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="clinic-name">Clinic Name</Label>
@@ -166,6 +156,7 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
                 value={clinic.name}
                 onChange={(e) => setClinic(prev => prev ? { ...prev, name: e.target.value } : null)}
                 placeholder="Enter clinic name"
+                className="h-12 border-2 border-blue-200 focus:border-blue-500 rounded-xl"
               />
             </div>
             
@@ -179,7 +170,7 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
                   value={clinic.email || ''}
                   onChange={(e) => setClinic(prev => prev ? { ...prev, email: e.target.value } : null)}
                   placeholder="clinic@example.com"
-                  className="pl-10"
+                  className="pl-10 h-12 border-2 border-blue-200 focus:border-blue-500 rounded-xl"
                 />
               </div>
             </div>
@@ -195,7 +186,7 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
                   value={clinic.phone || ''}
                   onChange={(e) => setClinic(prev => prev ? { ...prev, phone: e.target.value } : null)}
                   placeholder="(555) 123-4567"
-                  className="pl-10"
+                  className="pl-10 h-12 border-2 border-blue-200 focus:border-blue-500 rounded-xl"
                 />
               </div>
             </div>
@@ -206,7 +197,7 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
                 id="subscription-status"
                 value={clinic.subscription_status}
                 disabled
-                className="bg-muted"
+                className="bg-muted h-12 rounded-xl"
               />
             </div>
           </div>
@@ -221,13 +212,13 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
                 onChange={(e) => setClinic(prev => prev ? { ...prev, address: e.target.value } : null)}
                 placeholder="Enter clinic address"
                 rows={3}
-                className="pl-10"
+                className="pl-10 border-2 border-blue-200 focus:border-blue-500 rounded-xl"
               />
             </div>
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={handleSaveClinicInfo} disabled={saving}>
+            <Button onClick={handleSaveClinicInfo} disabled={saving} className="h-12 px-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl">
               {saving ? (
                 <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
               ) : (
@@ -240,14 +231,14 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
       </Card>
 
       {/* Clinic Code Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-green-600" />
+      <Card className="shadow-xl border-2 border-green-200 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-100">
+          <CardTitle className="flex items-center text-blue-900">
+            <Shield className="w-6 h-6 mr-3 text-green-600" />
             Clinic Code
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-8">
           <Alert className="mb-4">
             <Shield className="h-4 w-4" />
             <AlertDescription>
@@ -263,12 +254,12 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
                   id="clinic-code"
                   value={clinic.clinic_code}
                   disabled
-                  className="bg-muted font-mono text-lg"
+                  className="bg-muted font-mono text-lg h-12 rounded-xl"
                 />
                 <Button
                   variant="outline"
                   onClick={copyClinicCode}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 h-12 px-6 rounded-xl"
                 >
                   <Copy className="w-4 h-4" />
                   Copy
@@ -276,32 +267,18 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
               </div>
             </div>
           </div>
-          
-          <div className="mt-4">
-            <Button 
-              variant="outline" 
-              onClick={handleRegenerateCode}
-              className="text-orange-600 border-orange-300 hover:bg-orange-50"
-            >
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              Regenerate Code
-            </Button>
-            <p className="text-sm text-muted-foreground mt-2">
-              Regenerating the code will invalidate the current one. All pending invitations will need to be resent.
-            </p>
-          </div>
         </CardContent>
       </Card>
 
       {/* Notification Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-yellow-600" />
+      <Card className="shadow-xl border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-yellow-50 border-b border-blue-100">
+          <CardTitle className="flex items-center text-blue-900">
+            <Bell className="w-6 h-6 mr-3 text-blue-600" />
             Notification Settings
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-8 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="email-notifications">Email Notifications</Label>
@@ -346,79 +323,6 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
               checked={settings.weeklyReports}
               onCheckedChange={(checked) => setSettings(prev => ({ ...prev, weeklyReports: checked }))}
             />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Advanced Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Database className="w-5 h-5 text-purple-600" />
-            Advanced Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="auto-assign">Auto-assign Tasks</Label>
-              <p className="text-sm text-muted-foreground">
-                Automatically assign new tasks to available assistants
-              </p>
-            </div>
-            <Switch
-              id="auto-assign"
-              checked={settings.autoAssignTasks}
-              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoAssignTasks: checked }))}
-            />
-          </div>
-          
-          <Separator />
-          
-          <div className="space-y-2">
-            <Label>Clinic Status</Label>
-            <div className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full ${clinic.is_active ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span className="text-sm font-medium">
-                {clinic.is_active ? 'Active' : 'Inactive'}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Your clinic is currently {clinic.is_active ? 'active and operational' : 'inactive'}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Account Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-600" />
-            Account Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Owner Name</Label>
-              <p className="text-sm font-medium mt-1">{userProfile?.name}</p>
-            </div>
-            <div>
-              <Label>Owner Email</Label>
-              <p className="text-sm font-medium mt-1">{userProfile?.email}</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Account Created</Label>
-              <p className="text-sm font-medium mt-1">N/A</p>
-            </div>
-            <div>
-              <Label>Last Login</Label>
-              <p className="text-sm font-medium mt-1">N/A</p>
-            </div>
           </div>
         </CardContent>
       </Card>

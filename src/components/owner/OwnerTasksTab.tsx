@@ -5,9 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
@@ -24,6 +21,7 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import CreateTaskDialog from './CreateTaskDialog';
 
 interface Task {
   id: string;
@@ -57,16 +55,6 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [assistantFilter, setAssistantFilter] = useState('all');
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newTask, setNewTask] = useState({
-    title: '',
-    description: '',
-    priority: 'medium',
-    'due-type': 'flexible',
-    category: '',
-    assigned_to: '',
-    recurrence: 'none'
-  });
 
   useEffect(() => {
     if (clinicId) {
@@ -113,35 +101,6 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
     }
   };
 
-  const handleCreateTask = async () => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .insert([{
-          ...newTask,
-          clinic_id: clinicId,
-          status: 'pending'
-        }]);
-
-      if (error) throw error;
-
-      toast.success('Task created successfully');
-      setCreateDialogOpen(false);
-      setNewTask({
-        title: '',
-        description: '',
-        priority: 'medium',
-        'due-type': 'flexible',
-        category: '',
-        assigned_to: '',
-        recurrence: 'none'
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Error creating task:', error);
-      toast.error('Failed to create task');
-    }
-  };
 
   const handleReassignTask = async (taskId: string, newAssignee: string) => {
     try {
@@ -218,118 +177,16 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
           <p className="text-muted-foreground">Create, assign, and track tasks for your team</p>
         </div>
         
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
+        <CreateTaskDialog 
+          assistants={assistants}
+          onTaskCreated={fetchData}
+          trigger={
             <Button className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
               Create Task
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create New Task</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={newTask.title}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Task title"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={newTask.description}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Task description"
-                  rows={3}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="priority">Priority</Label>
-                  <Select value={newTask.priority} onValueChange={(value) => setNewTask(prev => ({ ...prev, priority: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="due-type">Due Type</Label>
-                  <Select value={newTask['due-type']} onValueChange={(value) => setNewTask(prev => ({ ...prev, 'due-type': value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="flexible">Flexible</SelectItem>
-                      <SelectItem value="end-of-day">End of Day</SelectItem>
-                      <SelectItem value="specific-time">Specific Time</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Input
-                    id="category"
-                    value={newTask.category}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, category: e.target.value }))}
-                    placeholder="e.g., Administrative"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="recurrence">Recurrence</Label>
-                  <Select value={newTask.recurrence} onValueChange={(value) => setNewTask(prev => ({ ...prev, recurrence: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="biweekly">Biweekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="assigned_to">Assign To</Label>
-                <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask(prev => ({ ...prev, assigned_to: value === 'unassigned' ? '' : value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select assistant (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unassigned">Unassigned</SelectItem>
-                    {assistants.map(assistant => (
-                      <SelectItem key={assistant.id} value={assistant.id}>
-                        {assistant.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateTask} disabled={!newTask.title}>
-                  Create Task
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+          }
+        />
       </div>
 
       {/* Filters */}

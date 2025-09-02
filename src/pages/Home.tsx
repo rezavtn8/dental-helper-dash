@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import LoadingSpinner from '@/components/ui/loading-spinner';
 import { 
   LogIn, 
   Shield, 
@@ -30,11 +31,11 @@ import ClinicSetupForm from '@/components/ClinicSetupForm';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, loading } = useAuth();
 
   // Redirect authenticated users to their dashboard
   useEffect(() => {
-    if (user && userProfile) {
+    if (user && userProfile && !loading) {
       if (userProfile.role === 'owner' && userProfile.clinic_id) {
         // Only redirect owners who have a clinic setup
         navigate('/owner');
@@ -43,10 +44,20 @@ export default function Home() {
       }
       // If owner has no clinic_id, stay on home page to set up clinic
     }
-  }, [user, userProfile, navigate]);
+  }, [user, userProfile, navigate, loading]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50/30 relative overflow-hidden">
+      
+      {/* Loading State */}
+      {loading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <LoadingSpinner size="lg" className="mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      )}
       
       {/* Floating Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

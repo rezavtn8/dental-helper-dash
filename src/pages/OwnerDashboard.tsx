@@ -54,13 +54,23 @@ const OwnerDashboard = () => {
         .from('clinics')
         .select('*')
         .eq('id', userProfile.clinic_id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching clinic:', error);
+        navigate('/', { replace: true });
+        return;
+      }
+
+      if (!data) {
+        console.error('Clinic not found');
+        navigate('/', { replace: true });
+        return;
+      }
+
       setClinic(data);
     } catch (error) {
       console.error('Error fetching clinic:', error);
-      // If clinic not found or other error, redirect to home
       navigate('/', { replace: true });
     } finally {
       setLoading(false);

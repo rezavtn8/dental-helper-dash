@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthErrorBoundary } from "@/components/auth/AuthErrorBoundary";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "@/components/ui/error-fallback";
 import Home from "./pages/Home";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import AssistantHub from "./pages/AssistantHub";
@@ -17,6 +19,8 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       retry: 1,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
     },
   },
 });
@@ -56,16 +60,18 @@ const AppRoutes = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <AuthErrorBoundary>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </AuthErrorBoundary>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <AuthErrorBoundary>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </AuthErrorBoundary>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -136,7 +136,10 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
           created_by: taskData.created_by,
           assigned_to: null, // Reset assignment for new recurring task
           status: 'pending' as TaskStatus,
-          custom_due_date: taskData.custom_due_date ? calculateNextDueDate(taskData.custom_due_date, taskData.recurrence) : null
+          custom_due_date: taskData.custom_due_date ? calculateNextDueDate(taskData.custom_due_date, taskData.recurrence) : null,
+          checklist: taskData.checklist && Array.isArray(taskData.checklist) 
+            ? taskData.checklist.map((item: any) => ({ ...item, completed: false })) 
+            : null
         };
 
         const { error: createError } = await supabase
@@ -227,6 +230,49 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
   const TaskCard = ({ task, showPickUp = false, showCompleted = false }: { task: Task; showPickUp?: boolean; showCompleted?: boolean }) => {
     const hasNote = taskNotes[task.id];
+    const [checklistState, setChecklistState] = useState<Record<number, boolean>>({});
+    
+    // Initialize checklist state from task data
+    useEffect(() => {
+      if (task.checklist && Array.isArray(task.checklist)) {
+        const initialState: Record<number, boolean> = {};
+        task.checklist.forEach((item: any, index: number) => {
+          initialState[index] = item.completed || false;
+        });
+        setChecklistState(initialState);
+      }
+    }, [task.checklist]);
+
+    const handleChecklistToggle = async (itemIndex: number) => {
+      const newState = { ...checklistState, [itemIndex]: !checklistState[itemIndex] };
+      setChecklistState(newState);
+
+      // Update the task's checklist in the database
+      if (task.checklist && Array.isArray(task.checklist)) {
+        const updatedChecklist = task.checklist.map((item: any, index: number) => ({
+          ...item,
+          completed: newState[index] || false
+        }));
+
+        try {
+          const { error } = await supabase
+            .from('tasks')
+            .update({ checklist: updatedChecklist })
+            .eq('id', task.id);
+
+          if (error) throw error;
+        } catch (error) {
+          console.error('Error updating checklist:', error);
+          // Revert state on error
+          setChecklistState(checklistState);
+          toast.error('Failed to update checklist');
+        }
+      }
+    };
+
+    const isChecklistComplete = task.checklist && Array.isArray(task.checklist) 
+      ? task.checklist.every((item: any, index: number) => checklistState[index] || item.completed)
+      : true;
     
     return (
       <div className="relative overflow-hidden bg-white rounded-lg border border-blue-100 hover:border-blue-200 hover:shadow-sm transition-all duration-500 p-3 cursor-pointer group">
@@ -283,6 +329,38 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                   </span>
                 </div>
                 
+                {/* Checklist Items */}
+                {task.checklist && Array.isArray(task.checklist) && task.checklist.length > 0 && (
+                  <div className="bg-gray-50 border border-gray-200 rounded p-2 mb-2">
+                    <div className="space-y-1">
+                      {task.checklist.map((item: any, index: number) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Checkbox
+                            checked={checklistState[index] || item.completed || false}
+                            onCheckedChange={() => handleChecklistToggle(index)}
+                            className="h-3 w-3"
+                            disabled={showPickUp || showCompleted}
+                          />
+                          <span className={`text-xs ${
+                            checklistState[index] || item.completed 
+                              ? 'text-gray-500 line-through' 
+                              : 'text-gray-700'
+                          }`}>
+                            {item.text}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    {task.checklist.length > 0 && (
+                      <div className="mt-1 text-xs text-gray-500">
+                        {task.checklist.filter((item: any, index: number) => 
+                          checklistState[index] || item.completed
+                        ).length} / {task.checklist.length} completed
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Task Note Preview - Compact */}
                 {hasNote && (
                   <div className="bg-blue-50 border border-blue-200 rounded p-1.5 mb-2">
@@ -336,6 +414,8 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     size="sm"
                     onClick={() => markTaskDone(task.id)}
                     className="h-6 text-xs px-2 bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={!isChecklistComplete}
+                    title={!isChecklistComplete ? 'Complete all checklist items first' : 'Mark task as done'}
                   >
                     Done
                   </Button>

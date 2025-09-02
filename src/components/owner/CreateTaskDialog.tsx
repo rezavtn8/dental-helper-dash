@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { sanitizeText } from '@/utils/sanitize';
 
 interface Assistant {
@@ -37,6 +37,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
     assigned_to: 'unassigned',
     recurrence: 'none'
   });
+
+  const [checklist, setChecklist] = useState<{ text: string; completed: boolean }[]>([]);
 
   const createTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +71,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
           clinic_id: userProfile?.clinic_id,
           created_by: user?.id,
           status: 'pending',
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          checklist: checklist.length > 0 ? checklist : null
         });
 
       if (error) throw error;
@@ -85,6 +88,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
         assigned_to: 'unassigned',
         recurrence: 'none'
       });
+      setChecklist([]);
       
       setIsOpen(false);
       onTaskCreated();
@@ -206,6 +210,51 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
                 <SelectItem value="monthly">Monthly</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Checklist Section */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Checklist (Optional)</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setChecklist([...checklist, { text: '', completed: false }])}
+                className="h-6 px-2"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Add Item
+              </Button>
+            </div>
+            
+            {checklist.length > 0 && (
+              <div className="space-y-2 max-h-32 overflow-y-auto border rounded-md p-2">
+                {checklist.map((item, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      value={item.text}
+                      onChange={(e) => {
+                        const updated = [...checklist];
+                        updated[index].text = e.target.value;
+                        setChecklist(updated);
+                      }}
+                      placeholder="Checklist item..."
+                      className="flex-1 h-7 text-xs"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setChecklist(checklist.filter((_, i) => i !== index))}
+                      className="h-7 w-7 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>

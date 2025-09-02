@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Building2, Plus } from 'lucide-react';
 import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import OwnerDashboardTabs from '@/components/owner/OwnerDashboardTabs';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
@@ -45,8 +48,8 @@ const OwnerDashboard = () => {
   const fetchClinic = async () => {
     try {
       if (!userProfile?.clinic_id) {
-        // No clinic setup yet, redirect to home
-        navigate('/', { replace: true });
+        // No clinic setup yet - allow exploration
+        setLoading(false);
         return;
       }
       
@@ -58,20 +61,19 @@ const OwnerDashboard = () => {
 
       if (error) {
         console.error('Error fetching clinic:', error);
-        navigate('/', { replace: true });
+        setLoading(false);
         return;
       }
 
       if (!data) {
         console.error('Clinic not found');
-        navigate('/', { replace: true });
+        setLoading(false);
         return;
       }
 
       setClinic(data);
     } catch (error) {
       console.error('Error fetching clinic:', error);
-      navigate('/', { replace: true });
     } finally {
       setLoading(false);
     }
@@ -117,11 +119,41 @@ const OwnerDashboard = () => {
 
           {/* Main Content */}
           <main className="flex-1 container mx-auto px-4 py-6">
-            <OwnerDashboardTabs 
-              clinicId={clinic?.id} 
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            />
+            {!userProfile?.clinic_id ? (
+              <div className="flex items-center justify-center min-h-[400px]">
+                <Card className="w-full max-w-md">
+                  <CardHeader className="text-center">
+                    <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <CardTitle>Create Your Clinic</CardTitle>
+                    <CardDescription>
+                      You need to create a clinic to access full management features. Set up your clinic to start managing your team.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Button 
+                      onClick={() => navigate('/')} 
+                      className="w-full"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Clinic
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate('/hub')}
+                      className="w-full"
+                    >
+                      Back to Hub
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <OwnerDashboardTabs 
+                clinicId={clinic?.id} 
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+            )}
           </main>
         </div>
       </div>

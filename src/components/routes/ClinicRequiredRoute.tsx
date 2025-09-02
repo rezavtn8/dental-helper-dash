@@ -24,13 +24,9 @@ export const ClinicRequiredRoute: React.FC<ClinicRequiredRouteProps> = ({
     );
   }
 
-  // Check if user has a clinic
-  if (!userProfile?.clinic_id) {
-    return <Navigate to="/hub" replace />;
-  }
-
-  // Check role if specified
-  if (requiredRole && userProfile.role !== requiredRole) {
+  // Allow exploration even without clinic - components will handle the no-clinic state
+  // Check role if specified and user has a clinic
+  if (requiredRole && userProfile?.clinic_id && userProfile.role !== requiredRole) {
     return <Navigate to="/hub" replace />;
   }
 

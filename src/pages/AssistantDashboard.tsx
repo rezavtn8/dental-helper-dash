@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Building2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import HomeTab from '@/components/assistant/HomeTab';
@@ -143,6 +145,49 @@ const AssistantDashboard = () => {
   }
 
   const renderTabContent = () => {
+    // If no clinic, show different content for each tab
+    if (!userProfile?.clinic_id) {
+      const NoClinicMessage = ({ tabName }: { tabName: string }) => (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <CardTitle>Join a Clinic</CardTitle>
+              <CardDescription>
+                You need to join a clinic to access {tabName.toLowerCase()} features.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button 
+                onClick={() => navigate('/join')} 
+                className="w-full"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Join a Clinic
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+
+      switch (activeTab) {
+        case 'learning':
+          return <LearningTab />; // Allow learning without clinic
+        case 'certifications':
+          return <CertificationsTab />; // Allow certifications without clinic
+        case 'settings':
+          return <SettingsTab />; // Allow settings without clinic
+        case 'home':
+        case 'tasks':
+        case 'schedule':
+        case 'stats':
+        case 'feedback':
+        default:
+          return <NoClinicMessage tabName={activeTab} />;
+      }
+    }
+
+    // Normal clinic-based content
     switch (activeTab) {
       case 'home':
         return (

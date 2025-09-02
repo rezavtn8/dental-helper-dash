@@ -130,23 +130,7 @@ const AssistantDashboard = () => {
     );
   }
 
-  // If no clinic assigned, redirect to hub
-  if (!userProfile?.clinic_id) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold">No Clinic Access</h2>
-          <p className="text-muted-foreground">You need to join a clinic to access the assistant dashboard.</p>
-          <Button 
-            onClick={() => navigate('/hub')}
-            className="px-4 py-2"
-          >
-            Go to Assistant Hub
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // This check is now handled by ClinicRequiredRoute wrapper
 
   const renderTabContent = () => {
     switch (activeTab) {

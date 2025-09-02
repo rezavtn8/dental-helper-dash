@@ -217,14 +217,14 @@ export default function JoinClinic() {
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium">
-                            {request.clinic?.name || 'Unknown Clinic'}
-                          </span>
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {request.clinic?.clinic_code || 'N/A'}
-                          </Badge>
-                        </div>
+                         <div className="flex items-center space-x-2">
+                           <span className="font-medium">
+                             {request.clinic?.name || 'Loading clinic...'}
+                           </span>
+                           <Badge variant="outline" className="font-mono text-xs">
+                             {request.clinic?.clinic_code || 'N/A'}
+                           </Badge>
+                         </div>
                         <p className="text-sm text-muted-foreground">
                           Requested {new Date(request.requested_at).toLocaleDateString()}
                           {request.reviewed_at && (

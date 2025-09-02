@@ -13,6 +13,7 @@ import AssistantHub from "./pages/AssistantHub";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import JoinClinic from "./pages/JoinClinic";
 import NotFound from "./pages/NotFound";
+import { ClinicRequiredRoute } from "./components/routes/ClinicRequiredRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,9 +55,21 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
-      <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
-      <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
       <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
+      <Route path="/assistant" element={
+        <ProtectedRoute>
+          <ClinicRequiredRoute requiredRole="assistant">
+            <AssistantDashboard />
+          </ClinicRequiredRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/owner" element={
+        <ProtectedRoute>
+          <ClinicRequiredRoute requiredRole="owner">
+            <OwnerDashboard />
+          </ClinicRequiredRoute>
+        </ProtectedRoute>
+      } />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>

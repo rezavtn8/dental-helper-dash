@@ -123,6 +123,7 @@ export type Database = {
           address: string | null
           clinic_code: string
           created_at: string
+          defaults_imported: boolean | null
           domain_slug: string | null
           email: string | null
           id: string
@@ -136,6 +137,7 @@ export type Database = {
           address?: string | null
           clinic_code: string
           created_at?: string
+          defaults_imported?: boolean | null
           domain_slug?: string | null
           email?: string | null
           id?: string
@@ -149,6 +151,7 @@ export type Database = {
           address?: string | null
           clinic_code?: string
           created_at?: string
+          defaults_imported?: boolean | null
           domain_slug?: string | null
           email?: string | null
           id?: string
@@ -156,6 +159,51 @@ export type Database = {
           name?: string
           phone?: string | null
           subscription_status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      default_task_templates: {
+        Row: {
+          category: string | null
+          checklist: Json | null
+          created_at: string
+          description: string | null
+          "due-type": string | null
+          id: string
+          is_active: boolean | null
+          owner_notes: string | null
+          recurrence: string | null
+          specialty: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          checklist?: Json | null
+          created_at?: string
+          description?: string | null
+          "due-type"?: string | null
+          id?: string
+          is_active?: boolean | null
+          owner_notes?: string | null
+          recurrence?: string | null
+          specialty?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          checklist?: Json | null
+          created_at?: string
+          description?: string | null
+          "due-type"?: string | null
+          id?: string
+          is_active?: boolean | null
+          owner_notes?: string | null
+          recurrence?: string | null
+          specialty?: string | null
+          title?: string
           updated_at?: string
         }
         Relationships: []

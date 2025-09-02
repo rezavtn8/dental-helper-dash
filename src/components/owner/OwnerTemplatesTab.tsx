@@ -36,8 +36,82 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
   const [showImportDialog, setShowImportDialog] = useState(false);
   const { toast } = useToast();
 
+  const importDefaultTemplates = async () => {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      // Get default templates
+      const { data: defaultTemplates, error: defaultError } = await supabase
+        .from('default_task_templates')
+        .select('*')
+        .eq('is_active', true);
+
+      if (defaultError) throw defaultError;
+
+      if (defaultTemplates && defaultTemplates.length > 0) {
+        // Convert default templates to clinic templates
+        const clinicTemplates = defaultTemplates.map(template => ({
+          title: template.title,
+          description: template.description,
+          category: template.category,
+          specialty: template.specialty,
+          'due-type': template['due-type'],
+          recurrence: template.recurrence,
+          owner_notes: template.owner_notes,
+          checklist: template.checklist,
+          clinic_id: clinicId,
+          created_by: user.user.id,
+          is_active: true
+        }));
+
+        // Insert clinic templates
+        const { error: insertError } = await supabase
+          .from('task_templates')
+          .insert(clinicTemplates);
+
+        if (insertError) throw insertError;
+
+        // Mark clinic as having defaults imported
+        const { error: updateError } = await supabase
+          .from('clinics')
+          .update({ defaults_imported: true })
+          .eq('id', clinicId);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Success",
+          description: `Successfully imported ${defaultTemplates.length} default templates`,
+        });
+      }
+    } catch (error) {
+      console.error('Error importing default templates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to import default templates",
+        variant: "destructive",
+      });
+    }
+  };
+
   const fetchTemplates = async () => {
     try {
+      // Check if defaults have been imported
+      const { data: clinic, error: clinicError } = await supabase
+        .from('clinics')
+        .select('defaults_imported')
+        .eq('id', clinicId)
+        .maybeSingle();
+
+      if (clinicError) throw clinicError;
+
+      // If defaults haven't been imported, import them first
+      if (!clinic?.defaults_imported) {
+        await importDefaultTemplates();
+      }
+
+      // Fetch templates
       const { data, error } = await supabase
         .from('task_templates')
         .select('*')

@@ -22,6 +22,9 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
     },
+    mutations: {
+      retry: 1,
+    },
   },
 });
 

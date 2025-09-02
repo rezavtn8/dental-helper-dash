@@ -39,8 +39,6 @@ export default function EditTaskDialog({
 
   useEffect(() => {
     if (task && isOpen) {
-      console.log('Setting form data for task:', task);
-      
       // Map due-type values from database to form options
       let dueType = 'EoD'; // default
       if (task['due-type'] === 'flexible') {

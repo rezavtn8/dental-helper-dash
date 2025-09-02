@@ -164,92 +164,65 @@ export default function Home() {
       </section>
 
       {/* Auth Section */}
-      <section id="auth-section" className="relative z-10 container mx-auto px-6 py-20">
-        <div className="max-w-4xl mx-auto">
-          <Card className="shadow-2xl border-0 overflow-hidden bg-white/90 backdrop-blur-sm">
-            <CardHeader className="text-center py-12 bg-gradient-to-r from-blue-50 to-blue-100/50">
-              <CardTitle className="text-3xl font-display font-bold text-blue-900 mb-4">
+      <section id="auth-section" className="relative z-10 container mx-auto px-6 py-16">
+        <div className="max-w-md mx-auto">
+          <Card className="shadow-xl border border-blue-100/50 overflow-hidden bg-white/95 backdrop-blur-md">
+            <CardHeader className="text-center py-6 bg-gradient-to-br from-blue-50/80 to-white/50">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <Stethoscope className="w-6 h-6 text-white" />
+              </div>
+              <CardTitle className="text-xl font-display font-bold text-blue-900">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
-                  ? '🏥 Complete Your Clinic Setup' 
-                  : '🚀 Choose Your Role'}
+                  ? 'Complete Setup' 
+                  : 'Get Started'}
               </CardTitle>
-              <CardDescription className="text-lg text-blue-700 max-w-2xl mx-auto">
+              <CardDescription className="text-sm text-blue-700">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id
-                  ? 'Just one more step! Set up your clinic information and get your unique clinic code.'
-                  : 'Select your role to access the right dashboard for your healthcare practice.'}
+                  ? 'Set up your clinic information'
+                  : 'Choose your role to continue'}
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-12">
+            <CardContent className="p-6">
               {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? (
                 <ClinicSetupForm userProfile={userProfile} />
               ) : (
                 <Tabs defaultValue="owner" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-12 bg-blue-50 p-1 h-14">
+                  <TabsList className="grid w-full grid-cols-2 mb-6 bg-blue-50 p-1 h-12">
                     <TabsTrigger 
                       value="owner" 
-                      className="flex items-center space-x-3 py-4 text-lg font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md"
+                      className="flex items-center space-x-2 py-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm"
                     >
-                      <Crown className="w-5 h-5" />
-                      <span>Clinic Owner</span>
+                      <Crown className="w-4 h-4" />
+                      <span>Owner</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="assistant" 
-                      className="flex items-center space-x-3 py-4 text-lg font-semibold data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-md"
+                      className="flex items-center space-x-2 py-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm"
                     >
-                      <UserCheck className="w-5 h-5" />
+                      <UserCheck className="w-4 h-4" />
                       <span>Assistant</span>
                     </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="owner" className="space-y-8">
+                  <TabsContent value="owner" className="space-y-4">
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                        <Crown className="w-10 h-10 text-blue-600" />
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <Crown className="w-6 h-6 text-blue-600" />
                       </div>
-                      <h3 className="text-2xl font-display font-bold text-blue-900 mb-3">Practice Owner Access</h3>
-                      <p className="text-blue-700 text-lg mb-6">Manage your entire clinic, team, and operations from one powerful dashboard</p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                          <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-sm font-medium text-blue-800">Team Management</div>
-                        </div>
-                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                          <BarChart3 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-sm font-medium text-blue-800">Analytics & Reports</div>
-                        </div>
-                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                          <Calendar className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-sm font-medium text-blue-800">Schedule Management</div>
-                        </div>
-                      </div>
+                      <h3 className="text-lg font-display font-bold text-blue-900 mb-2">Clinic Owner</h3>
+                      <p className="text-blue-700 text-sm mb-4">Manage your clinic and team</p>
                     </div>
                     <AuthWidget role="owner" />
                   </TabsContent>
                   
-                  <TabsContent value="assistant" className="space-y-8">
+                  <TabsContent value="assistant" className="space-y-4">
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                        <UserCheck className="w-10 h-10 text-blue-600" />
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <UserCheck className="w-6 h-6 text-blue-600" />
                       </div>
-                      <h3 className="text-2xl font-display font-bold text-blue-900 mb-3">Assistant Access</h3>
-                      <p className="text-blue-700 text-lg mb-6">Access your personalized workspace with tasks, schedules, and clinic tools</p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                          <CheckCircle className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-sm font-medium text-blue-800">Task Tracking</div>
-                        </div>
-                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                          <TrendingUp className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-sm font-medium text-blue-800">Performance Stats</div>
-                        </div>
-                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                          <Clock className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-sm font-medium text-blue-800">Real-time Updates</div>
-                        </div>
-                      </div>
+                      <h3 className="text-lg font-display font-bold text-blue-900 mb-2">Healthcare Assistant</h3>
+                      <p className="text-blue-700 text-sm mb-4">Access your workspace and tasks</p>
                     </div>
                     <AuthWidget role="assistant" />
                   </TabsContent>

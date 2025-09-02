@@ -130,7 +130,7 @@ const AssistantDashboard = () => {
     );
   }
 
-  // This check is now handled by ClinicRequiredRoute wrapper
+  // Component now only renders for users with clinic access via route guard
 
   const renderTabContent = () => {
     switch (activeTab) {

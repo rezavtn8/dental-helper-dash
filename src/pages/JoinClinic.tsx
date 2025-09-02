@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { ClinicPreview } from '@/components/clinic/ClinicPreview';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -16,12 +17,12 @@ interface JoinRequest {
   clinic_id: string;
   requested_at: string;
   status: 'pending' | 'approved' | 'denied';
-  reviewed_at: string | null;
-  denial_reason: string | null;
-  clinic: {
+  reviewed_at?: string | null;
+  denial_reason?: string | null;
+  clinics: {
     name: string;
     clinic_code: string;
-  } | null;
+  };
 }
 
 export default function JoinClinic() {
@@ -41,20 +42,30 @@ export default function JoinClinic() {
   }, [session, navigate]);
 
   const fetchJoinRequests = async () => {
+    if (!session?.user) return;
+    
     try {
+      setLoadingRequests(true);
       const { data, error } = await supabase
         .from('join_requests')
         .select(`
-          *,
-          clinic:clinics(name, clinic_code)
+          id,
+          status,
+          requested_at,
+          clinic_id,
+          clinics!inner (
+            name,
+            clinic_code
+          )
         `)
-        .eq('user_id', user?.id)
+        .eq('user_id', session.user.id)
         .order('requested_at', { ascending: false });
 
       if (error) throw error;
-      setJoinRequests((data || []) as JoinRequest[]);
+      setJoinRequests(data as JoinRequest[]);
     } catch (error) {
       console.error('Error fetching join requests:', error);
+      toast.error('Failed to load join requests');
     } finally {
       setLoadingRequests(false);
     }
@@ -159,6 +170,11 @@ export default function JoinClinic() {
                     maxLength={10}
                     disabled={loading}
                   />
+                  {clinicCode.length >= 3 && (
+                    <div className="mt-2">
+                      <ClinicPreview clinicCode={clinicCode} />
+                    </div>
+                  )}
                 </div>
                 
                 <Alert>
@@ -216,15 +232,15 @@ export default function JoinClinic() {
                       key={request.id}
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
-                      <div className="space-y-1">
-                         <div className="flex items-center space-x-2">
-                           <span className="font-medium">
-                             {request.clinic?.name || 'Loading clinic...'}
-                           </span>
-                           <Badge variant="outline" className="font-mono text-xs">
-                             {request.clinic?.clinic_code || 'N/A'}
-                           </Badge>
-                         </div>
+                       <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium">
+                              {request.clinics?.name || 'Loading clinic...'}
+                            </span>
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {request.clinics?.clinic_code || 'N/A'}
+                            </Badge>
+                          </div>
                         <p className="text-sm text-muted-foreground">
                           Requested {new Date(request.requested_at).toLocaleDateString()}
                           {request.reviewed_at && (

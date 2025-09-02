@@ -7,13 +7,13 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthErrorBoundary } from "@/components/auth/AuthErrorBoundary";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "@/components/ui/error-fallback";
+import { ClinicRequiredRoute } from "@/components/routes/ClinicRequiredRoute";
 import Home from "./pages/Home";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import AssistantHub from "./pages/AssistantHub";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import JoinClinic from "./pages/JoinClinic";
 import NotFound from "./pages/NotFound";
-import { ClinicRequiredRoute } from "./components/routes/ClinicRequiredRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,20 +56,8 @@ const AppRoutes = () => (
       <Route path="/" element={<Home />} />
       <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
       <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
-      <Route path="/assistant" element={
-        <ProtectedRoute>
-          <ClinicRequiredRoute requiredRole="assistant">
-            <AssistantDashboard />
-          </ClinicRequiredRoute>
-        </ProtectedRoute>
-      } />
-      <Route path="/owner" element={
-        <ProtectedRoute>
-          <ClinicRequiredRoute requiredRole="owner">
-            <OwnerDashboard />
-          </ClinicRequiredRoute>
-        </ProtectedRoute>
-      } />
+      <Route path="/assistant" element={<ClinicRequiredRoute requiredRole="assistant"><AssistantDashboard /></ClinicRequiredRoute>} />
+      <Route path="/owner" element={<ClinicRequiredRoute requiredRole="owner"><OwnerDashboard /></ClinicRequiredRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>

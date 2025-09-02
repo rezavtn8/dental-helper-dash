@@ -38,7 +38,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
     recurrence: 'none'
   });
 
-  const [checklist, setChecklist] = useState<{ text: string; completed: boolean }[]>([]);
+  const [checklist, setChecklist] = useState<{ title: string; description?: string; completed: boolean }[]>([]);
 
   const createTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -220,7 +220,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setChecklist([...checklist, { text: '', completed: false }])}
+                onClick={() => setChecklist([...checklist, { title: '', description: '', completed: false }])}
                 className="h-6 px-2"
               >
                 <Plus className="h-3 w-3 mr-1" />
@@ -229,28 +229,42 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
             </div>
             
             {checklist.length > 0 && (
-              <div className="space-y-2 max-h-32 overflow-y-auto border rounded-md p-2">
+              <div className="space-y-3 max-h-64 overflow-y-auto border rounded-md p-3">
                 {checklist.map((item, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      value={item.text}
+                  <div key={index} className="space-y-2 p-2 border rounded-md bg-muted/30">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={item.title}
+                        onChange={(e) => {
+                          const updated = [...checklist];
+                          updated[index].title = e.target.value;
+                          setChecklist(updated);
+                        }}
+                        placeholder="Checklist item title (required)..."
+                        className="flex-1 h-8 text-sm"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setChecklist(checklist.filter((_, i) => i !== index))}
+                        className="h-8 w-8 p-0"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <Textarea
+                      value={item.description || ''}
                       onChange={(e) => {
                         const updated = [...checklist];
-                        updated[index].text = e.target.value;
+                        updated[index].description = e.target.value;
                         setChecklist(updated);
                       }}
-                      placeholder="Checklist item..."
-                      className="flex-1 h-7 text-xs"
+                      placeholder="Optional description..."
+                      className="text-sm resize-none"
+                      rows={2}
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setChecklist(checklist.filter((_, i) => i !== index))}
-                      className="h-7 w-7 p-0"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
                   </div>
                 ))}
               </div>

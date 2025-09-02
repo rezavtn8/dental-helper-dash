@@ -228,18 +228,19 @@ export default function ApplyTemplateDialog({
                   <SelectValue placeholder="Select an assistant" />
                 </SelectTrigger>
                 <SelectContent>
-                  {assistants.map((assistant) => (
-                    <SelectItem key={assistant.id} value={assistant.id}>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        {assistant.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-                  {assistants.length === 0 && (
-                    <SelectItem value="" disabled>
+                  {assistants.length > 0 ? (
+                    assistants.map((assistant) => (
+                      <SelectItem key={assistant.id} value={assistant.id}>
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          {assistant.name}
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
                       No assistants available
-                    </SelectItem>
+                    </div>
                   )}
                 </SelectContent>
               </Select>

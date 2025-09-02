@@ -38,7 +38,8 @@ export default function EditTaskDialog({
   });
 
   useEffect(() => {
-    if (task) {
+    if (task && isOpen) {
+      console.log('Setting form data for task:', task);
       setFormData({
         title: task.title || '',
         description: task.description || '',
@@ -48,8 +49,19 @@ export default function EditTaskDialog({
         assigned_to: task.assigned_to || 'unassigned',
         recurrence: task.recurrence || 'none'
       });
+    } else if (!isOpen) {
+      // Reset form when dialog is closed
+      setFormData({
+        title: '',
+        description: '',
+        priority: 'medium',
+        'due-type': 'EoD',
+        category: '',
+        assigned_to: 'unassigned',
+        recurrence: 'none'
+      });
     }
-  }, [task]);
+  }, [task, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

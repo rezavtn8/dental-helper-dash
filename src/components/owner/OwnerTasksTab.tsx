@@ -299,6 +299,7 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                         </DropdownMenuTrigger>
                          <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => {
+                            console.log('Edit clicked for task:', task);
                             setEditTask(task);
                             setShowEditDialog(true);
                           }}>

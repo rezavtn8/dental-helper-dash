@@ -19,7 +19,6 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signInWithEmail, signUp, signInWithGoogle, signInWithMagicLink } = useAuth();
   const navigate = useNavigate();
@@ -74,27 +73,6 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
     setLoading(false);
   };
 
-  const handleMagicLink = async () => {
-    if (!email.trim()) {
-      toast.error('Please enter your email address');
-      return;
-    }
-
-    setMagicLinkLoading(true);
-    try {
-      const { error } = await signInWithMagicLink(email);
-      
-      if (error) {
-        toast.error('Failed to send magic link. Please try again.');
-      } else {
-        toast.success('Magic link sent! Check your email to sign in.');
-      }
-    } catch (error) {
-      console.error('Magic link error:', error);
-      toast.error('Failed to send magic link. Please try again.');
-    }
-    setMagicLinkLoading(false);
-  };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -169,28 +147,17 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
             </Button>
           </form>
 
-          <div className="space-y-3">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+          {isOwner && (
+            <div className="space-y-3">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or</span>
-              </div>
-            </div>
 
-            <Button 
-              type="button" 
-              variant="outline" 
-              className="w-full"
-              onClick={handleMagicLink}
-              disabled={magicLinkLoading}
-            >
-              {magicLinkLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
-              Send Magic Link
-            </Button>
-
-            {isOwner && (
               <Button 
                 type="button" 
                 variant="outline" 
@@ -199,8 +166,8 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
               >
                 Continue with Google
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="signup" className="space-y-4 mt-6">

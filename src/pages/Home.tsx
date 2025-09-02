@@ -205,24 +205,24 @@ export default function Home() {
                     </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="owner" className="space-y-4">
+                  <TabsContent value="owner" className="space-y-3">
                     <div className="text-center">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <Crown className="w-6 h-6 text-blue-600" />
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <Crown className="w-4 h-4 text-blue-600" />
                       </div>
-                      <h3 className="text-lg font-display font-bold text-blue-900 mb-2">Clinic Owner</h3>
-                      <p className="text-blue-700 text-sm mb-4">Manage your clinic and team</p>
+                      <h3 className="text-base font-display font-bold text-blue-900 mb-1">Clinic Owner</h3>
+                      <p className="text-blue-700 text-xs mb-3">Manage your clinic and team</p>
                     </div>
                     <AuthWidget role="owner" />
                   </TabsContent>
                   
-                  <TabsContent value="assistant" className="space-y-4">
+                  <TabsContent value="assistant" className="space-y-3">
                     <div className="text-center">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <UserCheck className="w-6 h-6 text-blue-600" />
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <UserCheck className="w-4 h-4 text-blue-600" />
                       </div>
-                      <h3 className="text-lg font-display font-bold text-blue-900 mb-2">Healthcare Assistant</h3>
-                      <p className="text-blue-700 text-sm mb-4">Access your workspace and tasks</p>
+                      <h3 className="text-base font-display font-bold text-blue-900 mb-1">Healthcare Assistant</h3>
+                      <p className="text-blue-700 text-xs mb-3">Access your workspace and tasks</p>
                     </div>
                     <AuthWidget role="assistant" />
                   </TabsContent>

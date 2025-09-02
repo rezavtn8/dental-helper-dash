@@ -22,27 +22,8 @@ import {
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import CreateTaskDialog from './CreateTaskDialog';
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  priority: string;
-  status: string;
-  'due-type': string;
-  'due-date'?: string;
-  category?: string;
-  assigned_to?: string;
-  recurrence?: string;
-  created_at: string;
-  assigned_assistant_name?: string;
-}
-
-interface Assistant {
-  id: string;
-  name: string;
-  email: string;
-}
+import EditTaskDialog from './EditTaskDialog';
+import { Task, Assistant } from '@/types/task';
 
 interface OwnerTasksTabProps {
   clinicId: string;
@@ -55,6 +36,8 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [assistantFilter, setAssistantFilter] = useState('all');
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   useEffect(() => {
     if (clinicId) {
@@ -69,7 +52,7 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
       // Fetch assistants
       const { data: assistantsData, error: assistantsError } = await supabase
         .from('users')
-        .select('id, name, email')
+        .select('id, name, email, role, is_active, created_at')
         .eq('clinic_id', clinicId)
         .eq('role', 'assistant')
         .eq('is_active', true);
@@ -87,10 +70,7 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
       if (tasksError) throw tasksError;
 
       // Add assistant names to tasks
-      const tasksWithAssistants = tasksData?.map(task => ({
-        ...task,
-        assigned_assistant_name: assistantsData?.find(a => a.id === task.assigned_to)?.name || 'Unassigned'
-      })) || [];
+      const tasksWithAssistants = tasksData || [];
 
       setTasks(tasksWithAssistants);
     } catch (error) {
@@ -119,10 +99,17 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
     }
   };
 
+  const getAssistantName = (assistantId: string | null | undefined) => {
+    if (!assistantId) return 'Unassigned';
+    const assistant = assistants.find(a => a.id === assistantId);
+    return assistant?.name || 'Unknown';
+  };
+
   const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const assistantName = getAssistantName(task.assigned_to);
+    const matchesSearch = task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.assigned_assistant_name?.toLowerCase().includes(searchTerm.toLowerCase());
+                         assistantName.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
     const matchesAssistant = assistantFilter === 'all' || 
@@ -310,8 +297,11 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => {
+                            setEditTask(task);
+                            setShowEditDialog(true);
+                          }}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Task
                           </DropdownMenuItem>
@@ -342,6 +332,15 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Task Dialog */}
+      <EditTaskDialog
+        task={editTask}
+        isOpen={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onTaskUpdated={fetchData}
+        assistants={assistants}
+      />
     </div>
   );
 }

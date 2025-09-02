@@ -74,9 +74,11 @@ export default function AssistantSidebar({
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="font-semibold text-slate-800 truncate text-sm">
-                  {clinic?.name || 'Dental Clinic'}
+                  {clinic?.name || 'Assistant Portal'}
                 </h1>
-                <p className="text-xs text-slate-500">Assistant Portal</p>
+                <p className="text-xs text-slate-500">
+                  {clinic?.name ? 'Clinic Dashboard' : 'Getting Started'}
+                </p>
               </div>
             </div>
           ) : (

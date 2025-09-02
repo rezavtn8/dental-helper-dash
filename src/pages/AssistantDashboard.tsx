@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, Users } from 'lucide-react';
+import { Building2, Users, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import HomeTab from '@/components/assistant/HomeTab';
@@ -170,6 +170,90 @@ const AssistantDashboard = () => {
         </div>
       );
 
+      const WelcomeMessage = () => (
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">
+              Welcome to the Assistant Portal
+            </h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+              Get started by exploring the features available to you, or join a clinic to unlock the full experience.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <Card className="border-green-200 bg-green-50">
+              <CardHeader>
+                <CardTitle className="text-green-800 flex items-center">
+                  <BookOpen className="w-5 h-5 mr-2" />
+                  Available Now
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-green-700">
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
+                    Learning resources and courses
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
+                    Certification tracking
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
+                    Profile settings
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-orange-200 bg-orange-50">
+              <CardHeader>
+                <CardTitle className="text-orange-800 flex items-center">
+                  <Building2 className="w-5 h-5 mr-2" />
+                  Requires Clinic
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-orange-700">
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full mr-2" />
+                    Task management
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full mr-2" />
+                    Schedule viewing
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full mr-2" />
+                    Performance statistics
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Card className="inline-block">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-2">Ready to get started?</h3>
+                <p className="text-slate-600 mb-4">
+                  Join a clinic to access all features and start collaborating with your team.
+                </p>
+                <Button onClick={() => navigate('/join')} size="lg" className="mr-3">
+                  <Users className="w-4 h-4 mr-2" />
+                  Join a Clinic
+                </Button>
+                <Button variant="outline" onClick={() => setActiveTab('learning')} size="lg">
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Explore Learning
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      );
+
       switch (activeTab) {
         case 'learning':
           return <LearningTab />; // Allow learning without clinic
@@ -178,6 +262,7 @@ const AssistantDashboard = () => {
         case 'settings':
           return <SettingsTab />; // Allow settings without clinic
         case 'home':
+          return <WelcomeMessage />; // Show welcome screen instead of generic message
         case 'tasks':
         case 'schedule':
         case 'stats':
@@ -239,7 +324,9 @@ const AssistantDashboard = () => {
         <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40 lg:hidden">
           <SidebarTrigger className="ml-4" />
           <div className="ml-4">
-            <h1 className="font-semibold text-teal-900">{clinic?.name || 'Assistant Portal'}</h1>
+            <h1 className="font-semibold text-teal-900">
+              {clinic?.name || 'Assistant Portal'}
+            </h1>
           </div>
         </header>
 

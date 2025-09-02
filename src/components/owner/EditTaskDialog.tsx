@@ -40,14 +40,29 @@ export default function EditTaskDialog({
   useEffect(() => {
     if (task && isOpen) {
       console.log('Setting form data for task:', task);
+      
+      // Map due-type values from database to form options
+      let dueType = 'EoD'; // default
+      if (task['due-type'] === 'flexible') {
+        dueType = 'EoW';
+      } else if (task['due-type'] === 'custom') {
+        dueType = 'ASAP';
+      }
+      
+      // Convert recurrence to lowercase to match form options
+      let recurrence = 'none';
+      if (task.recurrence) {
+        recurrence = task.recurrence.toLowerCase();
+      }
+      
       setFormData({
         title: task.title || '',
         description: task.description || '',
         priority: task.priority || 'medium',
-        'due-type': task['due-type'] || 'EoD',
+        'due-type': dueType,
         category: task.category || '',
         assigned_to: task.assigned_to || 'unassigned',
-        recurrence: task.recurrence || 'none'
+        recurrence: recurrence
       });
     } else if (!isOpen) {
       // Reset form when dialog is closed

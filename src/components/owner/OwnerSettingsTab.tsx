@@ -115,8 +115,8 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="w-6 h-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        <span className="ml-2 text-muted-foreground">Loading settings...</span>
+        <div className="w-4 h-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="ml-2 text-sm text-muted-foreground">Loading settings...</span>
       </div>
     );
   }
@@ -124,105 +124,102 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
   if (!clinic) {
     return (
       <div className="text-center py-8">
-        <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-        <h3 className="text-lg font-semibold mb-2">Settings Not Available</h3>
-        <p className="text-muted-foreground">Unable to load clinic settings.</p>
+        <AlertTriangle className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+        <h3 className="font-semibold mb-1">Settings Not Available</h3>
+        <p className="text-sm text-muted-foreground">Unable to load clinic settings.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center lg:text-left">
-        <h1 className="text-4xl font-bold text-blue-900 mb-3">Clinic Settings</h1>
-        <p className="text-blue-600 text-lg">Manage your clinic information and preferences</p>
+    <div className="max-w-4xl space-y-4">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Settings</h1>
+        <p className="text-muted-foreground">Manage your clinic information and preferences</p>
       </div>
 
       {/* Clinic Information */}
-      <Card className="shadow-xl border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-100">
-          <CardTitle className="flex items-center text-blue-900">
-            <Building2 className="w-6 h-6 mr-3 text-blue-600" />
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-lg">
+            <Building2 className="w-4 h-4 mr-2" />
             Clinic Information
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-8 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clinic-name">Clinic Name</Label>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="clinic-name" className="text-sm">Clinic Name</Label>
               <Input
                 id="clinic-name"
                 value={clinic.name}
                 onChange={(e) => setClinic(prev => prev ? { ...prev, name: e.target.value } : null)}
                 placeholder="Enter clinic name"
-                className="h-12 border-2 border-blue-200 focus:border-blue-500 rounded-xl"
+                className="h-9"
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="clinic-email">Email</Label>
+            <div className="space-y-1">
+              <Label htmlFor="clinic-email" className="text-sm">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Mail className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground w-3 h-3" />
                 <Input
                   id="clinic-email"
                   type="email"
                   value={clinic.email || ''}
                   onChange={(e) => setClinic(prev => prev ? { ...prev, email: e.target.value } : null)}
                   placeholder="clinic@example.com"
-                  className="pl-10 h-12 border-2 border-blue-200 focus:border-blue-500 rounded-xl"
+                  className="pl-7 h-9"
                 />
               </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clinic-phone">Phone</Label>
+            
+            <div className="space-y-1">
+              <Label htmlFor="clinic-phone" className="text-sm">Phone</Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Phone className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground w-3 h-3" />
                 <Input
                   id="clinic-phone"
                   value={clinic.phone || ''}
                   onChange={(e) => setClinic(prev => prev ? { ...prev, phone: e.target.value } : null)}
                   placeholder="(555) 123-4567"
-                  className="pl-10 h-12 border-2 border-blue-200 focus:border-blue-500 rounded-xl"
+                  className="pl-7 h-9"
                 />
               </div>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="subscription-status">Subscription Status</Label>
+            <div className="space-y-1">
+              <Label htmlFor="subscription-status" className="text-sm">Subscription</Label>
               <Input
                 id="subscription-status"
                 value={clinic.subscription_status}
                 disabled
-                className="bg-muted h-12 rounded-xl"
+                className="bg-muted h-9"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="clinic-address">Address</Label>
+          <div className="space-y-1">
+            <Label htmlFor="clinic-address" className="text-sm">Address</Label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
+              <MapPin className="absolute left-2 top-2 text-muted-foreground w-3 h-3" />
               <Textarea
                 id="clinic-address"
                 value={clinic.address || ''}
                 onChange={(e) => setClinic(prev => prev ? { ...prev, address: e.target.value } : null)}
                 placeholder="Enter clinic address"
-                rows={3}
-                className="pl-10 border-2 border-blue-200 focus:border-blue-500 rounded-xl"
+                rows={2}
+                className="pl-7 text-sm"
               />
             </div>
           </div>
 
-          <div className="flex justify-end">
-            <Button onClick={handleSaveClinicInfo} disabled={saving} className="h-12 px-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl">
+          <div className="flex justify-end pt-2">
+            <Button onClick={handleSaveClinicInfo} disabled={saving} size="sm">
               {saving ? (
-                <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                <div className="w-3 h-3 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
               ) : (
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="w-3 h-3 mr-2" />
               )}
               Save Changes
             </Button>
@@ -230,102 +227,84 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
         </CardContent>
       </Card>
 
-      {/* Clinic Code Management */}
-      <Card className="shadow-xl border-2 border-green-200 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-100">
-          <CardTitle className="flex items-center text-blue-900">
-            <Shield className="w-6 h-6 mr-3 text-green-600" />
-            Clinic Code
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-8">
-          <Alert className="mb-4">
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              Share this code with assistants to allow them to join your clinic. Keep it secure and only share with trusted team members.
-            </AlertDescription>
-          </Alert>
-          
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <Label htmlFor="clinic-code">Clinic Code</Label>
-              <div className="flex items-center gap-2 mt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Clinic Code Management */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-lg">
+              <Shield className="w-4 h-4 mr-2" />
+              Access Code
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Share this code with assistants to join your clinic.
+              </p>
+              
+              <div className="flex items-center gap-2">
                 <Input
-                  id="clinic-code"
                   value={clinic.clinic_code}
                   disabled
-                  className="bg-muted font-mono text-lg h-12 rounded-xl"
+                  className="bg-muted font-mono text-sm h-9"
                 />
                 <Button
                   variant="outline"
                   onClick={copyClinicCode}
-                  className="flex items-center gap-2 h-12 px-6 rounded-xl"
+                  size="sm"
+                  className="px-3"
                 >
-                  <Copy className="w-4 h-4" />
-                  Copy
+                  <Copy className="w-3 h-3" />
                 </Button>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Notification Settings */}
-      <Card className="shadow-xl border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-yellow-50 border-b border-blue-100">
-          <CardTitle className="flex items-center text-blue-900">
-            <Bell className="w-6 h-6 mr-3 text-blue-600" />
-            Notification Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-8 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="email-notifications">Email Notifications</Label>
-              <p className="text-sm text-muted-foreground">
-                Receive email notifications for important updates
-              </p>
+        {/* Notification Settings */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-lg">
+              <Bell className="w-4 h-4 mr-2" />
+              Notifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm">Email Notifications</Label>
+                <p className="text-xs text-muted-foreground">Important updates</p>
+              </div>
+              <Switch
+                checked={settings.emailNotifications}
+                onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailNotifications: checked }))}
+              />
             </div>
-            <Switch
-              id="email-notifications"
-              checked={settings.emailNotifications}
-              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailNotifications: checked }))}
-            />
-          </div>
-          
-          <Separator />
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="task-reminders">Task Reminders</Label>
-              <p className="text-sm text-muted-foreground">
-                Get reminders for overdue tasks and deadlines
-              </p>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm">Task Reminders</Label>
+                <p className="text-xs text-muted-foreground">Overdue tasks</p>
+              </div>
+              <Switch
+                checked={settings.taskReminders}
+                onCheckedChange={(checked) => setSettings(prev => ({ ...prev, taskReminders: checked }))}
+              />
             </div>
-            <Switch
-              id="task-reminders"
-              checked={settings.taskReminders}
-              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, taskReminders: checked }))}
-            />
-          </div>
-          
-          <Separator />
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="weekly-reports">Weekly Reports</Label>
-              <p className="text-sm text-muted-foreground">
-                Receive weekly performance and analytics reports
-              </p>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm">Weekly Reports</Label>
+                <p className="text-xs text-muted-foreground">Performance analytics</p>
+              </div>
+              <Switch
+                checked={settings.weeklyReports}
+                onCheckedChange={(checked) => setSettings(prev => ({ ...prev, weeklyReports: checked }))}
+              />
             </div>
-            <Switch
-              id="weekly-reports"
-              checked={settings.weeklyReports}
-              onCheckedChange={(checked) => setSettings(prev => ({ ...prev, weeklyReports: checked }))}
-            />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

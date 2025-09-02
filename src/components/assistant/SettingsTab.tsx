@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
@@ -15,33 +14,21 @@ import { getUserInitials } from '@/lib/taskUtils';
 import EditProfileDialog from './EditProfileDialog';
 import PrivacySettingsDialog from './PrivacySettingsDialog';
 import { 
-  Settings,
   Eye, 
   EyeOff, 
-  CheckCircle2, 
-  AlertCircle,
-  Shield,
   Lock,
-  Info,
-  Zap,
   User,
   Bell,
   Palette,
-  Globe,
   Mail,
-  Calendar,
   Moon,
   Sun,
-  Smartphone,
   Monitor,
-  Volume2,
-  VolumeX
+  Shield
 } from 'lucide-react';
 
 export default function SettingsTab() {
   const { user, userProfile } = useAuth();
-  const [activeSection, setActiveSection] = useState('profile');
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswords, setShowPasswords] = useState(false);
@@ -134,7 +121,7 @@ export default function SettingsTab() {
         return;
       }
       
-      toast.success('Password Updated Successfully! 🎉', {
+      toast.success('Password Updated Successfully!', {
         description: 'Your new password is now active. You remain signed in.'
       });
       
@@ -152,621 +139,260 @@ export default function SettingsTab() {
     }
   };
 
-  const settingsMenuItems = [
-    { id: 'profile', label: 'Profile', icon: User, color: 'from-blue-400 to-blue-500', bgColor: 'bg-blue-50' },
-    { id: 'password', label: 'Security', icon: Lock, color: 'from-green-400 to-green-500', bgColor: 'bg-green-50' },
-    { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-yellow-400 to-yellow-500', bgColor: 'bg-yellow-50' },
-    { id: 'preferences', label: 'Preferences', icon: Palette, color: 'from-purple-400 to-purple-500', bgColor: 'bg-purple-50' },
-  ];
+  return (
+    <div className="max-w-4xl space-y-4">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Settings</h1>
+        <p className="text-muted-foreground">Manage your profile and preferences</p>
+      </div>
 
-  const renderProfileSection = () => (
-    <div className="space-y-6">
-      {/* Profile Card */}
-      <Card className="shadow-xl border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
-          <CardTitle className="flex items-center text-blue-900">
-            <User className="w-6 h-6 mr-3 text-blue-600" />
+      {/* Profile Information */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-lg">
+            <User className="w-4 h-4 mr-2" />
             Profile Information
           </CardTitle>
-          <CardDescription className="text-blue-700">
-            View and manage your profile details
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-8">
-          <div className="space-y-6">
-            <div className="flex items-center space-x-6">
-              <div className="relative">
-                <Avatar className="w-24 h-24 border-4 border-blue-200 shadow-xl">
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-xl font-bold">
-                    {getUserInitials(userProfile?.name || 'Assistant')}
-                  </AvatarFallback>
-                </Avatar>
-                {/* Status indicator */}
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-                  <CheckCircle2 className="w-3 h-3 text-white" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-3xl font-bold text-blue-900">{userProfile?.name || 'Assistant'}</h3>
-                <div className="flex items-center space-x-2">
-                  <Mail className="w-4 h-4 text-blue-600" />
-                  <p className="text-blue-700">{userProfile?.email || user?.email}</p>
-                </div>
-                <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 px-4 py-1">
-                  {userProfile?.role === 'admin' ? 'Admin Assistant' : 'Assistant'}
-                </Badge>
-              </div>
-            </div>
-            
-            <Separator />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-blue-900 flex items-center">
-                  <Mail className="w-4 h-4 mr-2" />
-                  Email Address
-                </Label>
-                <p className="text-gray-700 font-medium">{userProfile?.email || user?.email}</p>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-blue-900 flex items-center">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Role
-                </Label>
-                <p className="text-gray-700 font-medium">{userProfile?.role === 'admin' ? 'Admin Assistant' : 'Assistant'}</p>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-blue-900 flex items-center">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Member Since
-                </Label>
-                <p className="text-gray-700 font-medium">Recently joined</p>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-blue-900 flex items-center">
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Status
-                </Label>
-                <Badge variant={userProfile?.is_active ? "default" : "destructive"} className="text-sm">
-                  {userProfile?.is_active ? 'Active' : 'Inactive'}
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Quick Actions */}
-      <Card className="shadow-lg border-blue-100">
-        <CardHeader>
-          <CardTitle className="text-blue-900">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center space-x-4 mb-4">
+            <div className="relative">
+              <Avatar className="w-16 h-16">
+                <AvatarFallback className="bg-primary text-primary-foreground text-lg font-semibold">
+                  {getUserInitials(userProfile?.name || 'Assistant')}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold">{userProfile?.name || 'Assistant'}</h3>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Mail className="w-3 h-3 mr-1" />
+                {userProfile?.email || user?.email}
+              </div>
+              <Badge variant="secondary" className="text-xs">
+                {userProfile?.role === 'admin' ? 'Admin Assistant' : 'Assistant'}
+              </Badge>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <EditProfileDialog>
-              <Button variant="outline" className="h-12">
-                <User className="w-4 h-4 mr-2" />
+              <Button variant="outline" size="sm" className="w-full">
+                <User className="w-3 h-3 mr-2" />
                 Edit Profile
               </Button>
             </EditProfileDialog>
             <PrivacySettingsDialog>
-              <Button variant="outline" className="h-12">
-                <Shield className="w-4 h-4 mr-2" />
+              <Button variant="outline" size="sm" className="w-full">
+                <Shield className="w-3 h-3 mr-2" />
                 Privacy Settings
               </Button>
             </PrivacySettingsDialog>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
 
-  const renderPasswordSection = () => (
-    <div className="space-y-6">
-      {/* Password Update Card */}
-      <Card className="shadow-xl border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 border-b border-blue-100">
-          <CardTitle className="flex items-center text-blue-900">
-            <Lock className="w-6 h-6 mr-3 text-blue-600" />
-            Password & Security
-          </CardTitle>
-          <CardDescription className="text-blue-700">
-            Update your password for enhanced security
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-8">
-          <form onSubmit={handlePasswordSubmit} className="space-y-6">
-            {/* New Password */}
-            <div className="space-y-3">
-              <Label htmlFor="new-password" className="text-base font-semibold text-blue-900">
-                New Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="new-password"
-                  type={showPasswords ? 'text' : 'password'}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
-                  className={`text-base h-12 border-2 rounded-xl ${
-                    errors.newPassword 
-                      ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                      : 'border-blue-200 focus:border-blue-500 bg-blue-50/50'
-                  }`}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPasswords(!showPasswords)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-                >
-                  {showPasswords ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
-              
-              {/* Password Strength Indicator */}
-              {newPassword && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-blue-700">Password Strength:</span>
-                    <Badge 
-                      variant="outline" 
-                      className={`font-semibold ${
-                        passwordStrength.strength <= 25 ? 'border-red-300 text-red-700 bg-red-50' :
-                        passwordStrength.strength <= 50 ? 'border-yellow-300 text-yellow-700 bg-yellow-50' :
-                        passwordStrength.strength <= 75 ? 'border-blue-300 text-blue-700 bg-blue-50' :
-                        'border-green-300 text-green-700 bg-green-50'
-                      }`}
-                    >
-                      {passwordStrength.strength >= 75 && <Zap className="w-3 h-3 mr-1" />}
-                      {passwordStrength.label}
-                    </Badge>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Password & Security */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-lg">
+              <Lock className="w-4 h-4 mr-2" />
+              Security
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordSubmit} className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="new-password" className="text-sm">New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="new-password"
+                    type={showPasswords ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className={`h-9 text-sm ${errors.newPassword ? 'border-destructive' : ''}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPasswords(!showPasswords)}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
+                  >
+                    {showPasswords ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  </Button>
+                </div>
+                
+                {newPassword && (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Strength:</span>
+                      <span className={`text-xs font-medium ${
+                        passwordStrength.strength <= 25 ? 'text-destructive' :
+                        passwordStrength.strength <= 50 ? 'text-yellow-600' :
+                        passwordStrength.strength <= 75 ? 'text-blue-600' :
+                        'text-green-600'
+                      }`}>
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                    <Progress value={passwordStrength.strength} className="h-1" />
                   </div>
-                  <Progress value={passwordStrength.strength} className="h-2" />
-                </div>
-              )}
-              
-              {errors.newPassword && (
-                <div className="flex items-center space-x-2 text-red-600 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  <span>{errors.newPassword}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Confirm Password */}
-            <div className="space-y-3">
-              <Label htmlFor="confirm-password" className="text-base font-semibold text-blue-900">
-                Confirm New Password
-              </Label>
-              <Input
-                id="confirm-password"
-                type={showPasswords ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-                className={`text-base h-12 border-2 rounded-xl ${
-                  errors.confirmPassword 
-                    ? 'border-red-300 focus:border-red-500 bg-red-50'
-                    : confirmPassword && confirmPassword === newPassword 
-                      ? 'border-green-300 focus:border-green-500 bg-green-50'
-                      : 'border-blue-200 focus:border-blue-500 bg-blue-50/50'
-                }`}
-              />
-              {errors.confirmPassword && (
-                <div className="flex items-center space-x-2 text-red-600 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  <span>{errors.confirmPassword}</span>
-                </div>
-              )}
-              {confirmPassword && confirmPassword === newPassword && !errors.confirmPassword && (
-                <div className="flex items-center space-x-2 text-green-600 text-sm">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span className="font-medium">Passwords match perfectly!</span>
-                </div>
-              )}
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading || !newPassword || !confirmPassword || passwordStrength.strength < 50}
-              className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg"
-            >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
-                  Updating Password...
-                </>
-              ) : (
-                <>
-                  <Lock className="w-5 h-5 mr-3" />
-                  Update Password
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Security Overview */}
-      <Card className="shadow-lg border-blue-100">
-        <CardHeader>
-          <CardTitle className="flex items-center text-blue-900">
-            <Shield className="w-5 h-5 mr-2" />
-            Security Overview
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-              <div className="flex items-center space-x-3">
-                <CheckCircle2 className="w-5 h-5 text-green-600" />
-                <span className="font-medium text-green-800">Account Security</span>
+                )}
+                
+                {errors.newPassword && (
+                  <p className="text-xs text-destructive">{errors.newPassword}</p>
+                )}
               </div>
-              <Badge variant="secondary" className="bg-green-100 text-green-700">Strong</Badge>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password" className="text-sm">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type={showPasswords ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm password"
+                  className={`h-9 text-sm ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                />
+                {errors.confirmPassword && (
+                  <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading || !newPassword || !confirmPassword || passwordStrength.strength < 50}
+                size="sm"
+                className="w-full mt-4"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-3 h-3 mr-2" />
+                    Update Password
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Notifications */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-lg">
+              <Bell className="w-4 h-4 mr-2" />
+              Notifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm">Task Reminders</Label>
+                <p className="text-xs text-muted-foreground">Get notified about tasks</p>
+              </div>
+              <Switch
+                checked={notifications.taskReminders}
+                onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, taskReminders: checked }))}
+              />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" size="sm">
-                <Shield className="w-4 h-4 mr-2" />
-                2FA Setup
-              </Button>
-              <Button variant="outline" size="sm">
-                <Info className="w-4 h-4 mr-2" />
-                Security Log
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderNotificationsSection = () => (
-    <div className="space-y-6">
-      {/* Notification Preferences */}
-      <Card className="shadow-xl border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-yellow-50 border-b border-blue-100">
-          <CardTitle className="flex items-center text-blue-900">
-            <Bell className="w-6 h-6 mr-3 text-blue-600" />
-            Notification Preferences
-          </CardTitle>
-          <CardDescription className="text-blue-700">
-            Customize how you receive updates and alerts
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-8 space-y-6">
-          <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <div className="flex items-center space-x-3">
-              <Bell className="w-5 h-5 text-blue-600" />
+            <div className="flex items-center justify-between">
               <div>
-                <Label className="font-medium text-blue-900">Task Reminders</Label>
-                <p className="text-sm text-blue-700">Get notified about upcoming tasks</p>
+                <Label className="text-sm">Email Updates</Label>
+                <p className="text-xs text-muted-foreground">Important emails</p>
               </div>
+              <Switch
+                checked={notifications.emailUpdates}
+                onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, emailUpdates: checked }))}
+              />
             </div>
-            <Switch
-              checked={notifications.taskReminders}
-              onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, taskReminders: checked }))}
-            />
-          </div>
-
-          <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
-            <div className="flex items-center space-x-3">
-              <Mail className="w-5 h-5 text-green-600" />
+            
+            <div className="flex items-center justify-between">
               <div>
-                <Label className="font-medium text-green-900">Email Updates</Label>
-                <p className="text-sm text-green-700">Receive important updates via email</p>
+                <Label className="text-sm">Push Notifications</Label>
+                <p className="text-xs text-muted-foreground">Browser notifications</p>
               </div>
+              <Switch
+                checked={notifications.pushNotifications}
+                onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, pushNotifications: checked }))}
+              />
             </div>
-            <Switch
-              checked={notifications.emailUpdates}
-              onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, emailUpdates: checked }))}
-            />
-          </div>
-
-          <div className="flex items-center justify-between p-4 bg-purple-50 rounded-xl border border-purple-200">
-            <div className="flex items-center space-x-3">
-              <Smartphone className="w-5 h-5 text-purple-600" />
+            
+            <div className="flex items-center justify-between">
               <div>
-                <Label className="font-medium text-purple-900">Push Notifications</Label>
-                <p className="text-sm text-purple-700">Get push notifications on your device</p>
+                <Label className="text-sm">Sound Alerts</Label>
+                <p className="text-xs text-muted-foreground">Audio notifications</p>
               </div>
+              <Switch
+                checked={notifications.soundAlerts}
+                onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, soundAlerts: checked }))}
+              />
             </div>
-            <Switch
-              checked={notifications.pushNotifications}
-              onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, pushNotifications: checked }))}
-            />
-          </div>
+          </CardContent>
+        </Card>
+      </div>
 
-          <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-            <div className="flex items-center space-x-3">
-              <Calendar className="w-5 h-5 text-yellow-600" />
-              <div>
-                <Label className="font-medium text-yellow-900">Weekly Reports</Label>
-                <p className="text-sm text-yellow-700">Receive weekly performance summaries</p>
-              </div>
-            </div>
-            <Switch
-              checked={notifications.weeklyReports}
-              onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, weeklyReports: checked }))}
-            />
-          </div>
-
-          <div className="flex items-center justify-between p-4 bg-orange-50 rounded-xl border border-orange-200">
-            <div className="flex items-center space-x-3">
-              {notifications.soundAlerts ? <Volume2 className="w-5 h-5 text-orange-600" /> : <VolumeX className="w-5 h-5 text-orange-600" />}
-              <div>
-                <Label className="font-medium text-orange-900">Sound Alerts</Label>
-                <p className="text-sm text-orange-700">Play sounds for important notifications</p>
-              </div>
-            </div>
-            <Switch
-              checked={notifications.soundAlerts}
-              onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, soundAlerts: checked }))}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Notification Schedule */}
-      <Card className="shadow-lg border-blue-100">
-        <CardHeader>
-          <CardTitle className="flex items-center text-blue-900">
-            <Calendar className="w-5 h-5 mr-2" />
-            Notification Schedule
+      {/* Preferences */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-lg">
+            <Palette className="w-4 h-4 mr-2" />
+            Preferences
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <Label className="font-medium">Quiet Hours</Label>
-              <p className="text-sm text-gray-600 mt-1">10:00 PM - 8:00 AM</p>
-            </div>
-            <Button variant="outline" size="sm" className="w-full">
-              <Calendar className="w-4 h-4 mr-2" />
-              Customize Schedule
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderPreferencesSection = () => (
-    <div className="space-y-6">
-      {/* Appearance Settings */}
-      <Card className="shadow-xl border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-100">
-          <CardTitle className="flex items-center text-blue-900">
-            <Palette className="w-6 h-6 mr-3 text-blue-600" />
-            Appearance & Preferences
-          </CardTitle>
-          <CardDescription className="text-blue-700">
-            Customize your app experience and interface
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-8 space-y-6">
-          {/* Theme Selection */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold text-blue-900">Theme</Label>
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { id: 'light', label: 'Light', icon: Sun, color: 'from-yellow-400 to-orange-400' },
-                { id: 'dark', label: 'Dark', icon: Moon, color: 'from-gray-600 to-gray-800' },
-                { id: 'system', label: 'System', icon: Monitor, color: 'from-blue-400 to-purple-400' }
-              ].map((theme) => {
-                const Icon = theme.icon;
-                const isSelected = preferences.theme === theme.id;
-                return (
-                  <div
-                    key={theme.id}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
-                      isSelected 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'
-                    }`}
-                    onClick={() => setPreferences(prev => ({ ...prev, theme: theme.id }))}
-                  >
-                    <div className="text-center space-y-2">
-                      <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${theme.color} mx-auto flex items-center justify-center`}>
-                        <Icon className="w-4 h-4 text-white" />
-                      </div>
-                      <p className={`text-sm font-medium ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
-                        {theme.label}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Language & Region */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold text-blue-900">Language & Region</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm">Language</Label>
-                <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <Globe className="w-4 h-4 text-blue-600" />
-                  <span className="text-blue-900">English (US)</span>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm">Theme</Label>
+                <p className="text-xs text-muted-foreground">Light, dark, or system</p>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm">Timezone</Label>
-                <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <Calendar className="w-4 h-4 text-blue-600" />
-                  <span className="text-blue-900">UTC-5 (EST)</span>
-                </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant={preferences.theme === 'light' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setPreferences(prev => ({ ...prev, theme: 'light' }))}
+                  className="h-8 px-3"
+                >
+                  <Sun className="w-3 h-3" />
+                </Button>
+                <Button
+                  variant={preferences.theme === 'dark' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setPreferences(prev => ({ ...prev, theme: 'dark' }))}
+                  className="h-8 px-3"
+                >
+                  <Moon className="w-3 h-3" />
+                </Button>
+                <Button
+                  variant={preferences.theme === 'system' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setPreferences(prev => ({ ...prev, theme: 'system' }))}
+                  className="h-8 px-3"
+                >
+                  <Monitor className="w-3 h-3" />
+                </Button>
               </div>
             </div>
-          </div>
 
-          <Separator />
-
-          {/* Interface Preferences */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold text-blue-900">Interface</Label>
-            <div className="flex items-center justify-between p-4 bg-purple-50 rounded-xl border border-purple-200">
-              <div className="flex items-center space-x-3">
-                <Monitor className="w-5 h-5 text-purple-600" />
-                <div>
-                  <Label className="font-medium text-purple-900">Compact View</Label>
-                  <p className="text-sm text-purple-700">Use a more condensed interface layout</p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm">Compact View</Label>
+                <p className="text-xs text-muted-foreground">Reduce spacing</p>
               </div>
               <Switch
                 checked={preferences.compactView}
                 onCheckedChange={(checked) => setPreferences(prev => ({ ...prev, compactView: checked }))}
               />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Advanced Preferences */}
-      <Card className="shadow-lg border-blue-100">
-        <CardHeader>
-          <CardTitle className="flex items-center text-blue-900">
-            <Settings className="w-5 h-5 mr-2" />
-            Advanced Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" size="sm">
-                <Shield className="w-4 h-4 mr-2" />
-                Privacy
-              </Button>
-              <Button variant="outline" size="sm">
-                <Globe className="w-4 h-4 mr-2" />
-                Accessibility
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'profile':
-        return renderProfileSection();
-      case 'password':
-        return renderPasswordSection();
-      case 'notifications':
-        return renderNotificationsSection();
-      case 'preferences':
-        return renderPreferencesSection();
-      default:
-        return renderPasswordSection();
-    }
-  };
-
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center lg:text-left">
-        <h1 className="text-4xl font-bold text-blue-900 mb-3">Settings</h1>
-        <p className="text-blue-600 text-lg">Manage your profile, security, and preferences</p>
-      </div>
-
-      {/* Interactive Settings Navigation */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {settingsMenuItems.map((item, index) => {
-          const Icon = item.icon;
-          const isActive = activeSection === item.id;
-          const isHovered = hoveredCard === index;
-          
-          return (
-            <Card
-              key={item.id}
-              className={`relative overflow-hidden cursor-pointer transform transition-all duration-500 ${
-                isActive ? 'scale-105 shadow-xl' : 'hover:scale-105 hover:shadow-lg'
-              }`}
-              onMouseEnter={() => setHoveredCard(index)}
-              onMouseLeave={() => setHoveredCard(null)}
-              onClick={() => setActiveSection(item.id)}
-            >
-              <CardContent className="p-0">
-                {/* Animated Background */}
-                <div className={`absolute inset-0 ${item.bgColor} transition-opacity duration-300 ${
-                  isActive || isHovered ? 'opacity-100' : 'opacity-50'
-                }`} />
-                
-                {/* Rotating Border Effect */}
-                <div className={`absolute -inset-1 bg-gradient-to-r ${item.color} rounded-lg opacity-20 transition-all duration-700 ${
-                  isActive || isHovered ? 'animate-pulse opacity-40' : ''
-                }`} />
-                
-                {/* Content */}
-                <div className="relative p-6 z-10">
-                  <div className="flex flex-col items-center space-y-3">
-                    {/* Rotating Icon Wheel */}
-                    <div className={`relative w-12 h-12 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center shadow-lg transform transition-all duration-500 ${
-                      isActive || isHovered ? 'rotate-180 scale-110' : ''
-                    }`}>
-                      <div className={`absolute inset-1 rounded-full bg-white/20 transition-all duration-700 ${
-                        isActive || isHovered ? 'rotate-[-180deg]' : ''
-                      }`} />
-                      <Icon className={`w-6 h-6 text-white z-10 transition-all duration-500 ${
-                        isActive || isHovered ? 'scale-125' : ''
-                      }`} />
-                    </div>
-                    
-                    <p className={`text-sm font-semibold text-center transition-all duration-300 ${
-                      isActive ? 'text-blue-900' : 'text-gray-700'
-                    }`}>
-                      {item.label}
-                    </p>
-                  </div>
-                  
-                  {/* Active indicator */}
-                  {isActive && (
-                    <div className={`absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r ${item.color}`} />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Settings Content */}
-      <div className="min-h-[600px]">
-        {renderContent()}
-      </div>
-
-      {/* Security Info */}
-      <Card className="shadow-lg border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-        <CardContent className="p-6">
-          <div className="flex items-start space-x-4">
-            <Shield className="w-8 h-8 text-blue-600 mt-1" />
-            <div>
-              <h4 className="text-lg font-semibold text-blue-900 mb-2">Security & Privacy</h4>
-              <p className="text-blue-700 mb-4">
-                Your data is protected with industry-standard encryption and security measures. 
-                We never share your personal information with third parties.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                  <Shield className="w-3 h-3 mr-1" />
-                  SSL Encrypted
-                </Badge>
-                <Badge variant="secondary" className="bg-green-100 text-green-700">
-                  <Lock className="w-3 h-3 mr-1" />
-                  Secure Storage
-                </Badge>
-                <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  HIPAA Compliant
-                </Badge>
-              </div>
             </div>
           </div>
         </CardContent>

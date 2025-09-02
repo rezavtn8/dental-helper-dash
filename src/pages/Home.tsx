@@ -36,13 +36,11 @@ export default function Home() {
   // Redirect authenticated users to their dashboard
   useEffect(() => {
     if (user && userProfile && !loading) {
-      if (userProfile.role === 'owner' && userProfile.clinic_id) {
-        // Only redirect owners who have a clinic setup
+      if (userProfile.role === 'owner') {
         navigate('/owner');
       } else if (userProfile.role === 'assistant') {
-        navigate('/hub');
+        navigate('/assistant');
       }
-      // If owner has no clinic_id, stay on home page to set up clinic
     }
   }, [user, userProfile, navigate, loading]);
 

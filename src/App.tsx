@@ -56,7 +56,7 @@ const AppRoutes = () => (
       <Route path="/" element={<Home />} />
       <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
       <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
-      <Route path="/assistant" element={<ClinicRequiredRoute requiredRole="assistant"><AssistantDashboard /></ClinicRequiredRoute>} />
+      <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
       <Route path="/owner" element={<ClinicRequiredRoute requiredRole="owner"><OwnerDashboard /></ClinicRequiredRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

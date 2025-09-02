@@ -130,7 +130,17 @@ const AssistantDashboard = () => {
     );
   }
 
-  // Component now only renders for users with clinic access via route guard
+  // Show loading while fetching initial data
+  if (loading && !userProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {

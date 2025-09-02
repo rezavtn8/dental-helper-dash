@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Clock, AlertTriangle, Award, Calendar, TrendingUp, Users, Target, Sparkles, ChevronRight } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle, Award, Calendar, TrendingUp, Users, Target, Sparkles, ChevronRight, Building } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import PatientCounter from './PatientCounter';
 
 interface HomeTabProps {
@@ -13,6 +15,32 @@ interface HomeTabProps {
 }
 
 export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onTabChange }: HomeTabProps) {
+  const { userProfile } = useAuth();
+  const navigate = useNavigate();
+
+  // Show connect to clinic message if no clinic access
+  if (!userProfile?.clinic_id) {
+    return (
+      <div className="p-6 max-w-2xl mx-auto">
+        <Card className="border-dashed border-2">
+          <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+            <Building className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Connect to a Clinic</h3>
+            <p className="text-muted-foreground mb-4">
+              To see your tasks, patient counts, and clinic information, you need to join a clinic first.
+            </p>
+            <Button onClick={() => navigate('/join')} className="mb-2">
+              Join a Clinic
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/hub')}>
+              Go to Hub
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
   const [hoveredAction, setHoveredAction] = useState<number | null>(null);
   

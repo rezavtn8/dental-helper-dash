@@ -40,14 +40,14 @@ interface AssistantSidebarProps {
 }
 
 const navigationItems = [
-  { id: 'home', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-  { id: 'schedule', label: 'Schedule', icon: Calendar },
-  { id: 'stats', label: 'My Stats', icon: BarChart3 },
-  { id: 'learning', label: 'Learning', icon: BookOpen },
-  { id: 'certifications', label: 'Certifications', icon: Award },
-  { id: 'feedback', label: 'Feedback & Growth', icon: TrendingUp },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'home', label: 'Dashboard', icon: LayoutDashboard, requiresClinic: false },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare, requiresClinic: true },
+  { id: 'schedule', label: 'Schedule', icon: Calendar, requiresClinic: true },
+  { id: 'stats', label: 'My Stats', icon: BarChart3, requiresClinic: true },
+  { id: 'learning', label: 'Learning', icon: BookOpen, requiresClinic: false },
+  { id: 'certifications', label: 'Certifications', icon: Award, requiresClinic: false },
+  { id: 'feedback', label: 'Feedback & Growth', icon: TrendingUp, requiresClinic: true },
+  { id: 'settings', label: 'Settings', icon: Settings, requiresClinic: false },
 ];
 
 export default function AssistantSidebar({ 
@@ -139,17 +139,20 @@ export default function AssistantSidebar({
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.id);
+                const needsClinic = item.requiresClinic && !clinic?.id;
                 
                 return (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton 
                       asChild
                       className={`
-                        h-9 transition-all duration-150 rounded-lg mx-1
+                        h-9 transition-all duration-150 rounded-lg mx-1 relative
                         ${!open || isCollapsed ? 'justify-center px-0 w-9' : 'px-3'}
                         ${active 
                           ? 'bg-blue-500 text-white shadow-sm hover:bg-blue-600' 
-                          : 'hover:bg-slate-50 hover:text-slate-700 text-slate-600'
+                          : needsClinic
+                            ? 'hover:bg-orange-50 hover:text-orange-700 text-slate-400'
+                            : 'hover:bg-slate-50 hover:text-slate-700 text-slate-600'
                         }
                       `}
                     >
@@ -158,7 +161,10 @@ export default function AssistantSidebar({
                         {(open && !isCollapsed) && (
                           <>
                             <span className="font-medium text-sm truncate">{item.label}</span>
-                            {active && (
+                            {needsClinic && (
+                              <div className="ml-auto w-2 h-2 bg-orange-400 rounded-full flex-shrink-0" />
+                            )}
+                            {active && !needsClinic && (
                               <div className="ml-auto w-1.5 h-1.5 bg-white/90 rounded-full flex-shrink-0" />
                             )}
                           </>
@@ -173,19 +179,33 @@ export default function AssistantSidebar({
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with Clinic Code - Compact */}
-      {clinic?.clinic_code && (
-        <SidebarFooter className="border-t border-slate-100/80 p-2">
-          {(open && !isCollapsed) && (
-            <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100">
-              <p className="text-xs font-medium text-slate-500 mb-0.5">Clinic Code</p>
-              <p className="font-mono text-xs font-semibold text-slate-700 tracking-wide">
-                {clinic.clinic_code}
-              </p>
-            </div>
-          )}
-        </SidebarFooter>
-      )}
+      {/* Footer with Clinic Code or Join Message - Compact */}
+      <SidebarFooter className="border-t border-slate-100/80 p-2">
+        {(open && !isCollapsed) && (
+          <>
+            {clinic?.clinic_code ? (
+              <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100">
+                <p className="text-xs font-medium text-slate-500 mb-0.5">Clinic Code</p>
+                <p className="font-mono text-xs font-semibold text-slate-700 tracking-wide">
+                  {clinic.clinic_code}
+                </p>
+              </div>
+            ) : (
+              <div className="bg-orange-50 rounded-lg p-2.5 border border-orange-100">
+                <p className="text-xs font-medium text-orange-600 mb-1">Need Clinic Access?</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.location.href = '/join'}
+                  className="h-6 text-xs w-full border-orange-200 text-orange-700 hover:bg-orange-100"
+                >
+                  Join a Clinic
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }

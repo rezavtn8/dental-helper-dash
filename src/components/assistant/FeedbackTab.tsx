@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { TrendingUp, Award, MessageSquare, Calendar, Trophy, Star, Target, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -52,6 +53,29 @@ export default function FeedbackTab() {
   const [feedback, setFeedback] = useState<Feedback[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Show connect to clinic message if no clinic access
+  if (!userProfile?.clinic_id) {
+    return (
+      <div className="p-6 max-w-2xl mx-auto">
+        <Card className="border-dashed border-2">
+          <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+            <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Connect to a Clinic</h3>
+            <p className="text-muted-foreground mb-4">
+              To view feedback and milestones, you need to join a clinic first.
+            </p>
+            <Button onClick={() => window.location.href = '/join'} className="mb-2">
+              Join a Clinic
+            </Button>
+            <Button variant="outline" onClick={() => window.location.href = '/hub'}>
+              Go to Hub
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const fetchFeedbackAndMilestones = async () => {
     if (!user?.id || !userProfile?.clinic_id) return;

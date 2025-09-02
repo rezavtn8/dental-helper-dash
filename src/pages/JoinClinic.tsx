@@ -63,9 +63,14 @@ export default function JoinClinic() {
 
       if (error) throw error;
       setJoinRequests(data as JoinRequest[]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching join requests:', error);
-      toast.error('Failed to load join requests');
+      
+      if (error?.message?.includes('JWT')) {
+        toast.error('Session expired. Please sign in again.');
+      } else {
+        toast.error('Failed to load join requests. Please refresh the page.');
+      }
     } finally {
       setLoadingRequests(false);
     }
@@ -92,13 +97,23 @@ export default function JoinClinic() {
       if (result.success) {
         toast.success(result.message);
         setClinicCode('');
-        fetchJoinRequests();
+        // Refresh the join requests immediately with optimistic update
+        await fetchJoinRequests();
       } else {
         toast.error(result.message);
       }
     } catch (error: any) {
       console.error('Error submitting join request:', error);
-      toast.error('Failed to submit request. Please try again.');
+      
+      if (error?.message?.includes('Rate limit exceeded')) {
+        toast.error('Too many requests. Please wait before trying again.');
+      } else if (error?.message?.includes('not found')) {
+        toast.error('Clinic not found. Please check the code and try again.');
+      } else if (error?.message?.includes('already exists')) {
+        toast.error('You already have a pending request for this clinic.');
+      } else {
+        toast.error('Failed to submit request. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

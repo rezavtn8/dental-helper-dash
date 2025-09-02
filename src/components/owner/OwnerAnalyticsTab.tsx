@@ -245,17 +245,17 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 mb-6">
         <div>
-          <h3 className="text-lg font-semibold">Clinic Analytics</h3>
-          <p className="text-muted-foreground">High-level insights into your clinic's performance</p>
+          <h3 className="text-xl font-semibold">Analytics</h3>
+          <p className="text-sm text-muted-foreground">High-level insights into your clinic's performance</p>
         </div>
         
         <div className="flex items-center gap-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-28 h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -266,79 +266,79 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
             </SelectContent>
           </Select>
           
-          <Button variant="outline" onClick={exportData} className="flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            Export Data
+          <Button variant="outline" size="sm" onClick={exportData} className="flex items-center gap-2">
+            <Download className="w-3 h-3" />
+            Export
           </Button>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Tasks</p>
-                <p className="text-2xl font-bold">{totalStats.totalTasks}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {totalStats.completedTasks} completed
+                <p className="text-xs text-muted-foreground">Total Tasks</p>
+                <p className="text-xl font-bold">{totalStats.totalTasks}</p>
+                <p className="text-xs text-muted-foreground">
+                  {totalStats.completedTasks} done
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-blue-600" />
+              <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Completion Rate</p>
-                <p className="text-2xl font-bold">{totalStats.completionRate}%</p>
-                <div className="flex items-center text-xs text-green-600 mt-1">
+                <p className="text-xs text-muted-foreground">Completion Rate</p>
+                <p className="text-xl font-bold">{totalStats.completionRate}%</p>
+                <div className="flex items-center text-xs text-green-600">
                   <TrendingUp className="w-3 h-3 mr-1" />
-                  {totalStats.completionRate >= 80 ? 'Excellent' : totalStats.completionRate >= 60 ? 'Good' : 'Needs Improvement'}
+                  {totalStats.completionRate >= 80 ? 'Great' : totalStats.completionRate >= 60 ? 'Good' : 'Low'}
                 </div>
               </div>
-              <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-green-600" />
+              <div className="w-8 h-8 bg-green-50 rounded-full flex items-center justify-center">
+                <BarChart3 className="w-4 h-4 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Patients Assisted</p>
-                <p className="text-2xl font-bold">{totalStats.totalPatients}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  In selected period
+                <p className="text-xs text-muted-foreground">Patients</p>
+                <p className="text-xl font-bold">{totalStats.totalPatients}</p>
+                <p className="text-xs text-muted-foreground">
+                  Assisted
                 </p>
               </div>
-              <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-purple-600" />
+              <div className="w-8 h-8 bg-purple-50 rounded-full flex items-center justify-center">
+                <Users className="w-4 h-4 text-purple-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Assistants</p>
-                <p className="text-2xl font-bold">{totalStats.activeAssistants}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Team members
+                <p className="text-xs text-muted-foreground">Assistants</p>
+                <p className="text-xl font-bold">{totalStats.activeAssistants}</p>
+                <p className="text-xs text-muted-foreground">
+                  Active
                 </p>
               </div>
-              <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-orange-600" />
+              <div className="w-8 h-8 bg-orange-50 rounded-full flex items-center justify-center">
+                <Users className="w-4 h-4 text-orange-600" />
               </div>
             </div>
           </CardContent>
@@ -346,21 +346,21 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Task Completion Trends */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-blue-600" />
-              Task Completion Trends
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="w-4 h-4" />
+              Task Trends
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={analyticsData.weeklyTasks}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" />
-                <YAxis />
+                <XAxis dataKey="week" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Line 
                   type="monotone" 
@@ -383,18 +383,18 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
 
         {/* Patients Assisted */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-green-600" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Users className="w-4 h-4" />
               Patients Assisted
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={analyticsData.monthlyPatients}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Bar dataKey="patients" fill="#00C49F" />
               </BarChart>
@@ -404,14 +404,14 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
 
         {/* Task Categories */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-purple-600" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <BarChart3 className="w-4 h-4" />
               Task Categories
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={analyticsData.taskCategories}
@@ -419,7 +419,7 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
                   cy="50%"
                   labelLine={false}
                   label={({ category, percentage }) => `${category} (${percentage}%)`}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="count"
                 >
@@ -435,21 +435,22 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
 
         {/* Overdue Tasks Trend */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-red-600" />
-              Overdue Tasks Trend
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Clock className="w-4 h-4" />
+              Overdue Trend
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={analyticsData.overdueTrend.slice(-14)}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   dataKey="date" 
+                  tick={{ fontSize: 12 }}
                   tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 />
-                <YAxis />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip 
                   labelFormatter={(value) => new Date(value).toLocaleDateString()}
                 />

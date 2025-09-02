@@ -184,25 +184,25 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="w-6 h-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        <span className="ml-2 text-muted-foreground">Loading feedback...</span>
+        <div className="w-4 h-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="ml-2 text-sm text-muted-foreground">Loading feedback...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 mb-6">
         <div>
-          <h3 className="text-lg font-semibold">Feedback & Growth</h3>
-          <p className="text-muted-foreground">Provide structured feedback to help your team grow</p>
+          <h3 className="text-xl font-semibold">Feedback & Growth</h3>
+          <p className="text-sm text-muted-foreground">Provide structured feedback to help your team grow</p>
         </div>
         
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
+            <Button size="sm" className="flex items-center gap-2">
+              <Plus className="w-3 h-3" />
               Give Feedback
             </Button>
           </DialogTrigger>
@@ -210,11 +210,11 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
             <DialogHeader>
               <DialogTitle>Create Feedback</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="assistant">Assistant</Label>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="assistant" className="text-sm">Assistant</Label>
                 <Select value={newFeedback.assistant_id} onValueChange={(value) => setNewFeedback(prev => ({ ...prev, assistant_id: value }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue placeholder="Select assistant" />
                   </SelectTrigger>
                   <SelectContent>
@@ -227,20 +227,21 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
                 </Select>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+              <div className="space-y-1">
+                <Label htmlFor="title" className="text-sm">Title</Label>
                 <Input
                   id="title"
                   value={newFeedback.title}
                   onChange={(e) => setNewFeedback(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Monthly Performance Review - November 2024"
+                  className="h-9"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="feedback_type">Feedback Type</Label>
+              <div className="space-y-1">
+                <Label htmlFor="feedback_type" className="text-sm">Feedback Type</Label>
                 <Select value={newFeedback.feedback_type} onValueChange={(value) => setNewFeedback(prev => ({ ...prev, feedback_type: value }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -252,44 +253,47 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="strengths">Strengths</Label>
+              <div className="space-y-1">
+                <Label htmlFor="strengths" className="text-sm">Strengths</Label>
                 <Textarea
                   id="strengths"
                   value={newFeedback.strengths}
                   onChange={(e) => setNewFeedback(prev => ({ ...prev, strengths: e.target.value }))}
                   placeholder="What is this assistant doing well?"
-                  rows={3}
+                  rows={2}
+                  className="text-sm"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="improvements">Areas to Improve</Label>
+              <div className="space-y-1">
+                <Label htmlFor="improvements" className="text-sm">Areas to Improve</Label>
                 <Textarea
                   id="improvements"
                   value={newFeedback.improvements}
                   onChange={(e) => setNewFeedback(prev => ({ ...prev, improvements: e.target.value }))}
                   placeholder="What areas could use improvement?"
-                  rows={3}
+                  rows={2}
+                  className="text-sm"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="notes">Additional Notes</Label>
+              <div className="space-y-1">
+                <Label htmlFor="notes" className="text-sm">Additional Notes</Label>
                 <Textarea
                   id="notes"
                   value={newFeedback.notes}
                   onChange={(e) => setNewFeedback(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Any additional comments or goals..."
                   rows={2}
+                  className="text-sm"
                 />
               </div>
 
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              <div className="flex justify-end gap-2 pt-3">
+                <Button variant="outline" size="sm" onClick={() => setCreateDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleCreateFeedback}>
+                <Button size="sm" onClick={handleCreateFeedback}>
                   Submit Feedback
                 </Button>
               </div>
@@ -298,37 +302,37 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
         </Dialog>
       </div>
 
-      {/* Monthly Feedback Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-blue-600" />
-            Monthly Feedback Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Monthly Feedback Status */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Calendar className="w-4 h-4" />
+              Monthly Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
             {assistants.map((assistant) => {
               const hasMonthlyFeedback = getMonthlyFeedbackStatus(assistant.id);
               return (
-                <div key={assistant.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={assistant.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary" />
                     </div>
                     <div>
-                      <div className="font-medium">{assistant.name}</div>
-                      <div className="text-sm text-muted-foreground">{assistant.email}</div>
+                      <div className="font-medium text-sm">{assistant.name}</div>
+                      <div className="text-xs text-muted-foreground">{assistant.email}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {hasMonthlyFeedback ? (
-                      <Badge variant="default" className="bg-green-100 text-green-800">
+                      <Badge variant="default" className="bg-green-100 text-green-800 text-xs">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Complete
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-orange-600 border-orange-300">
+                      <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
                         <Clock className="w-3 h-3 mr-1" />
                         Pending
                       </Badge>
@@ -337,24 +341,58 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
                 </div>
               );
             })}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Feedback History by Assistant */}
+        {/* Quick Stats */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <TrendingUp className="w-4 h-4" />
+              Quick Stats
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{assistants.length}</div>
+                <div className="text-xs text-blue-700">Team Members</div>
+              </div>
+              <div className="p-3 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">
+                  {assistants.filter(a => getMonthlyFeedbackStatus(a.id)).length}
+                </div>
+                <div className="text-xs text-green-700">Monthly Reviews</div>
+              </div>
+              <div className="p-3 bg-purple-50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{feedbackEntries.length}</div>
+                <div className="text-xs text-purple-700">Total Feedback</div>
+              </div>
+              <div className="p-3 bg-orange-50 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">
+                  {Math.round((assistants.filter(a => getMonthlyFeedbackStatus(a.id)).length / Math.max(assistants.length, 1)) * 100)}%
+                </div>
+                <div className="text-xs text-orange-700">Completion Rate</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Feedback History */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-green-600" />
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <MessageSquare className="w-4 h-4" />
             Feedback History
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center gap-4">
-              <Label htmlFor="assistant-filter">Filter by Assistant:</Label>
+              <Label htmlFor="assistant-filter" className="text-sm">Filter:</Label>
               <Select value={selectedAssistant} onValueChange={setSelectedAssistant}>
-                <SelectTrigger className="w-64">
+                <SelectTrigger className="w-48 h-9">
                   <SelectValue placeholder="All Assistants" />
                 </SelectTrigger>
                 <SelectContent>
@@ -378,26 +416,25 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
                       <AccordionTrigger className="hover:no-underline">
                         <div className="flex items-center justify-between w-full mr-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
-                              <User className="w-4 h-4 text-primary" />
+                            <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
+                              <User className="w-3 h-3 text-primary" />
                             </div>
-                            <span className="font-medium">{assistant.name}</span>
+                            <span className="font-medium text-sm">{assistant.name}</span>
                           </div>
-                          <Badge variant="secondary">
+                          <Badge variant="secondary" className="text-xs">
                             {history.length} feedback{history.length !== 1 ? 's' : ''}
                           </Badge>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="space-y-4 pt-4">
+                        <div className="space-y-3 pt-3">
                           {history.length === 0 ? (
-                            <div className="text-center py-8 text-muted-foreground">
-                              <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                              <p>No feedback provided yet</p>
+                            <div className="text-center py-6 text-muted-foreground">
+                              <FileText className="w-8 h-8 mx-auto mb-3 opacity-50" />
+                              <p className="text-sm mb-2">No feedback provided yet</p>
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="mt-2"
                                 onClick={() => {
                                   setNewFeedback(prev => ({ ...prev, assistant_id: assistant.id }));
                                   setCreateDialogOpen(true);
@@ -409,22 +446,22 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
                           ) : (
                             history.map((feedback) => (
                               <Card key={feedback.id} className="ml-4">
-                                <CardHeader className="pb-3">
+                                <CardHeader className="pb-2">
                                   <div className="flex items-center justify-between">
-                                    <CardTitle className="text-base">{feedback.title}</CardTitle>
+                                    <CardTitle className="text-sm">{feedback.title}</CardTitle>
                                     <div className="flex items-center gap-2">
                                       <Badge className={getFeedbackTypeColor(feedback.feedback_type)}>
                                         {feedback.feedback_type}
                                       </Badge>
-                                      <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                      <div className="text-xs text-muted-foreground flex items-center gap-1">
                                         <Calendar className="w-3 h-3" />
                                         {new Date(feedback.created_at).toLocaleDateString()}
                                       </div>
                                     </div>
                                   </div>
                                 </CardHeader>
-                                <CardContent>
-                                  <div className="whitespace-pre-wrap text-sm">
+                                <CardContent className="pt-0">
+                                  <div className="whitespace-pre-wrap text-xs">
                                     {feedback.message}
                                   </div>
                                 </CardContent>
@@ -440,10 +477,10 @@ export default function OwnerFeedbackTab({ clinicId }: OwnerFeedbackTabProps) {
 
             {assistants.length === 0 && (
               <div className="text-center py-8">
-                <User className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No Assistants Found</h3>
-                <p className="text-muted-foreground">
-                  Add assistants to your team to start providing feedback.
+                <User className="w-8 h-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                <h3 className="font-semibold mb-1">No Assistants Found</h3>
+                <p className="text-sm text-muted-foreground">
+                  Add team members to start providing feedback
                 </p>
               </div>
             )}

@@ -16,7 +16,8 @@ import {
   ArrowLeft,
   Target,
   Sparkles,
-  FileText
+  FileText,
+  ListChecks
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -322,6 +323,14 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                   {task.recurrence && task.recurrence !== 'none' && (
                     <Badge variant="outline" className="h-4 text-xs px-1.5 bg-blue-50">
                       ↻ {task.recurrence}
+                    </Badge>
+                  )}
+                  {task.checklist && Array.isArray(task.checklist) && task.checklist.length > 0 && (
+                    <Badge variant="outline" className="h-4 text-xs px-1.5 bg-green-50 flex items-center gap-1">
+                      <ListChecks className="h-2 w-2" />
+                      {task.checklist.filter((item: any, index: number) => 
+                        checklistState[index] || item.completed
+                      ).length}/{task.checklist.length}
                     </Badge>
                   )}
                   <span className="text-gray-400">

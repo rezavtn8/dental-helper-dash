@@ -1,0 +1,146 @@
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Upload, FileJson } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface ImportTemplatesDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  clinicId: string;
+  onImportComplete: () => void;
+}
+
+export default function ImportTemplatesDialog({ 
+  open, 
+  onOpenChange, 
+  clinicId, 
+  onImportComplete 
+}: ImportTemplatesDialogProps) {
+  const [jsonInput, setJsonInput] = useState('');
+  const [importing, setImporting] = useState(false);
+  const { toast } = useToast();
+
+  const sampleTemplate = {
+    title: "Morning Opening Routine",
+    description: "Complete checklist for opening the clinic",
+    category: "Operational",
+    specialty: "General",
+    "due-type": "Before Opening",
+    recurrence: "Daily",
+    owner_notes: "Must be completed before first patient",
+    checklist: [
+      {
+        id: "1",
+        title: "Turn on all equipment",
+        description: "Power on compressors, computers, and dental units",
+        completed: false
+      },
+      {
+        id: "2", 
+        title: "Check sterilization equipment",
+        description: "Verify autoclave completed cycle and check indicators",
+        completed: false
+      }
+    ]
+  };
+
+  const handleImport = async () => {
+    if (!jsonInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter JSON data to import",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const templates = JSON.parse(jsonInput);
+      const templatesArray = Array.isArray(templates) ? templates : [templates];
+      
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      const templatesWithMetadata = templatesArray.map(template => ({
+        ...template,
+        clinic_id: clinicId,
+        created_by: user.user.id,
+        is_active: true
+      }));
+
+      const { error } = await supabase
+        .from('task_templates')
+        .insert(templatesWithMetadata);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Successfully imported ${templatesArray.length} template(s)`,
+      });
+
+      setJsonInput('');
+      onOpenChange(false);
+      onImportComplete();
+    } catch (error) {
+      console.error('Import error:', error);
+      toast({
+        title: "Import Failed",
+        description: error instanceof Error ? error.message : "Invalid JSON format",
+        variant: "destructive",
+      });
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const loadSample = () => {
+    setJsonInput(JSON.stringify([sampleTemplate], null, 2));
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileJson className="w-5 h-5" />
+            Import Templates
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground mb-2">
+              Paste JSON data for your templates. You can import a single template or an array of templates.
+            </p>
+            <Button variant="outline" size="sm" onClick={loadSample}>
+              Load Sample Template
+            </Button>
+          </div>
+
+          <Textarea
+            placeholder="Paste your JSON template data here..."
+            value={jsonInput}
+            onChange={(e) => setJsonInput(e.target.value)}
+            rows={15}
+            className="font-mono text-sm"
+          />
+
+          <div className="flex justify-between">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleImport} disabled={importing || !jsonInput.trim()}>
+              <Upload className="w-4 h-4 mr-2" />
+              {importing ? 'Importing...' : 'Import Templates'}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

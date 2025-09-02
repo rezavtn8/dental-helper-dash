@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import TemplateBuilder from './TemplateBuilder';
 import TemplateList from './TemplateList';
+import ImportTemplatesDialog from './ImportTemplatesDialog';
 
 interface OwnerTemplatesTabProps {
   clinicId: string;
@@ -32,6 +33,7 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const [showBuilder, setShowBuilder] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TaskTemplate | null>(null);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   const { toast } = useToast();
 
   const fetchTemplates = async () => {
@@ -125,13 +127,23 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
           <h2 className="text-2xl font-bold text-foreground">Task Templates</h2>
           <p className="text-muted-foreground">Create and manage reusable task templates for your team</p>
         </div>
-        <Button 
-          onClick={() => setShowBuilder(true)} 
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Create Template
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => setShowImportDialog(true)} 
+            className="flex items-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Import
+          </Button>
+          <Button 
+            onClick={() => setShowBuilder(true)} 
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Create Template
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -159,6 +171,14 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
         onDelete={handleDeleteTemplate}
         onRefresh={fetchTemplates}
         clinicId={clinicId}
+      />
+
+      {/* Import Dialog */}
+      <ImportTemplatesDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        clinicId={clinicId}
+        onImportComplete={fetchTemplates}
       />
     </div>
   );

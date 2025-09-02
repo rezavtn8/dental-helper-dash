@@ -155,7 +155,7 @@ export function TeamManagement() {
           senderName: userProfile?.name || 'Team Admin',
           clinicName: 'Your Clinic', // You might want to fetch this
           role: 'assistant',
-          joinUrl: `${window.location.origin}/join?token=PLACEHOLDER`
+          joinUrl: `/join?token=PLACEHOLDER`
         }
       });
 
@@ -195,9 +195,9 @@ export function TeamManagement() {
       .single();
 
     if (invitation?.token) {
-      const link = `${window.location.origin}/join?token=${invitation.token}`;
+      const link = `/join?token=${invitation.token}`;
       try {
-        await navigator.clipboard.writeText(link);
+        await navigator.clipboard.writeText(window.location.origin + link);
         toast.success('Invitation link copied to clipboard!');
       } catch (error) {
         toast.error('Failed to copy link');

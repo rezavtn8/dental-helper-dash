@@ -110,14 +110,14 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
           <DialogDescription>
             Add a new task for your team
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={createTask} className="space-y-4">
+        <form onSubmit={createTask} className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="title">Task Title</Label>
             <Input

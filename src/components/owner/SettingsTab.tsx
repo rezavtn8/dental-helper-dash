@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,6 +31,7 @@ interface SettingsTabProps {
 
 export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
   const { userProfile } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   
@@ -86,7 +88,7 @@ export default function SettingsTab({ clinic, onUpdate }: SettingsTabProps) {
       toast.success("Clinic archived successfully. Contact support if you need to restore it.");
 
       // Redirect to home or login page
-      window.location.href = '/';
+      navigate('/');
     } catch (error) {
       toast.error("Failed to archive clinic. Please try again.");
     }

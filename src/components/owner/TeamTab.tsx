@@ -73,8 +73,6 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
 
   const handleToggleActive = async (assistant: Assistant) => {
     try {
-      console.log('Toggling status for assistant:', assistant.id, 'current status:', assistant.is_active);
-      
       const { data, error } = await supabase
         .from('users')
         .update({ is_active: !assistant.is_active })
@@ -85,8 +83,6 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
         console.error('Toggle status error:', error);
         throw error;
       }
-
-      console.log('Status updated successfully:', data);
 
       toast.success(`${assistant.name} has been ${assistant.is_active ? 'deactivated' : 'activated'}`);
 

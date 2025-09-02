@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
@@ -16,6 +17,8 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   title = "Something went wrong",
   description = "An unexpected error occurred. Please try again."
 }) => {
+  const navigate = useNavigate();
+
   const handleRefresh = () => {
     if (resetError) {
       resetError();
@@ -25,7 +28,7 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   };
 
   const handleGoHome = () => {
-    window.location.href = '/';
+    navigate('/');
   };
 
   return (

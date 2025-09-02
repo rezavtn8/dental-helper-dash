@@ -1,7 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -30,7 +30,10 @@ export class AuthErrorBoundary extends Component<Props, State> {
 
   private handleRetry = () => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
-    window.location.reload();
+  };
+
+  private handleGoHome = () => {
+    window.location.href = '/';
   };
 
   public render() {
@@ -62,9 +65,10 @@ export class AuthErrorBoundary extends Component<Props, State> {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => window.location.href = '/'}
+                  onClick={this.handleGoHome}
                   className="w-full"
                 >
+                  <Home className="w-4 h-4 mr-2" />
                   Go to Home
                 </Button>
               </div>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import AssistantSidebar from '@/components/assistant/AssistantSidebar';
 import HomeTab from '@/components/assistant/HomeTab';
@@ -17,6 +19,7 @@ import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 
 const AssistantDashboard = () => {
   const { session, user, userProfile } = useAuth();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [patientCount, setPatientCount] = useState(0);
@@ -134,12 +137,12 @@ const AssistantDashboard = () => {
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold">No Clinic Access</h2>
           <p className="text-muted-foreground">You need to join a clinic to access the assistant dashboard.</p>
-          <button 
-            onClick={() => window.location.href = '/hub'}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+          <Button 
+            onClick={() => navigate('/hub')}
+            className="px-4 py-2"
           >
             Go to Assistant Hub
-          </button>
+          </Button>
         </div>
       </div>
     );

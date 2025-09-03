@@ -129,13 +129,22 @@ export default {
 						transform: 'scale(1)',
 						opacity: '1'
 					}
+				},
+				'logo-glow': {
+					'0%, 100%': {
+						filter: 'drop-shadow(0 0 8px hsl(var(--primary)))'
+					},
+					'50%': {
+						filter: 'drop-shadow(0 0 16px hsl(var(--primary)))'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'scale-in': 'scale-in 0.2s ease-out'
+				'scale-in': 'scale-in 0.2s ease-out',
+				'logo-glow': 'logo-glow 3s ease-in-out infinite'
 			}
 		}
 	},

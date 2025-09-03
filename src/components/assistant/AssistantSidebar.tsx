@@ -63,7 +63,7 @@ export default function AssistantSidebar({
   const isActive = (tabId: string) => activeTab === tabId;
 
   return (
-    <Sidebar className="border-r border-slate-200/60 bg-white/95 backdrop-blur-sm">
+    <Sidebar className="w-80 border-r border-slate-200/60 bg-white/95 backdrop-blur-sm fixed left-0 top-0 h-full z-30 lg:translate-x-0 hidden lg:flex">
       <SidebarContent className="px-2">
         {/* Clinic Header - Compact */}
         <div className="p-3 border-b border-slate-100/80">

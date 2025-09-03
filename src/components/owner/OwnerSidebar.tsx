@@ -31,7 +31,8 @@ import {
   MessageSquare,
   TrendingUp,
   FileText,
-  UserPlus
+  UserPlus,
+  ScrollText
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -49,6 +50,7 @@ const navigationItems = [
   { id: 'team', label: 'Team', icon: Users },
   { id: 'schedule', label: 'Team Schedule', icon: CalendarDays },
   { id: 'task-calendar', label: 'Task Calendar', icon: Calendar },
+  { id: 'log', label: 'Log', icon: ScrollText },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'settings', label: 'Settings', icon: Settings },

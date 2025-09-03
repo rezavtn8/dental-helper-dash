@@ -441,6 +441,99 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_notifications: boolean | null
+          id: string
+          system_alerts: boolean | null
+          task_reminders: boolean | null
+          updated_at: string | null
+          user_id: string
+          weekly_reports: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          system_alerts?: boolean | null
+          task_reminders?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          weekly_reports?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          system_alerts?: boolean | null
+          task_reminders?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_reports?: boolean | null
+        }
+        Relationships: []
+      }
+      notifications_log: {
+        Row: {
+          delivery_status: string | null
+          email_id: string | null
+          error_message: string | null
+          id: string
+          message: string
+          sent_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          delivery_status?: string | null
+          email_id?: string | null
+          error_message?: string | null
+          id?: string
+          message: string
+          sent_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          delivery_status?: string | null
+          email_id?: string | null
+          error_message?: string | null
+          id?: string
+          message?: string
+          sent_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      password_reset_attempts: {
+        Row: {
+          attempted_at: string | null
+          email: string
+          id: string
+          ip_address: unknown | null
+          success: boolean | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          email: string
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean | null
+        }
+        Update: {
+          attempted_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean | null
+        }
+        Relationships: []
+      }
       patient_logs: {
         Row: {
           assistant_id: string | null
@@ -888,6 +981,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: boolean
       }
+      check_password_reset_rate_limit: {
+        Args: { p_email: string }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           max_attempts?: number
@@ -1014,6 +1111,10 @@ export type Database = {
           message: string
           success: boolean
         }[]
+      }
+      log_password_reset_attempt: {
+        Args: { p_email: string; p_ip_address?: string; p_success?: boolean }
+        Returns: undefined
       }
       log_security_event: {
         Args: { event_details?: Json; event_type: string; severity?: string }

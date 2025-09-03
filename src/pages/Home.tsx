@@ -22,7 +22,15 @@ import {
   Globe,
   Lock,
   Clock,
-  TrendingUp
+  TrendingUp,
+  Hand,
+  Undo2,
+  ArrowUp,
+  CalendarDays,
+  MousePointer,
+  Sparkles,
+  Timer,
+  Target
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
@@ -98,42 +106,85 @@ export default function Home() {
           
           {/* Badge */}
           <Badge className="mb-6 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-1 text-sm font-medium border-0">
-            <Zap className="w-4 h-4 mr-2" />
-            Trusted by 500+ Healthcare Practices
+            <Hand className="w-4 h-4 mr-2" />
+            Interactive Task Management Platform
           </Badge>
 
           {/* Main Headline */}
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-600 bg-clip-text text-transparent">
-              Healthcare
+              Task Management
             </span>
             <br />
             <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-transparent">
-              Made Simple
+              Reimagined
             </span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-xl md:text-2xl text-blue-800/80 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
-            Streamline your clinic operations with intelligent task management, 
-            team collaboration, and patient care optimization.
+            Beautiful, intuitive task management with one-click actions, calendar integration, 
+            and instant undo functionality for healthcare teams.
           </p>
+
+          {/* Interactive Demo Preview */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-12 max-w-4xl mx-auto border border-blue-100">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-display font-bold text-blue-900 mb-2">See It In Action</h3>
+              <p className="text-blue-700">Beautiful task actions with instant feedback</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Do Action */}
+              <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-xl border border-blue-100">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-blue-900">Patient Check-in</span>
+                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200 cursor-pointer">
+                    <Hand className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                <p className="text-xs text-blue-600">Click to complete task</p>
+              </div>
+              
+              {/* Undo Action */}
+              <div className="bg-gradient-to-br from-amber-50 to-white p-6 rounded-xl border border-amber-100">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-blue-900">Room Cleaning</span>
+                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200 cursor-pointer">
+                    <Undo2 className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                <p className="text-xs text-amber-600">Undo completed task</p>
+              </div>
+              
+              {/* Calendar Integration */}
+              <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl border border-indigo-100">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-blue-900">Appointment Prep</span>
+                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200 cursor-pointer">
+                    <CalendarDays className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                <p className="text-xs text-indigo-600">Calendar integrated</p>
+              </div>
+            </div>
+          </div>
 
           {/* Stats Row */}
           <div className="flex justify-center items-center gap-8 mb-12 flex-wrap">
-            <div className="text-center">
-              <div className="text-3xl font-display font-bold text-blue-900">500+</div>
-              <div className="text-blue-600 text-sm font-medium">Active Clinics</div>
-            </div>
-            <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
             <div className="text-center">
               <div className="text-3xl font-display font-bold text-blue-900">50K+</div>
               <div className="text-blue-600 text-sm font-medium">Tasks Completed</div>
             </div>
             <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
             <div className="text-center">
-              <div className="text-3xl font-display font-bold text-blue-900">99.9%</div>
-              <div className="text-blue-600 text-sm font-medium">Uptime</div>
+              <div className="text-3xl font-display font-bold text-blue-900">99.2%</div>
+              <div className="text-blue-600 text-sm font-medium">Task Accuracy</div>
+            </div>
+            <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
+            <div className="text-center">
+              <div className="text-3xl font-display font-bold text-blue-900">2.3s</div>
+              <div className="text-blue-600 text-sm font-medium">Avg. Action Time</div>
             </div>
           </div>
 
@@ -144,8 +195,8 @@ export default function Home() {
               onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
               className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group transform hover:scale-105"
             >
-              <Crown className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Start Free Trial
+              <Hand className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Try Interactive Tasks
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
             
@@ -155,8 +206,8 @@ export default function Home() {
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
               className="border-2 border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-4 text-lg font-semibold transition-all duration-300 group"
             >
-              <Heart className="w-5 h-5 mr-2 group-hover:text-red-500 transition-colors duration-300" />
-              See How It Works
+              <MousePointer className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
+              See Features
             </Button>
           </div>
 
@@ -249,20 +300,20 @@ export default function Home() {
           {/* Section Header */}
           <div className="text-center max-w-4xl mx-auto mb-20">
             <Badge className="mb-6 bg-blue-100 text-blue-700 px-4 py-1 text-sm font-medium border-0">
-              <Star className="w-4 h-4 mr-2" />
-              Why Healthcare Teams Choose ClinicFlow
+              <Sparkles className="w-4 h-4 mr-2" />
+              Revolutionary Task Management Features
             </Badge>
             
             <h2 className="text-5xl md:text-6xl font-display font-bold text-white mb-6 leading-tight">
-              Everything You Need,
+              One Click Tasks,
               <br />
               <span className="bg-gradient-to-r from-blue-300 to-blue-100 bg-clip-text text-transparent">
-                Nothing You Don't
+                Infinite Possibilities
               </span>
             </h2>
             
             <p className="text-xl text-blue-100 leading-relaxed">
-              Built specifically for healthcare teams who want to focus on patient care, not paperwork.
+              Experience the future of task management with beautiful interactive buttons, instant undo, and seamless calendar integration.
             </p>
           </div>
 
@@ -272,31 +323,31 @@ export default function Home() {
             {/* Feature 1 */}
             <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
               <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Hand className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Enterprise Security</CardTitle>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">One-Click Actions</CardTitle>
                 <CardDescription className="text-blue-200 text-base leading-relaxed">
-                  HIPAA-compliant infrastructure with role-based access controls and encrypted data storage
+                  Beautiful interactive buttons that make task completion effortless and satisfying
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">End-to-end encryption</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
+                    <span className="text-sm">Intuitive hand gesture buttons</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Role-based permissions</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
+                    <span className="text-sm">Instant visual feedback</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Audit trail logging</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
+                    <span className="text-sm">Smooth animations</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">HIPAA compliance</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
+                    <span className="text-sm">Touch-friendly interface</span>
                   </div>
                 </div>
               </CardContent>
@@ -305,31 +356,31 @@ export default function Home() {
             {/* Feature 2 */}
             <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
               <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Users className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Undo2 className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Smart Collaboration</CardTitle>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Instant Undo</CardTitle>
                 <CardDescription className="text-blue-200 text-base leading-relaxed">
-                  Seamless team coordination with real-time task updates and intelligent workflow automation
+                  Made a mistake? No problem. Instantly undo any action with beautiful undo buttons
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Real-time task updates</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" />
+                    <span className="text-sm">One-click task reversal</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Team performance analytics</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" />
+                    <span className="text-sm">No confirmation dialogs</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Automated scheduling</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" />
+                    <span className="text-sm">Visual undo indicators</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Mobile notifications</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" />
+                    <span className="text-sm">Error-free workflow</span>
                   </div>
                 </div>
               </CardContent>
@@ -338,31 +389,31 @@ export default function Home() {
             {/* Feature 3 */}
             <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
               <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <CalendarDays className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Growth Analytics</CardTitle>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Calendar Integration</CardTitle>
                 <CardDescription className="text-blue-200 text-base leading-relaxed">
-                  Data-driven insights to optimize operations, improve patient satisfaction, and grow your practice
+                  Seamlessly manage tasks across calendar views with real-time synchronization
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Performance dashboards</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-indigo-400 flex-shrink-0" />
+                    <span className="text-sm">Weekly calendar view</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Patient flow analysis</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-indigo-400 flex-shrink-0" />
+                    <span className="text-sm">Task completion from calendar</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Revenue optimization</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-indigo-400 flex-shrink-0" />
+                    <span className="text-sm">Real-time synchronization</span>
                   </div>
                   <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-blue-400 flex-shrink-0" />
-                    <span className="text-sm">Custom reporting</span>
+                    <CheckCircle className="w-5 h-5 mr-3 text-indigo-400 flex-shrink-0" />
+                    <span className="text-sm">Today's tasks highlight</span>
                   </div>
                 </div>
               </CardContent>
@@ -376,8 +427,8 @@ export default function Home() {
               onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
               className="bg-white text-blue-900 hover:bg-blue-50 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group transform hover:scale-105"
             >
-              <Globe className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Join 500+ Healthcare Practices
+              <Target className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Experience Interactive Tasks
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
           </div>

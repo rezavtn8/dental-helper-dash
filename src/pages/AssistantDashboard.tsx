@@ -107,7 +107,7 @@ const AssistantDashboard = () => {
             <div className="ml-4 h-6 w-6 bg-teal-200 rounded animate-pulse" />
             <div className="ml-4 h-6 w-32 bg-teal-200 rounded animate-pulse" />
           </header>
-          <div className="hidden lg:flex lg:w-80 lg:flex-col lg:fixed lg:inset-y-0">
+          <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
             <div className="flex flex-col flex-grow bg-white border-r border-teal-100">
               <div className="p-6 space-y-4">
                 <div className="space-y-2">
@@ -122,7 +122,7 @@ const AssistantDashboard = () => {
               </div>
             </div>
           </div>
-          <main className="flex-1 pt-16 lg:pt-0 lg:pl-80">
+          <main className="flex-1 pt-16 lg:pt-0 lg:pl-64">
             <div className="p-6 lg:p-8 max-w-7xl mx-auto">
               <TasksTabSkeleton />
             </div>
@@ -337,7 +337,7 @@ const AssistantDashboard = () => {
           userProfile={userProfile}
         />
 
-        <main className="flex-1 pt-16 lg:pt-0 lg:pl-80">
+        <main className="flex-1 pt-16 lg:pt-0 lg:pl-64">
           <div className="p-6 lg:p-8 max-w-7xl mx-auto">
             {renderTabContent()}
           </div>

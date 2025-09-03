@@ -77,14 +77,14 @@ export default function Home() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg rotate-3 hover:rotate-0 transition-transform duration-300">
-                <Stethoscope className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 flex items-center justify-center">
+                <img src="/dentaleague-logo.png" alt="DentaLeague" className="w-12 h-12 object-contain" />
               </div>
               <div>
                 <span className="text-2xl font-display font-bold bg-gradient-to-r from-blue-900 to-blue-600 bg-clip-text text-transparent">
-                  ClinicFlow
+                  DentaLeague
                 </span>
-                <div className="text-xs text-blue-600 font-medium tracking-wide">HEALTHCARE PLATFORM</div>
+                <div className="text-xs text-blue-600 font-medium tracking-wide">DENTAL PRACTICE PLATFORM</div>
               </div>
             </div>
             
@@ -107,23 +107,23 @@ export default function Home() {
           {/* Badge */}
           <Badge className="mb-6 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-1 text-sm font-medium border-0">
             <Stethoscope className="w-4 h-4 mr-2" />
-            Complete Healthcare Platform
+            Complete Dental Practice Platform
           </Badge>
 
           {/* Main Headline */}
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-600 bg-clip-text text-transparent">
-              Healthcare
+              Dental
             </span>
             <br />
             <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-transparent">
-              Operations Hub
+              Practice Hub
             </span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-xl md:text-2xl text-blue-800/80 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
-            Complete clinic management platform with Assistant Hub, Owner Dashboard, 
+            Complete dental practice management platform with Assistant Hub, Owner Dashboard, 
             team coordination, and intelligent workflow automation.
           </p>
 
@@ -264,8 +264,8 @@ export default function Home() {
         <div className="max-w-md mx-auto">
           <Card className="shadow-xl border border-blue-100/50 overflow-hidden bg-white/95 backdrop-blur-md">
             <CardHeader className="text-center py-6 bg-gradient-to-br from-blue-50/80 to-white/50">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                <Stethoscope className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <img src="/dentaleague-logo.png" alt="DentaLeague" className="w-12 h-12 object-contain" />
               </div>
               <CardTitle className="text-xl font-display font-bold text-blue-900">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
@@ -513,12 +513,12 @@ export default function Home() {
             
             {/* Logo */}
             <div className="flex items-center justify-center space-x-4 mb-8">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Stethoscope className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 flex items-center justify-center">
+                <img src="/dentaleague-logo.png" alt="DentaLeague" className="w-12 h-12 object-contain" />
               </div>
               <div>
-                <span className="text-2xl font-display font-bold text-white">ClinicFlow</span>
-                <div className="text-xs text-blue-300 font-medium tracking-wide">HEALTHCARE PLATFORM</div>
+                <span className="text-2xl font-display font-bold text-white">DentaLeague</span>
+                <div className="text-xs text-blue-300 font-medium tracking-wide">DENTAL PRACTICE PLATFORM</div>
               </div>
             </div>
 
@@ -541,7 +541,7 @@ export default function Home() {
             {/* Copyright */}
             <div className="border-t border-blue-800 pt-8">
               <p className="text-blue-300 text-sm">
-                &copy; 2024 ClinicFlow. All rights reserved. Empowering healthcare teams worldwide with intelligent practice management.
+                &copy; 2024 DentaLeague. All rights reserved. Empowering dental teams worldwide with intelligent practice management.
               </p>
             </div>
           </div>

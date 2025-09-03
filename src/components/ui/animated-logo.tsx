@@ -22,7 +22,9 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
 
   useEffect(() => {
     const runAnimation = () => {
-      const phaseDuration = 1500; // Each phase takes 1.5 seconds
+      const drawDuration = 3000; // Drawing takes 3 seconds (slower)
+      const fillDuration = 1200; // Filling takes 1.2 seconds
+      const disappearDuration = 2500; // Disappearing takes 2.5 seconds (slower)
       
       // Phase 1: Drawing (stroke appears)
       setAnimationPhase('drawing');
@@ -31,12 +33,10 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
       
       const animateDrawing = (startTime: number) => {
         const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / phaseDuration, 1);
+        const progress = Math.min(elapsed / drawDuration, 1);
         
-        // Natural artist-like easing
-        const easedProgress = progress < 0.5 
-          ? 2 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        // Slower, more deliberate one-sided drawing with ease-in
+        const easedProgress = progress * progress * progress; // cubic ease-in for slower start
         
         setDrawProgress(easedProgress);
         
@@ -50,7 +50,7 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
             
             const animateFilling = () => {
               const elapsed = Date.now() - fillStartTime;
-              const progress = Math.min(elapsed / phaseDuration, 1);
+              const progress = Math.min(elapsed / fillDuration, 1);
               const easedProgress = progress * progress * (3 - 2 * progress); // smooth ease
               
               setFillProgress(easedProgress);
@@ -65,7 +65,7 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
                   
                   const animateEmptying = () => {
                     const elapsed = Date.now() - emptyStartTime;
-                    const progress = Math.min(elapsed / phaseDuration, 1);
+                    const progress = Math.min(elapsed / fillDuration, 1);
                     const easedProgress = 1 - (progress * progress * (3 - 2 * progress));
                     
                     setFillProgress(easedProgress);
@@ -80,10 +80,11 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
                         
                         const animateDisappearing = () => {
                           const elapsed = Date.now() - disappearStartTime;
-                          const progress = Math.min(elapsed / phaseDuration, 1);
-                          const easedProgress = 1 - (progress * progress * (3 - 2 * progress));
+                          const progress = Math.min(elapsed / disappearDuration, 1);
+                          // Slower one-sided disappearing with ease-out for smooth ending
+                          const easedProgress = 1 - (1 - progress) * (1 - progress) * (1 - progress);
                           
-                          setDrawProgress(easedProgress);
+                          setDrawProgress(1 - easedProgress);
                           
                           if (progress < 1) {
                             requestAnimationFrame(animateDisappearing);
@@ -111,8 +112,8 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
     // Initial animation with slight delay
     setTimeout(() => runAnimation(), 500);
     
-    // Repeat every 8 seconds (1.5s x 4 phases + pauses)
-    const interval = setInterval(() => runAnimation(), 8000);
+    // Repeat every 10 seconds (3s drawing + 1.2s filling + 1.2s emptying + 2.5s disappearing + pauses)
+    const interval = setInterval(() => runAnimation(), 10000);
     
     return () => clearInterval(interval);
   }, [pathLength]);

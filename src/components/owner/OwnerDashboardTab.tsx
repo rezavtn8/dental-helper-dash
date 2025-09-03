@@ -14,14 +14,35 @@ import {
   AlertTriangle,
   Calendar,
   UserCheck,
-  FileText
+  FileText,
+  CalendarDays,
+  BarChart3,
+  Target,
+  AlertCircle,
+  ArrowRight,
+  Timer
 } from 'lucide-react';
+import { format, isToday, parseISO, startOfWeek, endOfWeek } from 'date-fns';
 
 interface DashboardStats {
   activeAssistants: number;
   pendingRequests: number;
   completedTasksThisWeek: number;
   patientsThisMonth: number;
+}
+
+interface TaskCalendarData {
+  todaysTasks: number;
+  thisWeekTasks: number;
+  overdueTasks: number;
+  upcomingTasks: any[];
+}
+
+interface AnalyticsData {
+  taskCompletionRate: number;
+  averageTasksPerAssistant: number;
+  weeklyTrend: number;
+  totalActiveTasks: number;
 }
 
 interface CertificationAlert {
@@ -42,6 +63,18 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
     pendingRequests: 0,
     completedTasksThisWeek: 0,
     patientsThisMonth: 0
+  });
+  const [taskCalendarData, setTaskCalendarData] = useState<TaskCalendarData>({
+    todaysTasks: 0,
+    thisWeekTasks: 0,
+    overdueTasks: 0,
+    upcomingTasks: []
+  });
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
+    taskCompletionRate: 0,
+    averageTasksPerAssistant: 0,
+    weeklyTrend: 0,
+    totalActiveTasks: 0
   });
   const [certificationAlerts, setCertificationAlerts] = useState<CertificationAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,9 +138,68 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
 
       const totalPatients = patientLogs?.reduce((sum, log) => sum + (log.patient_count || 0), 0) || 0;
 
-      // Fetch certification alerts (expiring within 30 days)
-      const thirtyDaysFromNow = new Date();
-      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+      // Fetch all tasks for calendar and analytics
+      const { data: allTasks, error: allTasksError } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('clinic_id', clinicId);
+
+      if (allTasksError) throw allTasksError;
+
+      // Process task calendar data
+      const today = new Date();
+      const weekStartDate = startOfWeek(today);
+      const weekEndDate = endOfWeek(today);
+
+      const todaysTasks = allTasks?.filter(task => {
+        const taskDate = task.custom_due_date ? parseISO(task.custom_due_date) : 
+                        task.created_at ? parseISO(task.created_at) : new Date();
+        return isToday(taskDate);
+      }).length || 0;
+
+      const thisWeekTasks = allTasks?.filter(task => {
+        const taskDate = task.custom_due_date ? parseISO(task.custom_due_date) : 
+                        task.created_at ? parseISO(task.created_at) : new Date();
+        return taskDate >= weekStartDate && taskDate <= weekEndDate;
+      }).length || 0;
+
+      const overdueTasks = allTasks?.filter(task => {
+        if (task.status === 'completed') return false;
+        const taskDate = task.custom_due_date ? parseISO(task.custom_due_date) : 
+                        task.created_at ? parseISO(task.created_at) : new Date();
+        return taskDate < today;
+      }).length || 0;
+
+      const upcomingTasks = allTasks?.filter(task => {
+        if (task.status === 'completed') return false;
+        const taskDate = task.custom_due_date ? parseISO(task.custom_due_date) : 
+                        task.created_at ? parseISO(task.created_at) : new Date();
+        return taskDate > today;
+      }).slice(0, 3) || [];
+
+      // Process analytics data
+      const totalTasks = allTasks?.length || 0;
+      const completedTasksCount = allTasks?.filter(task => task.status === 'completed').length || 0;
+      const activeTasks = allTasks?.filter(task => task.status !== 'completed').length || 0;
+      
+      const taskCompletionRate = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
+      const averageTasksPerAssistant = (assistants?.length || 0) > 0 ? 
+        Math.round(totalTasks / (assistants?.length || 1)) : 0;
+
+      // Calculate weekly trend (comparing this week vs last week completed tasks)
+      const lastWeekStart = new Date(weekStart);
+      lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+      
+      const lastWeekCompleted = allTasks?.filter(task => 
+        task.status === 'completed' && 
+        task.completed_at &&
+        parseISO(task.completed_at) >= lastWeekStart && 
+        parseISO(task.completed_at) < weekStart
+      ).length || 0;
+
+      const thisWeekCompleted = completedTasks?.length || 0;
+      const weeklyTrend = lastWeekCompleted > 0 ? 
+        Math.round(((thisWeekCompleted - lastWeekCompleted) / lastWeekCompleted) * 100) : 0;
 
       // Skip certification alerts for now due to query complexity
       const alerts: CertificationAlert[] = [];
@@ -115,8 +207,22 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
       setStats({
         activeAssistants: assistants?.length || 0,
         pendingRequests: requests?.length || 0,
-        completedTasksThisWeek: completedTasks?.length || 0,
+        completedTasksThisWeek: thisWeekCompleted,
         patientsThisMonth: totalPatients
+      });
+
+      setTaskCalendarData({
+        todaysTasks,
+        thisWeekTasks,
+        overdueTasks,
+        upcomingTasks
+      });
+
+      setAnalyticsData({
+        taskCompletionRate,
+        averageTasksPerAssistant,
+        weeklyTrend,
+        totalActiveTasks: activeTasks
       });
 
       setCertificationAlerts(alerts);
@@ -211,7 +317,7 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -289,6 +395,103 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
                 <Badge variant="secondary">{stats.patientsThisMonth}</Badge>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Task Calendar Card */}
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CalendarDays className="w-5 h-5 text-purple-600" />
+              Task Calendar
+            </CardTitle>
+            <CardDescription>
+              Today's schedule and upcoming tasks
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{taskCalendarData.todaysTasks}</div>
+                <div className="text-xs text-muted-foreground">Today</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{taskCalendarData.overdueTasks}</div>
+                <div className="text-xs text-muted-foreground">Overdue</div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>This week</span>
+                <Badge variant="outline">{taskCalendarData.thisWeekTasks}</Badge>
+              </div>
+              {taskCalendarData.upcomingTasks.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  Next: {taskCalendarData.upcomingTasks[0].title}
+                </div>
+              )}
+            </div>
+
+            <Button 
+              variant="outline" 
+              className="w-full text-xs"
+              onClick={() => onTabChange?.('task-calendar')}
+            >
+              View Calendar <ArrowRight className="w-3 h-3 ml-1" />
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Analytics Card */}
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-emerald-600" />
+              Analytics
+            </CardTitle>
+            <CardDescription>
+              Performance insights and trends
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm">Completion Rate</span>
+              </div>
+              <Badge variant="secondary" className="bg-emerald-50 text-emerald-700">
+                {analyticsData.taskCompletionRate}%
+              </Badge>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Timer className="w-4 h-4 text-blue-600" />
+                <span className="text-sm">Avg Tasks/Assistant</span>
+              </div>
+              <Badge variant="secondary">
+                {analyticsData.averageTasksPerAssistant}
+              </Badge>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className={`w-4 h-4 ${analyticsData.weeklyTrend >= 0 ? 'text-green-600' : 'text-red-600'}`} />
+                <span className="text-sm">Weekly Trend</span>
+              </div>
+              <Badge variant={analyticsData.weeklyTrend >= 0 ? "default" : "destructive"}>
+                {analyticsData.weeklyTrend >= 0 ? '+' : ''}{analyticsData.weeklyTrend}%
+              </Badge>
+            </div>
+
+            <Button 
+              variant="outline" 
+              className="w-full text-xs"
+              onClick={() => onTabChange?.('analytics')}
+            >
+              View Details <ArrowRight className="w-3 h-3 ml-1" />
+            </Button>
           </CardContent>
         </Card>
       </div>

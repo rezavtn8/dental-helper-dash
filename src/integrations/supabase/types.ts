@@ -1095,6 +1095,19 @@ export type Database = {
         Args: { event_details?: Json; event_type: string; severity?: string }
         Returns: undefined
       }
+      final_secure_invitation_create: {
+        Args: {
+          p_clinic_id: string
+          p_email: string
+          p_name: string
+          p_role?: string
+        }
+        Returns: {
+          invitation_id: string
+          invitation_token: string
+          invitation_url: string
+        }[]
+      }
       generate_clinic_code: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1110,6 +1123,27 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_final_security_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_name: string
+          details: string
+          severity: string
+          status: string
+        }[]
+      }
+      get_individual_user_secure: {
+        Args: { target_user_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          last_login: string
+          name: string
+          role: string
+        }[]
       }
       get_join_request_user_info: {
         Args: { p_user_id: string }
@@ -1217,15 +1251,6 @@ export type Database = {
           name: string
         }[]
       }
-      lookup_clinic_by_code_secure: {
-        Args: { p_code: string }
-        Returns: {
-          clinic_code: string
-          id: string
-          member_count: number
-          name: string
-        }[]
-      }
       lookup_clinic_for_join: {
         Args: { p_code: string }
         Returns: {
@@ -1284,6 +1309,15 @@ export type Database = {
           message: string
           request_id: string
           success: boolean
+        }[]
+      }
+      ultra_secure_clinic_lookup: {
+        Args: { p_code: string }
+        Returns: {
+          can_join: boolean
+          clinic_code: string
+          id: string
+          name: string
         }[]
       }
       validate_clinic_code: {

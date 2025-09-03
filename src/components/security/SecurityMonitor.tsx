@@ -42,7 +42,7 @@ export const SecurityMonitor: React.FC = () => {
       }
 
       // Load security status with current issues
-      const { data: statusData, error: statusError } = await supabase.rpc('get_security_status');
+      const { data: statusData, error: statusError } = await supabase.rpc('get_final_security_status');
       if (statusError) {
         console.error('Error loading security status:', statusError);
       } else {

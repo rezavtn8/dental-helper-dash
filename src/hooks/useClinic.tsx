@@ -73,9 +73,9 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
     
     try {
-      // Use secure clinic lookup function that only returns minimal data
+      // Use ultra-secure clinic lookup function that only returns minimal data
       const { data: clinics, error } = await supabase
-        .rpc('lookup_clinic_by_code', { p_code: sanitizedCode });
+        .rpc('ultra_secure_clinic_lookup', { p_code: sanitizedCode });
 
       if (error) {
         console.error('Error fetching clinic:', error);

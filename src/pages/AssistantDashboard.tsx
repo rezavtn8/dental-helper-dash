@@ -122,8 +122,8 @@ const AssistantDashboard = () => {
               </div>
             </div>
           </div>
-          <main className="flex-1 pt-16 lg:pt-0 lg:pl-80">
-            <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+          <main className="flex-1 pt-16 lg:pt-0">
+            <div className="p-6 lg:p-8">
               <TasksTabSkeleton />
             </div>
           </main>
@@ -337,8 +337,8 @@ const AssistantDashboard = () => {
           userProfile={userProfile}
         />
 
-        <main className="flex-1 pt-16 lg:pt-0 lg:pl-80">
-          <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+        <main className="flex-1 pt-16 lg:pt-0">
+          <div className="p-6 lg:p-8">
             {renderTabContent()}
           </div>
         </main>

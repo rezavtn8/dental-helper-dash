@@ -1179,6 +1179,14 @@ export type Database = {
           role: string
         }[]
       }
+      get_secure_session_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          metric: string
+          period: string
+          value: number
+        }[]
+      }
       get_security_metrics: {
         Args: Record<PropertyKey, never>
         Returns: {

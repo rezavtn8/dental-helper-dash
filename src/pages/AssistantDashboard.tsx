@@ -17,6 +17,7 @@ import CertificationsTab from '@/components/assistant/CertificationsTab';
 import FeedbackTab from '@/components/assistant/FeedbackTab';
 import SettingsTab from '@/components/assistant/SettingsTab';
 import { Task, Assistant } from '@/types/task';
+import { TaskStatus } from '@/lib/taskStatus';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 
 const AssistantDashboard = () => {
@@ -99,6 +100,33 @@ const AssistantDashboard = () => {
     } catch (error) {
       console.error('Error fetching assistants:', error);
     }
+  };
+
+  const handleTaskStatusUpdate = async (taskId: string, newStatus: TaskStatus) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: newStatus,
+          completed_at: newStatus === 'completed' ? new Date().toISOString() : null,
+          completed_by: newStatus === 'completed' ? user?.id : null
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      
+      // Refresh tasks
+      await fetchTasks();
+      toast.success('Task updated successfully');
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast.error('Failed to update task');
+    }
+  };
+
+  const handleTaskClick = (task: Task) => {
+    // Could open a task detail modal or navigate to task details
+    console.log('Task clicked:', task);
   };
 
   const fetchAllData = async () => {
@@ -355,6 +383,8 @@ const AssistantDashboard = () => {
             tasks={tasks}
             assistants={assistants}
             onTaskUpdate={fetchTasks}
+            onTaskClick={handleTaskClick}
+            onTaskStatusUpdate={handleTaskStatusUpdate}
           />
         );
       case 'schedule':

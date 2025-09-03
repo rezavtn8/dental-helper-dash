@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -21,12 +21,25 @@ interface CreateTaskDialogProps {
   assistants: Assistant[];
   onTaskCreated: () => void;
   trigger?: React.ReactNode;
+  initialDate?: Date | null;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskCreated, trigger }) => {
+const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ 
+  assistants, 
+  onTaskCreated, 
+  trigger, 
+  initialDate,
+  isOpen: externalIsOpen,
+  onOpenChange: externalOnOpenChange
+}) => {
   const { user, userProfile } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = externalOnOpenChange || setInternalIsOpen;
 
   const [newTask, setNewTask] = useState({
     title: '',
@@ -37,6 +50,13 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
     assigned_to: 'unassigned',
     recurrence: 'none'
   });
+
+  // Set custom due date when initialDate is provided
+  useEffect(() => {
+    if (initialDate && isOpen) {
+      // Task will use the initialDate as custom_due_date
+    }
+  }, [initialDate, isOpen]);
 
   const [checklist, setChecklist] = useState<{ title: string; description?: string; completed: boolean }[]>([]);
 
@@ -72,6 +92,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ assistants, onTaskC
           created_by: user?.id,
           status: 'pending',
           created_at: new Date().toISOString(),
+          custom_due_date: initialDate?.toISOString() || null,
           checklist: checklist.length > 0 ? checklist : null
         });
 

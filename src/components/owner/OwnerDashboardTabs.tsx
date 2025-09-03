@@ -13,6 +13,7 @@ import OwnerDashboardTab from './OwnerDashboardTab';
 import OwnerTasksTab from './OwnerTasksTab';
 import OwnerTemplatesTab from './OwnerTemplatesTab';
 import OwnerScheduleTab from './OwnerScheduleTab';
+import OwnerTaskCalendarTab from './OwnerTaskCalendarTab';
 import OwnerTeamTab from './OwnerTeamTab';
 import OwnerAnalyticsTab from './OwnerAnalyticsTab';
 import OwnerFeedbackTab from './OwnerFeedbackTab';
@@ -78,6 +79,10 @@ export default function OwnerDashboardTabs({
 
       <TabsContent value="schedule">
         {clinicId && <OwnerScheduleTab clinicId={clinicId} />}
+      </TabsContent>
+
+      <TabsContent value="task-calendar">
+        {clinicId && <OwnerTaskCalendarTab clinicId={clinicId} />}
       </TabsContent>
 
       <TabsContent value="team">

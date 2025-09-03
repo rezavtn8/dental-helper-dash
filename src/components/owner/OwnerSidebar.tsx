@@ -47,6 +47,7 @@ const navigationItems = [
   { id: 'templates', label: 'Templates', icon: FileText },
   { id: 'team', label: 'Team', icon: Users },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
+  { id: 'task-calendar', label: 'Task Calendar', icon: Calendar },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'settings', label: 'Settings', icon: Settings },

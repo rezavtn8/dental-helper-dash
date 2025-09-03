@@ -61,16 +61,22 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
 
       // Get user info for each request
       const userIds = joinRequestsData.map(req => req.user_id);
+      console.log('PendingRequestsTab - Fetching users for IDs:', userIds);
+      
       const { data: usersData, error: usersError } = await supabase
         .from('users')
         .select('id, name, email')
         .in('id', userIds);
+
+      console.log('PendingRequestsTab - Users data:', usersData);
+      console.log('PendingRequestsTab - Users error:', usersError);
 
       if (usersError) throw usersError;
 
       // Combine data
       const formattedRequests = joinRequestsData.map(request => {
         const user = usersData?.find(u => u.id === request.user_id);
+        console.log(`PendingRequestsTab - Request ${request.id}: user_id=${request.user_id}, found user:`, user);
         return {
           ...request,
           user_email: user?.email || 'Unknown',
@@ -78,6 +84,7 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
         } as JoinRequest;
       });
 
+      console.log('PendingRequestsTab - Formatted requests:', formattedRequests);
       setRequests(formattedRequests);
     } catch (error) {
       console.error('Error fetching join requests:', error);

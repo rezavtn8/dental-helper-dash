@@ -888,36 +888,33 @@ export type Database = {
           clinic_id: string | null
           created_at: string
           created_by: string | null
-          email: string | null
+          email: string
           id: string
           is_active: boolean | null
           last_login: string | null
           name: string | null
-          password_hash: string | null
           role: string | null
         }
         Insert: {
           clinic_id?: string | null
           created_at?: string
           created_by?: string | null
-          email?: string | null
+          email: string
           id?: string
           is_active?: boolean | null
           last_login?: string | null
           name?: string | null
-          password_hash?: string | null
           role?: string | null
         }
         Update: {
           clinic_id?: string | null
           created_at?: string
           created_by?: string | null
-          email?: string | null
+          email?: string
           id?: string
           is_active?: boolean | null
           last_login?: string | null
           name?: string | null
-          password_hash?: string | null
           role?: string | null
         }
         Relationships: [
@@ -992,6 +989,10 @@ export type Database = {
           window_minutes?: number
         }
         Returns: boolean
+      }
+      cleanup_expired_invitations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_expired_sessions: {
         Args: Record<PropertyKey, never>

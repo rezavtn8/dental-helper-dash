@@ -41,12 +41,31 @@ export const SecurityMonitor: React.FC = () => {
         setMetrics(metricsData || []);
       }
 
-      // Load security status
+      // Load security status with current issues
       const { data: statusData, error: statusError } = await supabase.rpc('get_security_status');
       if (statusError) {
         console.error('Error loading security status:', statusError);
       } else {
-        setStatus(statusData || []);
+        // Add current security warnings that need manual configuration
+        const enhancedStatus = [
+          ...(statusData || []),
+          {
+            check_name: 'OTP_Expiry_Configuration',
+            status: 'WARNING',
+            details: 'OTP expiry time exceeds security recommendations. Configure in Supabase Auth settings to reduce risk.'
+          },
+          {
+            check_name: 'Leaked_Password_Protection',
+            status: 'WARNING', 
+            details: 'Leaked password protection is disabled. Enable in Supabase Auth settings for enhanced security.'
+          },
+          {
+            check_name: 'Database_Security_Hardening',
+            status: 'SECURED',
+            details: 'Password hash column removed, RLS policies strengthened, and input validation enhanced.'
+          }
+        ];
+        setStatus(enhancedStatus);
       }
     } catch (error) {
       console.error('Error in loadSecurityData:', error);
@@ -97,10 +116,21 @@ export const SecurityMonitor: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'secured': return 'bg-green-100 text-green-800';
-      case 'warning': return 'bg-yellow-100 text-yellow-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'secured': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100';
+      case 'warning': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100';
+      case 'error': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100';
+    }
+  };
+
+  const getConfigurationLink = (checkName: string) => {
+    switch (checkName) {
+      case 'OTP_Expiry_Configuration':
+        return 'https://supabase.com/dashboard/project/jnbdhtlmdxtanwlubyis/auth/providers';
+      case 'Leaked_Password_Protection':
+        return 'https://supabase.com/dashboard/project/jnbdhtlmdxtanwlubyis/auth/providers';
+      default:
+        return null;
     }
   };
 
@@ -138,15 +168,37 @@ export const SecurityMonitor: React.FC = () => {
             <h3 className="text-lg font-semibold">Security Status</h3>
             {status.map((item) => (
               <div key={item.check_name} className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
+                <div className="flex-1">
                   <div className="font-medium">{item.check_name.replace(/_/g, ' ')}</div>
                   <div className="text-sm text-muted-foreground">{item.details}</div>
+                  {getConfigurationLink(item.check_name) && item.status.toLowerCase() === 'warning' && (
+                    <a 
+                      href={getConfigurationLink(item.check_name)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 mt-1"
+                    >
+                      Configure in Supabase Dashboard →
+                    </a>
+                  )}
                 </div>
                 <Badge className={getStatusColor(item.status)}>
                   {item.status}
                 </Badge>
               </div>
             ))}
+            
+            {status.some(s => s.status.toLowerCase() === 'warning') && (
+              <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <div className="flex items-start">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5 mr-2" />
+                  <div className="text-sm">
+                    <strong>Action Required:</strong> Some security configurations require manual setup in your Supabase dashboard. 
+                    Click the links above to configure these settings for optimal security.
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

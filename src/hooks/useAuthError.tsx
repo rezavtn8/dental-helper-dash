@@ -45,9 +45,31 @@ export const useAuthError = (): UseAuthErrorReturn => {
     let code = error?.code || 'unknown';
     let details = '';
 
-    // Handle specific Supabase auth errors
+    // Sanitize error messages to prevent information disclosure
+    const sanitizeErrorMessage = (msg: string) => {
+      // Don't expose internal system details
+      const sensitivePatterns = [
+        /database/i,
+        /internal/i,
+        /server/i,
+        /sql/i,
+        /function/i
+      ];
+      
+      for (const pattern of sensitivePatterns) {
+        if (pattern.test(msg)) {
+          return 'A system error occurred. Please try again later.';
+        }
+      }
+      return msg;
+    };
+
+    // Handle specific Supabase auth errors with enhanced security
     switch (error?.message || error) {
       case 'Invalid login credentials':
+      case 'Email not confirmed':
+      case 'Invalid email or password':
+        // Use generic message to prevent email enumeration
         userMessage = 'Invalid email or password';
         details = 'Please check your credentials and try again';
         break;
@@ -56,8 +78,9 @@ export const useAuthError = (): UseAuthErrorReturn => {
         details = 'Please check your email and click the verification link';
         break;
       case 'Too many requests':
-        userMessage = 'Too many login attempts';
-        details = 'Please wait a few minutes before trying again';
+      case 'Rate limit exceeded':
+        userMessage = 'Too many attempts';
+        details = 'Please wait before trying again for security';
         break;
       case 'User already registered':
         userMessage = 'Email already in use';
@@ -71,11 +94,35 @@ export const useAuthError = (): UseAuthErrorReturn => {
         userMessage = 'Connection timeout';
         details = 'Please check your internet connection and try again';
         break;
+      case 'Password should be at least 6 characters':
+        userMessage = 'Password too weak';
+        details = 'Please use a stronger password with at least 6 characters';
+        break;
+      case 'Invalid email format':
+        userMessage = 'Invalid email';
+        details = 'Please enter a valid email address';
+        break;
       default:
         if (error?.message) {
-          userMessage = error.message;
+          userMessage = sanitizeErrorMessage(error.message);
+        } else {
+          userMessage = 'Authentication failed';
         }
-        details = error?.details || '';
+        details = 'Please try again or contact support if the problem persists';
+    }
+
+    // Log security events for monitoring
+    if (error?.message && (
+      error.message.includes('Too many') || 
+      error.message.includes('Rate limit') ||
+      error.message.includes('Invalid login')
+    )) {
+      console.warn('Security event detected:', {
+        type: 'auth_security_event',
+        code,
+        timestamp: new Date().toISOString(),
+        // Don't log sensitive details
+      });
     }
 
     addError(userMessage, code, details);

@@ -36,6 +36,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import AuthWidget from '@/components/auth/AuthWidget';
 import ClinicSetupForm from '@/components/ClinicSetupForm';
+import { AnimatedLogo } from '@/components/ui/animated-logo';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -91,13 +92,8 @@ export default function Home() {
                 </svg>
               </div>
               <div>
-                <span className="text-2xl font-display font-bold">
-                  <span className="bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
-                    Denta
-                  </span>
-                  <span className="bg-gradient-to-r from-blue-900 to-blue-700 bg-clip-text text-transparent">
-                    Leage
-                  </span>
+                <span className="text-2xl font-display font-bold bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
+                  DentaLeague
                 </span>
                 <div className="text-xs text-blue-600 font-medium tracking-wide">DENTAL PRACTICE PLATFORM</div>
               </div>
@@ -125,21 +121,21 @@ export default function Home() {
             Complete Dental Practice Platform
           </Badge>
 
+          {/* Animated Logo */}
+          <div className="mb-8">
+            <AnimatedLogo size={200} className="mx-auto" />
+          </div>
+
           {/* Main Headline */}
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 bg-clip-text text-transparent">
-              Denta
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 bg-clip-text text-transparent">
-              Leage
+            <span className="bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
+              DentaLeague
             </span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-blue-800/80 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
-            Complete dental practice management platform with Assistant Hub, Owner Dashboard, 
-            team coordination, and intelligent workflow automation.
+          <p className="text-xl md:text-2xl text-blue-800/80 mb-8 max-w-4xl mx-auto leading-relaxed font-medium">
+            The smart task management system built exclusively for dental clinics. Replace paper checklists with real-time digital workflows that track everything from morning setups to sterilization protocols. Owners login with email for full oversight including team analytics and performance insights, while assistants use a simple 4-digit PIN for instant task access. With pre-built templates for procedures like endo setups, ortho adjustments, and OSHA compliance, plus automatic task assignment and completion tracking, your team stays synchronized and accountable throughout the day. Multi-clinic support lets you manage multiple locations from one platform, ensuring consistent quality across all your practices.
           </p>
 
           {/* Interactive Demo Preview */}
@@ -552,13 +548,8 @@ export default function Home() {
                 </svg>
               </div>
               <div>
-                <span className="text-2xl font-display font-bold">
-                  <span className="text-blue-400">
-                    Denta
-                  </span>
-                  <span className="text-white">
-                    Leage
-                  </span>
+                <span className="text-2xl font-display font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
+                  DentaLeague
                 </span>
                 <div className="text-xs text-blue-300 font-medium tracking-wide">DENTAL PRACTICE PLATFORM</div>
               </div>
@@ -583,7 +574,7 @@ export default function Home() {
             {/* Copyright */}
             <div className="border-t border-blue-800 pt-8">
               <p className="text-blue-300 text-sm">
-                &copy; 2024 DentaLeage. All rights reserved. Empowering dental teams worldwide with intelligent practice management.
+                &copy; 2024 DentaLeague. All rights reserved. Empowering dental teams worldwide with intelligent practice management.
               </p>
             </div>
           </div>

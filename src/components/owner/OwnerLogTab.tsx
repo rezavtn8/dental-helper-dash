@@ -28,18 +28,13 @@ import {
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-interface TaskLogEvent {
+interface SystemLogEvent {
   id: string;
   timestamp: string;
   action: string;
-  task_id: string;
-  task_title: string;
   actor_id: string;
   actor_name: string;
-  assigned_to_id?: string;
-  assigned_to_name?: string;
-  status: string;
-  priority: string;
+  target: string;
   details: string;
 }
 
@@ -48,15 +43,13 @@ interface OwnerLogTabProps {
 }
 
 export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
-  const [logs, setLogs] = useState<TaskLogEvent[]>([]);
-  const [filteredLogs, setFilteredLogs] = useState<TaskLogEvent[]>([]);
+  const [logs, setLogs] = useState<SystemLogEvent[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<SystemLogEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState('all');
   const [actorFilter, setActorFilter] = useState('all');
-  const [assignedToFilter, setAssignedToFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [targetFilter, setTargetFilter] = useState('all');
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [users, setUsers] = useState<any[]>([]);
 
@@ -68,7 +61,7 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
 
   useEffect(() => {
     applyFilters();
-  }, [logs, searchTerm, actionFilter, actorFilter, assignedToFilter, statusFilter, priorityFilter, dateRange]);
+  }, [logs, searchTerm, actionFilter, actorFilter, targetFilter, dateRange]);
 
   const fetchData = async () => {
     try {
@@ -90,75 +83,116 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
         userMap.set(user.id, user.name);
       });
 
-      // Fetch tasks to generate logs (since we don't have a dedicated log table yet)
+      const logEvents: SystemLogEvent[] = [];
+
+      // Fetch audit log events
+      const { data: auditData, error: auditError } = await supabase
+        .from('audit_log')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(1000);
+
+      if (!auditError && auditData) {
+        auditData.forEach(audit => {
+          const actorName = userMap.get(audit.user_id) || 'System';
+          logEvents.push({
+            id: audit.id,
+            timestamp: audit.timestamp,
+            action: audit.operation,
+            actor_id: audit.user_id || 'system',
+            actor_name: actorName,
+            target: audit.table_name,
+            details: `${audit.operation} on ${audit.table_name}`
+          });
+        });
+      }
+
+      // Fetch task events
       const { data: tasksData, error: tasksError } = await supabase
         .from('tasks')
         .select('*')
         .eq('clinic_id', clinicId)
         .order('created_at', { ascending: false });
 
-      if (tasksError) throw tasksError;
+      if (!tasksError && tasksData) {
+        tasksData.forEach(task => {
+          const createdByName = userMap.get(task.created_by) || 'Unknown';
 
-      // Convert task data into log events
-      const logEvents: TaskLogEvent[] = [];
-      
-      tasksData?.forEach(task => {
-        const createdByName = userMap.get(task.created_by) || 'Unknown';
-        const assignedToName = task.assigned_to ? userMap.get(task.assigned_to) : undefined;
-
-        // Task creation event
-        logEvents.push({
-          id: `create_${task.id}`,
-          timestamp: task.created_at,
-          action: 'Created',
-          task_id: task.id,
-          task_title: task.title || 'Untitled Task',
-          actor_id: task.created_by || '',
-          actor_name: createdByName,
-          assigned_to_id: task.assigned_to || undefined,
-          assigned_to_name: assignedToName,
-          status: task.status,
-          priority: task.priority || 'medium',
-          details: `Task "${task.title}" was created`
-        });
-
-        // Task completion event (if completed)
-        if (task.status === 'completed' && task.completed_at) {
-          const completedByName = userMap.get(task.completed_by || task.assigned_to) || assignedToName || 'Unknown';
+          // Task creation event
           logEvents.push({
-            id: `complete_${task.id}`,
-            timestamp: task.completed_at,
-            action: 'Completed',
-            task_id: task.id,
-            task_title: task.title || 'Untitled Task',
-            actor_id: task.completed_by || task.assigned_to || '',
-            actor_name: completedByName,
-            assigned_to_id: task.assigned_to || undefined,
-            assigned_to_name: assignedToName,
-            status: task.status,
-            priority: task.priority || 'medium',
-            details: `Task "${task.title}" was marked as completed`
-          });
-        }
-
-        // Task updated event (if updated_at is different from created_at)
-        if (task.updated_at && task.updated_at !== task.created_at) {
-          logEvents.push({
-            id: `update_${task.id}`,
-            timestamp: task.updated_at,
-            action: 'Updated',
-            task_id: task.id,
-            task_title: task.title || 'Untitled Task',
+            id: `create_${task.id}`,
+            timestamp: task.created_at,
+            action: 'task_created',
             actor_id: task.created_by || '',
             actor_name: createdByName,
-            assigned_to_id: task.assigned_to || undefined,
-            assigned_to_name: assignedToName,
-            status: task.status,
-            priority: task.priority || 'medium',
-            details: `Task "${task.title}" was updated`
+            target: `Task: ${task.title}`,
+            details: `Created task "${task.title}"`
           });
-        }
-      });
+
+          // Task completion event
+          if (task.status === 'completed' && task.completed_at) {
+            const completedByName = userMap.get(task.completed_by) || userMap.get(task.assigned_to) || 'Unknown';
+            logEvents.push({
+              id: `complete_${task.id}`,
+              timestamp: task.completed_at,
+              action: 'task_completed',
+              actor_id: task.completed_by || task.assigned_to || '',
+              actor_name: completedByName,
+              target: `Task: ${task.title}`,
+              details: `Completed task "${task.title}"`
+            });
+          }
+
+          // Task updated event
+          if (task.updated_at && task.updated_at !== task.created_at) {
+            logEvents.push({
+              id: `update_${task.id}`,
+              timestamp: task.updated_at,
+              action: 'task_updated',
+              actor_id: task.created_by || '',
+              actor_name: createdByName,
+              target: `Task: ${task.title}`,
+              details: `Updated task "${task.title}"`
+            });
+          }
+        });
+      }
+
+      // Fetch user events
+      const { data: invitationsData, error: invitationsError } = await supabase
+        .from('invitations')
+        .select('*')
+        .eq('clinic_id', clinicId)
+        .order('created_at', { ascending: false });
+
+      if (!invitationsError && invitationsData) {
+        invitationsData.forEach(invitation => {
+          const invitedByName = userMap.get(invitation.invited_by) || 'Unknown';
+          
+          logEvents.push({
+            id: `invite_${invitation.id}`,
+            timestamp: invitation.created_at,
+            action: 'user_invited',
+            actor_id: invitation.invited_by,
+            actor_name: invitedByName,
+            target: `User: ${invitation.email}`,
+            details: `Invited ${invitation.email} as ${invitation.role}`
+          });
+
+          if (invitation.status === 'accepted' && invitation.accepted_at) {
+            const acceptedByName = userMap.get(invitation.accepted_by) || invitation.email;
+            logEvents.push({
+              id: `accept_${invitation.id}`,
+              timestamp: invitation.accepted_at,
+              action: 'user_joined',
+              actor_id: invitation.accepted_by || '',
+              actor_name: acceptedByName,
+              target: `User: ${invitation.email}`,
+              details: `${invitation.email} joined as ${invitation.role}`
+            });
+          }
+        });
+      }
 
       // Sort by timestamp (newest first)
       logEvents.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -166,7 +200,7 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
       setLogs(logEvents);
     } catch (error) {
       console.error('Error fetching log data:', error);
-      toast.error('Failed to load task logs');
+      toast.error('Failed to load system logs');
     } finally {
       setLoading(false);
     }
@@ -178,10 +212,10 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(log =>
-        log.task_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.task_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
         log.actor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.details.toLowerCase().includes(searchTerm.toLowerCase())
+        log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.action.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -195,19 +229,9 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
       filtered = filtered.filter(log => log.actor_id === actorFilter);
     }
 
-    // Assigned to filter
-    if (assignedToFilter !== 'all') {
-      filtered = filtered.filter(log => log.assigned_to_id === assignedToFilter);
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(log => log.status === statusFilter);
-    }
-
-    // Priority filter
-    if (priorityFilter !== 'all') {
-      filtered = filtered.filter(log => log.priority === priorityFilter);
+    // Target filter
+    if (targetFilter !== 'all') {
+      filtered = filtered.filter(log => log.target.toLowerCase().includes(targetFilter.toLowerCase()));
     }
 
     // Date range filter
@@ -225,56 +249,34 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
 
   const getActionIcon = (action: string) => {
     switch (action.toLowerCase()) {
+      case 'task_created':
       case 'created':
         return <Plus className="w-4 h-4 text-blue-600" />;
+      case 'task_updated':
       case 'updated':
         return <Edit className="w-4 h-4 text-orange-600" />;
+      case 'task_completed':
       case 'completed':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'task_deleted':
       case 'deleted':
         return <Trash2 className="w-4 h-4 text-red-600" />;
+      case 'user_invited':
+        return <Plus className="w-4 h-4 text-purple-600" />;
+      case 'user_joined':
+        return <User className="w-4 h-4 text-green-600" />;
+      case 'role_change':
+        return <AlertCircle className="w-4 h-4 text-amber-600" />;
       default:
         return <Clock className="w-4 h-4 text-slate-600" />;
     }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      pending: { variant: 'secondary' as const, color: 'text-yellow-700 bg-yellow-100' },
-      'in-progress': { variant: 'default' as const, color: 'text-blue-700 bg-blue-100' },
-      completed: { variant: 'outline' as const, color: 'text-green-700 bg-green-100' }
-    };
-    
-    const config = variants[status as keyof typeof variants] || variants.pending;
-    
-    return (
-      <Badge className={config.color}>
-        {status.replace('-', ' ')}
-      </Badge>
-    );
-  };
-
-  const getPriorityBadge = (priority: string) => {
-    const colors = {
-      low: 'text-green-700 bg-green-100',
-      medium: 'text-yellow-700 bg-yellow-100',
-      high: 'text-red-700 bg-red-100'
-    };
-    
-    return (
-      <Badge className={colors[priority as keyof typeof colors] || colors.medium}>
-        {priority}
-      </Badge>
-    );
   };
 
   const clearFilters = () => {
     setSearchTerm('');
     setActionFilter('all');
     setActorFilter('all');
-    setAssignedToFilter('all');
-    setStatusFilter('all');
-    setPriorityFilter('all');
+    setTargetFilter('all');
     setDateRange({});
   };
 
@@ -282,7 +284,7 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="w-6 h-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        <span className="ml-2 text-muted-foreground">Loading task logs...</span>
+        <span className="ml-2 text-muted-foreground">Loading system logs...</span>
       </div>
     );
   }
@@ -294,9 +296,9 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
         <div>
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5" />
-            Task Activity Log
+            System Activity Log
           </h3>
-          <p className="text-muted-foreground">Complete history of all task events and changes</p>
+          <p className="text-muted-foreground">Complete history of all system events and changes</p>
         </div>
         
         <div className="flex gap-2">
@@ -316,13 +318,13 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
             <div className="col-span-full md:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
-                  placeholder="Search tasks, IDs, actors..."
+                  placeholder="Search actions, actors, targets..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -367,10 +369,12 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Actions</SelectItem>
-                <SelectItem value="created">Created</SelectItem>
-                <SelectItem value="updated">Updated</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="deleted">Deleted</SelectItem>
+                <SelectItem value="task_created">Task Created</SelectItem>
+                <SelectItem value="task_updated">Task Updated</SelectItem>
+                <SelectItem value="task_completed">Task Completed</SelectItem>
+                <SelectItem value="user_invited">User Invited</SelectItem>
+                <SelectItem value="user_joined">User Joined</SelectItem>
+                <SelectItem value="role_change">Role Change</SelectItem>
               </SelectContent>
             </Select>
 
@@ -381,6 +385,7 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Actors</SelectItem>
+                <SelectItem value="system">System</SelectItem>
                 {users.map(user => (
                   <SelectItem key={user.id} value={user.id}>
                     {user.name} ({user.role})
@@ -389,45 +394,17 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
               </SelectContent>
             </Select>
 
-            {/* Assigned To Filter */}
-            <Select value={assignedToFilter} onValueChange={setAssignedToFilter}>
+            {/* Target Filter */}
+            <Select value={targetFilter} onValueChange={setTargetFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Assigned To" />
+                <SelectValue placeholder="Target" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Assignees</SelectItem>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
-                {users.filter(u => u.role === 'assistant').map(user => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Priority Filter */}
-            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Priority</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="all">All Targets</SelectItem>
+                <SelectItem value="task">Task</SelectItem>
+                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="clinic">Clinic</SelectItem>
+                <SelectItem value="invitation">Invitation</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -452,12 +429,8 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
                 <TableRow>
                   <TableHead>Time</TableHead>
                   <TableHead>Action</TableHead>
-                  <TableHead>Task Title</TableHead>
-                  <TableHead>Task ID</TableHead>
                   <TableHead>Actor</TableHead>
-                  <TableHead>Assigned To</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
+                  <TableHead>Target</TableHead>
                   <TableHead>Details</TableHead>
                 </TableRow>
               </TableHeader>
@@ -470,14 +443,8 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getActionIcon(log.action)}
-                        <span className="font-medium">{log.action}</span>
+                        <span className="font-medium">{log.action.replace('_', ' ')}</span>
                       </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {log.task_title}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {log.task_id.substring(0, 8)}...
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -485,16 +452,8 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
                         {log.actor_name}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {log.assigned_to_name || (
-                        <span className="text-muted-foreground italic">Unassigned</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(log.status)}
-                    </TableCell>
-                    <TableCell>
-                      {getPriorityBadge(log.priority)}
+                    <TableCell className="font-medium">
+                      {log.target}
                     </TableCell>
                     <TableCell className="max-w-xs truncate">
                       {log.details}
@@ -511,7 +470,7 @@ export default function OwnerLogTab({ clinicId }: OwnerLogTabProps) {
               <h3 className="text-lg font-semibold mb-2">No Log Events Found</h3>
               <p className="text-muted-foreground">
                 {logs.length === 0 
-                  ? 'No task activities have been recorded yet.'
+                  ? 'No system activities have been recorded yet.'
                   : 'Try adjusting your filters to see more results.'
                 }
               </p>

@@ -337,7 +337,7 @@ const AssistantDashboard = () => {
           userProfile={userProfile}
         />
 
-        <main className="flex-1 pt-16 lg:pt-0 lg:ml-80">
+        <main className="flex-1 pt-16 lg:pt-0 lg:pl-80">
           <div className="p-6 lg:p-8 max-w-7xl mx-auto">
             {renderTabContent()}
           </div>

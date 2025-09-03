@@ -1039,6 +1039,19 @@ export type Database = {
           user_id: string
         }[]
       }
+      create_secure_invitation: {
+        Args: {
+          p_clinic_id: string
+          p_email: string
+          p_name: string
+          p_role?: string
+        }
+        Returns: {
+          invitation_id: string
+          invitation_token: string
+          invitation_url: string
+        }[]
+      }
       create_simple_invitation: {
         Args: { p_clinic_id?: string; p_email: string; p_name: string }
         Returns: {
@@ -1069,6 +1082,19 @@ export type Database = {
         }
         Returns: string
       }
+      enhanced_rate_limit_check: {
+        Args: {
+          max_attempts?: number
+          operation_name: string
+          security_level?: string
+          window_minutes?: number
+        }
+        Returns: boolean
+      }
+      enhanced_security_log: {
+        Args: { event_details?: Json; event_type: string; severity?: string }
+        Returns: undefined
+      }
       generate_clinic_code: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1084,6 +1110,15 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_join_request_user_info: {
+        Args: { p_user_id: string }
+        Returns: {
+          can_view: boolean
+          id: string
+          name: string
+          role: string
+        }[]
       }
       get_safe_invitation_info: {
         Args: { invitation_email: string }
@@ -1191,6 +1226,15 @@ export type Database = {
           name: string
         }[]
       }
+      lookup_clinic_for_join: {
+        Args: { p_code: string }
+        Returns: {
+          can_join: boolean
+          clinic_code: string
+          id: string
+          name: string
+        }[]
+      }
       lookup_clinic_safe: {
         Args: { p_code: string }
         Returns: {
@@ -1244,6 +1288,10 @@ export type Database = {
       }
       validate_clinic_code: {
         Args: { code_input: string }
+        Returns: boolean
+      }
+      validate_clinic_membership: {
+        Args: { p_clinic_id: string }
         Returns: boolean
       }
       validate_email: {

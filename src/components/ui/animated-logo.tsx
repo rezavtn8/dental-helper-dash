@@ -14,25 +14,25 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
       setIsDrawing(true);
       setDrawProgress(0);
       
-      // Animate drawing progress from 0 to 100% over 3 seconds
-      const duration = 3000;
+      // Animate drawing progress from 0 to 100% over 1.5 seconds
+      const duration = 1500;
       const startTime = Date.now();
       
       const animateProgress = () => {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Use easing function for natural drawing feel
-        const easedProgress = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        // Use smoother easing function for fast, fluid drawing
+        const easedProgress = progress * progress * (3 - 2 * progress); // smoothstep
         setDrawProgress(easedProgress);
         
         if (progress < 1) {
           requestAnimationFrame(animateProgress);
         } else {
-          // Drawing complete, fade out stroke and show fill
+          // Drawing complete, show fill briefly
           setTimeout(() => {
             setIsDrawing(false);
-          }, 200);
+          }, 100);
         }
       };
       
@@ -42,8 +42,8 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
     // Initial animation
     setTimeout(() => runDrawingAnimation(), 300);
     
-    // Repeat every 25 seconds
-    const interval = setInterval(() => runDrawingAnimation(), 25000);
+    // Repeat every 3 seconds for continuous drawing effect
+    const interval = setInterval(() => runDrawingAnimation(), 3000);
     
     return () => clearInterval(interval);
   }, []);

@@ -14,36 +14,39 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
       setIsDrawing(true);
       setDrawProgress(0);
       
-      // Animate drawing progress from 0 to 100% over 1.5 seconds
-      const duration = 1500;
+      // Animate drawing progress from 0 to 100% over 4.5 seconds for elegant, deliberate drawing
+      const duration = 4500;
       const startTime = Date.now();
       
       const animateProgress = () => {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Use smoother easing function for fast, fluid drawing
-        const easedProgress = progress * progress * (3 - 2 * progress); // smoothstep
+        // Natural artist-like easing: slow start, speed up, then slow finish
+        const easedProgress = progress < 0.5 
+          ? 2 * progress * progress * progress // ease-in cubic for first half
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2; // ease-out cubic for second half
+        
         setDrawProgress(easedProgress);
         
         if (progress < 1) {
           requestAnimationFrame(animateProgress);
         } else {
-          // Drawing complete, show fill briefly
+          // Drawing complete, show filled logo for 3.5 seconds to appreciate the artwork
           setTimeout(() => {
             setIsDrawing(false);
-          }, 100);
+          }, 3500);
         }
       };
       
       requestAnimationFrame(animateProgress);
     };
 
-    // Initial animation
-    setTimeout(() => runDrawingAnimation(), 300);
+    // Initial animation with slight delay
+    setTimeout(() => runDrawingAnimation(), 500);
     
-    // Repeat every 3 seconds for continuous drawing effect
-    const interval = setInterval(() => runDrawingAnimation(), 3000);
+    // Repeat every 12 seconds (4.5s drawing + 3.5s viewing + 4s pause)
+    const interval = setInterval(() => runDrawingAnimation(), 12000);
     
     return () => clearInterval(interval);
   }, []);

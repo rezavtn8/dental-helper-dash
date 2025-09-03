@@ -248,40 +248,44 @@ export const generateRecurringInstances = (
     ? new Date(task.custom_due_date)
     : new Date(task.created_at);
 
-  let currentDate = new Date(Math.max(startDate.getTime(), taskBaseDate.getTime()));
+  // Start from the task's original date, not the view start date
+  let currentDate = new Date(taskBaseDate);
   
   // Limit to prevent infinite loops - max 365 instances
   let instanceCount = 0;
   const maxInstances = 365;
 
   while (currentDate <= endDate && instanceCount < maxInstances) {
-    // Create instance for this date
-    const instance: RecurringTaskInstance = {
-      ...task,
-      id: `${task.id}_${currentDate.toISOString().split('T')[0]}`,
-      isRecurringInstance: true,
-      parentTaskId: task.id,
-      instanceDate: new Date(currentDate),
-      originalDueDate: taskBaseDate,
-      custom_due_date: currentDate.toISOString(),
-      status: 'pending' as TaskStatus, // Reset status for each instance
-      completed_at: undefined,
-      completed_by: undefined
-    };
+    // Only include instances that fall within the requested date range
+    if (currentDate >= startDate) {
+      const instance: RecurringTaskInstance = {
+        ...task,
+        id: `${task.id}_${currentDate.toISOString().split('T')[0]}`,
+        isRecurringInstance: true,
+        parentTaskId: task.id,
+        instanceDate: new Date(currentDate),
+        originalDueDate: taskBaseDate,
+        custom_due_date: currentDate.toISOString(),
+        status: 'pending' as TaskStatus, // Reset status for each instance
+        completed_at: undefined,
+        completed_by: undefined
+      };
 
-    instances.push(instance);
+      instances.push(instance);
+    }
+    
     instanceCount++;
 
-    // Calculate next occurrence
+    // Calculate next occurrence based on recurrence pattern
     switch (task.recurrence.toLowerCase()) {
       case 'daily':
         currentDate = addDays(currentDate, 1);
         break;
       case 'weekly':
-        currentDate = addWeeks(currentDate, 1);
+        currentDate = addDays(currentDate, 7);
         break;
       case 'monthly':
-        currentDate = addMonths(currentDate, 1);
+        currentDate = addDays(currentDate, 30);
         break;
       default:
         // Unknown recurrence pattern, break the loop

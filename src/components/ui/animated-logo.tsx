@@ -9,6 +9,7 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   const [animationPhase, setAnimationPhase] = useState<'drawing' | 'filling' | 'emptying' | 'disappearing'>('drawing');
   const [drawProgress, setDrawProgress] = useState(0);
   const [fillProgress, setFillProgress] = useState(0);
+  const [eraseProgress, setEraseProgress] = useState(0);
   const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState(3500);
 
@@ -30,6 +31,7 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
       setAnimationPhase('drawing');
       setDrawProgress(0);
       setFillProgress(0);
+      setEraseProgress(0);
       
       const animateDrawing = (startTime: number) => {
         const elapsed = Date.now() - startTime;
@@ -68,7 +70,12 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
                     const progress = Math.min(elapsed / fillDuration, 1);
                     const easedProgress = 1 - (progress * progress * (3 - 2 * progress));
                     
+                    // Empty the fill
                     setFillProgress(easedProgress);
+                    
+                    // Erase the stroke with same one-sided animation as drawing but in reverse
+                    const eraseEasedProgress = progress * progress * progress; // cubic ease-in
+                    setEraseProgress(eraseEasedProgress);
                     
                     if (progress < 1) {
                       requestAnimationFrame(animateEmptying);
@@ -126,12 +133,20 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   };
 
   const getPathStyle = (): React.CSSProperties => {
-    const currentOffset = pathLength * (1 - drawProgress);
+    // Calculate stroke offset based on animation phase
+    let currentOffset;
+    if (animationPhase === 'emptying') {
+      // During emptying, use eraseProgress to make stroke disappear
+      currentOffset = pathLength * eraseProgress;
+    } else {
+      // During drawing and disappearing, use drawProgress
+      currentOffset = pathLength * (1 - drawProgress);
+    }
     
     // Calculate opacity based on animation phase
     const strokeOpacity = (animationPhase === 'drawing' && drawProgress > 0) || 
                          (animationPhase === 'filling') || 
-                         (animationPhase === 'emptying') ? 0.9 : 0;
+                         (animationPhase === 'emptying' && eraseProgress < 1) ? 0.9 : 0;
     
     const fillOpacity = animationPhase === 'filling' || animationPhase === 'emptying' 
       ? fillProgress 
@@ -147,7 +162,7 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
       strokeLinecap: 'round',
       strokeLinejoin: 'round',
       filter: animationPhase === 'drawing' ? 'drop-shadow(0 0 3px hsl(var(--primary) / 0.4))' : 'none',
-      transition: animationPhase === 'drawing' || animationPhase === 'disappearing'
+      transition: animationPhase === 'drawing' || animationPhase === 'disappearing' || animationPhase === 'emptying'
         ? 'none' 
         : 'fill-opacity 0.3s ease-out, stroke-opacity 0.3s ease-out',
     };

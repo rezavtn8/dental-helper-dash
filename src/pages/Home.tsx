@@ -101,9 +101,7 @@ export default function Home() {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-blue-800/80 mb-8 max-w-4xl mx-auto leading-relaxed font-medium">
-            The smart task management system built exclusively for dental clinics. Replace paper checklists with real-time digital workflows that track everything from morning setups to sterilization protocols. Owners login with email for full oversight including team analytics and performance insights, while assistants use a simple 4-digit PIN for instant task access. With pre-built templates for procedures like endo setups, ortho adjustments, and OSHA compliance, plus automatic task assignment and completion tracking, your team stays synchronized and accountable throughout the day. Multi-clinic support lets you manage multiple locations from one platform, ensuring consistent quality across all your practices.
-          </p>
+          
 
           {/* Interactive Demo Preview */}
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-12 max-w-6xl mx-auto border border-blue-100">

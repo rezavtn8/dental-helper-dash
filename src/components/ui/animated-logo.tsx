@@ -10,44 +10,35 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Initial animation and cycling logic
+  // Professional animation cycle - less frequent, more subtle
   useEffect(() => {
     const animationCycle = () => {
       // Start drawing animation
       setIsDrawing(true);
       setIsVisible(false);
       
-      // Complete drawing after 2.5s
+      // Complete drawing after 3s (slower, more elegant)
       setTimeout(() => {
         setIsDrawing(false);
         setIsVisible(true);
-      }, 2500);
+      }, 3000);
       
-      // After 8-10 seconds visible, fade and restart
+      // Stay visible for 15 seconds before subtle refresh
       setTimeout(() => {
         setIsVisible(false);
         setTimeout(() => {
           animationCycle();
-        }, 500);
-      }, 10000);
+        }, 800); // Longer fade transition
+      }, 15000);
     };
 
-    // Start the cycle
-    setTimeout(() => animationCycle(), 100);
+    // Delayed start for professional feel
+    setTimeout(() => animationCycle(), 300);
   }, []);
 
-  // Handle hover events
+  // Subtle hover interaction
   const handleMouseEnter = () => {
     setIsHovered(true);
-    // Trigger immediate redraw if it's been more than 3 seconds
-    if (isVisible) {
-      setIsDrawing(true);
-      setIsVisible(false);
-      setTimeout(() => {
-        setIsDrawing(false);
-        setIsVisible(true);
-      }, 2500);
-    }
   };
 
   const handleMouseLeave = () => {
@@ -55,31 +46,40 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   };
 
   const logoStyle: React.CSSProperties = {
-    opacity: isVisible ? 1 : 0.2,
-    transition: 'opacity 0.8s ease-in-out, filter 0.3s ease-in-out, transform 0.3s ease-in-out',
+    opacity: isVisible ? 1 : 0.15,
+    transition: 'opacity 1s ease-out, filter 0.4s ease-out, transform 0.4s ease-out',
     filter: isHovered 
-      ? 'brightness(1.2) drop-shadow(0 0 20px hsl(var(--primary) / 0.6))' 
+      ? 'brightness(1.1) drop-shadow(0 2px 8px hsl(var(--primary) / 0.2))' 
       : isVisible && !isDrawing 
-      ? 'drop-shadow(0 0 8px hsl(var(--primary) / 0.3))'
+      ? 'drop-shadow(0 1px 3px hsl(var(--primary) / 0.1))'
       : 'none',
-    transform: isVisible && !isDrawing ? 'scale(1)' : 'scale(1)',
-    animation: isVisible && !isDrawing ? 'logo-breathing 4s ease-in-out infinite' : 'none',
+    transform: isHovered ? 'scale(1.02)' : 'scale(1)',
+    animation: isVisible && !isDrawing ? 'logo-pulse 6s ease-in-out infinite' : 'none',
   };
 
   const getPathStyle = (delay: number): React.CSSProperties => ({
     strokeDasharray: '100%',
     strokeDashoffset: isDrawing ? '100%' : '0',
-    fillOpacity: isDrawing ? 0 : 1,
-    transition: `stroke-dashoffset 2.5s cubic-bezier(0.4, 0, 0.2, 1) ${delay}s, fill-opacity 0.5s ease-in-out ${delay + 2}s`,
+    fillOpacity: isDrawing ? 0 : 0.95,
+    strokeOpacity: isDrawing ? 1 : 0,
+    transition: `stroke-dashoffset 3s cubic-bezier(0.25, 0.1, 0.25, 1) ${delay}s, 
+                fill-opacity 0.8s ease-out ${delay + 2.5}s,
+                stroke-opacity 0.3s ease-out ${delay + 2.8}s`,
   });
 
   return (
     <>
       <style>
         {`
-          @keyframes logo-breathing {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
+          @keyframes logo-pulse {
+            0%, 100% { 
+              transform: scale(1);
+              filter: drop-shadow(0 1px 3px hsl(var(--primary) / 0.1));
+            }
+            50% { 
+              transform: scale(1.005);
+              filter: drop-shadow(0 2px 4px hsl(var(--primary) / 0.15));
+            }
           }
         `}
       </style>

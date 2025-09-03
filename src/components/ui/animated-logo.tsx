@@ -25,7 +25,7 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
     const runAnimation = () => {
       const drawDuration = 3000; // Drawing takes 3 seconds (slower)
       const fillDuration = 1200; // Filling takes 1.2 seconds
-      const disappearDuration = 2500; // Disappearing takes 2.5 seconds (slower)
+      const disappearDuration = 4000; // Disappearing takes 4 seconds (even slower)
       
       // Phase 1: Drawing (stroke appears)
       setAnimationPhase('drawing');

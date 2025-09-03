@@ -978,6 +978,28 @@ export type Database = {
           success: boolean
         }[]
       }
+      authenticated_clinic_lookup: {
+        Args: { p_code: string }
+        Returns: {
+          can_join: boolean
+          clinic_code: string
+          id: string
+          name: string
+        }[]
+      }
+      authenticated_secure_invitation_create: {
+        Args: {
+          p_clinic_id: string
+          p_email: string
+          p_name: string
+          p_role?: string
+        }
+        Returns: {
+          invitation_id: string
+          invitation_token: string
+          invitation_url: string
+        }[]
+      }
       can_create_user: {
         Args: { target_role: string }
         Returns: boolean
@@ -1095,19 +1117,6 @@ export type Database = {
         Args: { event_details?: Json; event_type: string; severity?: string }
         Returns: undefined
       }
-      final_secure_invitation_create: {
-        Args: {
-          p_clinic_id: string
-          p_email: string
-          p_name: string
-          p_role?: string
-        }
-        Returns: {
-          invitation_id: string
-          invitation_token: string
-          invitation_url: string
-        }[]
-      }
       generate_clinic_code: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1123,15 +1132,6 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      get_final_security_status: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          check_name: string
-          details: string
-          severity: string
-          status: string
-        }[]
       }
       get_individual_user_secure: {
         Args: { target_user_id: string }
@@ -1213,6 +1213,15 @@ export type Database = {
           last_login: string
           name: string
           role: string
+        }[]
+      }
+      get_ultimate_security_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_name: string
+          details: string
+          severity: string
+          status: string
         }[]
       }
       get_user_profile_secure: {
@@ -1309,15 +1318,6 @@ export type Database = {
           message: string
           request_id: string
           success: boolean
-        }[]
-      }
-      ultra_secure_clinic_lookup: {
-        Args: { p_code: string }
-        Returns: {
-          can_join: boolean
-          clinic_code: string
-          id: string
-          name: string
         }[]
       }
       validate_clinic_code: {

@@ -28,7 +28,7 @@ export default function Home() {
       }
     }
   }, [user, userProfile, navigate, loading]);
-  return <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50/30 relative overflow-hidden">
+  return <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden">
       
       {/* Loading State */}
       {loading && <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -40,13 +40,13 @@ export default function Home() {
       
       {/* Floating Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-gradient-to-br from-blue-200 to-blue-300 rounded-full opacity-15 animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full opacity-10 animate-pulse delay-500"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-600/30 to-blue-500/20 rounded-full opacity-40 animate-pulse"></div>
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-gradient-to-br from-blue-500/20 to-blue-400/30 rounded-full opacity-35 animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-700/20 to-blue-600/10 rounded-full opacity-25 animate-pulse delay-500"></div>
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-50 bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0">
+      <nav className="relative z-50 bg-blue-800/90 backdrop-blur-md border-b border-blue-600/30 sticky top-0">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -64,16 +64,16 @@ export default function Home() {
                 </svg>
               </div>
               <div>
-                <span className="text-2xl font-display font-bold bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
+                <span className="text-2xl font-display font-bold bg-gradient-to-r from-blue-100 to-white bg-clip-text text-transparent">
                   DentaLeague
                 </span>
-                <div className="text-xs text-blue-600 font-medium tracking-wide">DENTAL PRACTICE PLATFORM</div>
+                <div className="text-xs text-blue-200 font-medium tracking-wide">DENTAL PRACTICE PLATFORM</div>
               </div>
             </div>
             
             <Button onClick={() => document.getElementById('auth-section')?.scrollIntoView({
             behavior: 'smooth'
-          })} variant="default" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 group">
+          })} variant="default" className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-300 hover:to-blue-400 text-blue-900 shadow-lg hover:shadow-xl transition-all duration-300 group">
               <LogIn className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
               Get Started
             </Button>
@@ -86,7 +86,10 @@ export default function Home() {
         <div className="text-center max-w-5xl mx-auto">
           
           {/* Badge */}
-          
+          <Badge className="mb-6 bg-blue-600/20 text-blue-100 border border-blue-400/30 px-4 py-1 text-sm font-medium">
+            <Sparkles className="w-4 h-4 mr-2" />
+            Complete Practice Management Platform
+          </Badge>
 
           {/* Animated Logo */}
           <div className="mb-8">
@@ -95,42 +98,44 @@ export default function Home() {
 
           {/* Main Headline */}
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
               DentaLeague
             </span>
           </h1>
 
           {/* Subheadline */}
-          
+          <p className="text-xl md:text-2xl text-blue-200 mb-12 leading-relaxed max-w-4xl mx-auto">
+            Complete dental practice management platform with specialized dashboards for owners and assistants
+          </p>
 
           {/* Interactive Demo Preview */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-12 max-w-6xl mx-auto border border-blue-100">
+          <div className="bg-blue-700/20 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-12 max-w-6xl mx-auto border border-blue-400/30">
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-display font-bold text-blue-900 mb-2">Dual Dashboard System</h3>
-              <p className="text-blue-700">Specialized interfaces for owners and assistants</p>
+              <h3 className="text-2xl font-display font-bold text-white mb-2">Dual Dashboard System</h3>
+              <p className="text-blue-100">Specialized interfaces for owners and assistants</p>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               {/* Assistant Hub */}
-              <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-xl border border-green-100">
+              <div className="bg-gradient-to-br from-green-800/40 to-green-900/20 p-6 rounded-xl border border-green-400/30">
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-4">
                     <UserCheck className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-blue-900">Assistant Hub</h4>
-                    <p className="text-sm text-green-600">Daily task management</p>
+                    <h4 className="text-lg font-bold text-white">Assistant Hub</h4>
+                    <p className="text-sm text-green-200">Daily task management</p>
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
-                    <span className="text-sm text-blue-900">Room Preparation</span>
+                  <div className="flex items-center justify-between bg-blue-800/30 p-3 rounded-lg border border-blue-400/20">
+                    <span className="text-sm text-white">Room Preparation</span>
                     <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                       <Hand className="w-4 h-4 text-white" />
                     </div>
                   </div>
-                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
-                    <span className="text-sm text-blue-900">Patient Check-in</span>
+                  <div className="flex items-center justify-between bg-blue-800/30 p-3 rounded-lg border border-blue-400/20">
+                    <span className="text-sm text-white">Patient Check-in</span>
                     <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg flex items-center justify-center">
                       <Undo2 className="w-4 h-4 text-white" />
                     </div>
@@ -139,45 +144,45 @@ export default function Home() {
               </div>
               
               {/* Owner Dashboard */}
-              <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl border border-indigo-100">
+              <div className="bg-gradient-to-br from-indigo-800/40 to-indigo-900/20 p-6 rounded-xl border border-indigo-400/30">
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-4">
                     <Crown className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-blue-900">Owner Dashboard</h4>
-                    <p className="text-sm text-indigo-600">Team & clinic oversight</p>
+                    <h4 className="text-lg font-bold text-white">Owner Dashboard</h4>
+                    <p className="text-sm text-indigo-200">Team & clinic oversight</p>
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
-                    <span className="text-sm text-blue-900">Team Analytics</span>
-                    <BarChart3 className="w-5 h-5 text-indigo-600" />
+                  <div className="flex items-center justify-between bg-blue-800/30 p-3 rounded-lg border border-blue-400/20">
+                    <span className="text-sm text-white">Team Analytics</span>
+                    <BarChart3 className="w-5 h-5 text-indigo-400" />
                   </div>
-                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
-                    <span className="text-sm text-blue-900">Task Templates</span>
-                    <Building2 className="w-5 h-5 text-indigo-600" />
+                  <div className="flex items-center justify-between bg-blue-800/30 p-3 rounded-lg border border-blue-400/20">
+                    <span className="text-sm text-white">Task Templates</span>
+                    <Building2 className="w-5 h-5 text-indigo-400" />
                   </div>
                 </div>
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-100">
-                <CalendarDays className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-xs font-medium text-blue-900">Calendar Integration</p>
+              <div className="text-center p-4 bg-gradient-to-br from-blue-700/30 to-blue-800/20 rounded-lg border border-blue-400/30">
+                <CalendarDays className="w-8 h-8 text-blue-300 mx-auto mb-2" />
+                <p className="text-xs font-medium text-white">Calendar Integration</p>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-white rounded-lg border border-purple-100">
-                <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                <p className="text-xs font-medium text-blue-900">Team Management</p>
+              <div className="text-center p-4 bg-gradient-to-br from-purple-700/30 to-purple-800/20 rounded-lg border border-purple-400/30">
+                <Users className="w-8 h-8 text-purple-300 mx-auto mb-2" />
+                <p className="text-xs font-medium text-white">Team Management</p>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-teal-50 to-white rounded-lg border border-teal-100">
-                <TrendingUp className="w-8 h-8 text-teal-600 mx-auto mb-2" />
-                <p className="text-xs font-medium text-blue-900">Analytics & Reports</p>
+              <div className="text-center p-4 bg-gradient-to-br from-teal-700/30 to-teal-800/20 rounded-lg border border-teal-400/30">
+                <TrendingUp className="w-8 h-8 text-teal-300 mx-auto mb-2" />
+                <p className="text-xs font-medium text-white">Analytics & Reports</p>
               </div>
-              <div className="text-center p-4 bg-gradient-to-br from-rose-50 to-white rounded-lg border border-rose-100">
-                <Shield className="w-8 h-8 text-rose-600 mx-auto mb-2" />
-                <p className="text-xs font-medium text-blue-900">HIPAA Compliance</p>
+              <div className="text-center p-4 bg-gradient-to-br from-rose-700/30 to-rose-800/20 rounded-lg border border-rose-400/30">
+                <Shield className="w-8 h-8 text-rose-300 mx-auto mb-2" />
+                <p className="text-xs font-medium text-white">HIPAA Compliance</p>
               </div>
             </div>
           </div>
@@ -185,18 +190,18 @@ export default function Home() {
           {/* Stats Row */}
           <div className="flex justify-center items-center gap-8 mb-12 flex-wrap">
             <div className="text-center">
-              <div className="text-3xl font-display font-bold text-blue-900">500+</div>
-              <div className="text-blue-600 text-sm font-medium">Active Clinics</div>
+              <div className="text-3xl font-display font-bold text-white">500+</div>
+              <div className="text-blue-200 text-sm font-medium">Active Clinics</div>
             </div>
-            <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
+            <div className="w-px h-12 bg-blue-400/30 hidden sm:block"></div>
             <div className="text-center">
-              <div className="text-3xl font-display font-bold text-blue-900">15K+</div>
-              <div className="text-blue-600 text-sm font-medium">Healthcare Staff</div>
+              <div className="text-3xl font-display font-bold text-white">15K+</div>
+              <div className="text-blue-200 text-sm font-medium">Healthcare Staff</div>
             </div>
-            <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
+            <div className="w-px h-12 bg-blue-400/30 hidden sm:block"></div>
             <div className="text-center">
-              <div className="text-3xl font-display font-bold text-blue-900">99.9%</div>
-              <div className="text-blue-600 text-sm font-medium">Platform Uptime</div>
+              <div className="text-3xl font-display font-bold text-white">99.9%</div>
+              <div className="text-blue-200 text-sm font-medium">Platform Uptime</div>
             </div>
           </div>
 
@@ -212,14 +217,14 @@ export default function Home() {
             
             <Button size="lg" variant="outline" onClick={() => document.getElementById('features')?.scrollIntoView({
             behavior: 'smooth'
-          })} className="border-2 border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-4 text-lg font-semibold transition-all duration-300 group">
+          })} className="border-2 border-blue-300 text-white hover:bg-blue-700/50 px-8 py-4 text-lg font-semibold transition-all duration-300 group">
               <Users className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
               Explore All Features
             </Button>
           </div>
 
           {/* Social Proof */}
-          <div className="flex items-center justify-center gap-2 text-blue-600">
+          <div className="flex items-center justify-center gap-2 text-blue-200">
             <div className="flex -space-x-1">
               {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />)}
             </div>
@@ -231,8 +236,8 @@ export default function Home() {
       {/* Auth Section */}
       <section id="auth-section" className="relative z-10 container mx-auto px-6 py-16">
         <div className="max-w-md mx-auto">
-          <Card className="shadow-xl border border-blue-100/50 overflow-hidden bg-white/95 backdrop-blur-md">
-            <CardHeader className="text-center py-6 bg-gradient-to-br from-blue-50/80 to-white/50">
+          <Card className="shadow-xl border border-blue-400/30 overflow-hidden bg-blue-800/40 backdrop-blur-md">
+            <CardHeader className="text-center py-6 bg-gradient-to-br from-blue-700/40 to-blue-800/30">
               <div className="w-12 h-12 flex items-center justify-center mx-auto mb-3">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" className="w-12 h-12">
                   <rect x="70.64" y="26.34" fill="#FDFDFD" width="882.73" height="971.32" />
@@ -246,22 +251,22 @@ export default function Home() {
                   <path fill="hsl(var(--blue-100))" d="M655.96,282.62c-10.61,11.66-34.04,32.44-16.09,48.51c3.67,3.29,8.37,1.18,12.92,5.28c-24.89-4.93-32.92,17-48.96,31.72c-54.93,50.45-107.81,103.02-161.45,154.82c-3.61-6.21-21.55-13.05-20.34-20.02L655.96,282.62z" />
                 </svg>
               </div>
-              <CardTitle className="text-xl font-display font-bold text-blue-900">
+              <CardTitle className="text-xl font-display font-bold text-white">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? 'Complete Setup' : 'Get Started'}
               </CardTitle>
-              <CardDescription className="text-sm text-blue-700">
+              <CardDescription className="text-sm text-blue-200">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? 'Set up your clinic information' : 'Choose your role to continue'}
               </CardDescription>
             </CardHeader>
             
             <CardContent className="p-6">
               {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? <ClinicSetupForm userProfile={userProfile} /> : <Tabs defaultValue="owner" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6 bg-blue-50 p-1 h-12">
-                    <TabsTrigger value="owner" className="flex items-center space-x-2 py-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm">
+                  <TabsList className="grid w-full grid-cols-2 mb-6 bg-blue-700/30 p-1 h-12 border border-blue-400/20">
+                    <TabsTrigger value="owner" className="flex items-center space-x-2 py-2 text-sm font-medium text-blue-200 data-[state=active]:bg-blue-600/50 data-[state=active]:text-white data-[state=active]:shadow-sm">
                       <Crown className="w-4 h-4" />
                       <span>Owner</span>
                     </TabsTrigger>
-                    <TabsTrigger value="assistant" className="flex items-center space-x-2 py-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm">
+                    <TabsTrigger value="assistant" className="flex items-center space-x-2 py-2 text-sm font-medium text-blue-200 data-[state=active]:bg-blue-600/50 data-[state=active]:text-white data-[state=active]:shadow-sm">
                       <UserCheck className="w-4 h-4" />
                       <span>Assistant</span>
                     </TabsTrigger>
@@ -269,22 +274,22 @@ export default function Home() {
                   
                   <TabsContent value="owner" className="space-y-3">
                     <div className="text-center">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mx-auto mb-2">
-                        <Crown className="w-4 h-4 text-blue-600" />
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <Crown className="w-4 h-4 text-white" />
                       </div>
-                      <h3 className="text-base font-display font-bold text-blue-900 mb-1">Clinic Owner</h3>
-                      <p className="text-blue-700 text-xs mb-3">Manage your clinic and team</p>
+                      <h3 className="text-base font-display font-bold text-white mb-1">Clinic Owner</h3>
+                      <p className="text-blue-200 text-xs mb-3">Manage your clinic and team</p>
                     </div>
                     <AuthWidget role="owner" />
                   </TabsContent>
                   
                   <TabsContent value="assistant" className="space-y-3">
                     <div className="text-center">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mx-auto mb-2">
-                        <UserCheck className="w-4 h-4 text-blue-600" />
+                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <UserCheck className="w-4 h-4 text-white" />
                       </div>
-                      <h3 className="text-base font-display font-bold text-blue-900 mb-1">Healthcare Assistant</h3>
-                      <p className="text-blue-700 text-xs mb-3">Access your workspace and tasks</p>
+                      <h3 className="text-base font-display font-bold text-white mb-1">Healthcare Assistant</h3>
+                      <p className="text-blue-200 text-xs mb-3">Access your workspace and tasks</p>
                     </div>
                     <AuthWidget role="assistant" />
                   </TabsContent>
@@ -300,7 +305,7 @@ export default function Home() {
           
           {/* Section Header */}
           <div className="text-center max-w-4xl mx-auto mb-20">
-            <Badge className="mb-6 bg-blue-100 text-blue-700 px-4 py-1 text-sm font-medium border-0">
+            <Badge className="mb-6 bg-blue-600/30 text-blue-100 border border-blue-400/30 px-4 py-1 text-sm font-medium">
               <Building2 className="w-4 h-4 mr-2" />
               Complete Healthcare Management Suite
             </Badge>

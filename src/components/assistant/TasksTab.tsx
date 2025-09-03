@@ -2,12 +2,13 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building, Calendar, ChevronLeft, ChevronRight, CheckCircle, Clock, Circle, User, Flag } from 'lucide-react';
+import { Building, Calendar, ChevronLeft, ChevronRight, CheckCircle, Flag, Undo2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
 import { getTasksForDate, getTodaysTasks, getPriorityStyles } from '@/lib/taskUtils';
+import { TaskActionButton, TaskStatusIcon } from '@/components/ui/task-action-button';
 import {
   format,
   startOfWeek,
@@ -87,14 +88,7 @@ export default function TasksTab({
   }
 
   const getStatusIcon = (status: TaskStatus) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'in-progress':
-        return <Clock className="w-4 h-4 text-orange-600" />;
-      default:
-        return <Circle className="w-4 h-4 text-slate-400" />;
-    }
+    return <TaskStatusIcon status={status} className="w-4 h-4" />;
   };
 
   const toggleTaskStatus = (taskId: string, currentStatus: TaskStatus) => {
@@ -119,44 +113,47 @@ export default function TasksTab({
   const TaskItem = ({ task, compact = false }: { task: Task; compact?: boolean }) => (
     <div
       className={`
-        flex items-start gap-3 p-3 rounded-lg border transition-colors
-        ${task.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-background border-border hover:bg-muted/50'}
+        flex items-start gap-3 p-3 rounded-lg border transition-all duration-300 animate-fade-in
+        ${task.status === 'completed' ? 'bg-green-50/80 border-green-200' : 'bg-background border-border hover:bg-muted/50 hover:shadow-sm'}
         ${compact ? 'py-2' : ''}
       `}
       onClick={() => onTaskClick?.(task)}
     >
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-8 h-8 p-0 hover:bg-background/80"
+      <TaskActionButton
+        status={task.status}
+        size="md"
         onClick={(e) => {
           e.stopPropagation();
           toggleTaskStatus(task.id, task.status);
         }}
-      >
-        {getStatusIcon(task.status)}
-      </Button>
+      />
       
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h4 className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''} ${compact ? 'text-sm' : ''}`}>
+          <h4 className={`font-medium transition-all duration-200 ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''} ${compact ? 'text-sm' : ''}`}>
             {task.title}
           </h4>
           {task.priority === 'high' && (
-            <Flag className="w-3 h-3 text-red-500" />
+            <Flag className="w-3 h-3 text-red-500 animate-pulse" />
           )}
           {task.status === 'completed' && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-6 px-2 text-xs ml-auto"
-              onClick={(e) => {
-                e.stopPropagation();
-                undoTaskCompletion(task.id);
-              }}
-            >
-              Undo
-            </Button>
+            <div className="flex items-center gap-2 ml-auto">
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 animate-scale-in">
+                Done
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-6 px-2 text-xs hover:bg-orange-50 hover:border-orange-200 transition-all duration-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  undoTaskCompletion(task.id);
+                }}
+              >
+                <Undo2 className="w-3 h-3 mr-1 text-orange-600" />
+                Undo
+              </Button>
+            </div>
           )}
         </div>
         
@@ -234,43 +231,46 @@ export default function TasksTab({
                       <div
                         key={task.id}
                         className={`
-                          text-xs p-2 rounded border-l-2 cursor-pointer transition-colors relative group
-                          ${task.status === 'completed' ? 'bg-green-50 border-green-400' : 'bg-background border-primary hover:bg-muted/50'}
+                          text-xs p-2 rounded border-l-2 cursor-pointer transition-all duration-300 relative group animate-fade-in
+                          ${task.status === 'completed' ? 'bg-green-50/80 border-green-400' : 'bg-background border-primary hover:bg-muted/50 hover:shadow-sm'}
                         `}
                         onClick={() => onTaskClick?.(task)}
                       >
                         <div className="flex items-center gap-1 mb-1">
-                          <Button
-                            variant="ghost"
+                          <TaskActionButton
+                            status={task.status}
                             size="sm"
-                            className="w-4 h-4 p-0"
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleTaskStatus(task.id, task.status);
                             }}
-                          >
-                            {getStatusIcon(task.status)}
-                          </Button>
-                          <span className={`font-medium truncate flex-1 ${task.status === 'completed' ? 'line-through' : ''}`}>
+                          />
+                          <span className={`font-medium truncate flex-1 transition-all duration-200 ${task.status === 'completed' ? 'line-through' : ''}`}>
                             {task.title}
                           </span>
                           {task.status === 'completed' && (
                             <Button
                               variant="ghost" 
                               size="sm"
-                              className="h-4 w-8 p-0 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="h-5 w-8 p-0 text-xs opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-orange-50"
                               onClick={(e) => {
-                                e.stopPropagation();
+                                e.stopPropagation();  
                                 undoTaskCompletion(task.id);
                               }}
+                              title="Undo completion"
                             >
-                              ↶
+                              <Undo2 className="w-3 h-3 text-orange-600" />
                             </Button>
                           )}
                         </div>
                         <div className="flex items-center gap-1">
                           {task.priority === 'high' && (
-                            <Flag className="w-3 h-3 text-red-500" />
+                            <Flag className="w-3 h-3 text-red-500 animate-pulse" />
+                          )}
+                          {task.status === 'completed' && (
+                            <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                              ✓
+                            </Badge>
                           )}
                         </div>
                       </div>

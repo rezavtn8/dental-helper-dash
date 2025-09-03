@@ -7,6 +7,7 @@ import { getPriorityStyles } from '@/lib/taskUtils';
 import { Task } from '@/types/task';
 import { Checkbox } from '@/components/ui/checkbox';
 import TaskNoteDialog from './TaskNoteDialog';
+import { TaskActionButton } from '@/components/ui/task-action-button';
 import { 
   Calendar, 
   Clock, 
@@ -17,7 +18,10 @@ import {
   Target,
   Sparkles,
   FileText,
-  ListChecks
+  ListChecks,
+  Flag,
+  Undo2,
+  ArrowUp
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -276,7 +280,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       : true;
     
     return (
-      <div className="relative overflow-hidden bg-white rounded-lg border border-blue-100 hover:border-blue-200 hover:shadow-sm transition-all duration-500 p-3 cursor-pointer group">
+      <div className="relative overflow-hidden bg-white rounded-lg border border-blue-100 hover:border-blue-200 hover:shadow-sm transition-all duration-500 p-3 cursor-pointer group animate-fade-in">
         {/* Rotating Border Effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg opacity-0 group-hover:opacity-20 transition-all duration-700 group-hover:animate-pulse" />
         
@@ -285,16 +289,18 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
         <div className="flex items-start justify-between gap-2">
           {/* Task Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start gap-2">
-              {/* Checkbox for completion */}
+            <div className="flex items-start gap-3">
+              {/* Task Action Button */}
               {!showPickUp && !showCompleted && (
-                <Checkbox
-                  checked={isCompleted(task.status)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      markTaskDone(task.id);
-                    } else {
+                <TaskActionButton
+                  status={task.status}
+                  size="md"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isCompleted(task.status)) {
                       markTaskUndone(task.id);
+                    } else {
+                      markTaskDone(task.id);
                     }
                   }}
                   className="mt-0.5"
@@ -302,9 +308,19 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
               )}
               
               <div className="flex-1 min-w-0">
-                <h3 className={`font-medium text-sm ${isCompleted(task.status) ? 'text-gray-500 line-through' : 'text-gray-900'} mb-1`}>
-                  {task.title}
-                </h3>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className={`font-medium text-sm transition-all duration-200 ${isCompleted(task.status) ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                    {task.title}
+                  </h3>
+                  {task.priority === 'high' && (
+                    <Flag className="w-3 h-3 text-red-500 animate-pulse" />
+                  )}
+                  {isCompleted(task.status) && (
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 animate-scale-in">
+                      ✓ Done
+                    </Badge>
+                  )}
+                </div>
                 
                 {task.description && (
                   <p className="text-xs text-gray-600 line-clamp-2 mb-2">
@@ -398,46 +414,48 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
             </Button>
 
             {showPickUp && (
-              <Button
+              <TaskActionButton
+                status={task.status}
+                action="pickup"
                 size="sm"
-                onClick={() => pickTask(task.id)}
-                className="h-6 text-xs bg-blue-600 hover:bg-blue-700 px-2"
-              >
-                Pick Up
-              </Button>
+                showLabel={true}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  pickTask(task.id);
+                }}
+                className="h-6 px-2 bg-blue-600 hover:bg-blue-700 text-white"
+              />
             )}
 
             {!showPickUp && !showCompleted && (
               <>
-                {isCompleted(task.status) ? (
-                  <Button
-                    size="sm"
+                {isCompleted(task.status) && (
+                  <TaskActionButton
+                    status={task.status}
+                    action="undo"
+                    size="sm" 
+                    showLabel={true}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      markTaskUndone(task.id);
+                    }}
+                    className="h-6 px-2 border-green-200 text-green-700 hover:bg-green-50"
                     variant="outline"
-                    onClick={() => markTaskUndone(task.id)}
-                    className="h-6 text-xs px-2 border-green-200 text-green-700 hover:bg-green-50"
-                  >
-                    Undo
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    onClick={() => markTaskDone(task.id)}
-                    className="h-6 text-xs px-2 bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={!isChecklistComplete}
-                    title={!isChecklistComplete ? 'Complete all checklist items first' : 'Mark task as done'}
-                  >
-                    Done
-                  </Button>
+                  />
                 )}
                 
-                <Button
+                <TaskActionButton
+                  status={task.status}
+                  action="return"
                   size="sm"
+                  showLabel={true}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    returnTask(task.id);
+                  }}
+                  className="h-6 px-2"
                   variant="outline"
-                  onClick={() => returnTask(task.id)}
-                  className="h-6 text-xs px-2"
-                >
-                  Return
-                </Button>
+                />
               </>
             )}
         </div>

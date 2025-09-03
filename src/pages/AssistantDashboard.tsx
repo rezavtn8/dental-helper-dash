@@ -101,37 +101,34 @@ const AssistantDashboard = () => {
 
   if (loading || !userProfile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
-        {/* Mobile Header */}
-        <header className="lg:hidden fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40">
-          <div className="ml-4 h-6 w-6 bg-teal-200 rounded animate-pulse" />
-          <div className="ml-4 h-6 w-32 bg-teal-200 rounded animate-pulse" />
-        </header>
-
-        <div className="flex">
-          {/* Sidebar Skeleton */}
-          <div className="hidden lg:block w-64 bg-white border-r border-teal-100">
-            <div className="p-6 space-y-4">
-              <div className="space-y-2">
-                <div className="h-8 bg-teal-200 rounded w-32 animate-pulse" />
-                <div className="h-4 bg-teal-100 rounded w-24 animate-pulse" />
-              </div>
-              <div className="space-y-2">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-10 bg-teal-100 rounded animate-pulse" />
-                ))}
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full bg-gradient-to-br from-teal-50 to-blue-50">
+          <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40 lg:hidden">
+            <div className="ml-4 h-6 w-6 bg-teal-200 rounded animate-pulse" />
+            <div className="ml-4 h-6 w-32 bg-teal-200 rounded animate-pulse" />
+          </header>
+          <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
+            <div className="flex flex-col flex-grow bg-white border-r border-teal-100">
+              <div className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <div className="h-8 bg-teal-200 rounded w-32 animate-pulse" />
+                  <div className="h-4 bg-teal-100 rounded w-24 animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="h-10 bg-teal-100 rounded animate-pulse" />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Main Content Skeleton */}
-          <main className="flex-1 min-h-screen pt-16 lg:pt-0">
-            <div className="p-6 lg:p-8 max-w-7xl">
+          <main className="flex-1 pt-16 lg:pt-0 lg:pl-64">
+            <div className="p-6 lg:p-8 max-w-7xl mx-auto">
               <TasksTabSkeleton />
             </div>
           </main>
         </div>
-      </div>
+      </SidebarProvider>
     );
   }
 
@@ -322,36 +319,31 @@ const AssistantDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
-      {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40">
-        <SidebarTrigger className="ml-4" />
-        <div className="ml-4">
-          <h1 className="font-semibold text-teal-900">
-            {clinic?.name || 'Assistant Portal'}
-          </h1>
-        </div>
-      </header>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-teal-50 to-blue-50">
+        <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40 lg:hidden">
+          <SidebarTrigger className="ml-4" />
+          <div className="ml-4">
+            <h1 className="font-semibold text-teal-900">
+              {clinic?.name || 'Assistant Portal'}
+            </h1>
+          </div>
+        </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <SidebarProvider>
-          <AssistantSidebar 
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            clinic={clinic}
-            userProfile={userProfile}
-          />
-        </SidebarProvider>
+        <AssistantSidebar 
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          clinic={clinic}
+          userProfile={userProfile}
+        />
 
-        {/* Main Content */}
-        <main className="flex-1 min-h-screen pt-16 lg:pt-0">
-          <div className="p-6 lg:p-8 max-w-7xl">
+        <main className="flex-1 pt-16 lg:pt-0 lg:pl-64">
+          <div className="p-6 lg:p-8 max-w-7xl mx-auto">
             {renderTabContent()}
           </div>
         </main>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

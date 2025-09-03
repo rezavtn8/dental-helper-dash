@@ -222,7 +222,7 @@ export const findAssignedAssistant = (task: Task, assistants: Assistant[]): Assi
 };
 
 // Recurrence utilities
-export type RecurrencePattern = 'daily' | 'weekly' | 'monthly' | 'none';
+export type RecurrencePattern = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'yearly' | 'none';
 
 export interface RecurringTaskInstance extends Task {
   isRecurringInstance: boolean;
@@ -284,8 +284,17 @@ export const generateRecurringInstances = (
       case 'weekly':
         currentDate = addDays(currentDate, 7);
         break;
+      case 'biweekly':
+        currentDate = addDays(currentDate, 14);
+        break;
       case 'monthly':
         currentDate = addDays(currentDate, 30);
+        break;
+      case 'quarterly':
+        currentDate = addDays(currentDate, 90);
+        break;
+      case 'yearly':
+        currentDate = addDays(currentDate, 365);
         break;
       default:
         // Unknown recurrence pattern, break the loop

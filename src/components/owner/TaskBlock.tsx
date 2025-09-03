@@ -3,20 +3,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
+import { RecurringTaskInstance, isRecurringInstance } from '@/lib/taskUtils';
 import { 
   CheckCircle, 
   Circle, 
   Clock, 
   AlertCircle,
   User,
-  Flag
+  Flag,
+  Repeat
 } from 'lucide-react';
 
 interface TaskBlockProps {
-  task: Task;
+  task: Task | RecurringTaskInstance;
   assistants: Assistant[];
   colorClass: string;
-  onTaskClick: (task: Task) => void;
+  onTaskClick: (task: Task | RecurringTaskInstance) => void;
   onStatusUpdate: (taskId: string, newStatus: TaskStatus) => void;
   onDragStart: (e: React.DragEvent, task: Task) => void;
   compact?: boolean;
@@ -106,6 +108,11 @@ export default function TaskBlock({
             }`}>
               {task.title}
             </span>
+            {isRecurringInstance(task) && (
+              <div title="Recurring task instance">
+                <Repeat className="w-3 h-3 text-blue-500" />
+              </div>
+            )}
             {getPriorityIcon()}
           </div>
 

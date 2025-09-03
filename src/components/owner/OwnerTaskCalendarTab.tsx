@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
+import { RecurringTaskInstance, isRecurringInstance } from '@/lib/taskUtils';
 import TaskCalendar from './TaskCalendar';
 import CreateTaskDialog from './CreateTaskDialog';
 import TaskDetailModal from './TaskDetailModal';
@@ -69,8 +70,26 @@ export default function OwnerTaskCalendarTab({ clinicId }: OwnerTaskCalendarTabP
     }
   };
 
-  const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
+  const handleTaskClick = async (task: Task | RecurringTaskInstance) => {
+    if (isRecurringInstance(task)) {
+      // For recurring instances, get the parent task
+      try {
+        const { data: parentTask, error } = await supabase
+          .from('tasks')
+          .select('*')
+          .eq('id', task.parentTaskId)
+          .single();
+          
+        if (error) throw error;
+        setSelectedTask(parentTask);
+      } catch (error) {
+        console.error('Error fetching parent task:', error);
+        toast.error('Failed to load task details');
+        return;
+      }
+    } else {
+      setSelectedTask(task);
+    }
     setShowTaskDetail(true);
   };
 

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
+import { RecurringTaskInstance, getTasksForDate as getTasksForDateUtil, getTasksForDateRange, isRecurringInstance } from '@/lib/taskUtils';
 import TaskBlock from './TaskBlock';
 import { 
   ChevronLeft, 
@@ -34,7 +35,7 @@ interface TaskCalendarProps {
   viewMode: 'daily' | 'weekly' | 'monthly';
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
-  onTaskClick: (task: Task) => void;
+  onTaskClick: (task: Task | RecurringTaskInstance) => void;
   onDayClick: (date: Date) => void;
   onTaskStatusUpdate: (taskId: string, newStatus: TaskStatus) => void;
   onTaskReschedule: (taskId: string, newDate: Date) => void;
@@ -72,17 +73,29 @@ export default function TaskCalendar({
     return colors[index % colors.length];
   };
 
-  // Get tasks for a specific date
-  const getTasksForDate = (date: Date) => {
-    return tasks.filter(task => {
-      const taskDate = task.custom_due_date 
-        ? new Date(task.custom_due_date) 
-        : task.created_at 
-          ? new Date(task.created_at)
-          : new Date();
-      
-      return isSameDay(taskDate, date);
-    });
+  // Calculate date range for the current view mode
+  const dateRange = useMemo(() => {
+    switch (viewMode) {
+      case 'daily':
+        return [selectedDate];
+      case 'weekly':
+        return eachDayOfInterval({
+          start: startOfWeek(selectedDate),
+          end: endOfWeek(selectedDate)
+        });
+      case 'monthly':
+        return eachDayOfInterval({
+          start: startOfWeek(startOfMonth(selectedDate)),
+          end: endOfWeek(endOfMonth(selectedDate))
+        });
+      default:
+        return [selectedDate];
+    }
+  }, [viewMode, selectedDate]);
+
+  // Get tasks for a specific date using the utility function that handles recurrence
+  const getTasksForDate = (date: Date): (Task | RecurringTaskInstance)[] => {
+    return getTasksForDateUtil(tasks, date);
   };
 
   // Navigation handlers
@@ -114,24 +127,6 @@ export default function TaskCalendar({
     }
   };
 
-  // Get date range based on view mode
-  const getDateRange = () => {
-    switch (viewMode) {
-      case 'daily':
-        return [selectedDate];
-      case 'weekly':
-        return eachDayOfInterval({
-          start: startOfWeek(selectedDate),
-          end: endOfWeek(selectedDate)
-        });
-      case 'monthly':
-        return eachDayOfInterval({
-          start: startOfWeek(startOfMonth(selectedDate)),
-          end: endOfWeek(endOfMonth(selectedDate))
-        });
-    }
-  };
-
   // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     setDraggedTask(task);
@@ -151,7 +146,6 @@ export default function TaskCalendar({
     }
   };
 
-  const dateRange = getDateRange();
   const headerFormat = viewMode === 'monthly' ? 'MMMM yyyy' : 
                       viewMode === 'weekly' ? "'Week of' MMM d, yyyy" : 
                       'EEEE, MMM d, yyyy';

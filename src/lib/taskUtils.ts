@@ -19,6 +19,8 @@
  */
 
 import { Task, Assistant } from '@/types/task';
+import { TaskStatus } from '@/lib/taskStatus';
+import { addDays, addWeeks, addMonths, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
 
 // Priority utilities
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -219,7 +221,137 @@ export const findAssignedAssistant = (task: Task, assistants: Assistant[]): Assi
   return assistants.find(assistant => assistant.id === task.assigned_to) || null;
 };
 
-// Task validation utilities
+// Recurrence utilities
+export type RecurrencePattern = 'daily' | 'weekly' | 'monthly' | 'none';
+
+export interface RecurringTaskInstance extends Task {
+  isRecurringInstance: boolean;
+  parentTaskId: string;
+  instanceDate: Date;
+  originalDueDate?: Date;
+}
+
+/**
+ * Generate recurring task instances for a given task within a date range
+ */
+export const generateRecurringInstances = (
+  task: Task, 
+  startDate: Date, 
+  endDate: Date
+): RecurringTaskInstance[] => {
+  if (!task.recurrence || task.recurrence === 'none') {
+    return [];
+  }
+
+  const instances: RecurringTaskInstance[] = [];
+  const taskBaseDate = task.custom_due_date 
+    ? new Date(task.custom_due_date)
+    : new Date(task.created_at);
+
+  let currentDate = new Date(Math.max(startDate.getTime(), taskBaseDate.getTime()));
+  
+  // Limit to prevent infinite loops - max 365 instances
+  let instanceCount = 0;
+  const maxInstances = 365;
+
+  while (currentDate <= endDate && instanceCount < maxInstances) {
+    // Create instance for this date
+    const instance: RecurringTaskInstance = {
+      ...task,
+      id: `${task.id}_${currentDate.toISOString().split('T')[0]}`,
+      isRecurringInstance: true,
+      parentTaskId: task.id,
+      instanceDate: new Date(currentDate),
+      originalDueDate: taskBaseDate,
+      custom_due_date: currentDate.toISOString(),
+      status: 'pending' as TaskStatus, // Reset status for each instance
+      completed_at: undefined,
+      completed_by: undefined
+    };
+
+    instances.push(instance);
+    instanceCount++;
+
+    // Calculate next occurrence
+    switch (task.recurrence.toLowerCase()) {
+      case 'daily':
+        currentDate = addDays(currentDate, 1);
+        break;
+      case 'weekly':
+        currentDate = addWeeks(currentDate, 1);
+        break;
+      case 'monthly':
+        currentDate = addMonths(currentDate, 1);
+        break;
+      default:
+        // Unknown recurrence pattern, break the loop
+        break;
+    }
+  }
+
+  return instances;
+};
+
+/**
+ * Expand a list of tasks to include recurring instances within a date range
+ */
+export const expandTasksWithRecurrence = (
+  tasks: Task[], 
+  startDate: Date, 
+  endDate: Date
+): (Task | RecurringTaskInstance)[] => {
+  const expandedTasks: (Task | RecurringTaskInstance)[] = [...tasks];
+  
+  tasks.forEach(task => {
+    if (task.recurrence && task.recurrence !== 'none') {
+      const instances = generateRecurringInstances(task, startDate, endDate);
+      expandedTasks.push(...instances);
+    }
+  });
+
+  return expandedTasks;
+};
+
+/**
+ * Check if a task instance is a recurring instance
+ */
+export const isRecurringInstance = (task: Task | RecurringTaskInstance): task is RecurringTaskInstance => {
+  return 'isRecurringInstance' in task && task.isRecurringInstance === true;
+};
+
+/**
+ * Get tasks for a specific date, including recurring instances
+ */
+export const getTasksForDate = (
+  tasks: Task[], 
+  targetDate: Date
+): (Task | RecurringTaskInstance)[] => {
+  const startOfTargetDate = startOfDay(targetDate);
+  const endOfTargetDate = endOfDay(targetDate);
+  
+  // Expand tasks with recurrence for the target date range
+  const expandedTasks = expandTasksWithRecurrence(tasks, startOfTargetDate, endOfTargetDate);
+  
+  // Filter tasks that match the target date
+  return expandedTasks.filter(task => {
+    const taskDate = task.custom_due_date 
+      ? startOfDay(new Date(task.custom_due_date))
+      : startOfDay(new Date(task.created_at));
+    
+    return taskDate.getTime() === startOfTargetDate.getTime();
+  });
+};
+
+/**
+ * Get tasks for a date range, including recurring instances
+ */
+export const getTasksForDateRange = (
+  tasks: Task[], 
+  startDate: Date, 
+  endDate: Date
+): (Task | RecurringTaskInstance)[] => {
+  return expandTasksWithRecurrence(tasks, startDate, endDate);
+};
 export const isValidTask = (task: Partial<Task>): task is Task => {
   return !!(task.id && task.title && task.clinic_id);
 };
@@ -265,6 +397,13 @@ export const taskUtils = {
   
   // Assistants
   findAssignedAssistant,
+  
+  // Recurrence
+  generateRecurringInstances,
+  expandTasksWithRecurrence,
+  isRecurringInstance,
+  getTasksForDate,
+  getTasksForDateRange,
   
   // Validation
   isValidTask,

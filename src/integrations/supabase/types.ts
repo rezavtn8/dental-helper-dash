@@ -954,6 +954,14 @@ export type Database = {
           success: boolean
         }[]
       }
+      accept_invitation_secure: {
+        Args: { p_token: string }
+        Returns: {
+          clinic_id: string
+          message: string
+          success: boolean
+        }[]
+      }
       accept_invitation_with_rate_limit: {
         Args: { invitation_token: string }
         Returns: {
@@ -1052,6 +1060,15 @@ export type Database = {
           invitation_url: string
         }[]
       }
+      create_user_session_secure: {
+        Args: {
+          p_clinic_id: string
+          p_device_fingerprint?: string
+          p_session_token: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       generate_clinic_code: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1109,6 +1126,15 @@ export type Database = {
           status: string
         }[]
       }
+      get_security_status_enhanced: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_name: string
+          details: string
+          severity: string
+          status: string
+        }[]
+      }
       link_user_to_pending_invitation: {
         Args: { user_email: string }
         Returns: {
@@ -1126,6 +1152,14 @@ export type Database = {
         Returns: undefined
       }
       lookup_clinic_by_code: {
+        Args: { p_code: string }
+        Returns: {
+          clinic_code: string
+          id: string
+          name: string
+        }[]
+      }
+      lookup_clinic_safe: {
         Args: { p_code: string }
         Returns: {
           clinic_code: string

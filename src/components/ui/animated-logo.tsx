@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface AnimatedLogoProps {
   size?: number;
@@ -8,11 +8,23 @@ interface AnimatedLogoProps {
 export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) => {
   const [isDrawing, setIsDrawing] = useState(true);
   const [drawProgress, setDrawProgress] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const pathRef = useRef<SVGPathElement>(null);
+  const [pathLength, setPathLength] = useState(3500);
+
+  useEffect(() => {
+    // Measure actual path length for precise animation
+    if (pathRef.current) {
+      const length = pathRef.current.getTotalLength();
+      setPathLength(length);
+    }
+  }, []);
 
   useEffect(() => {
     const runDrawingAnimation = () => {
       setIsDrawing(true);
       setDrawProgress(0);
+      setIsTransitioning(false);
       
       // Animate drawing progress from 0 to 100% over 4.5 seconds for elegant, deliberate drawing
       const duration = 4500;
@@ -32,10 +44,19 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
         if (progress < 1) {
           requestAnimationFrame(animateProgress);
         } else {
-          // Drawing complete, show filled logo for 3.5 seconds to appreciate the artwork
+          // Ensure we reach exactly 100%
+          setDrawProgress(1);
+          
+          // Start transition phase
           setTimeout(() => {
-            setIsDrawing(false);
-          }, 3500);
+            setIsTransitioning(true);
+            
+            // Complete transition to filled state
+            setTimeout(() => {
+              setIsDrawing(false);
+              setIsTransitioning(false);
+            }, 600);
+          }, 200);
         }
       };
       
@@ -45,11 +66,11 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
     // Initial animation with slight delay
     setTimeout(() => runDrawingAnimation(), 500);
     
-    // Repeat every 12 seconds (4.5s drawing + 3.5s viewing + 4s pause)
+    // Repeat every 12 seconds (4.5s drawing + 0.8s transition + 3.5s viewing + 3.2s pause)
     const interval = setInterval(() => runDrawingAnimation(), 12000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [pathLength]);
 
   const logoStyle: React.CSSProperties = {
     transition: 'opacity 0.8s ease-out, filter 0.6s ease-out',
@@ -59,21 +80,30 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   };
 
   const getPathStyle = (): React.CSSProperties => {
-    const pathLength = 3500; // Total path length
     const currentOffset = pathLength * (1 - drawProgress);
+    
+    // Calculate smooth opacity transitions
+    const strokeOpacity = isDrawing 
+      ? (drawProgress < 0.95 ? 0.95 : 0.95 * (1 - (drawProgress - 0.95) / 0.05))
+      : (isTransitioning ? 0.3 : 0);
+    
+    const fillOpacity = isDrawing 
+      ? 0 
+      : (isTransitioning ? 0.7 : 1);
     
     return {
       strokeDasharray: `${pathLength}`,
-      strokeDashoffset: currentOffset,
-      fillOpacity: isDrawing ? 0 : 1,
-      strokeOpacity: isDrawing ? 0.9 : 0,
-      strokeWidth: isDrawing ? 2 : 0,
+      strokeDashoffset: Math.max(0, currentOffset),
+      fillOpacity,
+      strokeOpacity,
+      strokeWidth: isDrawing ? 2.5 : (isTransitioning ? 1.5 : 0),
       stroke: 'hsl(var(--primary))',
       strokeLinecap: 'round',
       strokeLinejoin: 'round',
+      filter: isDrawing ? 'drop-shadow(0 0 3px hsl(var(--primary) / 0.4))' : 'none',
       transition: isDrawing 
         ? 'none' 
-        : 'fill-opacity 0.8s ease-out, stroke-opacity 0.4s ease-out, stroke-width 0.4s ease-out',
+        : 'fill-opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-width 0.4s ease-out, filter 0.4s ease-out',
     };
   };
 
@@ -91,6 +121,7 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
           className="mx-auto"
         >
           <path 
+            ref={pathRef}
             fill="hsl(var(--primary))" 
             stroke="hsl(var(--primary))"
             strokeWidth="2"

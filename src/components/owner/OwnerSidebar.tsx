@@ -45,12 +45,12 @@ interface OwnerSidebarProps {
 
 const navigationItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'task-calendar', label: 'Task Calendar', icon: Calendar },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare },
   { id: 'templates', label: 'Templates', icon: FileText },
   { id: 'team', label: 'Team', icon: Users },
   { id: 'schedule', label: 'Team Schedule', icon: CalendarDays },
-  { id: 'task-calendar', label: 'Task Calendar', icon: Calendar },
-  { id: 'log', label: 'Log', icon: ScrollText },
+  { id: 'log', label: 'Logs', icon: ScrollText },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'settings', label: 'Settings', icon: Settings },

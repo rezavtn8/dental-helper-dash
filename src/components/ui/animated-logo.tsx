@@ -6,63 +6,71 @@ interface AnimatedLogoProps {
 }
 
 export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) => {
-  const [animationPhase, setAnimationPhase] = useState(0); // 0: drawing, 1: complete, 2: idle
-  const [isHovered, setIsHovered] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(true);
+  const [drawProgress, setDrawProgress] = useState(0);
 
   useEffect(() => {
-    const runAnimation = () => {
-      // Start drawing phase
-      setAnimationPhase(0);
+    const runDrawingAnimation = () => {
+      setIsDrawing(true);
+      setDrawProgress(0);
       
-      // Complete drawing after 2.5s
-      setTimeout(() => {
-        setAnimationPhase(1);
-      }, 2500);
+      // Animate drawing progress from 0 to 100% over 3 seconds
+      const duration = 3000;
+      const startTime = Date.now();
       
-      // Move to idle phase after 1s
-      setTimeout(() => {
-        setAnimationPhase(2);
-      }, 3500);
+      const animateProgress = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Use easing function for natural drawing feel
+        const easedProgress = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        setDrawProgress(easedProgress);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateProgress);
+        } else {
+          // Drawing complete, fade out stroke and show fill
+          setTimeout(() => {
+            setIsDrawing(false);
+          }, 200);
+        }
+      };
+      
+      requestAnimationFrame(animateProgress);
     };
 
     // Initial animation
-    setTimeout(() => runAnimation(), 200);
+    setTimeout(() => runDrawingAnimation(), 300);
     
-    // Repeat every 20 seconds for subtle refresh
-    const interval = setInterval(() => runAnimation(), 20000);
+    // Repeat every 25 seconds
+    const interval = setInterval(() => runDrawingAnimation(), 25000);
     
     return () => clearInterval(interval);
   }, []);
 
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => setIsHovered(false);
-
   const logoStyle: React.CSSProperties = {
-    opacity: animationPhase === 0 ? 0.3 : 1,
-    transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-    filter: isHovered 
-      ? 'brightness(1.15) drop-shadow(0 4px 16px hsl(var(--primary) / 0.25))' 
-      : animationPhase === 2
-      ? 'drop-shadow(0 2px 8px hsl(var(--primary) / 0.15))'
-      : 'drop-shadow(0 1px 4px hsl(var(--primary) / 0.1))',
-    transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+    transition: 'opacity 0.8s ease-out, filter 0.6s ease-out',
+    filter: isDrawing 
+      ? 'none'
+      : 'drop-shadow(0 2px 8px hsl(var(--primary) / 0.12))',
   };
 
   const getPathStyle = (): React.CSSProperties => {
-    const pathLength = 2000; // Approximate path length for smooth animation
+    const pathLength = 3500; // Total path length
+    const currentOffset = pathLength * (1 - drawProgress);
     
     return {
-      strokeDasharray: pathLength,
-      strokeDashoffset: animationPhase === 0 ? pathLength : 0,
-      fillOpacity: animationPhase === 0 ? 0 : 1,
-      strokeOpacity: animationPhase === 0 ? 0.8 : 0,
-      strokeWidth: animationPhase === 0 ? 1.5 : 0,
-      transition: `
-        stroke-dashoffset 2.5s cubic-bezier(0.4, 0, 0.2, 1),
-        fill-opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1) 2.2s,
-        stroke-opacity 0.4s ease-out 2.8s,
-        stroke-width 0.4s ease-out 2.8s
-      `,
+      strokeDasharray: `${pathLength}`,
+      strokeDashoffset: currentOffset,
+      fillOpacity: isDrawing ? 0 : 1,
+      strokeOpacity: isDrawing ? 0.9 : 0,
+      strokeWidth: isDrawing ? 2 : 0,
+      stroke: 'hsl(var(--primary))',
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round',
+      transition: isDrawing 
+        ? 'none' 
+        : 'fill-opacity 0.8s ease-out, stroke-opacity 0.4s ease-out, stroke-width 0.4s ease-out',
     };
   };
 
@@ -70,8 +78,6 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
     <>
       <div 
         className={`animated-logo-container ${className}`}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 

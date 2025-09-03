@@ -11,6 +11,7 @@ import AuthWidget from '@/components/auth/AuthWidget';
 import ClinicSetupForm from '@/components/ClinicSetupForm';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
 export default function Home() {
+  console.log('Home component rendering'); // Debug log
   const navigate = useNavigate();
   const {
     user,
@@ -139,6 +140,7 @@ export default function Home() {
                   <Building2 className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
+            </div>
           </div>
           
           {/* CTA Buttons */}
@@ -197,7 +199,10 @@ export default function Home() {
             </CardHeader>
             
             <CardContent className="p-6">
-              {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? <ClinicSetupForm userProfile={userProfile} /> : <Tabs defaultValue="owner" className="w-full">
+              {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? (
+                <ClinicSetupForm userProfile={userProfile} />
+              ) : (
+                <Tabs defaultValue="owner" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted p-1 h-12">
                     <TabsTrigger value="owner" className="flex items-center space-x-2 py-2 text-sm font-medium">
                       <Crown className="w-4 h-4" />
@@ -230,7 +235,8 @@ export default function Home() {
                     </div>
                     <AuthWidget role="assistant" />
                   </TabsContent>
-                </Tabs>}
+                </Tabs>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -385,5 +391,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 }

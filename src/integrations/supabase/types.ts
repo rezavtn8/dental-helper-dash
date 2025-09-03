@@ -1135,6 +1135,29 @@ export type Database = {
           status: string
         }[]
       }
+      get_team_members_secure: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          id: string
+          is_active: boolean
+          last_login: string
+          name: string
+          role: string
+        }[]
+      }
+      get_user_profile_secure: {
+        Args: { target_user_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          last_login: string
+          name: string
+          role: string
+        }[]
+      }
       link_user_to_pending_invitation: {
         Args: { user_email: string }
         Returns: {
@@ -1156,6 +1179,15 @@ export type Database = {
         Returns: {
           clinic_code: string
           id: string
+          name: string
+        }[]
+      }
+      lookup_clinic_by_code_secure: {
+        Args: { p_code: string }
+        Returns: {
+          clinic_code: string
+          id: string
+          member_count: number
           name: string
         }[]
       }
@@ -1187,6 +1219,14 @@ export type Database = {
         Returns: string
       }
       submit_join_request: {
+        Args: { p_clinic_code: string }
+        Returns: {
+          message: string
+          request_id: string
+          success: boolean
+        }[]
+      }
+      submit_join_request_secure: {
         Args: { p_clinic_code: string }
         Returns: {
           message: string

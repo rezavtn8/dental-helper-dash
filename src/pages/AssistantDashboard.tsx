@@ -16,13 +16,14 @@ import LearningTab from '@/components/assistant/LearningTab';
 import CertificationsTab from '@/components/assistant/CertificationsTab';
 import FeedbackTab from '@/components/assistant/FeedbackTab';
 import SettingsTab from '@/components/assistant/SettingsTab';
-import { Task } from '@/types/task';
+import { Task, Assistant } from '@/types/task';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
 
 const AssistantDashboard = () => {
   const { session, user, userProfile } = useAuth();
   const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [patientCount, setPatientCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -82,12 +83,31 @@ const AssistantDashboard = () => {
     }
   };
 
+  const fetchAssistants = async () => {
+    if (!userProfile?.clinic_id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, email, role, is_active, created_at, last_login')
+        .eq('clinic_id', userProfile.clinic_id)
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+      setAssistants((data || []) as Assistant[]);
+    } catch (error) {
+      console.error('Error fetching assistants:', error);
+    }
+  };
+
   const fetchAllData = async () => {
     if (userProfile?.clinic_id) {
       await Promise.all([
         fetchTasks(),
         fetchTodayPatientCount(),
-        fetchClinic()
+        fetchClinic(),
+        fetchAssistants()
       ]);
     }
     setLoading(false);
@@ -333,6 +353,7 @@ const AssistantDashboard = () => {
         return (
           <TasksTab 
             tasks={tasks}
+            assistants={assistants}
             onTaskUpdate={fetchTasks}
           />
         );

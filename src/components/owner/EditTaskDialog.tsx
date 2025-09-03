@@ -246,7 +246,10 @@ export default function EditTaskDialog({
                 <SelectItem value="none">None</SelectItem>
                 <SelectItem value="daily">Daily</SelectItem>
                 <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="biweekly">Biweekly</SelectItem>
                 <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
+                <SelectItem value="yearly">Yearly</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -387,6 +387,8 @@ export default function TaskDetailModal({
                       <SelectItem value="weekly">Weekly</SelectItem>
                       <SelectItem value="biweekly">Biweekly</SelectItem>
                       <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="quarterly">Quarterly</SelectItem>
+                      <SelectItem value="yearly">Yearly</SelectItem>
                     </SelectContent>
                   </Select>
                 ) : (

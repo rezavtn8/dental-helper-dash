@@ -317,7 +317,7 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -397,101 +397,171 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
             </div>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Task Calendar Card */}
+      {/* Task Calendar & Analytics - Featured Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Task Calendar Card - Expanded */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-purple-600" />
-              Task Calendar
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-purple-600" />
+                Task Calendar Overview
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onTabChange?.('task-calendar')}
+              >
+                View Full Calendar <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
             </CardTitle>
             <CardDescription>
-              Today's schedule and upcoming tasks
+              Today's schedule, overdue tasks, and weekly overview
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{taskCalendarData.todaysTasks}</div>
-                <div className="text-xs text-muted-foreground">Today</div>
+          <CardContent className="space-y-6">
+            {/* Today's Summary */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-3xl font-bold text-blue-600">{taskCalendarData.todaysTasks}</div>
+                <div className="text-sm text-blue-700 font-medium">Today's Tasks</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {format(new Date(), 'MMM d')}
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{taskCalendarData.overdueTasks}</div>
-                <div className="text-xs text-muted-foreground">Overdue</div>
+              <div className="text-center p-4 bg-orange-50 rounded-lg">
+                <div className="text-3xl font-bold text-orange-600">{taskCalendarData.overdueTasks}</div>
+                <div className="text-sm text-orange-700 font-medium">Overdue</div>
+                <div className="text-xs text-muted-foreground mt-1">Needs attention</div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-3xl font-bold text-green-600">{taskCalendarData.thisWeekTasks}</div>
+                <div className="text-sm text-green-700 font-medium">This Week</div>
+                <div className="text-xs text-muted-foreground mt-1">Total scheduled</div>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>This week</span>
-                <Badge variant="outline">{taskCalendarData.thisWeekTasks}</Badge>
-              </div>
-              {taskCalendarData.upcomingTasks.length > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  Next: {taskCalendarData.upcomingTasks[0].title}
+            {/* Upcoming Tasks */}
+            <div className="space-y-3">
+              <h4 className="font-medium flex items-center gap-2">
+                <Timer className="w-4 h-4 text-muted-foreground" />
+                Upcoming Tasks
+              </h4>
+              {taskCalendarData.upcomingTasks.length > 0 ? (
+                <div className="space-y-2">
+                  {taskCalendarData.upcomingTasks.slice(0, 3).map((task, index) => (
+                    <div key={task.id || index} className="flex items-center justify-between p-3 bg-slate-50 rounded-md">
+                      <div>
+                        <div className="font-medium text-sm">{task.title}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {task.custom_due_date ? format(parseISO(task.custom_due_date), 'MMM d, h:mm a') : 'No due date'}
+                        </div>
+                      </div>
+                      <Badge variant={task.priority === 'high' ? 'destructive' : 'secondary'} className="text-xs">
+                        {task.priority || 'medium'}
+                      </Badge>
+                    </div>
+                  ))}
+                  {taskCalendarData.upcomingTasks.length > 3 && (
+                    <div className="text-center text-sm text-muted-foreground py-2">
+                      +{taskCalendarData.upcomingTasks.length - 3} more tasks
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-sm text-muted-foreground">
+                  No upcoming tasks scheduled
                 </div>
               )}
             </div>
-
-            <Button 
-              variant="outline" 
-              className="w-full text-xs"
-              onClick={() => onTabChange?.('task-calendar')}
-            >
-              View Calendar <ArrowRight className="w-3 h-3 ml-1" />
-            </Button>
           </CardContent>
         </Card>
 
-        {/* Analytics Card */}
+        {/* Analytics Card - Expanded */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-emerald-600" />
-              Analytics
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-emerald-600" />
+                Performance Analytics
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onTabChange?.('analytics')}
+              >
+                View Details <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
             </CardTitle>
             <CardDescription>
-              Performance insights and trends
+              Team performance insights and productivity trends
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-emerald-600" />
-                <span className="text-sm">Completion Rate</span>
+          <CardContent className="space-y-6">
+            {/* Key Metrics */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-4 bg-emerald-50 rounded-lg">
+                <div className="text-3xl font-bold text-emerald-600">{analyticsData.taskCompletionRate}%</div>
+                <div className="text-sm text-emerald-700 font-medium">Completion Rate</div>
+                <div className="text-xs text-muted-foreground mt-1">Overall performance</div>
               </div>
-              <Badge variant="secondary" className="bg-emerald-50 text-emerald-700">
-                {analyticsData.taskCompletionRate}%
-              </Badge>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Timer className="w-4 h-4 text-blue-600" />
-                <span className="text-sm">Avg Tasks/Assistant</span>
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-3xl font-bold text-blue-600">{analyticsData.averageTasksPerAssistant}</div>
+                <div className="text-sm text-blue-700 font-medium">Avg per Assistant</div>
+                <div className="text-xs text-muted-foreground mt-1">Task distribution</div>
               </div>
-              <Badge variant="secondary">
-                {analyticsData.averageTasksPerAssistant}
-              </Badge>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <TrendingUp className={`w-4 h-4 ${analyticsData.weeklyTrend >= 0 ? 'text-green-600' : 'text-red-600'}`} />
-                <span className="text-sm">Weekly Trend</span>
-              </div>
-              <Badge variant={analyticsData.weeklyTrend >= 0 ? "default" : "destructive"}>
-                {analyticsData.weeklyTrend >= 0 ? '+' : ''}{analyticsData.weeklyTrend}%
-              </Badge>
-            </div>
+            {/* Performance Indicators */}
+            <div className="space-y-4">
+              <h4 className="font-medium flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                Performance Indicators
+              </h4>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-md">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-4 h-4 text-emerald-600" />
+                    <div>
+                      <div className="font-medium text-sm">Weekly Trend</div>
+                      <div className="text-xs text-muted-foreground">vs. last week</div>
+                    </div>
+                  </div>
+                  <Badge variant={analyticsData.weeklyTrend >= 0 ? "default" : "destructive"} className="text-sm">
+                    {analyticsData.weeklyTrend >= 0 ? '+' : ''}{analyticsData.weeklyTrend}%
+                  </Badge>
+                </div>
 
-            <Button 
-              variant="outline" 
-              className="w-full text-xs"
-              onClick={() => onTabChange?.('analytics')}
-            >
-              View Details <ArrowRight className="w-3 h-3 ml-1" />
-            </Button>
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-md">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-4 h-4 text-blue-600" />
+                    <div>
+                      <div className="font-medium text-sm">Active Tasks</div>
+                      <div className="text-xs text-muted-foreground">Currently in progress</div>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="text-sm">
+                    {analyticsData.totalActiveTasks}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-md">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-4 h-4 text-purple-600" />
+                    <div>
+                      <div className="font-medium text-sm">Team Productivity</div>
+                      <div className="text-xs text-muted-foreground">Tasks completed this week</div>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="text-sm">
+                    {stats.completedTasksThisWeek}
+                  </Badge>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

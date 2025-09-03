@@ -6,9 +6,9 @@ interface AnimatedLogoProps {
 }
 
 export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) => {
-  const [isDrawing, setIsDrawing] = useState(true);
+  const [animationPhase, setAnimationPhase] = useState<'drawing' | 'filling' | 'emptying' | 'disappearing'>('drawing');
   const [drawProgress, setDrawProgress] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [fillProgress, setFillProgress] = useState(0);
   const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState(3500);
 
@@ -21,60 +21,105 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   }, []);
 
   useEffect(() => {
-    const runDrawingAnimation = () => {
-      setIsDrawing(true);
+    const runAnimation = () => {
+      const phaseDuration = 1500; // Each phase takes 1.5 seconds
+      
+      // Phase 1: Drawing (stroke appears)
+      setAnimationPhase('drawing');
       setDrawProgress(0);
-      setIsTransitioning(false);
+      setFillProgress(0);
       
-      // Animate drawing progress from 0 to 100% over 4.5 seconds for elegant, deliberate drawing
-      const duration = 4500;
-      const startTime = Date.now();
-      
-      const animateProgress = () => {
+      const animateDrawing = (startTime: number) => {
         const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
+        const progress = Math.min(elapsed / phaseDuration, 1);
         
-        // Natural artist-like easing: slow start, speed up, then slow finish
+        // Natural artist-like easing
         const easedProgress = progress < 0.5 
-          ? 2 * progress * progress * progress // ease-in cubic for first half
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2; // ease-out cubic for second half
+          ? 2 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
         
         setDrawProgress(easedProgress);
         
         if (progress < 1) {
-          requestAnimationFrame(animateProgress);
+          requestAnimationFrame(() => animateDrawing(startTime));
         } else {
-          // Ensure we reach exactly 100%
-          setDrawProgress(1);
-          
-          // Start transition phase
+          // Phase 2: Filling
           setTimeout(() => {
-            setIsTransitioning(true);
+            setAnimationPhase('filling');
+            const fillStartTime = Date.now();
             
-            // Complete transition to filled state
-            setTimeout(() => {
-              setIsDrawing(false);
-              setIsTransitioning(false);
-            }, 600);
+            const animateFilling = () => {
+              const elapsed = Date.now() - fillStartTime;
+              const progress = Math.min(elapsed / phaseDuration, 1);
+              const easedProgress = progress * progress * (3 - 2 * progress); // smooth ease
+              
+              setFillProgress(easedProgress);
+              
+              if (progress < 1) {
+                requestAnimationFrame(animateFilling);
+              } else {
+                // Phase 3: Emptying  
+                setTimeout(() => {
+                  setAnimationPhase('emptying');
+                  const emptyStartTime = Date.now();
+                  
+                  const animateEmptying = () => {
+                    const elapsed = Date.now() - emptyStartTime;
+                    const progress = Math.min(elapsed / phaseDuration, 1);
+                    const easedProgress = 1 - (progress * progress * (3 - 2 * progress));
+                    
+                    setFillProgress(easedProgress);
+                    
+                    if (progress < 1) {
+                      requestAnimationFrame(animateEmptying);
+                    } else {
+                      // Phase 4: Disappearing
+                      setTimeout(() => {
+                        setAnimationPhase('disappearing');
+                        const disappearStartTime = Date.now();
+                        
+                        const animateDisappearing = () => {
+                          const elapsed = Date.now() - disappearStartTime;
+                          const progress = Math.min(elapsed / phaseDuration, 1);
+                          const easedProgress = 1 - (progress * progress * (3 - 2 * progress));
+                          
+                          setDrawProgress(easedProgress);
+                          
+                          if (progress < 1) {
+                            requestAnimationFrame(animateDisappearing);
+                          }
+                        };
+                        
+                        requestAnimationFrame(animateDisappearing);
+                      }, 500);
+                    }
+                  };
+                  
+                  requestAnimationFrame(animateEmptying);
+                }, 500);
+              }
+            };
+            
+            requestAnimationFrame(animateFilling);
           }, 200);
         }
       };
       
-      requestAnimationFrame(animateProgress);
+      requestAnimationFrame(() => animateDrawing(Date.now()));
     };
 
     // Initial animation with slight delay
-    setTimeout(() => runDrawingAnimation(), 500);
+    setTimeout(() => runAnimation(), 500);
     
-    // Repeat every 12 seconds (4.5s drawing + 0.8s transition + 3.5s viewing + 3.2s pause)
-    const interval = setInterval(() => runDrawingAnimation(), 12000);
+    // Repeat every 8 seconds (1.5s x 4 phases + pauses)
+    const interval = setInterval(() => runAnimation(), 8000);
     
     return () => clearInterval(interval);
   }, [pathLength]);
 
   const logoStyle: React.CSSProperties = {
     transition: 'opacity 0.8s ease-out, filter 0.6s ease-out',
-    filter: isDrawing 
+    filter: animationPhase === 'drawing' || animationPhase === 'disappearing'
       ? 'none'
       : 'drop-shadow(0 2px 8px hsl(var(--primary) / 0.12))',
   };
@@ -82,28 +127,28 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   const getPathStyle = (): React.CSSProperties => {
     const currentOffset = pathLength * (1 - drawProgress);
     
-    // Calculate smooth opacity transitions
-    const strokeOpacity = isDrawing 
-      ? (drawProgress < 0.95 ? 0.95 : 0.95 * (1 - (drawProgress - 0.95) / 0.05))
-      : (isTransitioning ? 0.3 : 0);
+    // Calculate opacity based on animation phase
+    const strokeOpacity = (animationPhase === 'drawing' && drawProgress > 0) || 
+                         (animationPhase === 'filling') || 
+                         (animationPhase === 'emptying') ? 0.9 : 0;
     
-    const fillOpacity = isDrawing 
-      ? 0 
-      : (isTransitioning ? 0.7 : 1);
+    const fillOpacity = animationPhase === 'filling' || animationPhase === 'emptying' 
+      ? fillProgress 
+      : 0;
     
     return {
       strokeDasharray: `${pathLength}`,
       strokeDashoffset: Math.max(0, currentOffset),
       fillOpacity,
       strokeOpacity,
-      strokeWidth: isDrawing ? 2.5 : (isTransitioning ? 1.5 : 0),
+      strokeWidth: strokeOpacity > 0 ? 2.5 : 0,
       stroke: 'hsl(var(--primary))',
       strokeLinecap: 'round',
       strokeLinejoin: 'round',
-      filter: isDrawing ? 'drop-shadow(0 0 3px hsl(var(--primary) / 0.4))' : 'none',
-      transition: isDrawing 
+      filter: animationPhase === 'drawing' ? 'drop-shadow(0 0 3px hsl(var(--primary) / 0.4))' : 'none',
+      transition: animationPhase === 'drawing' || animationPhase === 'disappearing'
         ? 'none' 
-        : 'fill-opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-width 0.4s ease-out, filter 0.4s ease-out',
+        : 'fill-opacity 0.3s ease-out, stroke-opacity 0.3s ease-out',
     };
   };
 

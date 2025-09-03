@@ -105,6 +105,11 @@ export default function TasksTab({
     onTaskUpdate?.();
   };
 
+  const undoTaskCompletion = (taskId: string) => {
+    onTaskStatusUpdate?.(taskId, 'pending');
+    onTaskUpdate?.();
+  };
+
   const getAssistantName = (assignedTo: string | null) => {
     if (!assignedTo) return 'Unassigned';
     const assistant = assistants.find(a => a.id === assignedTo);
@@ -115,7 +120,7 @@ export default function TasksTab({
     <div
       className={`
         flex items-start gap-3 p-3 rounded-lg border transition-colors
-        ${task.status === 'completed' ? 'bg-green-50 border-green-200 opacity-75' : 'bg-background border-border hover:bg-muted/50'}
+        ${task.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-background border-border hover:bg-muted/50'}
         ${compact ? 'py-2' : ''}
       `}
       onClick={() => onTaskClick?.(task)}
@@ -139,6 +144,19 @@ export default function TasksTab({
           </h4>
           {task.priority === 'high' && (
             <Flag className="w-3 h-3 text-red-500" />
+          )}
+          {task.status === 'completed' && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-6 px-2 text-xs ml-auto"
+              onClick={(e) => {
+                e.stopPropagation();
+                undoTaskCompletion(task.id);
+              }}
+            >
+              Undo
+            </Button>
           )}
         </div>
         
@@ -216,8 +234,8 @@ export default function TasksTab({
                       <div
                         key={task.id}
                         className={`
-                          text-xs p-2 rounded border-l-2 cursor-pointer transition-colors
-                          ${task.status === 'completed' ? 'bg-green-50 border-green-400 opacity-75' : 'bg-background border-primary hover:bg-muted/50'}
+                          text-xs p-2 rounded border-l-2 cursor-pointer transition-colors relative group
+                          ${task.status === 'completed' ? 'bg-green-50 border-green-400' : 'bg-background border-primary hover:bg-muted/50'}
                         `}
                         onClick={() => onTaskClick?.(task)}
                       >
@@ -233,13 +251,28 @@ export default function TasksTab({
                           >
                             {getStatusIcon(task.status)}
                           </Button>
-                          <span className={`font-medium truncate ${task.status === 'completed' ? 'line-through' : ''}`}>
+                          <span className={`font-medium truncate flex-1 ${task.status === 'completed' ? 'line-through' : ''}`}>
                             {task.title}
                           </span>
+                          {task.status === 'completed' && (
+                            <Button
+                              variant="ghost" 
+                              size="sm"
+                              className="h-4 w-8 p-0 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                undoTaskCompletion(task.id);
+                              }}
+                            >
+                              ↶
+                            </Button>
+                          )}
                         </div>
-                        {task.priority === 'high' && (
-                          <Flag className="w-3 h-3 text-red-500" />
-                        )}
+                        <div className="flex items-center gap-1">
+                          {task.priority === 'high' && (
+                            <Flag className="w-3 h-3 text-red-500" />
+                          )}
+                        </div>
                       </div>
                     ))}
                     

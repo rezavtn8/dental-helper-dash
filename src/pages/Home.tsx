@@ -106,66 +106,102 @@ export default function Home() {
           
           {/* Badge */}
           <Badge className="mb-6 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-1 text-sm font-medium border-0">
-            <Hand className="w-4 h-4 mr-2" />
-            Interactive Task Management Platform
+            <Stethoscope className="w-4 h-4 mr-2" />
+            Complete Healthcare Platform
           </Badge>
 
           {/* Main Headline */}
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-blue-900 via-blue-700 to-blue-600 bg-clip-text text-transparent">
-              Task Management
+              Healthcare
             </span>
             <br />
             <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-transparent">
-              Reimagined
+              Operations Hub
             </span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-xl md:text-2xl text-blue-800/80 mb-8 max-w-3xl mx-auto leading-relaxed font-medium">
-            Beautiful, intuitive task management with one-click actions, calendar integration, 
-            and instant undo functionality for healthcare teams.
+            Complete clinic management platform with Assistant Hub, Owner Dashboard, 
+            team coordination, and intelligent workflow automation.
           </p>
 
           {/* Interactive Demo Preview */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-12 max-w-4xl mx-auto border border-blue-100">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-display font-bold text-blue-900 mb-2">See It In Action</h3>
-              <p className="text-blue-700">Beautiful task actions with instant feedback</p>
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-12 max-w-6xl mx-auto border border-blue-100">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-display font-bold text-blue-900 mb-2">Dual Dashboard System</h3>
+              <p className="text-blue-700">Specialized interfaces for owners and assistants</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Do Action */}
-              <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-xl border border-blue-100">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-blue-900">Patient Check-in</span>
-                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200 cursor-pointer">
-                    <Hand className="w-5 h-5 text-white" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Assistant Hub */}
+              <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-xl border border-green-100">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-4">
+                    <UserCheck className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-blue-900">Assistant Hub</h4>
+                    <p className="text-sm text-green-600">Daily task management</p>
                   </div>
                 </div>
-                <p className="text-xs text-blue-600">Click to complete task</p>
-              </div>
-              
-              {/* Undo Action */}
-              <div className="bg-gradient-to-br from-amber-50 to-white p-6 rounded-xl border border-amber-100">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-blue-900">Room Cleaning</span>
-                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200 cursor-pointer">
-                    <Undo2 className="w-5 h-5 text-white" />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
+                    <span className="text-sm text-blue-900">Room Preparation</span>
+                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                      <Hand className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
+                    <span className="text-sm text-blue-900">Patient Check-in</span>
+                    <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg flex items-center justify-center">
+                      <Undo2 className="w-4 h-4 text-white" />
+                    </div>
                   </div>
                 </div>
-                <p className="text-xs text-amber-600">Undo completed task</p>
               </div>
               
-              {/* Calendar Integration */}
+              {/* Owner Dashboard */}
               <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl border border-indigo-100">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-blue-900">Appointment Prep</span>
-                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200 cursor-pointer">
-                    <CalendarDays className="w-5 h-5 text-white" />
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-4">
+                    <Crown className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-blue-900">Owner Dashboard</h4>
+                    <p className="text-sm text-indigo-600">Team & clinic oversight</p>
                   </div>
                 </div>
-                <p className="text-xs text-indigo-600">Calendar integrated</p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
+                    <span className="text-sm text-blue-900">Team Analytics</span>
+                    <BarChart3 className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
+                    <span className="text-sm text-blue-900">Task Templates</span>
+                    <Building2 className="w-5 h-5 text-indigo-600" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-100">
+                <CalendarDays className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-xs font-medium text-blue-900">Calendar Integration</p>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-white rounded-lg border border-purple-100">
+                <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                <p className="text-xs font-medium text-blue-900">Team Management</p>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-br from-teal-50 to-white rounded-lg border border-teal-100">
+                <TrendingUp className="w-8 h-8 text-teal-600 mx-auto mb-2" />
+                <p className="text-xs font-medium text-blue-900">Analytics & Reports</p>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-br from-rose-50 to-white rounded-lg border border-rose-100">
+                <Shield className="w-8 h-8 text-rose-600 mx-auto mb-2" />
+                <p className="text-xs font-medium text-blue-900">HIPAA Compliance</p>
               </div>
             </div>
           </div>
@@ -173,18 +209,18 @@ export default function Home() {
           {/* Stats Row */}
           <div className="flex justify-center items-center gap-8 mb-12 flex-wrap">
             <div className="text-center">
-              <div className="text-3xl font-display font-bold text-blue-900">50K+</div>
-              <div className="text-blue-600 text-sm font-medium">Tasks Completed</div>
+              <div className="text-3xl font-display font-bold text-blue-900">500+</div>
+              <div className="text-blue-600 text-sm font-medium">Active Clinics</div>
             </div>
             <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
             <div className="text-center">
-              <div className="text-3xl font-display font-bold text-blue-900">99.2%</div>
-              <div className="text-blue-600 text-sm font-medium">Task Accuracy</div>
+              <div className="text-3xl font-display font-bold text-blue-900">15K+</div>
+              <div className="text-blue-600 text-sm font-medium">Healthcare Staff</div>
             </div>
             <div className="w-px h-12 bg-blue-200 hidden sm:block"></div>
             <div className="text-center">
-              <div className="text-3xl font-display font-bold text-blue-900">2.3s</div>
-              <div className="text-blue-600 text-sm font-medium">Avg. Action Time</div>
+              <div className="text-3xl font-display font-bold text-blue-900">99.9%</div>
+              <div className="text-blue-600 text-sm font-medium">Platform Uptime</div>
             </div>
           </div>
 
@@ -195,8 +231,8 @@ export default function Home() {
               onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
               className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group transform hover:scale-105"
             >
-              <Hand className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Try Interactive Tasks
+              <Stethoscope className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Start Your Clinic Hub
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
             
@@ -206,8 +242,8 @@ export default function Home() {
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
               className="border-2 border-blue-200 text-blue-700 hover:bg-blue-50 px-8 py-4 text-lg font-semibold transition-all duration-300 group"
             >
-              <MousePointer className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-              See Features
+              <Users className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
+              Explore All Features
             </Button>
           </div>
 
@@ -300,124 +336,159 @@ export default function Home() {
           {/* Section Header */}
           <div className="text-center max-w-4xl mx-auto mb-20">
             <Badge className="mb-6 bg-blue-100 text-blue-700 px-4 py-1 text-sm font-medium border-0">
-              <Sparkles className="w-4 h-4 mr-2" />
-              Revolutionary Task Management Features
+              <Building2 className="w-4 h-4 mr-2" />
+              Complete Healthcare Management Suite
             </Badge>
             
             <h2 className="text-5xl md:text-6xl font-display font-bold text-white mb-6 leading-tight">
-              One Click Tasks,
+              Everything Your
               <br />
               <span className="bg-gradient-to-r from-blue-300 to-blue-100 bg-clip-text text-transparent">
-                Infinite Possibilities
+                Clinic Needs
               </span>
             </h2>
             
             <p className="text-xl text-blue-100 leading-relaxed">
-              Experience the future of task management with beautiful interactive buttons, instant undo, and seamless calendar integration.
+              From Assistant Hub to Owner Dashboard - comprehensive tools for every role in your healthcare team.
             </p>
           </div>
 
           {/* Features Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
             
-            {/* Feature 1 */}
+            {/* Feature 1 - Assistant Hub */}
             <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Hand className="w-8 h-8 text-white" />
+                  <UserCheck className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-2xl font-display font-bold text-white mb-3">One-Click Actions</CardTitle>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Assistant Hub</CardTitle>
                 <CardDescription className="text-blue-200 text-base leading-relaxed">
-                  Beautiful interactive buttons that make task completion effortless and satisfying
+                  Dedicated workspace for healthcare assistants with task management, calendar, and team coordination
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center text-blue-100">
                     <CheckCircle className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
-                    <span className="text-sm">Intuitive hand gesture buttons</span>
+                    <span className="text-sm">Today's tasks overview</span>
                   </div>
                   <div className="flex items-center text-blue-100">
                     <CheckCircle className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
-                    <span className="text-sm">Instant visual feedback</span>
+                    <span className="text-sm">One-click task completion</span>
                   </div>
                   <div className="flex items-center text-blue-100">
                     <CheckCircle className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
-                    <span className="text-sm">Smooth animations</span>
+                    <span className="text-sm">Calendar integration</span>
                   </div>
                   <div className="flex items-center text-blue-100">
                     <CheckCircle className="w-5 h-5 mr-3 text-green-400 flex-shrink-0" />
-                    <span className="text-sm">Touch-friendly interface</span>
+                    <span className="text-sm">Performance tracking</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Feature 2 */}
-            <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
-              <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Undo2 className="w-8 h-8 text-white" />
-                </div>
-                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Instant Undo</CardTitle>
-                <CardDescription className="text-blue-200 text-base leading-relaxed">
-                  Made a mistake? No problem. Instantly undo any action with beautiful undo buttons
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" />
-                    <span className="text-sm">One-click task reversal</span>
-                  </div>
-                  <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" />
-                    <span className="text-sm">No confirmation dialogs</span>
-                  </div>
-                  <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" />
-                    <span className="text-sm">Visual undo indicators</span>
-                  </div>
-                  <div className="flex items-center text-blue-100">
-                    <CheckCircle className="w-5 h-5 mr-3 text-amber-400 flex-shrink-0" />
-                    <span className="text-sm">Error-free workflow</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Feature 3 */}
+            {/* Feature 2 - Owner Dashboard */}
             <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <CalendarDays className="w-8 h-8 text-white" />
+                  <Crown className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Calendar Integration</CardTitle>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Owner Dashboard</CardTitle>
                 <CardDescription className="text-blue-200 text-base leading-relaxed">
-                  Seamlessly manage tasks across calendar views with real-time synchronization
+                  Comprehensive clinic management with team oversight, analytics, and task template creation
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center text-blue-100">
                     <CheckCircle className="w-5 h-5 mr-3 text-indigo-400 flex-shrink-0" />
-                    <span className="text-sm">Weekly calendar view</span>
+                    <span className="text-sm">Team management</span>
                   </div>
                   <div className="flex items-center text-blue-100">
                     <CheckCircle className="w-5 h-5 mr-3 text-indigo-400 flex-shrink-0" />
-                    <span className="text-sm">Task completion from calendar</span>
+                    <span className="text-sm">Task template builder</span>
                   </div>
                   <div className="flex items-center text-blue-100">
                     <CheckCircle className="w-5 h-5 mr-3 text-indigo-400 flex-shrink-0" />
-                    <span className="text-sm">Real-time synchronization</span>
+                    <span className="text-sm">Analytics & insights</span>
                   </div>
                   <div className="flex items-center text-blue-100">
                     <CheckCircle className="w-5 h-5 mr-3 text-indigo-400 flex-shrink-0" />
-                    <span className="text-sm">Today's tasks highlight</span>
+                    <span className="text-sm">Clinic configuration</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Feature 3 - Smart Features */}
+            <Card className="bg-white/10 backdrop-blur-sm border-blue-300/20 hover:bg-white/15 transition-all duration-300 group transform hover:-translate-y-2">
+              <CardHeader className="text-center pb-4">
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-display font-bold text-white mb-3">Smart Automation</CardTitle>
+                <CardDescription className="text-blue-200 text-base leading-relaxed">
+                  Intelligent features that streamline workflows and enhance productivity across your entire team
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-purple-400 flex-shrink-0" />
+                    <span className="text-sm">Instant undo actions</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-purple-400 flex-shrink-0" />
+                    <span className="text-sm">Real-time synchronization</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-purple-400 flex-shrink-0" />
+                    <span className="text-sm">HIPAA compliance</span>
+                  </div>
+                  <div className="flex items-center text-blue-100">
+                    <CheckCircle className="w-5 h-5 mr-3 text-purple-400 flex-shrink-0" />
+                    <span className="text-sm">Mobile optimized</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Features Section */}
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 mb-16 border border-blue-300/10">
+            <h3 className="text-3xl font-display font-bold text-white text-center mb-8">More Powerful Features</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-white font-semibold mb-2">Analytics Dashboard</h4>
+                <p className="text-blue-200 text-sm">Track performance, identify trends, optimize workflows</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                  <CalendarDays className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-white font-semibold mb-2">Calendar Views</h4>
+                <p className="text-blue-200 text-sm">Weekly schedules, task planning, appointment integration</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-white font-semibold mb-2">Template System</h4>
+                <p className="text-blue-200 text-sm">Create, share, and manage task templates across teams</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                  <Timer className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-white font-semibold mb-2">Real-time Updates</h4>
+                <p className="text-blue-200 text-sm">Instant notifications, live status updates, team coordination</p>
+              </div>
+            </div>
           </div>
 
           {/* Bottom CTA */}
@@ -427,8 +498,8 @@ export default function Home() {
               onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
               className="bg-white text-blue-900 hover:bg-blue-50 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group transform hover:scale-105"
             >
-              <Target className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Experience Interactive Tasks
+              <Building2 className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Launch Your Healthcare Hub
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
           </div>

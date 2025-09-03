@@ -20,7 +20,9 @@ import {
   Mail,
   Calendar,
   User,
-  Clock
+  Clock,
+  UserX,
+  UserCheck
 } from 'lucide-react';
 
 interface TeamMember {
@@ -171,6 +173,40 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
       toast.error('Failed to deny request');
     } finally {
       setProcessingRequest(null);
+    }
+  };
+
+  const handleDeactivateMember = async (member: TeamMember) => {
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ is_active: false })
+        .eq('id', member.id);
+
+      if (error) throw error;
+
+      toast.success(`${member.name} has been deactivated`);
+      fetchData();
+    } catch (error) {
+      console.error('Error deactivating member:', error);
+      toast.error('Failed to deactivate member');
+    }
+  };
+
+  const handleReactivateMember = async (member: TeamMember) => {
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ is_active: true })
+        .eq('id', member.id);
+
+      if (error) throw error;
+
+      toast.success(`${member.name} has been reactivated`);
+      fetchData();
+    } catch (error) {
+      console.error('Error reactivating member:', error);
+      toast.error('Failed to reactivate member');
     }
   };
 
@@ -360,7 +396,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                   <TableHead>Status</TableHead>
                   <TableHead>Joined On</TableHead>
                   <TableHead>Last Login</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                     <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -408,14 +444,51 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       {member.role !== 'owner' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setRemoveDialog({ open: true, member })}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-2 justify-end">
+                          {member.is_active ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeactivateMember(member)}
+                                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                title="Deactivate member (they can be reactivated later)"
+                              >
+                                <UserX className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setRemoveDialog({ open: true, member })}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                title="Remove member from clinic permanently"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleReactivateMember(member)}
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                title="Reactivate member"
+                              >
+                                <UserCheck className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setRemoveDialog({ open: true, member })}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                title="Remove member from clinic permanently"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>
@@ -452,8 +525,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
               Remove Team Member
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove <strong>{removeDialog.member?.name}</strong> from your team?
-              This action is permanent and will revoke their access to the clinic.
+              Are you sure you want to permanently remove <strong>{removeDialog.member?.name}</strong> from your team?
+              This will revoke their access and remove them from your clinic entirely. To temporarily disable access, use the deactivate option instead.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

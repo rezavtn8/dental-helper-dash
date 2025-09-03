@@ -884,6 +884,10 @@ export type Database = {
         Args: { target_role: string }
         Returns: boolean
       }
+      can_owner_view_user: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           max_attempts?: number

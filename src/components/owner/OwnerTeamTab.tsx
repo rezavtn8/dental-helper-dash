@@ -94,22 +94,16 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
       if (requestsData && requestsData.length > 0) {
         // Get user info for each request
         const userIds = requestsData.map(req => req.user_id);
-        console.log('Fetching users for IDs:', userIds);
-        
         const { data: usersData, error: usersError } = await supabase
           .from('users')
           .select('id, name, email')
           .in('id', userIds);
-
-        console.log('Users data:', usersData);
-        console.log('Users error:', usersError);
 
         if (usersError) throw usersError;
 
         // Combine data
         const formattedRequests = requestsData.map(request => {
           const user = usersData?.find(u => u.id === request.user_id);
-          console.log(`Request ${request.id}: user_id=${request.user_id}, found user:`, user);
           return {
             ...request,
             user_email: user?.email || 'Unknown',
@@ -117,7 +111,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
           } as JoinRequest;
         });
 
-        console.log('Formatted requests:', formattedRequests);
         setJoinRequests(formattedRequests);
       } else {
         setJoinRequests([]);

@@ -121,11 +121,11 @@ export default function Home() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
                     <span className="text-sm font-medium">Room Preparation</span>
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
                     <span className="text-sm font-medium">Patient Check-in</span>
-                    <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                   </div>
                 </div>
               </CardContent>
@@ -310,8 +310,8 @@ export default function Home() {
           {/* Feature 3 */}
           <Card className="border border-muted-medium shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
             <CardHeader className="text-center pb-6">
-              <div className="w-14 h-14 mx-auto mb-4 bg-green-50 rounded-2xl flex items-center justify-center border border-green-200">
-                <Shield className="w-7 h-7 text-green-600" />
+              <div className="w-14 h-14 mx-auto mb-4 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-200">
+                <Shield className="w-7 h-7 text-blue-600" />
               </div>
               <CardTitle className="text-xl font-medium mb-2">Secure & Compliant</CardTitle>
               <CardDescription className="text-base text-muted-foreground">
@@ -321,15 +321,15 @@ export default function Home() {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-green-600" />
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-600" />
                   <span className="text-sm">HIPAA compliance</span>
                 </div>
                 <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-green-600" />
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-600" />
                   <span className="text-sm">Real-time sync</span>
                 </div>
                 <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-green-600" />
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-600" />
                   <span className="text-sm">Mobile optimized</span>
                 </div>
               </div>

@@ -65,18 +65,18 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20">
+      <section className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-50 to-blue-100">
         <div className="text-center max-w-4xl mx-auto">
           
           {/* Hero Content */}
           <div className="mb-16">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-6 text-foreground tracking-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-6 text-blue-900 tracking-tight">
               Healthcare management
               <br />
-              <span className="text-muted-foreground">made simple</span>
+              <span className="text-blue-600">made simple</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-blue-700 mb-8 max-w-2xl mx-auto leading-relaxed">
               Streamlined practice management platform designed for modern healthcare teams
             </p>
 
@@ -84,7 +84,7 @@ export default function Home() {
               <Button 
                 size="lg" 
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="rounded-full h-12 px-8 text-base font-medium"
+                className="rounded-full h-12 px-8 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg"
               >
                 Start your practice
                 <ChevronRight className="w-4 h-4 ml-1" />
@@ -92,9 +92,9 @@ export default function Home() {
               
               <Button 
                 size="lg" 
-                variant="ghost" 
+                variant="outline" 
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                className="rounded-full h-12 px-8 text-base font-medium"
+                className="rounded-full h-12 px-8 text-base font-medium border-blue-200 text-blue-700 hover:bg-blue-50"
               >
                 Learn more
               </Button>
@@ -105,54 +105,54 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
             
             {/* Assistant Card */}
-            <Card className="border-0 shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-all duration-300 hover:from-blue-100 hover:to-blue-200 border-2 border-blue-200">
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                    <UserCheck className="w-5 h-5 text-primary" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                    <UserCheck className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <CardTitle className="text-lg font-medium">Assistant Hub</CardTitle>
-                    <CardDescription className="text-sm">Daily workflow management</CardDescription>
+                    <CardTitle className="text-lg font-medium text-blue-900">Assistant Hub</CardTitle>
+                    <CardDescription className="text-sm text-blue-600">Daily workflow management</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
-                    <span className="text-sm font-medium">Room Preparation</span>
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="flex items-center justify-between p-3 bg-white/80 rounded-xl border border-blue-200 shadow-sm">
+                    <span className="text-sm font-medium text-blue-800">Room Preparation</span>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full shadow-sm"></div>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
-                    <span className="text-sm font-medium">Patient Check-in</span>
-                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                  <div className="flex items-center justify-between p-3 bg-white/80 rounded-xl border border-blue-200 shadow-sm">
+                    <span className="text-sm font-medium text-blue-800">Patient Check-in</span>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full shadow-sm"></div>
                   </div>
                 </div>
               </CardContent>
             </Card>
             
             {/* Owner Card */}
-            <Card className="border-0 shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-600 to-blue-700 hover:shadow-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 text-white">
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                    <Crown className="w-5 h-5 text-primary" />
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-md border border-white/30">
+                    <Crown className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <CardTitle className="text-lg font-medium">Owner Dashboard</CardTitle>
-                    <CardDescription className="text-sm">Practice oversight & analytics</CardDescription>
+                    <CardTitle className="text-lg font-medium text-white">Owner Dashboard</CardTitle>
+                    <CardDescription className="text-sm text-blue-100">Practice oversight & analytics</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
-                    <span className="text-sm font-medium">Team Analytics</span>
-                    <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                  <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl border border-white/20 backdrop-blur-sm">
+                    <span className="text-sm font-medium text-white">Team Analytics</span>
+                    <BarChart3 className="w-4 h-4 text-blue-200" />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
-                    <span className="text-sm font-medium">Task Templates</span>
-                    <Building2 className="w-4 h-4 text-muted-foreground" />
+                  <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl border border-white/20 backdrop-blur-sm">
+                    <span className="text-sm font-medium text-white">Task Templates</span>
+                    <Building2 className="w-4 h-4 text-blue-200" />
                   </div>
                 </div>
               </CardContent>
@@ -160,28 +160,28 @@ export default function Home() {
           </div>
 
           {/* Stats */}
-          <div className="flex justify-center items-center gap-8 text-muted-foreground text-sm">
-            <span>500+ Active Clinics</span>
-            <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
-            <span>15K+ Healthcare Staff</span>
-            <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
-            <span>99.9% Uptime</span>
+          <div className="flex justify-center items-center gap-8 text-blue-600 text-sm bg-white/60 backdrop-blur-sm rounded-full px-8 py-4 border border-blue-200 shadow-lg">
+            <span className="font-medium">500+ Active Clinics</span>
+            <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+            <span className="font-medium">15K+ Healthcare Staff</span>
+            <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+            <span className="font-medium">99.9% Uptime</span>
           </div>
         </div>
       </section>
 
       {/* Auth Section */}
-      <section id="auth-section" className="container mx-auto px-6 py-20 bg-surface-subtle">
+      <section id="auth-section" className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-100 to-blue-200">
         <div className="max-w-md mx-auto">
-          <Card className="border border-muted-medium shadow-lg bg-surface">
+          <Card className="border-2 border-blue-300 shadow-2xl bg-white/95 backdrop-blur-sm">
             <CardHeader className="text-center pb-6">
-              <div className="w-12 h-12 bg-muted-light rounded-2xl flex items-center justify-center mx-auto mb-4 border border-muted-medium">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <AnimatedLogo size={24} />
               </div>
-              <CardTitle className="text-2xl font-medium">
+              <CardTitle className="text-2xl font-medium text-blue-900">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? 'Complete Setup' : 'Get Started'}
               </CardTitle>
-              <CardDescription className="text-base text-muted-foreground">
+              <CardDescription className="text-base text-blue-600">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? 'Set up your clinic information' : 'Choose your role to continue'}
               </CardDescription>
             </CardHeader>
@@ -191,17 +191,17 @@ export default function Home() {
                 <ClinicSetupForm userProfile={userProfile} />
               ) : (
                 <Tabs defaultValue="owner" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted-light p-1 h-11 rounded-xl border border-muted-medium">
+                  <TabsList className="grid w-full grid-cols-2 mb-6 bg-blue-50 p-1 h-11 rounded-xl border border-blue-200">
                     <TabsTrigger 
                       value="owner" 
-                      className="flex items-center space-x-2 py-2 text-sm font-medium rounded-lg"
+                      className="flex items-center space-x-2 py-2 text-sm font-medium rounded-lg data-[state=active]:bg-blue-500 data-[state=active]:text-white"
                     >
                       <Crown className="w-4 h-4" />
                       <span>Owner</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="assistant" 
-                      className="flex items-center space-x-2 py-2 text-sm font-medium rounded-lg"
+                      className="flex items-center space-x-2 py-2 text-sm font-medium rounded-lg data-[state=active]:bg-blue-500 data-[state=active]:text-white"
                     >
                       <UserCheck className="w-4 h-4" />
                       <span>Assistant</span>
@@ -210,22 +210,22 @@ export default function Home() {
                   
                   <TabsContent value="owner" className="space-y-4">
                     <div className="text-center">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3 border border-primary/20">
-                        <Crown className="w-5 h-5 text-primary" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                        <Crown className="w-5 h-5 text-white" />
                       </div>
-                      <h3 className="text-base font-medium mb-1">Clinic Owner</h3>
-                      <p className="text-muted-foreground text-sm mb-4">Manage your clinic and team</p>
+                      <h3 className="text-base font-medium mb-1 text-blue-900">Clinic Owner</h3>
+                      <p className="text-blue-600 text-sm mb-4">Manage your clinic and team</p>
                     </div>
                     <AuthWidget role="owner" />
                   </TabsContent>
                   
                   <TabsContent value="assistant" className="space-y-4">
                     <div className="text-center">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3 border border-primary/20">
-                        <UserCheck className="w-5 h-5 text-primary" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                        <UserCheck className="w-5 h-5 text-white" />
                       </div>
-                      <h3 className="text-base font-medium mb-1">Healthcare Assistant</h3>
-                      <p className="text-muted-foreground text-sm mb-4">Access your workspace and tasks</p>
+                      <h3 className="text-base font-medium mb-1 text-blue-900">Healthcare Assistant</h3>
+                      <p className="text-blue-600 text-sm mb-4">Access your workspace and tasks</p>
                     </div>
                     <AuthWidget role="assistant" />
                   </TabsContent>
@@ -237,12 +237,12 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="container mx-auto px-6 py-20">
+      <section id="features" className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-50 to-white">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl md:text-5xl font-medium text-foreground mb-6">
+          <h2 className="text-4xl md:text-5xl font-medium text-blue-900 mb-6">
             Everything you need
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-blue-600">
             Powerful tools designed for modern healthcare teams
           </p>
         </div>
@@ -250,87 +250,87 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           
           {/* Feature 1 */}
-          <Card className="border border-muted-medium shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
+          <Card className="border-2 border-blue-200 shadow-xl bg-gradient-to-br from-blue-50 to-white hover:shadow-2xl transition-all duration-300 hover:from-blue-100 hover:to-blue-50 group">
             <CardHeader className="text-center pb-6">
-              <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
-                <UserCheck className="w-7 h-7 text-primary" />
+              <div className="w-14 h-14 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <UserCheck className="w-7 h-7 text-white" />
               </div>
-              <CardTitle className="text-xl font-medium mb-2">Assistant Hub</CardTitle>
-              <CardDescription className="text-base text-muted-foreground">
+              <CardTitle className="text-xl font-medium mb-2 text-blue-900">Assistant Hub</CardTitle>
+              <CardDescription className="text-base text-blue-600">
                 Streamlined task management for healthcare assistants
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
-                  <span className="text-sm">Daily task overview</span>
+                <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="text-sm text-blue-700">Daily task overview</span>
                 </div>
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
-                  <span className="text-sm">One-click completion</span>
+                <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="text-sm text-blue-700">One-click completion</span>
                 </div>
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
-                  <span className="text-sm">Performance tracking</span>
+                <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="text-sm text-blue-700">Performance tracking</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Feature 2 */}
-          <Card className="border border-muted-medium shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
+          <Card className="border-2 border-blue-300 shadow-xl bg-gradient-to-br from-blue-600 to-blue-700 hover:shadow-2xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 group text-white">
             <CardHeader className="text-center pb-6">
-              <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
-                <Crown className="w-7 h-7 text-primary" />
+              <div className="w-14 h-14 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center shadow-lg border border-white/30 group-hover:scale-110 transition-transform duration-300">
+                <Crown className="w-7 h-7 text-white" />
               </div>
-              <CardTitle className="text-xl font-medium mb-2">Owner Dashboard</CardTitle>
-              <CardDescription className="text-base text-muted-foreground">
+              <CardTitle className="text-xl font-medium mb-2 text-white">Owner Dashboard</CardTitle>
+              <CardDescription className="text-base text-blue-100">
                 Comprehensive clinic management and oversight
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
-                  <span className="text-sm">Team management</span>
+                <div className="flex items-center p-2 bg-white/10 rounded-lg border border-white/20">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-200" />
+                  <span className="text-sm text-white">Team management</span>
                 </div>
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
-                  <span className="text-sm">Task templates</span>
+                <div className="flex items-center p-2 bg-white/10 rounded-lg border border-white/20">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-200" />
+                  <span className="text-sm text-white">Task templates</span>
                 </div>
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
-                  <span className="text-sm">Analytics & insights</span>
+                <div className="flex items-center p-2 bg-white/10 rounded-lg border border-white/20">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-200" />
+                  <span className="text-sm text-white">Analytics & insights</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Feature 3 */}
-          <Card className="border border-muted-medium shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
+          <Card className="border-2 border-blue-200 shadow-xl bg-gradient-to-br from-blue-50 to-white hover:shadow-2xl transition-all duration-300 hover:from-blue-100 hover:to-blue-50 group">
             <CardHeader className="text-center pb-6">
-              <div className="w-14 h-14 mx-auto mb-4 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-200">
-                <Shield className="w-7 h-7 text-blue-600" />
+              <div className="w-14 h-14 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Shield className="w-7 h-7 text-white" />
               </div>
-              <CardTitle className="text-xl font-medium mb-2">Secure & Compliant</CardTitle>
-              <CardDescription className="text-base text-muted-foreground">
+              <CardTitle className="text-xl font-medium mb-2 text-blue-900">Secure & Compliant</CardTitle>
+              <CardDescription className="text-base text-blue-600">
                 HIPAA-compliant platform with enterprise security
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-blue-600" />
-                  <span className="text-sm">HIPAA compliance</span>
+                <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="text-sm text-blue-700">HIPAA compliance</span>
                 </div>
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-blue-600" />
-                  <span className="text-sm">Real-time sync</span>
+                <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="text-sm text-blue-700">Real-time sync</span>
                 </div>
-                <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-blue-600" />
-                  <span className="text-sm">Mobile optimized</span>
+                <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
+                  <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
+                  <span className="text-sm text-blue-700">Mobile optimized</span>
                 </div>
               </div>
             </CardContent>
@@ -342,7 +342,7 @@ export default function Home() {
           <Button 
             size="lg" 
             onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-            className="rounded-full h-12 px-8 text-base font-medium"
+            className="rounded-full h-12 px-8 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg"
           >
             Start Your Practice Hub
             <ArrowRight className="w-4 h-4 ml-2" />
@@ -351,33 +351,33 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-surface-subtle py-16">
+      <footer className="border-t bg-gradient-to-r from-blue-600 to-blue-700 py-16 text-white">
         <div className="container mx-auto px-6">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-3 mb-8">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center border border-white/30">
                 <AnimatedLogo size={20} />
               </div>
-              <span className="text-lg font-medium text-foreground">DentaLeague</span>
+              <span className="text-lg font-medium text-white">DentaLeague</span>
             </div>
 
-            <div className="flex justify-center items-center gap-8 mb-8 text-sm text-muted-foreground">
-              <div className="flex items-center space-x-2 p-2 bg-muted-light rounded-lg">
+            <div className="flex justify-center items-center gap-8 mb-8 text-sm text-blue-100">
+              <div className="flex items-center space-x-2 p-3 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
                 <Lock className="w-4 h-4" />
                 <span>HIPAA Compliant</span>
               </div>
-              <div className="flex items-center space-x-2 p-2 bg-muted-light rounded-lg">
+              <div className="flex items-center space-x-2 p-3 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
                 <Shield className="w-4 h-4" />
                 <span>Enterprise Security</span>
               </div>
-              <div className="flex items-center space-x-2 p-2 bg-muted-light rounded-lg">
+              <div className="flex items-center space-x-2 p-3 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
                 <Globe className="w-4 h-4" />
                 <span>99.9% Uptime</span>
               </div>
             </div>
 
-            <div className="border-t border-muted-medium pt-8">
-              <p className="text-muted-foreground text-sm">
+            <div className="border-t border-white/20 pt-8">
+              <p className="text-blue-200 text-sm">
                 &copy; 2024 DentaLeague. Empowering healthcare teams with intelligent practice management.
               </p>
             </div>

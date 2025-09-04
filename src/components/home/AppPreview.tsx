@@ -45,7 +45,7 @@ export const AppPreview = () => {
             </div>
 
             {/* App Interface */}
-            <div className="bg-gradient-to-br from-background to-muted/20 min-h-[500px] flex">
+            <div className="bg-gradient-to-br from-background to-muted/20 min-h-[700px] flex">
               {/* Sidebar Preview */}
               <div className="w-64 bg-card/80 border-r p-4 hidden md:block">
                 <div className="space-y-6">
@@ -76,7 +76,7 @@ export const AppPreview = () => {
               </div>
 
               {/* Main Dashboard Preview */}
-              <div className="flex-1 p-6 overflow-hidden">
+              <div className="flex-1 p-6 overflow-y-auto max-h-[700px]">
                 {/* Dashboard Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -131,43 +131,198 @@ export const AppPreview = () => {
                   </Card>
                 </div>
 
-                {/* Task List Preview */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      Today's Tasks
-                      <Badge variant="secondary">5 remaining</Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">Sterilize instruments - Room 2</p>
-                        <p className="text-xs text-muted-foreground">Completed by Emma</p>
-                      </div>
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">Done</Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-lg border border-primary/20">
-                      <Clock className="w-5 h-5 text-primary" />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">Prepare Room 1 for Dr. Johnson</p>
-                        <p className="text-xs text-muted-foreground">Due in 15 minutes</p>
-                      </div>
-                      <Badge className="bg-primary text-primary-foreground">In Progress</Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                      <Clock className="w-5 h-5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">Patient check-in - Mrs. Davis</p>
-                        <p className="text-xs text-muted-foreground">Scheduled 2:30 PM</p>
-                      </div>
-                      <Badge variant="outline">Pending</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Two Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left Column - Tasks */}
+                  <div className="lg:col-span-2 space-y-6">
+                    {/* Task List Preview */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          Today's Tasks
+                          <Badge variant="secondary">5 remaining</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">Sterilize instruments - Room 2</p>
+                            <p className="text-xs text-muted-foreground">Completed by Emma • 9:15 AM</p>
+                          </div>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">Done</Badge>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                          <Clock className="w-5 h-5 text-primary" />
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">Prepare Room 1 for Dr. Johnson</p>
+                            <p className="text-xs text-muted-foreground">Due in 15 minutes • High Priority</p>
+                          </div>
+                          <Badge className="bg-primary text-primary-foreground">In Progress</Badge>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                          <Clock className="w-5 h-5 text-muted-foreground" />
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">Patient check-in - Mrs. Davis</p>
+                            <p className="text-xs text-muted-foreground">Scheduled 2:30 PM</p>
+                          </div>
+                          <Badge variant="outline">Pending</Badge>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                          <Clock className="w-5 h-5 text-muted-foreground" />
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">Inventory check - Supplies closet</p>
+                            <p className="text-xs text-muted-foreground">Weekly routine</p>
+                          </div>
+                          <Badge variant="outline">Pending</Badge>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                          <Clock className="w-5 h-5 text-orange-500" />
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">Equipment maintenance - Unit 3</p>
+                            <p className="text-xs text-muted-foreground">Overdue by 2 days</p>
+                          </div>
+                          <Badge variant="destructive">Overdue</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Schedule Preview */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Calendar className="w-5 h-5" />
+                          Today's Schedule
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3 p-2">
+                            <div className="text-center min-w-[60px]">
+                              <p className="text-xs text-muted-foreground">9:00 AM</p>
+                            </div>
+                            <div className="w-1 h-8 bg-green-400 rounded-full" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">Mrs. Johnson - Cleaning</p>
+                              <p className="text-xs text-muted-foreground">Room 1 • Dr. Smith</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 p-2">
+                            <div className="text-center min-w-[60px]">
+                              <p className="text-xs text-muted-foreground">10:30 AM</p>
+                            </div>
+                            <div className="w-1 h-8 bg-blue-400 rounded-full" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">Mr. Davis - Filling</p>
+                              <p className="text-xs text-muted-foreground">Room 2 • Dr. Johnson</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 p-2">
+                            <div className="text-center min-w-[60px]">
+                              <p className="text-xs text-muted-foreground">2:00 PM</p>
+                            </div>
+                            <div className="w-1 h-8 bg-purple-400 rounded-full" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">Emergency - Walk-in</p>
+                              <p className="text-xs text-muted-foreground">Room 3 • Available</p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Right Column - Team & Analytics */}
+                  <div className="space-y-6">
+                    {/* Team Status */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Users className="w-5 h-5" />
+                          Team Status
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-green-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Sarah M.</p>
+                            <p className="text-xs text-muted-foreground">18/23 tasks • Active</p>
+                          </div>
+                          <div className="w-2 h-2 bg-green-500 rounded-full" />
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Emma K.</p>
+                            <p className="text-xs text-muted-foreground">12/15 tasks • Active</p>
+                          </div>
+                          <div className="w-2 h-2 bg-green-500 rounded-full" />
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-gray-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Mike R.</p>
+                            <p className="text-xs text-muted-foreground">Off today</p>
+                          </div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Quick Analytics */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <BarChart3 className="w-5 h-5" />
+                          This Week
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Task Completion</span>
+                            <span className="font-medium">94%</span>
+                          </div>
+                          <div className="w-full bg-muted/50 rounded-full h-2">
+                            <div className="bg-green-500 h-2 rounded-full" style={{width: '94%'}} />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Patient Satisfaction</span>
+                            <span className="font-medium">4.9/5</span>
+                          </div>
+                          <div className="flex gap-1">
+                            {Array.from({length: 5}).map((_, i) => (
+                              <Star key={i} className={`w-3 h-3 ${i < 5 ? 'text-yellow-400 fill-current' : 'text-gray-200'}`} />
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="pt-2 border-t">
+                          <div className="text-center">
+                            <p className="text-2xl font-bold text-green-600">127</p>
+                            <p className="text-xs text-muted-foreground">Patients served</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

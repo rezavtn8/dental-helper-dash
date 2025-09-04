@@ -17,6 +17,7 @@ import { MetricsStrip } from '@/components/home/MetricsStrip';
 import { EducationSection } from '@/components/home/EducationSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { PricingCTA } from '@/components/home/PricingCTA';
+import { AppPreview } from '@/components/home/AppPreview';
 import { Footer } from '@/components/home/Footer';
 
 export default function Home() {
@@ -73,6 +74,9 @@ export default function Home() {
 
       {/* Metrics Strip */}
       <MetricsStrip />
+
+      {/* App Preview Section */}
+      <AppPreview />
 
       {/* Education Section */}
       <EducationSection />

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Layout, BookOpen } from 'lucide-react';
+import { Files, BookOpen } from 'lucide-react';
 
 export function EducationSection() {
   return (
@@ -18,7 +18,7 @@ export function EducationSection() {
         <Card className="border border-border shadow-sm hover:shadow-lg transition-all duration-200">
           <CardHeader className="text-center pb-6">
             <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent to-accent/80 rounded-2xl flex items-center justify-center">
-              <Layout className="w-6 h-6 text-accent-foreground" />
+              <Files className="w-6 h-6 text-accent-foreground" />
             </div>
             <CardTitle className="text-[1.375rem] font-semibold leading-[1.875rem]">
               Task templates

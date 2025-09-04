@@ -31,7 +31,7 @@ All colors MUST be HSL.
     --ring: 0 0% 9%;
 
     
-    /* Blue theme colors - multiple shades */
+    /* Blue theme colors - different shades */
     --blue-50: 217 91% 98%;
     --blue-100: 217 91% 95%;
     --blue-200: 220 85% 85%;
@@ -44,40 +44,16 @@ All colors MUST be HSL.
     --blue-900: 220 85% 15%;
     --blue-950: 220 85% 10%;
     
-    /* Secondary blue palette */
-    --indigo-50: 239 84% 98%;
-    --indigo-100: 239 84% 95%;
-    --indigo-400: 239 84% 65%;
-    --indigo-500: 239 84% 55%;
-    --indigo-600: 239 84% 45%;
-    --indigo-700: 239 84% 35%;
-    
-    /* Grey gradients - enhanced */
-    --grey-50: 0 0% 98%;
-    --grey-100: 0 0% 96%;
-    --grey-200: 0 0% 89%;
-    --grey-300: 0 0% 83%;
-    --grey-400: 0 0% 64%;
-    --grey-500: 0 0% 45%;
-    --grey-600: 0 0% 32%;
-    --grey-700: 0 0% 25%;
-    --grey-800: 0 0% 15%;
-    --grey-900: 0 0% 9%;
-    
     /* Logo colors - blue variations */
     --logo-primary: 220 85% 45%;
-    --logo-secondary: 239 84% 55%;
+    --logo-secondary: 220 85% 55%;
     --logo-accent: 220 85% 35%;
     
-    /* Enhanced gradients */
+    /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 40%));
-    --gradient-blue: linear-gradient(135deg, hsl(217 91% 60%), hsl(239 84% 55%));
-    --gradient-blue-indigo: linear-gradient(135deg, hsl(220 85% 55%), hsl(239 84% 55%));
+    --gradient-blue: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 45%));
     --gradient-dark-blue: linear-gradient(135deg, hsl(217 91% 30%), hsl(217 91% 15%));
-    --gradient-grey: linear-gradient(135deg, hsl(0 0% 96%), hsl(0 0% 89%));
-    --gradient-grey-subtle: linear-gradient(180deg, hsl(0 0% 98%), hsl(0 0% 96%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 98%) 0%, hsl(217 91% 98%) 50%, hsl(239 84% 98%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(217 91% 99%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(217 91% 98%), hsl(217 91% 95%));
 
     --radius: 0.75rem;
 

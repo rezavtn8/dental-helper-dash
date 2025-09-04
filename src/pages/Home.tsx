@@ -31,7 +31,7 @@ export default function Home() {
   }, [user, userProfile, navigate, loading]);
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--gradient-hero)' }}>
+    <div className="min-h-screen bg-background">
       
       {/* Loading State */}
       {loading && (
@@ -43,43 +43,70 @@ export default function Home() {
         </div>
       )}
 
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <AnimatedLogo size={24} />
+              </div>
+              <span className="text-lg font-medium text-foreground">DentaLeague</span>
+            </div>
+            
+            <Button 
+              onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="rounded-full h-9 px-4"
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20">
-        <div className="text-center max-w-4xl mx-auto">
-          
-          {/* Large Animated Logo */}
-          <div className="mb-12">
-            <AnimatedLogo size={200} className="mx-auto" />
-          </div>
+      <section className="container mx-auto px-6 py-24 md:py-32">
+        <div className="text-center max-w-6xl mx-auto">
           
           {/* Hero Content */}
-          <div className="mb-16">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-6 text-foreground tracking-tight">
-              Healthcare management
-              <br />
-              <span className="text-muted-foreground">made simple</span>
+          <div className="mb-20">
+            {/* Large spaced-out headline inspired by Racepoint */}
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-light mb-8 text-foreground leading-none">
+              <span className="block mb-2 tracking-[0.02em]">Healthcare</span>
+              <span className="block mb-2 tracking-[0.02em]">management</span>
+              <span className="block mb-2 tracking-[0.02em] text-muted-foreground">made</span>
+              <span className="block tracking-[0.02em] text-muted-foreground">effortless</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Streamlined practice management platform designed for modern healthcare teams
+            {/* Bold positioning statement */}
+            <div className="mb-12">
+              <p className="text-2xl md:text-3xl font-light text-foreground mb-4 tracking-wide">
+                If your practice isn't running smoothly,
+              </p>
+              <p className="text-2xl md:text-3xl font-light text-foreground tracking-wide">
+                it's time for a better system.
+              </p>
+            </div>
+            
+            <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed font-light">
+              The earned-first platform for the world's next healthcare stories.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
               <Button 
                 size="lg" 
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="rounded-full h-12 px-8 text-base font-medium"
+                className="rounded-full h-14 px-10 text-lg font-light tracking-wide border-0 bg-foreground text-background hover:bg-foreground/90"
               >
                 Start your practice
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
               
               <Button 
                 size="lg" 
                 variant="ghost" 
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                className="rounded-full h-12 px-8 text-base font-medium"
+                className="rounded-full h-14 px-10 text-lg font-light tracking-wide hover:bg-muted/50"
               >
                 Learn more
               </Button>
@@ -90,7 +117,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
             
             {/* Assistant Card */}
-            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300" style={{ background: 'var(--gradient-card)' }}>
+            <Card className="border-0 shadow-sm bg-card/50 hover:shadow-md transition-shadow duration-300">
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
@@ -117,7 +144,7 @@ export default function Home() {
             </Card>
             
             {/* Owner Card */}
-            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300" style={{ background: 'var(--gradient-blue-indigo)' }}>
+            <Card className="border-0 shadow-sm bg-card/50 hover:shadow-md transition-shadow duration-300">
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -145,7 +172,7 @@ export default function Home() {
           </div>
 
           {/* Stats */}
-          <div className="flex justify-center items-center gap-8 text-muted-foreground text-sm">
+          <div className="flex justify-center items-center gap-12 text-muted-foreground text-base font-light tracking-wide">
             <span>500+ Active Clinics</span>
             <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
             <span>15K+ Healthcare Staff</span>
@@ -158,7 +185,7 @@ export default function Home() {
       {/* Auth Section */}
       <section id="auth-section" className="container mx-auto px-6 py-20">
         <div className="max-w-md mx-auto">
-          <Card className="border-0 shadow-lg" style={{ background: 'var(--gradient-card)' }}>
+          <Card className="border-0 shadow-lg bg-card">
             <CardHeader className="text-center pb-6">
               <div className="w-12 h-12 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <AnimatedLogo size={24} />
@@ -223,11 +250,11 @@ export default function Home() {
 
       {/* Features Section */}
       <section id="features" className="container mx-auto px-6 py-20">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl md:text-5xl font-medium text-foreground mb-6">
+        <div className="text-center max-w-4xl mx-auto mb-20">
+          <h2 className="text-5xl md:text-6xl font-light text-foreground mb-8 tracking-wide leading-tight">
             Everything you need
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-muted-foreground font-light tracking-wide">
             Powerful tools designed for modern healthcare teams
           </p>
         </div>
@@ -235,7 +262,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           
           {/* Feature 1 */}
-          <Card className="border-0 shadow-sm" style={{ background: 'var(--gradient-grey-subtle)' }}>
+          <Card className="border-0 shadow-sm bg-card/50">
             <CardHeader className="text-center pb-6">
               <div className="w-14 h-14 mx-auto mb-4 bg-accent/10 rounded-2xl flex items-center justify-center">
                 <UserCheck className="w-7 h-7 text-accent" />
@@ -264,7 +291,7 @@ export default function Home() {
           </Card>
 
           {/* Feature 2 */}
-          <Card className="border-0 shadow-sm" style={{ background: 'var(--gradient-blue)' }}>
+          <Card className="border-0 shadow-sm bg-card/50">
             <CardHeader className="text-center pb-6">
               <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
                 <Crown className="w-7 h-7 text-primary" />
@@ -293,7 +320,7 @@ export default function Home() {
           </Card>
 
           {/* Feature 3 */}
-          <Card className="border-0 shadow-sm" style={{ background: 'var(--gradient-grey)' }}>
+          <Card className="border-0 shadow-sm bg-card/50">
             <CardHeader className="text-center pb-6">
               <div className="w-14 h-14 mx-auto mb-4 bg-green-100 rounded-2xl flex items-center justify-center">
                 <Shield className="w-7 h-7 text-green-600" />

@@ -65,36 +65,48 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20">
-        <div className="text-center max-w-4xl mx-auto">
+      <section className="container mx-auto px-6 py-24 md:py-32">
+        <div className="text-center max-w-6xl mx-auto">
           
           {/* Hero Content */}
-          <div className="mb-16">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-6 text-foreground tracking-tight">
-              Healthcare management
-              <br />
-              <span className="text-muted-foreground">made simple</span>
+          <div className="mb-20">
+            {/* Large spaced-out headline inspired by Racepoint */}
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-light mb-8 text-foreground leading-none">
+              <span className="block mb-2 tracking-[0.02em]">Healthcare</span>
+              <span className="block mb-2 tracking-[0.02em]">management</span>
+              <span className="block mb-2 tracking-[0.02em] text-muted-foreground">made</span>
+              <span className="block tracking-[0.02em] text-muted-foreground">effortless</span>
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Streamlined practice management platform designed for modern healthcare teams
+            {/* Bold positioning statement */}
+            <div className="mb-12">
+              <p className="text-2xl md:text-3xl font-light text-foreground mb-4 tracking-wide">
+                If your practice isn't running smoothly,
+              </p>
+              <p className="text-2xl md:text-3xl font-light text-foreground tracking-wide">
+                it's time for a better system.
+              </p>
+            </div>
+            
+            <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed font-light">
+              The earned-first platform for the world's next healthcare stories.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
               <Button 
                 size="lg" 
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="rounded-full h-12 px-8 text-base font-medium"
+                className="rounded-full h-14 px-10 text-lg font-light tracking-wide border-0 bg-foreground text-background hover:bg-foreground/90"
               >
                 Start your practice
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
               
               <Button 
                 size="lg" 
                 variant="ghost" 
                 onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                className="rounded-full h-12 px-8 text-base font-medium"
+                className="rounded-full h-14 px-10 text-lg font-light tracking-wide hover:bg-muted/50"
               >
                 Learn more
               </Button>
@@ -160,7 +172,7 @@ export default function Home() {
           </div>
 
           {/* Stats */}
-          <div className="flex justify-center items-center gap-8 text-muted-foreground text-sm">
+          <div className="flex justify-center items-center gap-12 text-muted-foreground text-base font-light tracking-wide">
             <span>500+ Active Clinics</span>
             <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
             <span>15K+ Healthcare Staff</span>
@@ -238,11 +250,11 @@ export default function Home() {
 
       {/* Features Section */}
       <section id="features" className="container mx-auto px-6 py-20">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-4xl md:text-5xl font-medium text-foreground mb-6">
+        <div className="text-center max-w-4xl mx-auto mb-20">
+          <h2 className="text-5xl md:text-6xl font-light text-foreground mb-8 tracking-wide leading-tight">
             Everything you need
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-muted-foreground font-light tracking-wide">
             Powerful tools designed for modern healthcare teams
           </p>
         </div>

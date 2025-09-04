@@ -42,7 +42,15 @@ export default {
 				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
+					foreground: 'hsl(var(--muted-foreground))',
+					light: 'hsl(var(--muted-light))',
+					medium: 'hsl(var(--muted-medium))',
+					dark: 'hsl(var(--muted-dark))'
+				},
+				surface: {
+					DEFAULT: 'hsl(var(--surface))',
+					muted: 'hsl(var(--surface-muted))',
+					subtle: 'hsl(var(--surface-subtle))'
 				},
 				accent: {
 					DEFAULT: 'hsl(var(--accent))',

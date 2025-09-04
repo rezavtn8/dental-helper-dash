@@ -105,7 +105,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
             
             {/* Assistant Card */}
-            <Card className="border-0 shadow-sm bg-card/50 hover:shadow-md transition-shadow duration-300">
+            <Card className="border-0 shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
@@ -119,11 +119,11 @@ export default function Home() {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                  <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
                     <span className="text-sm font-medium">Room Preparation</span>
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                  <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
                     <span className="text-sm font-medium">Patient Check-in</span>
                     <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                   </div>
@@ -132,7 +132,7 @@ export default function Home() {
             </Card>
             
             {/* Owner Card */}
-            <Card className="border-0 shadow-sm bg-card/50 hover:shadow-md transition-shadow duration-300">
+            <Card className="border-0 shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -146,11 +146,11 @@ export default function Home() {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                  <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
                     <span className="text-sm font-medium">Team Analytics</span>
                     <BarChart3 className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                  <div className="flex items-center justify-between p-3 bg-muted-light rounded-xl border border-muted-medium">
                     <span className="text-sm font-medium">Task Templates</span>
                     <Building2 className="w-4 h-4 text-muted-foreground" />
                   </div>
@@ -171,11 +171,11 @@ export default function Home() {
       </section>
 
       {/* Auth Section */}
-      <section id="auth-section" className="container mx-auto px-6 py-20">
+      <section id="auth-section" className="container mx-auto px-6 py-20 bg-surface-subtle">
         <div className="max-w-md mx-auto">
-          <Card className="border-0 shadow-lg bg-card">
+          <Card className="border border-muted-medium shadow-lg bg-surface">
             <CardHeader className="text-center pb-6">
-              <div className="w-12 h-12 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-muted-light rounded-2xl flex items-center justify-center mx-auto mb-4 border border-muted-medium">
                 <AnimatedLogo size={24} />
               </div>
               <CardTitle className="text-2xl font-medium">
@@ -191,7 +191,7 @@ export default function Home() {
                 <ClinicSetupForm userProfile={userProfile} />
               ) : (
                 <Tabs defaultValue="owner" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 h-11 rounded-xl">
+                  <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted-light p-1 h-11 rounded-xl border border-muted-medium">
                     <TabsTrigger 
                       value="owner" 
                       className="flex items-center space-x-2 py-2 text-sm font-medium rounded-lg"
@@ -210,7 +210,7 @@ export default function Home() {
                   
                   <TabsContent value="owner" className="space-y-4">
                     <div className="text-center">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3 border border-primary/20">
                         <Crown className="w-5 h-5 text-primary" />
                       </div>
                       <h3 className="text-base font-medium mb-1">Clinic Owner</h3>
@@ -221,7 +221,7 @@ export default function Home() {
                   
                   <TabsContent value="assistant" className="space-y-4">
                     <div className="text-center">
-                      <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+                      <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-3 border border-accent/20">
                         <UserCheck className="w-5 h-5 text-accent" />
                       </div>
                       <h3 className="text-base font-medium mb-1">Healthcare Assistant</h3>
@@ -250,9 +250,9 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           
           {/* Feature 1 */}
-          <Card className="border-0 shadow-sm bg-card/50">
+          <Card className="border border-muted-medium shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
             <CardHeader className="text-center pb-6">
-              <div className="w-14 h-14 mx-auto mb-4 bg-accent/10 rounded-2xl flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-4 bg-accent/10 rounded-2xl flex items-center justify-center border border-accent/20">
                 <UserCheck className="w-7 h-7 text-accent" />
               </div>
               <CardTitle className="text-xl font-medium mb-2">Assistant Hub</CardTitle>
@@ -262,15 +262,15 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-accent" />
                   <span className="text-sm">Daily task overview</span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-accent" />
                   <span className="text-sm">One-click completion</span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-accent" />
                   <span className="text-sm">Performance tracking</span>
                 </div>
@@ -279,9 +279,9 @@ export default function Home() {
           </Card>
 
           {/* Feature 2 */}
-          <Card className="border-0 shadow-sm bg-card/50">
+          <Card className="border border-muted-medium shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
             <CardHeader className="text-center pb-6">
-              <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
                 <Crown className="w-7 h-7 text-primary" />
               </div>
               <CardTitle className="text-xl font-medium mb-2">Owner Dashboard</CardTitle>
@@ -291,15 +291,15 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-primary" />
                   <span className="text-sm">Team management</span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-primary" />
                   <span className="text-sm">Task templates</span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-primary" />
                   <span className="text-sm">Analytics & insights</span>
                 </div>
@@ -308,9 +308,9 @@ export default function Home() {
           </Card>
 
           {/* Feature 3 */}
-          <Card className="border-0 shadow-sm bg-card/50">
+          <Card className="border border-muted-medium shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
             <CardHeader className="text-center pb-6">
-              <div className="w-14 h-14 mx-auto mb-4 bg-green-100 rounded-2xl flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-4 bg-green-50 rounded-2xl flex items-center justify-center border border-green-200">
                 <Shield className="w-7 h-7 text-green-600" />
               </div>
               <CardTitle className="text-xl font-medium mb-2">Secure & Compliant</CardTitle>
@@ -320,15 +320,15 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-green-600" />
                   <span className="text-sm">HIPAA compliance</span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-green-600" />
                   <span className="text-sm">Real-time sync</span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center p-2 bg-muted-light rounded-lg">
                   <CheckCircle className="w-4 h-4 mr-3 text-green-600" />
                   <span className="text-sm">Mobile optimized</span>
                 </div>
@@ -351,7 +351,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/30 py-16">
+      <footer className="border-t bg-surface-subtle py-16">
         <div className="container mx-auto px-6">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-3 mb-8">
@@ -362,21 +362,21 @@ export default function Home() {
             </div>
 
             <div className="flex justify-center items-center gap-8 mb-8 text-sm text-muted-foreground">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 p-2 bg-muted-light rounded-lg">
                 <Lock className="w-4 h-4" />
                 <span>HIPAA Compliant</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 p-2 bg-muted-light rounded-lg">
                 <Shield className="w-4 h-4" />
                 <span>Enterprise Security</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 p-2 bg-muted-light rounded-lg">
                 <Globe className="w-4 h-4" />
                 <span>99.9% Uptime</span>
               </div>
             </div>
 
-            <div className="border-t pt-8">
+            <div className="border-t border-muted-medium pt-8">
               <p className="text-muted-foreground text-sm">
                 &copy; 2024 DentaLeague. Empowering healthcare teams with intelligent practice management.
               </p>

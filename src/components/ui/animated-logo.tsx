@@ -28,7 +28,7 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
     const runAnimation = () => {
       const drawDuration = 3000; // Drawing takes 3 seconds (slower)
       const fillDuration = 1200; // Filling takes 1.2 seconds
-      const disappearDuration = 4000; // Disappearing takes 4 seconds (even slower)
+      const disappearDuration = 8000; // Disappearing takes 8 seconds (much longer)
       
       // Phase 1: Drawing (stroke appears)
       setAnimationPhase('drawing');
@@ -122,8 +122,8 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
     // Initial animation with slight delay
     setTimeout(() => runAnimation(), 500);
     
-    // Repeat every 10 seconds (3s drawing + 1.2s filling + 1.2s emptying + 2.5s disappearing + pauses)
-    const interval = setInterval(() => runAnimation(), 10000);
+    // Repeat every 14 seconds (3s drawing + 1.2s filling + 1.2s emptying + 8s disappearing + pauses)
+    const interval = setInterval(() => runAnimation(), 14000);
     
     return () => clearInterval(interval);
   }, [pathLength, animated]);

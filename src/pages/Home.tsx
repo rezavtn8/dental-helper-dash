@@ -89,8 +89,8 @@ export default function Home() {
           {/* Hero Content */}
           <div className="mb-16">
             {/* Large Animated Logo */}
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl">
-              <AnimatedLogo size={48} />
+            <div className="mb-8">
+              <AnimatedLogo size={80} />
             </div>
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-6 text-blue-900 tracking-tight">

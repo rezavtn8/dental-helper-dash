@@ -49,7 +49,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-primary-foreground" />
+                <AnimatedLogo size={20} animated={false} />
               </div>
               <span className="text-lg font-medium text-foreground">DentaLeague</span>
             </div>
@@ -217,7 +217,7 @@ export default function Home() {
           <Card className="border-2 border-blue-300 shadow-2xl bg-white/95 backdrop-blur-sm">
             <CardHeader className="text-center pb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Building2 className="w-6 h-6 text-white" />
+                <AnimatedLogo size={24} animated={false} />
               </div>
               <CardTitle className="text-2xl font-medium text-blue-900">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? 'Complete Setup' : 'Get Started'}
@@ -433,7 +433,7 @@ export default function Home() {
           <div className="text-center">
             <div className="flex items-center justify-center space-x-3 mb-8">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center border border-white/30">
-                <Building2 className="w-5 h-5 text-white" />
+                <AnimatedLogo size={20} animated={false} />
               </div>
               <span className="text-lg font-medium text-white">DentaLeague</span>
             </div>

@@ -3,9 +3,10 @@ import { useState, useEffect, useRef } from 'react';
 interface AnimatedLogoProps {
   size?: number;
   className?: string;
+  animated?: boolean;
 }
 
-export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) => {
+export const AnimatedLogo = ({ size = 120, className = "", animated = true }: AnimatedLogoProps) => {
   const [animationPhase, setAnimationPhase] = useState<'drawing' | 'filling' | 'emptying' | 'disappearing'>('drawing');
   const [drawProgress, setDrawProgress] = useState(0);
   const [fillProgress, setFillProgress] = useState(0);
@@ -22,6 +23,8 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   }, []);
 
   useEffect(() => {
+    if (!animated) return; // Skip animation setup if not animated
+    
     const runAnimation = () => {
       const drawDuration = 3000; // Drawing takes 3 seconds (slower)
       const fillDuration = 1200; // Filling takes 1.2 seconds
@@ -123,7 +126,7 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
     const interval = setInterval(() => runAnimation(), 10000);
     
     return () => clearInterval(interval);
-  }, [pathLength]);
+  }, [pathLength, animated]);
 
     const logoStyle: React.CSSProperties = {
     transition: 'opacity 0.8s ease-out, filter 0.6s ease-out',
@@ -131,6 +134,21 @@ export const AnimatedLogo = ({ size = 120, className = "" }: AnimatedLogoProps) 
   };
 
   const getPathStyle = (): React.CSSProperties => {
+    // If not animated, return static filled style
+    if (!animated) {
+      return {
+        strokeDasharray: 'none',
+        strokeDashoffset: 0,
+        fillOpacity: 1,
+        strokeOpacity: 1,
+        strokeWidth: 3,
+        stroke: 'hsl(0 0% 100%)',
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        filter: 'none',
+      };
+    }
+    
     // Calculate stroke offset based on animation phase
     let currentOffset;
     if (animationPhase === 'emptying') {

@@ -65,8 +65,18 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-50 to-blue-100">
-        <div className="text-center max-w-4xl mx-auto">
+      <section className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
+        {/* Rough texture overlay */}
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.3) 1px, transparent 0)`,
+          backgroundSize: '20px 20px',
+        }}></div>
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: `radial-gradient(circle at 15px 15px, rgba(37, 99, 235, 0.2) 1px, transparent 0)`,
+          backgroundSize: '30px 30px',
+        }}></div>
+        
+        <div className="text-center max-w-4xl mx-auto relative z-10">
           
           {/* Hero Content */}
           <div className="mb-16">
@@ -171,8 +181,18 @@ export default function Home() {
       </section>
 
       {/* Auth Section */}
-      <section id="auth-section" className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-100 to-blue-200">
-        <div className="max-w-md mx-auto">
+      <section id="auth-section" className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-100 to-blue-200 relative overflow-hidden">
+        {/* Rough texture overlay */}
+        <div className="absolute inset-0 opacity-25" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(59, 130, 246, 0.4) 1px, transparent 0)`,
+          backgroundSize: '25px 25px',
+        }}></div>
+        <div className="absolute inset-0 opacity-15" style={{
+          backgroundImage: `radial-gradient(circle at 12px 18px, rgba(37, 99, 235, 0.3) 1px, transparent 0)`,
+          backgroundSize: '35px 35px',
+        }}></div>
+        
+        <div className="max-w-md mx-auto relative z-10">
           <Card className="border-2 border-blue-300 shadow-2xl bg-white/95 backdrop-blur-sm">
             <CardHeader className="text-center pb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -237,8 +257,18 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-50 to-white">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+      <section id="features" className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-50 to-white relative overflow-hidden">
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: `radial-gradient(circle at 3px 3px, rgba(59, 130, 246, 0.2) 1px, transparent 0)`,
+          backgroundSize: '40px 40px',
+        }}></div>
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `radial-gradient(circle at 25px 10px, rgba(37, 99, 235, 0.15) 1px, transparent 0)`,
+          backgroundSize: '50px 50px',
+        }}></div>
+        
+        <div className="text-center max-w-3xl mx-auto mb-16 relative z-10">
           <h2 className="text-4xl md:text-5xl font-medium text-blue-900 mb-6">
             Everything you need
           </h2>
@@ -247,7 +277,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 relative z-10">
           
           {/* Feature 1 */}
           <Card className="border-2 border-blue-200 shadow-xl bg-gradient-to-br from-blue-50 to-white hover:shadow-2xl transition-all duration-300 hover:from-blue-100 hover:to-blue-50 group">
@@ -338,7 +368,7 @@ export default function Home() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center">
+        <div className="text-center relative z-10">
           <Button 
             size="lg" 
             onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
@@ -351,8 +381,18 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-gradient-to-r from-blue-600 to-blue-700 py-16 text-white">
-        <div className="container mx-auto px-6">
+      <footer className="border-t bg-gradient-to-r from-blue-600 to-blue-700 py-16 text-white relative overflow-hidden">
+        {/* Dark texture overlay for footer */}
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(30, 58, 138, 0.5) 1px, transparent 0)`,
+          backgroundSize: '15px 15px',
+        }}></div>
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: `radial-gradient(circle at 8px 12px, rgba(15, 23, 42, 0.4) 1px, transparent 0)`,
+          backgroundSize: '25px 25px',
+        }}></div>
+        
+        <div className="container mx-auto px-6 relative z-10">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-3 mb-8">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center border border-white/30">

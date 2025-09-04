@@ -105,7 +105,7 @@ export default function AssistantHub() {
               <Building2 className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <span className="text-xl font-bold">Assistant Hub</span>
+            <span className="text-xl font-bold">Assistant Hub</span>
               <p className="text-sm text-muted-foreground">Welcome back, {user?.email}</p>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function AssistantHub() {
                 </div>
                 <CardTitle className="text-2xl">No Clinic Access</CardTitle>
                 <CardDescription className="text-base">
-                  You're not currently a member of any clinics. Join a clinic to access your dashboard and start managing tasks.
+                  You're not currently a member of any dental clinics. Join a clinic to access your daily task dashboard and start supporting your team.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center space-y-6">
@@ -141,7 +141,7 @@ export default function AssistantHub() {
                       <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold mt-0.5">1</div>
                       <div className="text-left">
                         <p className="font-medium text-foreground">Get your clinic code</p>
-                        <p>Ask your clinic owner for the clinic code (e.g., ABC123)</p>
+                        <p>Ask your clinic manager for the clinic code (e.g., ABC123)</p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-3">
@@ -155,7 +155,7 @@ export default function AssistantHub() {
                       <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold mt-0.5">3</div>
                       <div className="text-left">
                         <p className="font-medium text-foreground">Wait for approval</p>
-                        <p>Your clinic owner will review and approve your request</p>
+                        <p>Your clinic manager will review and approve your request</p>
                       </div>
                     </div>
                   </div>
@@ -178,7 +178,7 @@ export default function AssistantHub() {
             <div className="text-center space-y-4">
               <h1 className="text-3xl font-bold">Select Your Clinic</h1>
               <p className="text-muted-foreground">
-                You have access to {memberships.length} clinic{memberships.length !== 1 ? 's' : ''}
+                You have access to {memberships.length} clinic{memberships.length !== 1 ? 's' : ''}. Choose which clinic you'd like to work with today.
               </p>
             </div>
 
@@ -189,7 +189,7 @@ export default function AssistantHub() {
                   <span>Your Clinics</span>
                 </CardTitle>
                 <CardDescription>
-                  Select a clinic to access your dashboard and tasks
+                  Select a clinic to access your daily task dashboard and patient tracking
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">

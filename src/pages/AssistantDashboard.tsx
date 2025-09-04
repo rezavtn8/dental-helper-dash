@@ -268,10 +268,10 @@ const AssistantDashboard = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-4">
-              Welcome to the Assistant Portal
+              Welcome to your Assistant Hub
             </h1>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Get started by exploring the features available to you, or join a clinic to unlock the full experience.
+              Your daily homebase is ready. Join a clinic to start tracking tasks and supporting your dental team.
             </p>
           </div>
 
@@ -287,7 +287,7 @@ const AssistantDashboard = () => {
                 <ul className="space-y-2 text-green-700">
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
-                    Learning resources and courses
+                    Learning resources and dental skills
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
@@ -312,15 +312,15 @@ const AssistantDashboard = () => {
                 <ul className="space-y-2 text-orange-700">
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-orange-500 rounded-full mr-2" />
-                    Task management
+                    Daily task list and room prep
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-orange-500 rounded-full mr-2" />
-                    Schedule viewing
+                    Patient check-in tracking
                   </li>
                   <li className="flex items-center">
                     <span className="w-2 h-2 bg-orange-500 rounded-full mr-2" />
-                    Performance statistics
+                    Progress tracking and stats
                   </li>
                 </ul>
               </CardContent>
@@ -332,7 +332,7 @@ const AssistantDashboard = () => {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-2">Ready to get started?</h3>
                 <p className="text-slate-600 mb-4">
-                  Join a clinic to access all features and start collaborating with your team.
+                  Join a clinic to access all features and start supporting your dental team.
                 </p>
                 <Button onClick={() => navigate('/join')} size="lg" className="mr-3">
                   <Users className="w-4 h-4 mr-2" />
@@ -340,7 +340,7 @@ const AssistantDashboard = () => {
                 </Button>
                 <Button variant="outline" onClick={() => setActiveTab('learning')} size="lg">
                   <BookOpen className="w-4 h-4 mr-2" />
-                  Explore Learning
+                  Explore Dental Skills
                 </Button>
               </CardContent>
             </Card>

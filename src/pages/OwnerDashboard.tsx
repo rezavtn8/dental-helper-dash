@@ -126,7 +126,7 @@ const OwnerDashboard = () => {
                     <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <CardTitle>Create Your Clinic</CardTitle>
                     <CardDescription>
-                      You need to create a clinic to access full management features. Set up your clinic to start managing your team.
+                      You need to create a clinic to access full features. Set up your clinic to start supporting your dental team with structured daily workflows.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">

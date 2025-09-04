@@ -89,13 +89,13 @@ export default function Home() {
           {/* Hero Content */}
           <div className="mb-16">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-6 text-blue-900 tracking-tight">
-              Healthcare management
+              Dental teamwork,
               <br />
-              <span className="text-blue-600">made simple</span>
+              <span className="text-blue-600">simplified.</span>
             </h1>
             
             <p className="text-xl text-blue-700 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Streamlined practice management platform designed for modern healthcare teams
+              Dentaleague helps dental clinics run smoother — with structured daily tasks, gentle reminders, and tools that support assistants and owners alike.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-16">
@@ -104,7 +104,7 @@ export default function Home() {
                 onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="rounded-full h-12 px-8 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg"
               >
-                Start your practice
+                Start your clinic
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
               
@@ -131,7 +131,7 @@ export default function Home() {
                   </div>
                   <div className="text-left">
                     <CardTitle className="text-lg font-medium text-blue-900">Assistant Hub</CardTitle>
-                    <CardDescription className="text-sm text-blue-600">Daily workflow management</CardDescription>
+                    <CardDescription className="text-sm text-blue-600">A daily homebase for every assistant</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -157,19 +157,19 @@ export default function Home() {
                     <Crown className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <CardTitle className="text-lg font-medium text-blue-900">Owner Dashboard</CardTitle>
-                    <CardDescription className="text-sm text-blue-600">Practice oversight & analytics</CardDescription>
+                    <CardTitle className="text-lg font-medium text-blue-900">Clinic Dashboard</CardTitle>
+                    <CardDescription className="text-sm text-blue-600">Support your team with structure</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-white/80 rounded-xl border border-blue-200 shadow-sm">
-                    <span className="text-sm font-medium text-blue-800">Complete Practice Control</span>
+                    <span className="text-sm font-medium text-blue-800">Create recurring tasks</span>
                     <Crown className="w-4 h-4 text-blue-500" />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-white/80 rounded-xl border border-blue-200 shadow-sm">
-                    <span className="text-sm font-medium text-blue-800">Real-time Analytics</span>
+                    <span className="text-sm font-medium text-blue-800">View daily task status</span>
                     <BarChart3 className="w-4 h-4 text-blue-500" />
                   </div>
                 </div>
@@ -179,9 +179,9 @@ export default function Home() {
 
           {/* Stats */}
           <div className="flex justify-center items-center gap-8 text-blue-600 text-sm bg-white/60 backdrop-blur-sm rounded-full px-8 py-4 border border-blue-200 shadow-lg">
-            <span className="font-medium">500+ Active Clinics</span>
+            <span className="font-medium">2000+ Dental Patients Served Daily</span>
             <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
-            <span className="font-medium">15K+ Healthcare Staff</span>
+            <span className="font-medium">500+ Dental Teams</span>
             <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
             <span className="font-medium">99.9% Uptime</span>
           </div>
@@ -260,8 +260,8 @@ export default function Home() {
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
                         <UserCheck className="w-5 h-5 text-white" />
                       </div>
-                      <h3 className="text-base font-medium mb-1 text-blue-900">Healthcare Assistant</h3>
-                      <p className="text-blue-600 text-sm mb-4">Access your workspace and tasks</p>
+                      <h3 className="text-base font-medium mb-1 text-blue-900">Dental Assistant</h3>
+                      <p className="text-blue-600 text-sm mb-4">Access your daily task list and patient tracking</p>
                     </div>
                     <AuthWidget role="assistant" />
                   </TabsContent>
@@ -294,10 +294,10 @@ export default function Home() {
         
         <div className="text-center max-w-3xl mx-auto mb-16 relative z-10">
           <h2 className="text-4xl md:text-5xl font-medium text-blue-900 mb-6">
-            Everything you need
+            Why Choose Dentaleague?
           </h2>
           <p className="text-xl text-blue-600">
-            Powerful tools designed for modern healthcare teams
+            Built for dental teams who value gentle structure, clear communication, and smooth daily operations
           </p>
         </div>
 
@@ -311,22 +311,22 @@ export default function Home() {
               </div>
               <CardTitle className="text-xl font-medium mb-2 text-blue-900">Assistant Hub</CardTitle>
               <CardDescription className="text-base text-blue-600">
-                Streamlined task management for healthcare assistants
+                Start every shift with clarity
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
                   <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
-                  <span className="text-sm text-blue-700">Daily task overview</span>
+                  <span className="text-sm text-blue-700">Auto-updated task list</span>
                 </div>
                 <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
                   <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
-                  <span className="text-sm text-blue-700">One-click completion</span>
+                  <span className="text-sm text-blue-700">Gentle reminders & tracking</span>
                 </div>
                 <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
                   <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
-                  <span className="text-sm text-blue-700">Performance tracking</span>
+                  <span className="text-sm text-blue-700">Patient check-in tracking</span>
                 </div>
               </div>
             </CardContent>
@@ -338,24 +338,24 @@ export default function Home() {
               <div className="w-14 h-14 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center shadow-lg border border-white/30 group-hover:scale-110 transition-transform duration-300">
                 <Crown className="w-7 h-7 text-white" />
               </div>
-              <CardTitle className="text-xl font-medium mb-2 text-white">Owner Dashboard</CardTitle>
+              <CardTitle className="text-xl font-medium mb-2 text-white">Clinic Dashboard</CardTitle>
               <CardDescription className="text-base text-blue-100">
-                Comprehensive clinic management and oversight
+                Keep everyone in sync — no clipboard needed
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-center p-2 bg-white/10 rounded-lg border border-white/20">
                   <CheckCircle className="w-4 h-4 mr-3 text-blue-200" />
-                  <span className="text-sm text-white">Team management</span>
+                  <span className="text-sm text-white">Auto-repeat daily tasks</span>
                 </div>
                 <div className="flex items-center p-2 bg-white/10 rounded-lg border border-white/20">
                   <CheckCircle className="w-4 h-4 mr-3 text-blue-200" />
-                  <span className="text-sm text-white">Task templates</span>
+                  <span className="text-sm text-white">Spot bottlenecks early</span>
                 </div>
                 <div className="flex items-center p-2 bg-white/10 rounded-lg border border-white/20">
                   <CheckCircle className="w-4 h-4 mr-3 text-blue-200" />
-                  <span className="text-sm text-white">Analytics & insights</span>
+                  <span className="text-sm text-white">Review without micromanaging</span>
                 </div>
               </div>
             </CardContent>
@@ -367,9 +367,9 @@ export default function Home() {
               <div className="w-14 h-14 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <Shield className="w-7 h-7 text-white" />
               </div>
-              <CardTitle className="text-xl font-medium mb-2 text-blue-900">Secure & Compliant</CardTitle>
+              <CardTitle className="text-xl font-medium mb-2 text-blue-900">Trust comes built-in</CardTitle>
               <CardDescription className="text-base text-blue-600">
-                HIPAA-compliant platform with enterprise security
+                HIPAA-compliant and secure, syncs across devices
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -380,7 +380,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
                   <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
-                  <span className="text-sm text-blue-700">Real-time sync</span>
+                  <span className="text-sm text-blue-700">Multi-op, multi-location</span>
                 </div>
                 <div className="flex items-center p-2 bg-blue-50 rounded-lg border border-blue-100">
                   <CheckCircle className="w-4 h-4 mr-3 text-blue-500" />
@@ -398,7 +398,7 @@ export default function Home() {
             onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
             className="rounded-full h-12 px-8 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg"
           >
-            Start Your Practice Hub
+            Start Your Dental Hub
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
@@ -450,7 +450,7 @@ export default function Home() {
 
             <div className="border-t border-white/20 pt-8">
               <p className="text-blue-200 text-sm">
-                &copy; 2024 DentaLeague. Empowering healthcare teams with intelligent practice management.
+                &copy; 2024 DentaLeague. Empowering dental teams with gentle structure and clear communication.
               </p>
             </div>
           </div>

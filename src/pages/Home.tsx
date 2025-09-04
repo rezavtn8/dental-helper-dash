@@ -132,27 +132,27 @@ export default function Home() {
             </Card>
             
             {/* Owner Card */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-600 to-blue-700 hover:shadow-xl transition-all duration-300 hover:from-blue-700 hover:to-blue-800 text-white">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-all duration-300 hover:from-blue-100 hover:to-blue-200 border-2 border-blue-200">
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-md border border-white/30">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
                     <Crown className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <CardTitle className="text-lg font-medium text-white">Owner Dashboard</CardTitle>
-                    <CardDescription className="text-sm text-blue-100">Practice oversight & analytics</CardDescription>
+                    <CardTitle className="text-lg font-medium text-blue-900">Owner Dashboard</CardTitle>
+                    <CardDescription className="text-sm text-blue-600">Practice oversight & analytics</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl border border-white/20 backdrop-blur-sm">
-                    <span className="text-sm font-medium text-white">Team Analytics</span>
-                    <BarChart3 className="w-4 h-4 text-blue-200" />
+                  <div className="flex items-center justify-between p-3 bg-white/80 rounded-xl border border-blue-200 shadow-sm">
+                    <span className="text-sm font-medium text-blue-800">Complete Practice Control</span>
+                    <Crown className="w-4 h-4 text-blue-500" />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl border border-white/20 backdrop-blur-sm">
-                    <span className="text-sm font-medium text-white">Task Templates</span>
-                    <Building2 className="w-4 h-4 text-blue-200" />
+                  <div className="flex items-center justify-between p-3 bg-white/80 rounded-xl border border-blue-200 shadow-sm">
+                    <span className="text-sm font-medium text-blue-800">Real-time Analytics</span>
+                    <BarChart3 className="w-4 h-4 text-blue-500" />
                   </div>
                 </div>
               </CardContent>

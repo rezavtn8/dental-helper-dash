@@ -7,7 +7,7 @@ interface AnimatedLogoProps {
 }
 
 export const AnimatedLogo = ({ size = 120, className = "", animated = true }: AnimatedLogoProps) => {
-  const [animationPhase, setAnimationPhase] = useState<'drawing' | 'filling' | 'emptying' | 'disappearing'>('drawing');
+  const [animationPhase, setAnimationPhase] = useState<'drawing' | 'filling' | 'filled' | 'emptying' | 'disappearing'>('drawing');
   const [drawProgress, setDrawProgress] = useState(0);
   const [fillProgress, setFillProgress] = useState(0);
   const [eraseProgress, setEraseProgress] = useState(0);
@@ -28,6 +28,7 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
     const runAnimation = () => {
       const drawDuration = 3000; // Drawing takes 3 seconds (slower)
       const fillDuration = 1200; // Filling takes 1.2 seconds
+      const filledDuration = 5000; // Stay filled for 5 seconds
       const disappearDuration = 8000; // Disappearing takes 8 seconds (much longer)
       
       // Phase 1: Drawing (stroke appears)
@@ -63,51 +64,55 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
               if (progress < 1) {
                 requestAnimationFrame(animateFilling);
               } else {
-                // Phase 3: Emptying  
+                // Phase 2.5: Stay filled for 5 seconds
                 setTimeout(() => {
-                  setAnimationPhase('emptying');
-                  const emptyStartTime = Date.now();
-                  
-                  const animateEmptying = () => {
-                    const elapsed = Date.now() - emptyStartTime;
-                    const progress = Math.min(elapsed / fillDuration, 1);
-                    const easedProgress = 1 - (progress * progress * (3 - 2 * progress));
+                  setAnimationPhase('filled');
+                  // Phase 3: Emptying after filled period
+                  setTimeout(() => {
+                    setAnimationPhase('emptying');
+                    const emptyStartTime = Date.now();
                     
-                    // Empty the fill
-                    setFillProgress(easedProgress);
-                    
-                    // Erase the stroke with same one-sided animation as drawing but in reverse
-                    const eraseEasedProgress = progress * progress * progress; // cubic ease-in
-                    setEraseProgress(eraseEasedProgress);
-                    
-                    if (progress < 1) {
-                      requestAnimationFrame(animateEmptying);
-                    } else {
-                      // Phase 4: Disappearing
-                      setTimeout(() => {
-                        setAnimationPhase('disappearing');
-                        const disappearStartTime = Date.now();
-                        
-                        const animateDisappearing = () => {
-                          const elapsed = Date.now() - disappearStartTime;
-                          const progress = Math.min(elapsed / disappearDuration, 1);
-                          // Slower one-sided disappearing with ease-out for smooth ending
-                          const easedProgress = 1 - (1 - progress) * (1 - progress) * (1 - progress);
+                    const animateEmptying = () => {
+                      const elapsed = Date.now() - emptyStartTime;
+                      const progress = Math.min(elapsed / fillDuration, 1);
+                      const easedProgress = 1 - (progress * progress * (3 - 2 * progress));
+                      
+                      // Empty the fill
+                      setFillProgress(easedProgress);
+                      
+                      // Erase the stroke with same one-sided animation as drawing but in reverse
+                      const eraseEasedProgress = progress * progress * progress; // cubic ease-in
+                      setEraseProgress(eraseEasedProgress);
+                      
+                      if (progress < 1) {
+                        requestAnimationFrame(animateEmptying);
+                      } else {
+                        // Phase 4: Disappearing
+                        setTimeout(() => {
+                          setAnimationPhase('disappearing');
+                          const disappearStartTime = Date.now();
                           
-                          setDrawProgress(1 - easedProgress);
+                          const animateDisappearing = () => {
+                            const elapsed = Date.now() - disappearStartTime;
+                            const progress = Math.min(elapsed / disappearDuration, 1);
+                            // Slower one-sided disappearing with ease-out for smooth ending
+                            const easedProgress = 1 - (1 - progress) * (1 - progress) * (1 - progress);
+                            
+                            setDrawProgress(1 - easedProgress);
+                            
+                            if (progress < 1) {
+                              requestAnimationFrame(animateDisappearing);
+                            }
+                          };
                           
-                          if (progress < 1) {
-                            requestAnimationFrame(animateDisappearing);
-                          }
-                        };
-                        
-                        requestAnimationFrame(animateDisappearing);
-                      }, 500);
-                    }
-                  };
-                  
-                  requestAnimationFrame(animateEmptying);
-                }, 500);
+                          requestAnimationFrame(animateDisappearing);
+                        }, 500);
+                      }
+                    };
+                    
+                    requestAnimationFrame(animateEmptying);
+                  }, filledDuration);
+                }, 200);
               }
             };
             
@@ -122,8 +127,8 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
     // Initial animation with slight delay
     setTimeout(() => runAnimation(), 500);
     
-    // Repeat every 14 seconds (3s drawing + 1.2s filling + 1.2s emptying + 8s disappearing + pauses)
-    const interval = setInterval(() => runAnimation(), 14000);
+    // Repeat every 19 seconds (3s drawing + 1.2s filling + 5s filled + 1.2s emptying + 8s disappearing + pauses)
+    const interval = setInterval(() => runAnimation(), 19000);
     
     return () => clearInterval(interval);
   }, [pathLength, animated]);
@@ -162,9 +167,10 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
     // Calculate opacity based on animation phase
     const strokeOpacity = (animationPhase === 'drawing' && drawProgress > 0) || 
                          (animationPhase === 'filling') || 
+                         (animationPhase === 'filled') ||
                          (animationPhase === 'emptying' && eraseProgress < 1) ? 0.9 : 0;
     
-    const fillOpacity = animationPhase === 'filling' || animationPhase === 'emptying' 
+    const fillOpacity = animationPhase === 'filling' || animationPhase === 'filled' || animationPhase === 'emptying' 
       ? fillProgress 
       : 0;
     

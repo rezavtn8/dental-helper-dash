@@ -90,7 +90,7 @@ export default function Home() {
           <div className="mb-16">
             {/* Large Animated Logo */}
             <div className="mb-8">
-              <AnimatedLogo size={80} />
+              <AnimatedLogo size={120} />
             </div>
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-6 text-blue-900 tracking-tight">

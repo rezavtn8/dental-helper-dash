@@ -31,7 +31,7 @@ export default function Home() {
   }, [user, userProfile, navigate, loading]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: 'var(--gradient-hero)' }}>
       
       {/* Loading State */}
       {loading && (
@@ -43,30 +43,15 @@ export default function Home() {
         </div>
       )}
 
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <AnimatedLogo size={24} />
-              </div>
-              <span className="text-lg font-medium text-foreground">DentaLeague</span>
-            </div>
-            
-            <Button 
-              onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="rounded-full h-9 px-4"
-            >
-              Get Started
-            </Button>
-          </div>
-        </div>
-      </nav>
 
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20">
         <div className="text-center max-w-4xl mx-auto">
+          
+          {/* Large Animated Logo */}
+          <div className="mb-12">
+            <AnimatedLogo size={200} className="mx-auto" />
+          </div>
           
           {/* Hero Content */}
           <div className="mb-16">
@@ -105,7 +90,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
             
             {/* Assistant Card */}
-            <Card className="border-0 shadow-sm bg-card/50 hover:shadow-md transition-shadow duration-300">
+            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300" style={{ background: 'var(--gradient-card)' }}>
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
@@ -132,7 +117,7 @@ export default function Home() {
             </Card>
             
             {/* Owner Card */}
-            <Card className="border-0 shadow-sm bg-card/50 hover:shadow-md transition-shadow duration-300">
+            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow duration-300" style={{ background: 'var(--gradient-blue-indigo)' }}>
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -173,7 +158,7 @@ export default function Home() {
       {/* Auth Section */}
       <section id="auth-section" className="container mx-auto px-6 py-20">
         <div className="max-w-md mx-auto">
-          <Card className="border-0 shadow-lg bg-card">
+          <Card className="border-0 shadow-lg" style={{ background: 'var(--gradient-card)' }}>
             <CardHeader className="text-center pb-6">
               <div className="w-12 h-12 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <AnimatedLogo size={24} />
@@ -250,7 +235,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           
           {/* Feature 1 */}
-          <Card className="border-0 shadow-sm bg-card/50">
+          <Card className="border-0 shadow-sm" style={{ background: 'var(--gradient-grey-subtle)' }}>
             <CardHeader className="text-center pb-6">
               <div className="w-14 h-14 mx-auto mb-4 bg-accent/10 rounded-2xl flex items-center justify-center">
                 <UserCheck className="w-7 h-7 text-accent" />
@@ -279,7 +264,7 @@ export default function Home() {
           </Card>
 
           {/* Feature 2 */}
-          <Card className="border-0 shadow-sm bg-card/50">
+          <Card className="border-0 shadow-sm" style={{ background: 'var(--gradient-blue)' }}>
             <CardHeader className="text-center pb-6">
               <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
                 <Crown className="w-7 h-7 text-primary" />
@@ -308,7 +293,7 @@ export default function Home() {
           </Card>
 
           {/* Feature 3 */}
-          <Card className="border-0 shadow-sm bg-card/50">
+          <Card className="border-0 shadow-sm" style={{ background: 'var(--gradient-grey)' }}>
             <CardHeader className="text-center pb-6">
               <div className="w-14 h-14 mx-auto mb-4 bg-green-100 rounded-2xl flex items-center justify-center">
                 <Shield className="w-7 h-7 text-green-600" />

@@ -26,10 +26,11 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
     if (!animated) return; // Skip animation setup if not animated
     
     const runAnimation = () => {
-      const drawDuration = 3000; // Drawing takes 3 seconds (slower)
-      const fillDuration = 1200; // Filling takes 1.2 seconds
-      const filledDuration = 5000; // Stay filled for 5 seconds
-      const disappearDuration = 8000; // Disappearing takes 8 seconds (much longer)
+      const drawDuration = 3000; // Drawing takes 3 seconds
+      const fillDuration = 3000; // Filling takes 3 seconds
+      const filledDuration = 10000; // Stay filled for 10 seconds
+      const emptyDuration = 3000; // Emptying takes 3 seconds
+      const disappearDuration = 3000; // Disappearing takes 3 seconds
       
       // Phase 1: Drawing (stroke appears)
       setAnimationPhase('drawing');
@@ -64,7 +65,7 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
               if (progress < 1) {
                 requestAnimationFrame(animateFilling);
               } else {
-                // Phase 2.5: Stay filled for 5 seconds
+                // Phase 2.5: Stay filled for 10 seconds
                 setTimeout(() => {
                   setAnimationPhase('filled');
                   // Phase 3: Emptying after filled period
@@ -74,7 +75,7 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
                     
                     const animateEmptying = () => {
                       const elapsed = Date.now() - emptyStartTime;
-                      const progress = Math.min(elapsed / fillDuration, 1);
+                      const progress = Math.min(elapsed / emptyDuration, 1);
                       const easedProgress = 1 - (progress * progress * (3 - 2 * progress));
                       
                       // Empty the fill
@@ -127,8 +128,8 @@ export const AnimatedLogo = ({ size = 120, className = "", animated = true }: An
     // Initial animation with slight delay
     setTimeout(() => runAnimation(), 500);
     
-    // Repeat every 19 seconds (3s drawing + 1.2s filling + 5s filled + 1.2s emptying + 8s disappearing + pauses)
-    const interval = setInterval(() => runAnimation(), 19000);
+    // Repeat every 22 seconds (3s drawing + 3s filling + 10s filled + 3s emptying + 3s disappearing)
+    const interval = setInterval(() => runAnimation(), 22000);
     
     return () => clearInterval(interval);
   }, [pathLength, animated]);

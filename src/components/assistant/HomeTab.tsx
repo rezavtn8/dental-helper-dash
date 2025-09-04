@@ -57,7 +57,7 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
       title: "Pending",
       value: pendingTasks,
       icon: Clock,
-      color: "from-blue-400 to-indigo-500", 
+      color: "from-blue-500 to-indigo-600", 
       bgColor: "bg-blue-50",
       metric: "tasks"
     },
@@ -65,7 +65,7 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
       title: "Completed",
       value: completedTasks,
       icon: Target,
-      color: "from-blue-400 to-blue-500",
+      color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-50",
       metric: "done"
     },
@@ -84,7 +84,7 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
       title: "Schedule",
       description: "View your upcoming shifts and schedule for the week",
       icon: Calendar,
-      color: "from-blue-500 to-cyan-500",
+      color: "from-blue-500 to-indigo-600",
       bgColor: "bg-blue-50",
       action: "schedule"
     },
@@ -92,15 +92,15 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
       title: "Certifications", 
       description: "Manage your professional certifications and track expiry dates",
       icon: Award,
-      color: "from-purple-500 to-pink-500", 
-      bgColor: "bg-purple-50",
+      color: "from-blue-500 to-indigo-600", 
+      bgColor: "bg-blue-50",
       action: "certifications"
     },
     {
       title: "Growth Tracking",
       description: "Track your progress, feedback, and professional milestones",
       icon: TrendingUp,
-      color: "from-blue-500 to-blue-600",
+      color: "from-blue-500 to-indigo-600",
       bgColor: "bg-blue-50",
       action: "growth"
     }

@@ -108,8 +108,8 @@ export default function Home() {
             <Card className="border-0 shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
               <CardHeader className="pb-4">
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
-                    <UserCheck className="w-5 h-5 text-accent" />
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <UserCheck className="w-5 h-5 text-primary" />
                   </div>
                   <div className="text-left">
                     <CardTitle className="text-lg font-medium">Assistant Hub</CardTitle>
@@ -221,8 +221,8 @@ export default function Home() {
                   
                   <TabsContent value="assistant" className="space-y-4">
                     <div className="text-center">
-                      <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-3 border border-accent/20">
-                        <UserCheck className="w-5 h-5 text-accent" />
+                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3 border border-primary/20">
+                        <UserCheck className="w-5 h-5 text-primary" />
                       </div>
                       <h3 className="text-base font-medium mb-1">Healthcare Assistant</h3>
                       <p className="text-muted-foreground text-sm mb-4">Access your workspace and tasks</p>
@@ -252,8 +252,8 @@ export default function Home() {
           {/* Feature 1 */}
           <Card className="border border-muted-medium shadow-sm bg-surface hover:shadow-md transition-all duration-300 hover:bg-surface-muted">
             <CardHeader className="text-center pb-6">
-              <div className="w-14 h-14 mx-auto mb-4 bg-accent/10 rounded-2xl flex items-center justify-center border border-accent/20">
-                <UserCheck className="w-7 h-7 text-accent" />
+              <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
+                <UserCheck className="w-7 h-7 text-primary" />
               </div>
               <CardTitle className="text-xl font-medium mb-2">Assistant Hub</CardTitle>
               <CardDescription className="text-base text-muted-foreground">
@@ -263,15 +263,15 @@ export default function Home() {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-accent" />
+                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
                   <span className="text-sm">Daily task overview</span>
                 </div>
                 <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-accent" />
+                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
                   <span className="text-sm">One-click completion</span>
                 </div>
                 <div className="flex items-center p-2 bg-muted-light rounded-lg">
-                  <CheckCircle className="w-4 h-4 mr-3 text-accent" />
+                  <CheckCircle className="w-4 h-4 mr-3 text-primary" />
                   <span className="text-sm">Performance tracking</span>
                 </div>
               </div>

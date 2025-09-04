@@ -148,15 +148,15 @@ export default function LearningTab() {
           </CardContent>
         </Card>
 
-        <Card className="bg-purple-50 border-purple-200">
+        <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-purple-100 rounded-xl">
-                <BookOpen className="w-6 h-6 text-purple-600" />
+              <div className="p-3 bg-blue-100 rounded-xl">
+                <BookOpen className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-purple-900">4</p>
-                <p className="text-sm text-purple-600">Available</p>
+                <p className="text-2xl font-bold text-blue-900">4</p>
+                <p className="text-sm text-blue-600">Available</p>
               </div>
             </div>
           </CardContent>

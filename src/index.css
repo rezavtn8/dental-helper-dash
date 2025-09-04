@@ -20,8 +20,8 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
-    --accent: 270 95% 75%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 220 85% 55%;
+    --accent-foreground: 0 0% 98%;
 
     /* Additional grey variations for depth */
     --muted-light: 0 0% 98%;
@@ -101,8 +101,8 @@ All colors MUST be HSL.
     --muted: 217 91% 15%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 217 91% 18%;
-    --accent-foreground: 0 0% 95%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
 
     /* Additional grey variations for depth in dark mode */
     --muted-light: 217 91% 20%;

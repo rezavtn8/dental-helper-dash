@@ -105,8 +105,8 @@ export default function MyStatsTab({ tasks }: MyStatsTabProps) {
       title: "Streak",
       value: streak,
       icon: Calendar,
-      color: "from-purple-400 to-purple-500",
-      bgColor: "bg-purple-50", 
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
       metric: "days"
     },
     {
@@ -268,10 +268,10 @@ export default function MyStatsTab({ tasks }: MyStatsTabProps) {
             )}
             
             {streak >= 7 && (
-              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-200 shadow-lg">
-                <Calendar className="w-12 h-12 text-purple-600 mx-auto mb-3" />
-                <p className="text-base font-bold text-purple-800">Consistent</p>
-                <p className="text-xs text-purple-600 mt-1">7+ day streak</p>
+              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 shadow-lg">
+                <Calendar className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                <p className="text-base font-bold text-blue-800">Consistent</p>
+                <p className="text-xs text-blue-600 mt-1">7+ day streak</p>
               </div>
             )}
             

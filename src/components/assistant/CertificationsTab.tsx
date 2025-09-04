@@ -172,13 +172,13 @@ export default function CertificationsTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-100">
+      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-100">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-purple-900 mb-2">
+            <h1 className="text-2xl font-bold text-blue-900 mb-2">
               Professional Certifications
             </h1>
-            <p className="text-purple-700">
+            <p className="text-blue-700">
               Manage your certifications and track expiry dates.
             </p>
           </div>

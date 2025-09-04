@@ -100,7 +100,7 @@ export default function PatientCounter({ patientCount, onPatientCountUpdate }: P
       return <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">👍 Good start!</Badge>;
     }
     if (patientCount > 0) {
-      return <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-xs">🚀 Keep going!</Badge>;
+      return <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">🚀 Keep going!</Badge>;
     }
     return null;
   };

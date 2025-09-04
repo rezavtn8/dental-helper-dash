@@ -322,15 +322,15 @@ export default function ScheduleTab() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-purple-50 border-purple-200">
+                <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-2">
-                      <Users className="w-5 h-5 text-purple-600" />
+                      <Users className="w-5 h-5 text-blue-600" />
                       <div>
-                        <p className="font-semibold text-purple-900">
+                        <p className="font-semibold text-blue-900">
                           {Math.round(schedule.shifts.length / 4.33)}
                         </p>
-                        <p className="text-sm text-purple-600">Shifts/Week Avg</p>
+                        <p className="text-sm text-blue-600">Shifts/Week Avg</p>
                       </div>
                     </div>
                   </CardContent>

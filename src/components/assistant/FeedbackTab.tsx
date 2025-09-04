@@ -42,7 +42,7 @@ const badgeIcons = {
 const badgeColors = {
   blue: 'bg-blue-100 text-blue-700 border-blue-200',
   green: 'bg-green-100 text-green-700 border-green-200',
-  purple: 'bg-purple-100 text-purple-700 border-purple-200',
+  indigo: 'bg-blue-100 text-blue-700 border-blue-200',
   orange: 'bg-orange-100 text-orange-700 border-orange-200',
   red: 'bg-red-100 text-red-700 border-red-200',
   yellow: 'bg-yellow-100 text-yellow-700 border-yellow-200'
@@ -127,7 +127,7 @@ export default function FeedbackTab() {
       case 'improvement':
         return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'milestone':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+        return 'bg-blue-100 text-blue-700 border-blue-200';
       default:
         return 'bg-slate-100 text-slate-700 border-slate-200';
     }
@@ -184,15 +184,15 @@ export default function FeedbackTab() {
           </CardContent>
         </Card>
 
-        <Card className="bg-purple-50 border-purple-200">
+        <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-purple-100 rounded-xl">
-                <Trophy className="w-6 h-6 text-purple-600" />
+              <div className="p-3 bg-blue-100 rounded-xl">
+                <Trophy className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-purple-900">{milestones.length}</p>
-                <p className="text-sm text-purple-600">Milestones Achieved</p>
+                <p className="text-2xl font-bold text-blue-900">{milestones.length}</p>
+                <p className="text-sm text-blue-600">Milestones Achieved</p>
               </div>
             </div>
           </CardContent>
@@ -220,7 +220,7 @@ export default function FeedbackTab() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Award className="w-5 h-5 text-purple-600" />
+              <Award className="w-5 h-5 text-blue-600" />
               <span>Your Achievements</span>
             </CardTitle>
             <CardDescription>
@@ -357,7 +357,7 @@ export default function FeedbackTab() {
                     <div key={`${isFeedback ? 'feedback' : 'milestone'}-${item.id}`} className="flex items-start space-x-4">
                       <div className="relative">
                         <div className={`w-3 h-3 rounded-full ${
-                          isFeedback ? 'bg-blue-500' : 'bg-purple-500'
+                          isFeedback ? 'bg-blue-500' : 'bg-blue-600'
                         }`} />
                         {index < 9 && (
                           <div className="absolute top-3 left-1/2 w-px h-8 bg-slate-200 transform -translate-x-1/2" />

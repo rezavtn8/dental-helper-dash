@@ -150,21 +150,21 @@ const AssistantDashboard = () => {
   if (loading || !userProfile) {
     return (
       <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-gradient-to-br from-teal-50 to-blue-50">
-          <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40 lg:hidden">
-            <div className="ml-4 h-6 w-6 bg-teal-200 rounded animate-pulse" />
-            <div className="ml-4 h-6 w-32 bg-teal-200 rounded animate-pulse" />
+        <div className="min-h-screen flex w-full bg-gradient-to-br from-blue-50 to-blue-100">
+          <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-blue-100 z-40 lg:hidden">
+            <div className="ml-4 h-6 w-6 bg-blue-200 rounded animate-pulse" />
+            <div className="ml-4 h-6 w-32 bg-blue-200 rounded animate-pulse" />
           </header>
           <div className="hidden lg:flex lg:w-80 lg:flex-col lg:fixed lg:inset-y-0">
-            <div className="flex flex-col flex-grow bg-white border-r border-teal-100">
+            <div className="flex flex-col flex-grow bg-white border-r border-blue-100">
               <div className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <div className="h-8 bg-teal-200 rounded w-32 animate-pulse" />
-                  <div className="h-4 bg-teal-100 rounded w-24 animate-pulse" />
+                  <div className="h-8 bg-blue-200 rounded w-32 animate-pulse" />
+                  <div className="h-4 bg-blue-100 rounded w-24 animate-pulse" />
                 </div>
                 <div className="space-y-2">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-10 bg-teal-100 rounded animate-pulse" />
+                    <div key={i} className="h-10 bg-blue-100 rounded animate-pulse" />
                   ))}
                 </div>
               </div>
@@ -417,11 +417,11 @@ const AssistantDashboard = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-teal-50 to-blue-50">
-        <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-teal-100 z-40 lg:hidden">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-blue-50 to-blue-100">
+        <header className="fixed top-0 left-0 right-0 h-16 flex items-center bg-white/80 backdrop-blur-sm border-b border-blue-100 z-40 lg:hidden">
           <SidebarTrigger className="ml-4" />
           <div className="ml-4">
-            <h1 className="font-semibold text-teal-900">
+            <h1 className="font-semibold text-blue-900">
               {clinic?.name || 'Assistant Portal'}
             </h1>
           </div>

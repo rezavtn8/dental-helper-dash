@@ -38,13 +38,10 @@ export function FeatureCards() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {features.map((feature, index) => (
-        <Card 
-          key={feature.title}
-          className="border border-border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group"
-        >
-          <CardHeader className="text-center pb-4">
-            <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
-              <feature.icon className="w-6 h-6 text-primary-foreground" />
+        <Card key={feature.title} className="glass-card hover:shadow-lg transition-all duration-300 h-full glow-effect group">
+          <CardHeader className="text-center pb-6">
+            <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent to-accent/80 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <feature.icon className="w-6 h-6 text-accent-foreground" />
             </div>
             <CardTitle className="text-[1.375rem] font-semibold mb-2 leading-[1.875rem]">
               {feature.title}
@@ -57,7 +54,7 @@ export function FeatureCards() {
             <div className="space-y-2">
               {feature.bullets.map((bullet, bulletIndex) => (
                 <div key={bulletIndex} className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                  <div className="w-1.5 h-1.5 bg-accent rounded-full mt-2 flex-shrink-0" />
                   <span className="text-sm text-muted-foreground leading-[1.125rem]">
                     {bullet}
                   </span>

@@ -39,7 +39,8 @@ export function PricingCTA() {
           <Button 
             size="lg"
             onClick={() => scrollToSection('auth-section')}
-            className="rounded-full h-12 px-8 text-base font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+            variant="gradient"
+            className="text-base font-medium px-8 py-3 h-auto"
           >
             Create your clinic
             <ArrowRight className="w-4 h-4 ml-2" />

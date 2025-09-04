@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
-import { ChevronRight } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 
 export function HeroSection() {
   const scrollToSection = (id: string) => {
@@ -8,61 +8,61 @@ export function HeroSection() {
   };
 
   return (
-    <section className="container mx-auto py-16 bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
-      {/* Background Pattern - Reduced contrast by 25% */}
-      <div className="absolute inset-0 opacity-30" style={{
-        backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.3) 1px, transparent 0)`,
-        backgroundSize: '15px 15px',
-      }}></div>
-      <div className="absolute inset-0 opacity-22" style={{
-        backgroundImage: `radial-gradient(circle at 8px 12px, rgba(37, 99, 235, 0.22) 1px, transparent 0)`,
-        backgroundSize: '22px 22px',
-      }}></div>
-      <div className="absolute inset-0 opacity-19" style={{
-        backgroundImage: `radial-gradient(circle at 5px 3px, rgba(29, 78, 216, 0.3) 2px, transparent 0)`,
-        backgroundSize: '18px 18px',
-      }}></div>
-      <div className="absolute inset-0 opacity-11" style={{
-        backgroundImage: `radial-gradient(ellipse 3px 1px at 12px 8px, rgba(59, 130, 246, 0.38) 0px, transparent 2px)`,
-        backgroundSize: '35px 35px',
-      }}></div>
+    <section className="relative overflow-hidden bg-gradient-to-br from-background via-surface to-background py-20 lg:py-32">
+      {/* Floating shapes background */}
+      <div className="floating-shapes">
+        <div className="floating-shape"></div>
+        <div className="floating-shape"></div>
+        <div className="floating-shape"></div>
+        <div className="floating-shape"></div>
+      </div>
+      
+      {/* Enhanced animated background pattern */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(217_91%_85%_/_0.15),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(217_91%_75%_/_0.15),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(217_91%_90%_/_0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_49%,hsl(217_91%_90%_/_0.05)_50%,transparent_51%)] bg-[length:30px_30px] animate-pulse" />
+        <div className="absolute inset-0 bg-[linear-gradient(-45deg,transparent_49%,hsl(217_91%_85%_/_0.03)_50%,transparent_51%)] bg-[length:40px_40px]" />
+      </div>
 
-      <div className="text-center max-w-4xl mx-auto relative z-10">
+      <div className="container mx-auto text-center relative z-10">
         {/* Large Animated Logo */}
         <div className="mb-8">
           <AnimatedLogo size={120} />
         </div>
         
-        {/* Headline - Updated copy and typography */}
-        <h1 className="text-[3rem] md:text-[3.5rem] lg:text-[4rem] font-semibold mb-6 text-blue-900 tracking-tight leading-[3.5rem] md:leading-[4rem] lg:leading-[4.5rem]">
+        {/* Headline */}
+        <h1 className="text-[3rem] md:text-[3.5rem] lg:text-[4rem] font-semibold mb-6 leading-[3.5rem] md:leading-[4rem] lg:leading-[4.5rem] bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
           Dental teamwork,
           <br />
-          <span className="text-blue-600">simplified.</span>
+          <span className="bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">simplified.</span>
         </h1>
         
-        {/* Subtext - Updated copy */}
-        <p className="text-xl text-blue-700 mb-8 max-w-2xl mx-auto leading-relaxed">
+        {/* Subtext */}
+        <p className="text-[1rem] text-muted-foreground mb-8 max-w-2xl mx-auto leading-[1.5rem]">
           Structured daily tasks, gentle reminders, and clear tools that support assistants and owners alike.
         </p>
 
-        {/* CTA Buttons - Updated copy and styling */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
           <Button 
-            size="lg" 
             onClick={() => scrollToSection('auth-section')}
-            className="rounded-full h-12 px-8 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+            variant="gradient"
+            size="lg" 
+            className="text-base font-medium px-8 py-3 h-auto"
           >
             Start your clinic
-            <ChevronRight className="w-4 h-4 ml-1" />
+            <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
-          
           <Button 
-            size="lg" 
-            variant="ghost" 
             onClick={() => scrollToSection('features')}
-            className="rounded-full h-12 px-8 text-base font-medium text-blue-700 hover:bg-blue-50 hover:-translate-y-0.5 transition-all duration-200"
+            variant="gradient-outline"
+            size="lg" 
+            className="text-base font-medium px-8 py-3 h-auto"
           >
             See how it works
+            <Play className="w-4 h-4 ml-1" />
           </Button>
         </div>
       </div>

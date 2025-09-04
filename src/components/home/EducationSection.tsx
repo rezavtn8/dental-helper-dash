@@ -15,9 +15,9 @@ export function EducationSection() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Templates Column */}
-        <Card className="border border-border shadow-sm hover:shadow-lg transition-all duration-200">
+        <Card className="glass-card hover:shadow-lg transition-all duration-300 group glow-effect">
           <CardHeader className="text-center pb-6">
-            <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent to-accent/80 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent to-accent/80 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <Files className="w-6 h-6 text-accent-foreground" />
             </div>
             <CardTitle className="text-[1.375rem] font-semibold leading-[1.875rem]">

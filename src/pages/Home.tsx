@@ -66,14 +66,22 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-50 to-blue-100 relative overflow-hidden">
-        {/* Rough texture overlay */}
-        <div className="absolute inset-0 opacity-30" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.3) 1px, transparent 0)`,
-          backgroundSize: '20px 20px',
+        {/* Enhanced rough texture overlay */}
+        <div className="absolute inset-0 opacity-40" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.4) 1px, transparent 0)`,
+          backgroundSize: '15px 15px',
         }}></div>
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `radial-gradient(circle at 15px 15px, rgba(37, 99, 235, 0.2) 1px, transparent 0)`,
-          backgroundSize: '30px 30px',
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: `radial-gradient(circle at 8px 12px, rgba(37, 99, 235, 0.3) 1px, transparent 0)`,
+          backgroundSize: '22px 22px',
+        }}></div>
+        <div className="absolute inset-0 opacity-25" style={{
+          backgroundImage: `radial-gradient(circle at 5px 3px, rgba(29, 78, 216, 0.4) 2px, transparent 0)`,
+          backgroundSize: '18px 18px',
+        }}></div>
+        <div className="absolute inset-0 opacity-15" style={{
+          backgroundImage: `radial-gradient(ellipse 3px 1px at 12px 8px, rgba(59, 130, 246, 0.5) 0px, transparent 2px)`,
+          backgroundSize: '35px 35px',
         }}></div>
         
         <div className="text-center max-w-4xl mx-auto relative z-10">
@@ -182,14 +190,22 @@ export default function Home() {
 
       {/* Auth Section */}
       <section id="auth-section" className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-100 to-blue-200 relative overflow-hidden">
-        {/* Rough texture overlay */}
+        {/* Enhanced rough texture overlay */}
+        <div className="absolute inset-0 opacity-35" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(59, 130, 246, 0.5) 1px, transparent 0)`,
+          backgroundSize: '18px 18px',
+        }}></div>
         <div className="absolute inset-0 opacity-25" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(59, 130, 246, 0.4) 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 10px 15px, rgba(37, 99, 235, 0.4) 1px, transparent 0)`,
           backgroundSize: '25px 25px',
         }}></div>
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: `radial-gradient(ellipse 2px 1px at 6px 9px, rgba(29, 78, 216, 0.6) 0px, transparent 1px)`,
+          backgroundSize: '20px 20px',
+        }}></div>
         <div className="absolute inset-0 opacity-15" style={{
-          backgroundImage: `radial-gradient(circle at 12px 18px, rgba(37, 99, 235, 0.3) 1px, transparent 0)`,
-          backgroundSize: '35px 35px',
+          backgroundImage: `radial-gradient(circle at 20px 5px, rgba(59, 130, 246, 0.3) 2px, transparent 0)`,
+          backgroundSize: '40px 40px',
         }}></div>
         
         <div className="max-w-md mx-auto relative z-10">
@@ -258,14 +274,22 @@ export default function Home() {
 
       {/* Features Section */}
       <section id="features" className="container mx-auto px-6 py-20 bg-gradient-to-br from-blue-50 to-white relative overflow-hidden">
-        {/* Subtle texture overlay */}
+        {/* Enhanced texture overlay */}
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: `radial-gradient(circle at 3px 3px, rgba(59, 130, 246, 0.3) 1px, transparent 0)`,
+          backgroundSize: '28px 28px',
+        }}></div>
         <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `radial-gradient(circle at 3px 3px, rgba(59, 130, 246, 0.2) 1px, transparent 0)`,
-          backgroundSize: '40px 40px',
+          backgroundImage: `radial-gradient(circle at 15px 8px, rgba(37, 99, 235, 0.25) 1px, transparent 0)`,
+          backgroundSize: '35px 35px',
+        }}></div>
+        <div className="absolute inset-0 opacity-15" style={{
+          backgroundImage: `radial-gradient(ellipse 4px 2px at 22px 18px, rgba(29, 78, 216, 0.4) 0px, transparent 2px)`,
+          backgroundSize: '45px 45px',
         }}></div>
         <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `radial-gradient(circle at 25px 10px, rgba(37, 99, 235, 0.15) 1px, transparent 0)`,
-          backgroundSize: '50px 50px',
+          backgroundImage: `radial-gradient(circle at 8px 25px, rgba(59, 130, 246, 0.5) 2px, transparent 0)`,
+          backgroundSize: '55px 55px',
         }}></div>
         
         <div className="text-center max-w-3xl mx-auto mb-16 relative z-10">
@@ -382,14 +406,22 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t bg-gradient-to-r from-blue-600 to-blue-700 py-16 text-white relative overflow-hidden">
-        {/* Dark texture overlay for footer */}
+        {/* Intense dark texture overlay for footer */}
+        <div className="absolute inset-0 opacity-40" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(30, 58, 138, 0.6) 1px, transparent 0)`,
+          backgroundSize: '12px 12px',
+        }}></div>
         <div className="absolute inset-0 opacity-30" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(30, 58, 138, 0.5) 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 6px 9px, rgba(15, 23, 42, 0.5) 1px, transparent 0)`,
+          backgroundSize: '18px 18px',
+        }}></div>
+        <div className="absolute inset-0 opacity-25" style={{
+          backgroundImage: `radial-gradient(ellipse 3px 1px at 4px 6px, rgba(30, 58, 138, 0.7) 0px, transparent 1px)`,
           backgroundSize: '15px 15px',
         }}></div>
         <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `radial-gradient(circle at 8px 12px, rgba(15, 23, 42, 0.4) 1px, transparent 0)`,
-          backgroundSize: '25px 25px',
+          backgroundImage: `radial-gradient(circle at 12px 3px, rgba(15, 23, 42, 0.6) 2px, transparent 0)`,
+          backgroundSize: '28px 28px',
         }}></div>
         
         <div className="container mx-auto px-6 relative z-10">

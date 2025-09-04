@@ -48,10 +48,8 @@ export default function Home() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <AnimatedLogo size={20} animated={false} />
-              </div>
-              <span className="text-lg font-medium text-foreground">DentaLeague</span>
+              <AnimatedLogo size={28} animated={false} className="text-primary" />
+              <span className="text-lg font-medium bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">DentaLeague</span>
             </div>
             
             <Button 
@@ -216,9 +214,7 @@ export default function Home() {
         <div className="max-w-md mx-auto relative z-10">
           <Card className="border-2 border-blue-300 shadow-2xl bg-white/95 backdrop-blur-sm">
             <CardHeader className="text-center pb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <AnimatedLogo size={24} animated={false} />
-              </div>
+              <AnimatedLogo size={32} animated={false} className="text-blue-600 mb-4 mx-auto" />
               <CardTitle className="text-2xl font-medium text-blue-900">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? 'Complete Setup' : 'Get Started'}
               </CardTitle>
@@ -432,10 +428,8 @@ export default function Home() {
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-3 mb-8">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center border border-white/30">
-                <AnimatedLogo size={20} animated={false} />
-              </div>
-              <span className="text-lg font-medium text-white">DentaLeague</span>
+              <AnimatedLogo size={24} animated={false} className="text-white" />
+              <span className="text-lg font-medium bg-gradient-to-r from-blue-200 to-white bg-clip-text text-transparent">DentaLeague</span>
             </div>
 
             <div className="flex justify-center items-center gap-8 mb-8 text-sm text-blue-100">

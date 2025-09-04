@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Building2, Plus, Users, CheckCircle, Clock, LogOut } from 'lucide-react';
+import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { toast } from 'sonner';
 
 interface ClinicMembership {
@@ -101,11 +102,9 @@ export default function AssistantHub() {
       <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-              <Building2 className="w-6 h-6 text-primary-foreground" />
-            </div>
+            <AnimatedLogo size={28} animated={false} className="text-primary" />
             <div>
-            <span className="text-xl font-bold">Assistant Hub</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">Assistant Hub</span>
               <p className="text-sm text-muted-foreground">Welcome back, {user?.email}</p>
             </div>
           </div>

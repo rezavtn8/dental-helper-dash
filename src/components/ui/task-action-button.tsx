@@ -2,15 +2,12 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { TaskStatus } from '@/lib/taskStatus';
 import { 
-  CheckCircle, 
-  Circle, 
-  Clock, 
-  Hand,
-  Undo2,
-  RotateCcw,
+  CheckCircle2, 
+  Circle,
+  Clock3,
   Play,
-  Check,
-  ArrowUp,
+  RotateCcw,
+  ArrowRight,
   ArrowLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -37,11 +34,12 @@ export function TaskActionButton({
   const getButtonConfig = () => {
     if (action === 'pickup') {
       return {
-        icon: ArrowUp,
-        label: 'Pick Up',
-        bgColor: 'hover:bg-blue-50',
-        iconColor: 'text-blue-600',
-        borderColor: 'hover:border-blue-200'
+        icon: ArrowRight,
+        label: 'Take Task',
+        bgColor: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
+        iconColor: 'text-white',
+        borderColor: 'border-blue-500',
+        textColor: 'text-white'
       };
     }
     
@@ -49,55 +47,61 @@ export function TaskActionButton({
       return {
         icon: ArrowLeft,
         label: 'Return',
-        bgColor: 'hover:bg-slate-50',
-        iconColor: 'text-slate-600',
-        borderColor: 'hover:border-slate-200'
+        bgColor: 'bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700',
+        iconColor: 'text-white',
+        borderColor: 'border-slate-500',
+        textColor: 'text-white'
       };
     }
     
     if (action === 'undo') {
       return {
-        icon: Undo2,
+        icon: RotateCcw,
         label: 'Undo',
-        bgColor: 'hover:bg-orange-50',
-        iconColor: 'text-orange-600',
-        borderColor: 'hover:border-orange-200'
+        bgColor: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
+        iconColor: 'text-white',
+        borderColor: 'border-orange-500',
+        textColor: 'text-white'
       };
     }
 
-    // Default toggle behavior
+    // Default toggle behavior with modern styling
     switch (status) {
       case 'pending':
         return {
-          icon: Hand,
-          label: 'Start',
-          bgColor: 'hover:bg-blue-50',
-          iconColor: 'text-blue-600',
-          borderColor: 'hover:border-blue-200'
+          icon: Play,
+          label: 'Start Task',
+          bgColor: 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25',
+          iconColor: 'text-primary-foreground',
+          borderColor: 'border-primary',
+          textColor: 'text-primary-foreground'
         };
       case 'in-progress':
         return {
-          icon: CheckCircle,
+          icon: CheckCircle2,
           label: 'Complete',
-          bgColor: 'hover:bg-green-50',
-          iconColor: 'text-green-600',
-          borderColor: 'hover:border-green-200'
+          bgColor: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg shadow-green-500/25',
+          iconColor: 'text-white',
+          borderColor: 'border-green-500',
+          textColor: 'text-white'
         };
       case 'completed':
         return {
-          icon: Undo2,
+          icon: RotateCcw,
           label: 'Undo',
-          bgColor: 'hover:bg-orange-50',
-          iconColor: 'text-orange-600',
-          borderColor: 'hover:border-orange-200'
+          bgColor: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25',
+          iconColor: 'text-white',
+          borderColor: 'border-orange-500',
+          textColor: 'text-white'
         };
       default:
         return {
           icon: Circle,
           label: 'Start',
-          bgColor: 'hover:bg-slate-50',
-          iconColor: 'text-slate-400',
-          borderColor: 'hover:border-slate-200'
+          bgColor: 'bg-gradient-to-r from-muted to-muted/90 hover:from-muted/90 hover:to-muted',
+          iconColor: 'text-muted-foreground',
+          borderColor: 'border-muted',
+          textColor: 'text-muted-foreground'
         };
     }
   };
@@ -106,35 +110,34 @@ export function TaskActionButton({
   const Icon = config.icon;
   
   const sizeClasses = {
-    sm: showLabel ? 'h-7 px-2 text-xs' : 'h-7 w-7 p-0',
-    md: showLabel ? 'h-9 px-3 text-sm' : 'h-9 w-9 p-0',
-    lg: showLabel ? 'h-11 px-4' : 'h-11 w-11 p-0'
+    sm: showLabel ? 'h-8 px-3 text-xs font-medium' : 'h-8 w-8 p-0',
+    md: showLabel ? 'h-10 px-4 text-sm font-medium' : 'h-10 w-10 p-0',
+    lg: showLabel ? 'h-12 px-5 text-base font-medium' : 'h-12 w-12 p-0'
   };
 
   const iconSizes = {
-    sm: 'w-3 h-3',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5'
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6'
   };
 
   return (
     <Button
-      variant={variant}
-      size="sm"
       className={cn(
         sizeClasses[size],
         config.bgColor,
         config.borderColor,
-        'transition-all duration-200 hover:scale-105 active:scale-95',
-        'border border-transparent',
+        'transition-all duration-300 hover:scale-105 active:scale-95 transform-gpu',
+        'border-2 rounded-xl font-medium',
+        'focus:ring-4 focus:ring-primary/20 focus:outline-none',
         className
       )}
       onClick={onClick}
       title={config.label}
     >
-      <Icon className={cn(iconSizes[size], config.iconColor, 'transition-colors')} />
+      <Icon className={cn(iconSizes[size], config.iconColor, 'transition-all duration-200')} />
       {showLabel && (
-        <span className={cn('ml-2', config.iconColor)}>{config.label}</span>
+        <span className={cn('ml-2', config.textColor)}>{config.label}</span>
       )}
     </Button>
   );
@@ -143,10 +146,10 @@ export function TaskActionButton({
 export function TaskStatusIcon({ status, className }: { status: TaskStatus; className?: string }) {
   switch (status) {
     case 'completed':
-      return <CheckCircle className={cn('text-green-600', className)} />;
+      return <CheckCircle2 className={cn('text-green-600', className)} />;
     case 'in-progress':
-      return <Clock className={cn('text-orange-600', className)} />;
+      return <Clock3 className={cn('text-orange-600', className)} />;
     default:
-      return <Circle className={cn('text-slate-400', className)} />;
+      return <Circle className={cn('text-muted-foreground', className)} />;
   }
 }

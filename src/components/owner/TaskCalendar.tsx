@@ -180,15 +180,15 @@ export default function TaskCalendar({
       </div>
 
       {/* Calendar Grid */}
-      <div className={`grid gap-2 ${
+      <div className={`grid gap-4 ${
         viewMode === 'monthly' ? 'grid-cols-7' :
         viewMode === 'weekly' ? 'grid-cols-7' :
         'grid-cols-1'
       }`}>
         {/* Week headers for weekly/monthly view */}
         {(viewMode === 'weekly' || viewMode === 'monthly') && (
-          ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
+          ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => (
+            <div key={day} className="p-4 text-center text-sm font-semibold text-foreground border-b-2 border-border">
               {day}
             </div>
           ))
@@ -205,28 +205,34 @@ export default function TaskCalendar({
             <div
               key={date.toISOString()}
               className={`
-                min-h-[120px] p-3 border-2 border-dashed border-slate-200 rounded-lg
-                transition-all duration-200 hover:border-slate-300
-                ${isCurrentDay ? 'bg-blue-50 border-blue-300' : 'bg-white'}
-                ${isSelectedDay ? 'ring-2 ring-blue-500' : ''}
-                ${!isCurrentMonth ? 'opacity-50' : ''}
-                ${viewMode === 'daily' ? 'min-h-[400px]' : ''}
+                min-h-[140px] p-4 border border-border rounded-xl bg-card shadow-sm
+                transition-all duration-300 hover:shadow-md hover:border-primary/30
+                ${isCurrentDay ? 'bg-primary/5 border-primary/50 shadow-lg' : ''}
+                ${isSelectedDay ? 'ring-2 ring-primary/30 ring-offset-2' : ''}
+                ${!isCurrentMonth ? 'opacity-40' : ''}
+                ${viewMode === 'daily' ? 'min-h-[500px]' : ''}
+                group relative overflow-hidden
               `}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, date)}
             >
               {/* Day header */}
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className={`
-                    text-sm font-medium
-                    ${isCurrentDay ? 'text-blue-700' : 'text-slate-700'}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`
+                    flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold transition-all duration-200
+                    ${isCurrentDay ? 'bg-primary text-primary-foreground shadow-lg' : 'text-foreground'}
                   `}>
-                    {format(date, viewMode === 'monthly' ? 'd' : 'EEE d')}
-                  </span>
+                    {format(date, 'd')}
+                  </div>
+                  {viewMode !== 'monthly' && (
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {format(date, 'EEE')}
+                    </span>
+                  )}
                   {dayTasks.length > 0 && (
-                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                      {dayTasks.length}
+                    <Badge variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary border-primary/20">
+                      {dayTasks.length} task{dayTasks.length !== 1 ? 's' : ''}
                     </Badge>
                   )}
                 </div>
@@ -234,16 +240,16 @@ export default function TaskCalendar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-6 h-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-blue-100"
+                  className="w-8 h-8 p-0 opacity-0 group-hover:opacity-100 hover:bg-primary/10 hover:text-primary transition-all duration-200 rounded-full"
                   onClick={() => onDayClick(date)}
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="w-4 h-4" />
                 </Button>
               </div>
 
               {/* Tasks */}
-              <div className="space-y-1">
-                {dayTasks.slice(0, viewMode === 'daily' ? 20 : 3).map(task => (
+              <div className="space-y-2">
+                {dayTasks.slice(0, viewMode === 'daily' ? 20 : 4).map(task => (
                   <TaskBlock
                     key={task.id}
                     task={task}
@@ -256,18 +262,19 @@ export default function TaskCalendar({
                   />
                 ))}
                 
-                {dayTasks.length > (viewMode === 'daily' ? 20 : 3) && (
-                  <div className="text-xs text-muted-foreground text-center py-1">
-                    +{dayTasks.length - (viewMode === 'daily' ? 20 : 3)} more
+                {dayTasks.length > (viewMode === 'daily' ? 20 : 4) && (
+                  <div className="text-xs text-muted-foreground text-center py-2 px-3 bg-muted/50 rounded-lg">
+                    +{dayTasks.length - (viewMode === 'daily' ? 20 : 4)} more tasks
                   </div>
                 )}
                 
                 {dayTasks.length === 0 && (
                   <div 
-                    className="text-xs text-muted-foreground text-center py-4 cursor-pointer hover:text-slate-600"
+                    className="text-xs text-muted-foreground text-center py-6 cursor-pointer hover:text-foreground transition-colors duration-200 border-2 border-dashed border-muted rounded-lg hover:border-primary/30"
                     onClick={() => onDayClick(date)}
                   >
-                    Click to add task
+                    <Plus className="w-4 h-4 mx-auto mb-1 opacity-50" />
+                    Add task
                   </div>
                 )}
               </div>

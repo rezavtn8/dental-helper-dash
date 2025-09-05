@@ -74,11 +74,11 @@ export default function TaskBlock({
   return (
     <div
       className={`
-        ${colorClass} border rounded-lg p-2 cursor-pointer
-        hover:shadow-sm transition-all duration-200
-        ${compact ? 'text-xs' : 'text-sm'}
-        ${task.status === 'completed' ? 'opacity-70' : ''}
-        group relative
+        ${colorClass} border-2 rounded-xl p-3 cursor-pointer relative overflow-hidden
+        hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform-gpu
+        ${compact ? 'text-xs p-2' : 'text-sm'}
+        ${task.status === 'completed' ? 'opacity-80 saturate-50' : 'shadow-md'}
+        group bg-gradient-to-br from-background to-background/95
       `}
       draggable
       onDragStart={(e) => onDragStart(e, task)}
@@ -86,15 +86,22 @@ export default function TaskBlock({
     >
       {/* Priority indicator */}
       {task.priority === 'high' && (
-        <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full shadow-lg animate-pulse"></div>
       )}
 
-      <div className="flex items-start gap-2">
+      {/* Status indicator line */}
+      <div className={`absolute top-0 left-0 right-0 h-1 ${
+        task.status === 'completed' ? 'bg-green-500' :
+        task.status === 'in-progress' ? 'bg-orange-500' :
+        'bg-muted'
+      }`}></div>
+
+      <div className="flex items-start gap-3 mt-1">
         {/* Status Icon */}
         <Button
           variant="ghost"
           size="sm"
-          className="w-5 h-5 p-0 hover:bg-white/20"
+          className="w-6 h-6 p-0 hover:bg-primary/10 hover:scale-110 transition-all duration-200 rounded-full"
           onClick={toggleStatus}
         >
           {getStatusIcon()}
@@ -102,36 +109,36 @@ export default function TaskBlock({
 
         {/* Task Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1 mb-1">
-            <span className={`font-medium truncate ${
-              task.status === 'completed' ? 'line-through text-muted-foreground' : ''
-            }`}>
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`font-semibold leading-tight ${
+              task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'
+            } ${compact ? 'text-xs' : 'text-sm'}`}>
               {task.title}
             </span>
             {isRecurringInstance(task) && (
-              <div title="Recurring task instance">
-                <Repeat className="w-3 h-3 text-blue-500" />
+              <div title="Recurring task instance" className="flex-shrink-0">
+                <Repeat className="w-3 h-3 text-primary animate-pulse" />
               </div>
             )}
             {getPriorityIcon()}
           </div>
 
           {!compact && task.description && (
-            <p className="text-xs text-muted-foreground truncate mb-2">
+            <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
               {task.description}
             </p>
           )}
 
-          <div className="flex items-center gap-1 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Assignment */}
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-4 rounded-full bg-white/60 flex items-center justify-center">
-                <span className="text-xs font-medium text-slate-700">
+            <div className="flex items-center gap-2 bg-muted/50 rounded-full px-2 py-1">
+              <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+                <span className="text-xs font-bold text-primary">
                   {getAssistantInitials()}
                 </span>
               </div>
               {!compact && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs font-medium text-foreground">
                   {getAssistantName()}
                 </span>
               )}
@@ -140,11 +147,10 @@ export default function TaskBlock({
             {/* Priority Badge */}
             {task.priority && task.priority !== 'medium' && (
               <Badge 
-                variant="outline" 
-                className={`text-xs px-1 py-0 ${
-                  task.priority === 'high' ? 'border-red-300 text-red-700' :
-                  task.priority === 'low' ? 'border-green-300 text-green-700' :
-                  'border-slate-300 text-slate-700'
+                className={`text-xs px-2 py-1 font-medium border-2 ${
+                  task.priority === 'high' ? 'bg-red-50 border-red-300 text-red-700' :
+                  task.priority === 'low' ? 'bg-green-50 border-green-300 text-green-700' :
+                  'bg-muted border-border text-muted-foreground'
                 }`}
               >
                 {task.priority}
@@ -153,7 +159,7 @@ export default function TaskBlock({
 
             {/* Due Type */}
             {task['due-type'] && (
-              <Badge variant="secondary" className="text-xs px-1 py-0">
+              <Badge variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary border border-primary/20">
                 {task['due-type']}
               </Badge>
             )}

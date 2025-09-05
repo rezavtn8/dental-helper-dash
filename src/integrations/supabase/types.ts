@@ -849,11 +849,15 @@ export type Database = {
           "due-type": string | null
           id: string
           is_active: boolean | null
+          is_enabled: boolean | null
+          last_generated_date: string | null
+          next_generation_date: string | null
           owner_notes: string | null
           priority: string | null
           recurrence: string | null
           source_type: string | null
           specialty: string | null
+          start_date: string | null
           title: string
           updated_at: string
         }
@@ -869,11 +873,15 @@ export type Database = {
           "due-type"?: string | null
           id?: string
           is_active?: boolean | null
+          is_enabled?: boolean | null
+          last_generated_date?: string | null
+          next_generation_date?: string | null
           owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
           source_type?: string | null
           specialty?: string | null
+          start_date?: string | null
           title: string
           updated_at?: string
         }
@@ -889,11 +897,15 @@ export type Database = {
           "due-type"?: string | null
           id?: string
           is_active?: boolean | null
+          is_enabled?: boolean | null
+          last_generated_date?: string | null
+          next_generation_date?: string | null
           owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
           source_type?: string | null
           specialty?: string | null
+          start_date?: string | null
           title?: string
           updated_at?: string
         }
@@ -914,11 +926,13 @@ export type Database = {
           description: string | null
           "due-date": string | null
           "due-type": string | null
+          generated_date: string | null
           id: string
           owner_notes: string | null
           priority: string | null
           recurrence: string | null
           status: Database["public"]["Enums"]["task_status"]
+          template_id: string | null
           title: string | null
           updated_at: string | null
         }
@@ -936,11 +950,13 @@ export type Database = {
           description?: string | null
           "due-date"?: string | null
           "due-type"?: string | null
+          generated_date?: string | null
           id?: string
           owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          template_id?: string | null
           title?: string | null
           updated_at?: string | null
         }
@@ -958,15 +974,25 @@ export type Database = {
           description?: string | null
           "due-date"?: string | null
           "due-type"?: string | null
+          generated_date?: string | null
           id?: string
           owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          template_id?: string | null
           title?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "task_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_sessions: {
         Row: {

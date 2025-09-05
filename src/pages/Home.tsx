@@ -31,7 +31,7 @@ export default function Home() {
   // Redirect authenticated users to their dashboard
   useEffect(() => {
     if (user && userProfile && !loading) {
-      if (userProfile.role === 'owner' && userProfile.clinic_id) {
+      if (userProfile.role === 'owner') {
         navigate('/owner');
       } else if (userProfile.role === 'assistant') {
         navigate('/assistant');

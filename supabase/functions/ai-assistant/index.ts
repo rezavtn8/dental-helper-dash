@@ -221,21 +221,25 @@ serve(async (req) => {
           assignedToId = assistant?.id || null;
         }
 
+        // Convert string "null" values to actual null for database insertion
+        const processedBulkData = {
+          title: taskData.title,
+          description: taskData.description,
+          priority: taskData.priority || 'medium',
+          assigned_to: assignedToId,
+          'due-type': taskData.due_type || 'once',
+          recurrence: taskData.recurrence || 'once',
+          category: taskData.category || 'administrative',
+          custom_due_date: taskData.custom_due_date === 'null' || taskData.custom_due_date === null ? null : taskData.custom_due_date,
+          clinic_id: clinicId,
+          created_by: userId,
+          status: 'pending'
+        };
+
         // Create task in database
         const { data: newTask, error } = await supabase
           .from('tasks')
-          .insert({
-            title: taskData.title,
-            description: taskData.description,
-            priority: taskData.priority || 'medium',
-            assigned_to: assignedToId,
-            'due-type': taskData.due_type || 'once',
-            recurrence: taskData.recurrence || 'once',
-            category: taskData.category || 'administrative',
-            clinic_id: clinicId,
-            created_by: userId,
-            status: 'pending'
-          })
+          .insert(processedBulkData)
           .select()
           .single();
 
@@ -336,22 +340,25 @@ serve(async (req) => {
         assignedToId = assistant?.id || null;
       }
 
+      // Convert string "null" values to actual null for database insertion
+      const processedTaskData = {
+        title: taskData.title,
+        description: taskData.description,
+        priority: taskData.priority || 'medium',
+        assigned_to: assignedToId,
+        'due-type': taskData.due_type || 'once',
+        recurrence: taskData.recurrence || 'once',
+        category: taskData.category || 'administrative',
+        custom_due_date: taskData.custom_due_date === 'null' || taskData.custom_due_date === null ? null : taskData.custom_due_date,
+        clinic_id: clinicId,
+        created_by: userId,
+        status: 'pending'
+      };
+
       // Create task in database
       const { data: newTask, error } = await supabase
         .from('tasks')
-        .insert({
-          title: taskData.title,
-          description: taskData.description,
-          priority: taskData.priority,
-          assigned_to: assignedToId,
-          'due-type': taskData.due_type,
-          recurrence: taskData.recurrence,
-          category: taskData.category,
-          custom_due_date: taskData.custom_due_date,
-          clinic_id: clinicId,
-          created_by: userId,
-          status: 'pending'
-        })
+        .insert(processedTaskData)
         .select()
         .single();
 

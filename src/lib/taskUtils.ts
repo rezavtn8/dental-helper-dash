@@ -229,6 +229,8 @@ export interface RecurringTaskInstance extends Task {
   parentTaskId: string;
   instanceDate: Date;
   originalDueDate?: Date;
+  isOverdue?: boolean;
+  overdueReason?: string;
 }
 
 /**
@@ -289,6 +291,7 @@ const generateEOWInstances = (
       instanceDate.setDate(instanceDate.getDate() + dayOfWeek);
       
       if (instanceDate >= startDate && instanceDate <= endDate) {
+        const isOverdue = isEOWOverdue(instanceDate, new Date());
         const instance: RecurringTaskInstance = {
           ...task,
           id: `${task.id}_eow_${instanceDate.toISOString().split('T')[0]}`,
@@ -299,7 +302,9 @@ const generateEOWInstances = (
           custom_due_date: instanceDate.toISOString(),
           status: 'pending' as TaskStatus,
           completed_at: undefined,
-          completed_by: undefined
+          completed_by: undefined,
+          isOverdue,
+          overdueReason: isOverdue ? getOverdueReason({ ...task, recurrence: 'eow' }) : undefined
         };
         instances.push(instance);
       }
@@ -359,18 +364,23 @@ const createMidMInstance = (
   instanceDate: Date,
   taskBaseDate: Date,
   period: 'first' | 'second'
-): RecurringTaskInstance => ({
-  ...task,
-  id: `${task.id}_midm_${period}_${instanceDate.toISOString().split('T')[0]}`,
-  isRecurringInstance: true,
-  parentTaskId: task.id,
-  instanceDate: new Date(instanceDate),
-  originalDueDate: taskBaseDate,
-  custom_due_date: instanceDate.toISOString(),
-  status: 'pending' as TaskStatus,
-  completed_at: undefined,
-  completed_by: undefined
-});
+): RecurringTaskInstance => {
+  const isOverdue = isMidMOverdue(instanceDate, new Date());
+  return {
+    ...task,
+    id: `${task.id}_midm_${period}_${instanceDate.toISOString().split('T')[0]}`,
+    isRecurringInstance: true,
+    parentTaskId: task.id,
+    instanceDate: new Date(instanceDate),
+    originalDueDate: taskBaseDate,
+    custom_due_date: instanceDate.toISOString(),
+    status: 'pending' as TaskStatus,
+    completed_at: undefined,
+    completed_by: undefined,
+    isOverdue,
+    overdueReason: isOverdue ? getOverdueReason({ ...task, recurrence: 'midm' }) : undefined
+  };
+};
 
 /**
  * Generate EOM (End of Month) instances - show from 25th to end of month or 1st-5th
@@ -417,18 +427,23 @@ const createEOMInstance = (
   instanceDate: Date,
   taskBaseDate: Date,
   period: 'end' | 'start'
-): RecurringTaskInstance => ({
-  ...task,
-  id: `${task.id}_eom_${period}_${instanceDate.toISOString().split('T')[0]}`,
-  isRecurringInstance: true,
-  parentTaskId: task.id,
-  instanceDate: new Date(instanceDate),
-  originalDueDate: taskBaseDate,
-  custom_due_date: instanceDate.toISOString(),
-  status: 'pending' as TaskStatus,
-  completed_at: undefined,
-  completed_by: undefined
-});
+): RecurringTaskInstance => {
+  const isOverdue = isEOMOverdue(instanceDate, new Date());
+  return {
+    ...task,
+    id: `${task.id}_eom_${period}_${instanceDate.toISOString().split('T')[0]}`,
+    isRecurringInstance: true,
+    parentTaskId: task.id,
+    instanceDate: new Date(instanceDate),
+    originalDueDate: taskBaseDate,
+    custom_due_date: instanceDate.toISOString(),
+    status: 'pending' as TaskStatus,
+    completed_at: undefined,
+    completed_by: undefined,
+    isOverdue,
+    overdueReason: isOverdue ? getOverdueReason({ ...task, recurrence: 'eom' }) : undefined
+  };
+};
 
 /**
  * Generate standard recurrence instances (daily, weekly, monthly, etc.)
@@ -517,8 +532,92 @@ export const expandTasksWithRecurrence = (
 };
 
 /**
- * Check if a recurring task should show instances based on completion status
+ * Check if a recurring task instance is overdue based on its type and current date
  */
+export const isRecurringTaskOverdue = (task: Task, currentDate: Date = new Date()): boolean => {
+  if (isCompleted(task.status) || !task.recurrence) {
+    return false;
+  }
+
+  const today = new Date(currentDate);
+  const taskDate = task.custom_due_date ? new Date(task.custom_due_date) : new Date(task.created_at);
+  
+  switch (task.recurrence.toLowerCase()) {
+    case 'eow': // End of Week - overdue if not done by Sunday
+      return isEOWOverdue(taskDate, today);
+    case 'midm': // Mid Month - overdue if not done within 7 days of cycle
+      return isMidMOverdue(taskDate, today);
+    case 'eom': // End of Month - overdue if not done by last day of month
+      return isEOMOverdue(taskDate, today);
+    default:
+      return false;
+  }
+};
+
+/**
+ * Check if EOW task is overdue (not done by Sunday of the same week)
+ */
+const isEOWOverdue = (taskDate: Date, currentDate: Date): boolean => {
+  const taskWeekStart = new Date(taskDate);
+  taskWeekStart.setDate(taskWeekStart.getDate() - taskWeekStart.getDay() + 1); // Monday of task week
+  
+  const taskWeekEnd = new Date(taskWeekStart);
+  taskWeekEnd.setDate(taskWeekEnd.getDate() + 6); // Sunday of task week
+  taskWeekEnd.setHours(23, 59, 59, 999);
+  
+  return currentDate > taskWeekEnd;
+};
+
+/**
+ * Check if MidM task is overdue (not done within 7 days of cycle)
+ */
+const isMidMOverdue = (taskDate: Date, currentDate: Date): boolean => {
+  const day = taskDate.getDate();
+  const month = taskDate.getMonth();
+  const year = taskDate.getFullYear();
+  
+  let cycleEndDate: Date;
+  
+  if (day <= 7) {
+    // First cycle (1st-7th), due by 7th
+    cycleEndDate = new Date(year, month, 7, 23, 59, 59, 999);
+  } else {
+    // Second cycle (15th-21st), due by 21st
+    cycleEndDate = new Date(year, month, 21, 23, 59, 59, 999);
+  }
+  
+  return currentDate > cycleEndDate;
+};
+
+/**
+ * Check if EOM task is overdue (not done by last day of month)
+ */
+const isEOMOverdue = (taskDate: Date, currentDate: Date): boolean => {
+  const month = taskDate.getMonth();
+  const year = taskDate.getFullYear();
+  
+  // Get last day of the month
+  const lastDayOfMonth = new Date(year, month + 1, 0);
+  lastDayOfMonth.setHours(23, 59, 59, 999);
+  
+  return currentDate > lastDayOfMonth;
+};
+
+/**
+ * Get overdue reason text for recurring tasks
+ */
+export const getOverdueReason = (task: Task): string => {
+  switch (task.recurrence?.toLowerCase()) {
+    case 'eow':
+      return 'Overdue - should have been completed by Sunday';
+    case 'midm':
+      return 'Overdue - should have been completed within the cycle period';
+    case 'eom':
+      return 'Overdue - should have been completed by end of month';
+    default:
+      return 'Overdue';
+  }
+};
 export const shouldShowRecurringInstances = (task: Task): boolean => {
   // Don't show instances if the parent task is completed
   if (isCompleted(task.status)) {
@@ -628,6 +727,8 @@ export const taskUtils = {
   getTasksForDate,
   getTasksForDateRange,
   shouldShowRecurringInstances,
+  isRecurringTaskOverdue,
+  getOverdueReason,
   
   // Validation
   isValidTask,

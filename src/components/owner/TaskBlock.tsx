@@ -33,7 +33,12 @@ export default function TaskBlock({
   onDragStart,
   compact = false
 }: TaskBlockProps) {
+  const isOverdue = isRecurringInstance(task) && task.isOverdue;
+  
   const getStatusIcon = () => {
+    if (isOverdue) {
+      return <AlertCircle className="w-3 h-3 text-red-600" />;
+    }
     switch (task.status) {
       case 'completed':
         return <CheckCircle className="w-3 h-3 text-green-600" />;
@@ -91,10 +96,18 @@ export default function TaskBlock({
 
       {/* Status indicator line */}
       <div className={`absolute top-0 left-0 right-0 h-1 ${
+        isOverdue ? 'bg-red-500' :
         task.status === 'completed' ? 'bg-green-500' :
         task.status === 'in-progress' ? 'bg-orange-500' :
         'bg-muted'
       }`}></div>
+
+      {/* Overdue indicator */}
+      {isOverdue && (
+        <div className="absolute -top-1 -left-1 w-4 h-4 bg-red-500 rounded-full shadow-lg animate-pulse flex items-center justify-center">
+          <AlertCircle className="w-2 h-2 text-white" />
+        </div>
+      )}
 
       <div className="flex items-start gap-3 mt-1">
         {/* Task Content */}
@@ -167,6 +180,13 @@ export default function TaskBlock({
               )}
             </div>
 
+            {/* Overdue Badge */}
+            {isOverdue && (
+              <Badge className="text-xs px-2 py-1 font-medium bg-red-100 border-red-300 text-red-700 border-2">
+                OVERDUE
+              </Badge>
+            )}
+
             {/* Priority Badge */}
             {task.priority && task.priority !== 'medium' && (
               <Badge 
@@ -185,6 +205,15 @@ export default function TaskBlock({
               <Badge variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary border border-primary/20">
                 {task['due-type']}
               </Badge>
+            )}
+
+            {/* Overdue Reason */}
+            {isOverdue && isRecurringInstance(task) && task.overdueReason && !compact && (
+              <div className="w-full mt-2">
+                <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1">
+                  {task.overdueReason}
+                </p>
+              </div>
             )}
           </div>
         </div>

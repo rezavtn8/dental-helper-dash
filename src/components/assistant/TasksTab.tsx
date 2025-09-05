@@ -2,12 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building, Calendar, ChevronLeft, ChevronRight, CheckCircle, Flag, CalendarDays, List } from 'lucide-react';
+import { Building, Calendar, ChevronLeft, ChevronRight, CheckCircle, Flag, CalendarDays, List, AlertCircle, Repeat } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
-import { getTasksForDate, getPriorityStyles } from '@/lib/taskUtils';
+import { getTasksForDate, getPriorityStyles, isRecurringInstance, RecurringTaskInstance } from '@/lib/taskUtils';
 import {
   format,
   startOfWeek,
@@ -157,25 +157,37 @@ export default function TasksTab({
     return groupTasksByTime(selectedDateTasks);
   }, [selectedDateTasks]);
 
-  const TaskCard = ({ task }: { task: Task }) => {
+  const TaskCard = ({ task }: { task: Task | RecurringTaskInstance }) => {
     const isAssignedToMe = task.assigned_to === userProfile?.id;
     const isUnassigned = !task.assigned_to;
+    const isOverdue = isRecurringInstance(task) && task.isOverdue;
     
     return (
       <div
         className={`
           flex items-center justify-between p-4 border rounded-lg transition-all duration-200 cursor-pointer
-          ${task.status === 'completed' ? 'bg-green-50/50 border-green-200' : 'bg-background border-border hover:bg-muted/30'}
+          ${task.status === 'completed' ? 'bg-green-50/50 border-green-200' : 
+            isOverdue ? 'bg-red-50/50 border-red-200' : 
+            'bg-background border-border hover:bg-muted/30'}
         `}
         onClick={() => onTaskClick?.(task)}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className={`font-medium text-sm ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
+            {isOverdue && (
+              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+            )}
+            <h4 className={`font-medium text-sm ${
+              task.status === 'completed' ? 'line-through text-muted-foreground' : 
+              isOverdue ? 'text-red-700' : ''
+            }`}>
               {task.title}
             </h4>
             {task.priority === 'high' && (
               <Flag className="w-3 h-3 text-red-500" />
+            )}
+            {isRecurringInstance(task) && (
+              <Repeat className="w-3 h-3 text-primary" />
             )}
           </div>
           
@@ -185,8 +197,17 @@ export default function TasksTab({
                 {task.priority}
               </Badge>
             )}
+            {isOverdue && (
+              <Badge className="text-xs h-5 bg-red-100 text-red-700 border-red-200">
+                OVERDUE
+              </Badge>
+            )}
             <span>{getAssistantName(task.assigned_to)}</span>
           </div>
+          
+          {isOverdue && isRecurringInstance(task) && task.overdueReason && (
+            <p className="text-xs text-red-600 mt-1">{task.overdueReason}</p>
+          )}
         </div>
 
         <div className="flex items-center gap-2 ml-4">

@@ -12,7 +12,8 @@ import {
   Clock,
   Repeat,
   CheckSquare,
-  Files
+  Files,
+  Power
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -33,7 +34,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import ApplyTemplateDialog from './ApplyTemplateDialog';
 
 interface TaskTemplate {
   id: string;
@@ -47,6 +47,10 @@ interface TaskTemplate {
   owner_notes?: string;
   created_at: string;
   is_active: boolean;
+  is_enabled?: boolean;
+  start_date?: string;
+  next_generation_date?: string;
+  last_generated_date?: string;
 }
 
 interface TemplateListProps {
@@ -73,7 +77,6 @@ export default function TemplateList({
   onSelectAll
 }: TemplateListProps) {
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null);
-  const [applyDialog, setApplyDialog] = useState<TaskTemplate | null>(null);
   const { toast } = useToast();
 
   const getCategoryColor = (category?: string) => {
@@ -116,9 +119,34 @@ export default function TemplateList({
       weekly: 'Weekly',
       monthly: 'Monthly',
       biweekly: 'Biweekly',
-      none: 'One-time',
+      once: 'One-time',
     };
     return labels[recurrence as keyof typeof labels] || recurrence;
+  };
+
+  const handleToggleEnabled = async (template: TaskTemplate) => {
+    try {
+      const { error } = await supabase
+        .from('task_templates')
+        .update({ is_enabled: !template.is_enabled })
+        .eq('id', template.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Template ${template.is_enabled ? 'disabled' : 'enabled'} successfully`,
+      });
+      
+      onRefresh();
+    } catch (error) {
+      console.error('Error toggling template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update template",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDuplicate = async (template: TaskTemplate) => {
@@ -135,6 +163,8 @@ export default function TemplateList({
           recurrence: template.recurrence,
           owner_notes: template.owner_notes,
           clinic_id: clinicId,
+          is_enabled: template.is_enabled,
+          start_date: template.start_date,
           created_by: (await supabase.auth.getUser()).data.user?.id,
         });
 
@@ -161,6 +191,9 @@ export default function TemplateList({
     if (Array.isArray(checklist)) return checklist.length;
     return 0;
   };
+
+  const allSelected = templates.length > 0 && selectedTemplates.length === templates.length;
+  const someSelected = selectedTemplates.length > 0 && selectedTemplates.length < templates.length;
 
   if (loading) {
     return (
@@ -190,15 +223,12 @@ export default function TemplateList({
           <Files className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">No Templates Created</h3>
           <p className="text-muted-foreground mb-6">
-            Create your first task template to streamline repetitive workflows for your team.
+            Create your first task template to automate recurring workflows for your team.
           </p>
         </CardContent>
       </Card>
     );
   }
-
-  const allSelected = templates.length > 0 && selectedTemplates.length === templates.length;
-  const someSelected = selectedTemplates.length > 0 && selectedTemplates.length < templates.length;
 
   return (
     <>
@@ -217,6 +247,7 @@ export default function TemplateList({
           </span>
         </div>
       )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {templates.map((template) => (
           <Card key={template.id} className={`hover:shadow-lg transition-shadow ${selectedTemplates.includes(template.id) ? 'ring-2 ring-primary' : ''}`}>
@@ -228,9 +259,17 @@ export default function TemplateList({
                     onCheckedChange={() => onToggleSelect(template.id)}
                     className="mt-1"
                   />
-                  <CardTitle className="text-lg font-semibold line-clamp-2">
-                    {template.title}
-                  </CardTitle>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg font-semibold line-clamp-2">
+                      {template.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className={`w-2 h-2 rounded-full ${template.is_enabled ? 'bg-green-500' : 'bg-gray-400'}`} />
+                      <span className={`text-xs ${template.is_enabled ? 'text-green-600' : 'text-gray-500'}`}>
+                        {template.is_enabled ? 'Active' : 'Disabled'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -239,18 +278,28 @@ export default function TemplateList({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setApplyDialog(template)}>
-                      <Play className="w-4 h-4 mr-2" />
-                      Apply Template
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => onEdit(template)}>
                       <Edit className="w-4 h-4 mr-2" />
-                      Edit
+                      Edit Template
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleDuplicate(template)}>
                       <Copy className="w-4 h-4 mr-2" />
                       Duplicate
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleToggleEnabled(template)}
+                    >
+                      {template.is_enabled ? (
+                        <>
+                          <Power className="w-4 h-4 mr-2" />
+                          Disable Template
+                        </>
+                      ) : (
+                        <>
+                          <Power className="w-4 h-4 mr-2" />
+                          Enable Template
+                        </>
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
@@ -264,7 +313,7 @@ export default function TemplateList({
                 </DropdownMenu>
               </div>
               {template.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
                   {template.description}
                 </p>
               )}
@@ -294,28 +343,40 @@ export default function TemplateList({
                   </div>
                 )}
                 
-                {template.recurrence && template.recurrence !== 'none' && (
+                {template.recurrence && template.recurrence !== 'once' && (
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Repeat className="w-3 h-3" />
-                    <span>{getRecurrenceLabel(template.recurrence)}</span>
+                    <span>{getRecurrenceLabel(template.recurrence)} generation</span>
                   </div>
                 )}
 
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <CheckSquare className="w-3 h-3" />
-                  <span>{getTaskCount(template.checklist)} tasks</span>
+                  <span>{getTaskCount(template.checklist)} tasks in checklist</span>
                 </div>
+
+                {template.next_generation_date && (
+                  <div className="flex items-center gap-2 text-xs text-blue-600">
+                    <Clock className="w-3 h-3" />
+                    <span>Next: {new Date(template.next_generation_date).toLocaleDateString()}</span>
+                  </div>
+                )}
               </div>
 
-              {/* Action Button */}
-              <Button 
-                onClick={() => setApplyDialog(template)}
-                className="w-full"
-                size="sm"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Apply Template
-              </Button>
+              {/* Status Information */}
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground">
+                  <strong>Schedule:</strong> {getRecurrenceLabel(template.recurrence)}
+                  {template.recurrence === 'once' && template.start_date && (
+                    <span> on {new Date(template.start_date).toLocaleDateString()}</span>
+                  )}
+                </p>
+                {template.last_generated_date && (
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Last generated:</strong> {new Date(template.last_generated_date).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -327,7 +388,7 @@ export default function TemplateList({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Template</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this template? This action cannot be undone.
+              Are you sure you want to delete this template? This will stop automatic task generation from this template. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -346,17 +407,6 @@ export default function TemplateList({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Apply Template Dialog */}
-      {applyDialog && (
-        <ApplyTemplateDialog
-          template={applyDialog}
-          clinicId={clinicId}
-          open={!!applyDialog}
-          onOpenChange={(open) => !open && setApplyDialog(null)}
-          onSuccess={onRefresh}
-        />
-      )}
     </>
   );
 }

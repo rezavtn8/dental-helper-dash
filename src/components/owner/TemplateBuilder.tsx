@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Plus, Trash2, GripVertical } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,10 @@ interface TaskTemplate {
   'due-type'?: string;
   recurrence?: string;
   owner_notes?: string;
+  is_enabled?: boolean;
+  start_date?: string;
+  next_generation_date?: string;
+  last_generated_date?: string;
 }
 
 interface TemplateTask {
@@ -72,9 +77,7 @@ const recurrenceOptions = [
   { value: 'weekly', label: 'Weekly' },
   { value: 'biweekly', label: 'Biweekly' },
   { value: 'monthly', label: 'Monthly' },
-  { value: 'quarterly', label: 'Quarterly' },
-  { value: 'yearly', label: 'Yearly' },
-  { value: 'none', label: 'One-time' },
+  { value: 'once', label: 'One-time' },
 ];
 
 export default function TemplateBuilder({ 
@@ -89,9 +92,11 @@ export default function TemplateBuilder({
     category: template?.category || '',
     specialty: template?.specialty || '',
     priority: 'medium',
-    timeOfDay: 'anytime',
-    recurrence: template?.recurrence || 'none',
+    timeOfDay: template?.['due-type'] || 'anytime',
+    recurrence: template?.recurrence || 'once',
     ownerNotes: template?.owner_notes || '',
+    isEnabled: template?.is_enabled ?? true,
+    startDate: template?.start_date || new Date().toISOString().split('T')[0],
   });
 
   const [tasks, setTasks] = useState<TemplateTask[]>([
@@ -196,6 +201,8 @@ export default function TemplateBuilder({
         'due-type': formData.timeOfDay,
         recurrence: formData.recurrence,
         owner_notes: formData.ownerNotes,
+        is_enabled: formData.isEnabled,
+        start_date: formData.startDate,
         checklist: JSON.parse(JSON.stringify(tasks.filter(task => task.title.trim()))),
         clinic_id: clinicId,
         created_by: (await supabase.auth.getUser()).data.user?.id,
@@ -247,14 +254,20 @@ export default function TemplateBuilder({
           <h2 className="text-2xl font-bold text-foreground">
             {template?.id ? 'Edit Template' : 'Create New Template'}
           </h2>
-          <p className="text-muted-foreground">Build reusable task templates for your team</p>
+          <p className="text-muted-foreground">
+            Templates automatically generate tasks based on their schedule. 
+            {template?.id ? 'Edit this existing template.' : 'Build a new task generation template.'}
+          </p>
         </div>
       </div>
 
       {/* Template Configuration */}
       <Card>
         <CardHeader>
-          <CardTitle>Template Configuration</CardTitle>
+          <CardTitle>Template Settings</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Configure how and when this template generates tasks automatically
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -326,7 +339,7 @@ export default function TemplateBuilder({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="recurrence">Recurrence</Label>
+              <Label htmlFor="recurrence">Task Generation Schedule</Label>
               <Select
                 value={formData.recurrence}
                 onValueChange={(value) => setFormData({ ...formData, recurrence: value })}
@@ -342,6 +355,38 @@ export default function TemplateBuilder({
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">
+                How often should tasks be automatically generated from this template?
+              </p>
+            </div>
+
+            {formData.recurrence === 'once' && (
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  When should this one-time template generate its task?
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isEnabled"
+                  checked={formData.isEnabled}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isEnabled: checked })}
+                />
+                <Label htmlFor="isEnabled">Enable Template</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Disabled templates won't generate new tasks automatically
+              </p>
             </div>
           </div>
 

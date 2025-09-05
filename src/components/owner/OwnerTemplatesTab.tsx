@@ -26,6 +26,10 @@ interface TaskTemplate {
   owner_notes?: string;
   created_at: string;
   is_active: boolean;
+  is_enabled?: boolean;
+  start_date?: string;
+  next_generation_date?: string;
+  last_generated_date?: string;
 }
 
 export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) {

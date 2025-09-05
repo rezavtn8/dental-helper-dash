@@ -17,7 +17,6 @@ import {
   addWeeks,
   subWeeks,
   isToday,
-  startOfDay,
   addDays,
   subDays
 } from 'date-fns';
@@ -89,11 +88,8 @@ export default function TasksTab({
     );
   }
 
-  const toggleTaskStatus = (taskId: string, currentStatus: TaskStatus) => {
-    const nextStatus: TaskStatus = currentStatus === 'completed' ? 'pending' : 
-                      currentStatus === 'pending' ? 'in-progress' : 
-                      'completed';
-    onTaskStatusUpdate?.(taskId, nextStatus);
+  const assignTask = (taskId: string) => {
+    onTaskStatusUpdate?.(taskId, 'in-progress');
     onTaskUpdate?.();
   };
 
@@ -108,12 +104,7 @@ export default function TasksTab({
     return assistant?.name || 'Unknown';
   };
 
-  const assignTask = (taskId: string) => {
-    onTaskStatusUpdate?.(taskId, 'in-progress');
-    onTaskUpdate?.();
-  };
-
-  // Group tasks by time periods based on due-type
+  // Group tasks by time periods
   const groupTasksByTime = (tasks: Task[]) => {
     const groups = {
       'Before Opening': [] as Task[],
@@ -237,35 +228,19 @@ export default function TasksTab({
     );
   };
 
-  // Define time slots for the day view
-  const timeSlots = [
-    { time: '8:00 AM', period: 'Before Opening', tasks: groupedTasks['Before Opening'] },
-    { time: '9:00 AM', period: 'Morning', tasks: [] },
-    { time: '10:00 AM', period: 'Morning', tasks: [] },
-    { time: '11:00 AM', period: 'Morning', tasks: [] },
-    { time: '12:00 PM', period: 'Before 1 PM', tasks: groupedTasks['Before 1 PM'] },
-    { time: '1:00 PM', period: 'Afternoon', tasks: [] },
-    { time: '2:00 PM', period: 'Afternoon', tasks: [] },
-    { time: '3:00 PM', period: 'Afternoon', tasks: [] },
-    { time: '4:00 PM', period: 'Afternoon', tasks: [] },
-    { time: '5:00 PM', period: 'End of Day', tasks: groupedTasks['End of Day'] },
-    { time: '6:00 PM', period: 'Evening', tasks: [] },
-    { time: 'Flexible', period: 'Flexible', tasks: groupedTasks['Flexible'] }
-  ];
-
   return (
-    <div className="space-y-4">
-      {/* Calendar Section */}
+    <div className="space-y-6">
+      {/* Calendar Header */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
-              Schedule
+              Task Calendar
             </CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex gap-1 p-1 bg-muted rounded-lg">
               <Button
-                variant={viewMode === 'day' ? 'default' : 'outline'}
+                variant={viewMode === 'day' ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode('day')}
                 className="h-8"
@@ -274,7 +249,7 @@ export default function TasksTab({
                 Day
               </Button>
               <Button
-                variant={viewMode === 'week' ? 'default' : 'outline'}
+                variant={viewMode === 'week' ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode('week')}
                 className="h-8"
@@ -289,7 +264,7 @@ export default function TasksTab({
           {viewMode === 'day' ? (
             <div>
               {/* Day Navigation */}
-              <div className="flex items-center justify-center gap-4 mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <Button
                   variant="outline"
                   size="sm"
@@ -297,17 +272,9 @@ export default function TasksTab({
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <div className={`text-center p-4 rounded-lg min-w-[160px] ${isToday(selectedDate) ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                  <div className="text-sm font-medium">
-                    {format(selectedDate, 'EEEE')}
-                  </div>
-                  <div className="text-2xl font-bold">
-                    {format(selectedDate, 'MMM d, yyyy')}
-                  </div>
-                  <div className="text-sm mt-1">
-                    {selectedDateTasks.length} {selectedDateTasks.length === 1 ? 'task' : 'tasks'}
-                  </div>
-                </div>
+                <h4 className="font-semibold text-lg min-w-[200px] text-center">
+                  {format(selectedDate, 'EEEE, MMM d, yyyy')}
+                </h4>
                 <Button
                   variant="outline"
                   size="sm"
@@ -316,55 +283,22 @@ export default function TasksTab({
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
-
-              {/* Time-slotted Calendar View */}
-              <div className="border rounded-lg overflow-hidden">
-                {timeSlots.map((slot, index) => (
-                  <div key={index} className="border-b last:border-b-0">
-                    <div className="flex">
-                      {/* Time column */}
-                      <div className="w-20 p-3 bg-muted/30 border-r text-sm font-medium text-muted-foreground text-center">
-                        {slot.time}
-                      </div>
-                      {/* Tasks column */}
-                      <div className="flex-1 min-h-[60px] p-2">
-                        {slot.tasks.length > 0 ? (
-                          <div className="space-y-1">
-                            {slot.tasks.map(task => (
-                              <div
-                                key={task.id}
-                                className={`
-                                  p-2 rounded text-xs border-l-4 cursor-pointer transition-all duration-200
-                                  ${task.status === 'completed' ? 
-                                    'bg-green-50 border-l-green-500 text-green-800' : 
-                                    task.priority === 'high' ? 'bg-red-50 border-l-red-500 text-red-800' :
-                                    task.priority === 'medium' ? 'bg-orange-50 border-l-orange-500 text-orange-800' :
-                                    'bg-blue-50 border-l-blue-500 text-blue-800'
-                                  }
-                                  hover:shadow-sm
-                                `}
-                                onClick={() => onTaskClick?.(task)}
-                              >
-                                <div className="font-medium">{task.title}</div>
-                                <div className="text-xs opacity-70">
-                                  {getAssistantName(task.assigned_to)}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="h-full flex items-center justify-center text-muted-foreground text-xs">
-                            No tasks
-                          </div>
-                        )}
-                      </div>
-                    </div>
+              
+              {/* Day Overview */}
+              <div className={`p-6 rounded-lg border-2 ${isToday(selectedDate) ? 'bg-primary/5 border-primary/50' : 'bg-muted/30 border-border'}`}>
+                <div className="text-center">
+                  <div className="text-2xl font-bold mb-2">
+                    {selectedDateTasks.length} {selectedDateTasks.length === 1 ? 'Task' : 'Tasks'}
                   </div>
-                ))}
+                  <div className="text-sm text-muted-foreground">
+                    {isToday(selectedDate) ? 'Today' : format(selectedDate, 'EEEE')}
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
             <div>
+              {/* Week Navigation */}
               <div className="flex items-center justify-between mb-4">
                 <Button
                   variant="outline"
@@ -373,9 +307,9 @@ export default function TasksTab({
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <span className="text-sm font-medium">
-                  {format(startOfWeek(selectedDate), 'MMM d')} - {format(endOfWeek(selectedDate), 'MMM d, yyyy')}
-                </span>
+                <h4 className="font-semibold text-lg min-w-[200px] text-center">
+                  Week of {format(startOfWeek(selectedDate), 'MMM d, yyyy')}
+                </h4>
                 <Button
                   variant="outline"
                   size="sm"
@@ -385,6 +319,7 @@ export default function TasksTab({
                 </Button>
               </div>
               
+              {/* Week Grid */}
               <div className="grid grid-cols-7 gap-2">
                 {weekDates.map(date => {
                   const dayTasks = getTasksForDate(filteredTasks, date);
@@ -410,12 +345,11 @@ export default function TasksTab({
                         </div>
                         <div className="flex justify-center mt-1">
                           {dayTasks.length > 0 && (
-                            <div className={`
-                              text-xs px-2 py-1 rounded-full
-                              ${isCurrentDay ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-primary/20 text-primary'}
-                            `}>
+                            <Badge variant="secondary" className={`text-xs px-2 py-1 ${
+                              isCurrentDay ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-primary/20 text-primary'
+                            }`}>
                               {dayTasks.length}
-                            </div>
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -428,7 +362,7 @@ export default function TasksTab({
         </CardContent>
       </Card>
 
-      {/* Tasks for Selected Date */}
+      {/* Tasks List */}
       <div className="space-y-4">
         {Object.entries(groupedTasks).map(([timeGroup, tasks]) => (
           tasks.length > 0 && (
@@ -442,7 +376,7 @@ export default function TasksTab({
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {tasks.map(task => (
                     <TaskCard key={task.id} task={task} />
                   ))}

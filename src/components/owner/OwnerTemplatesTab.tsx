@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Plus, Search, Upload } from 'lucide-react';
+import { Plus, Search, Upload, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -154,6 +154,51 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
     setShowBuilder(true);
   };
 
+  const cleanupDuplicates = async () => {
+    try {
+      // Find duplicates by title and checklist content
+      const duplicateGroups = templates.reduce((groups, template) => {
+        const key = `${template.title}_${JSON.stringify(template.checklist)}`;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(template);
+        return groups;
+      }, {} as Record<string, TaskTemplate[]>);
+
+      const duplicatesToDelete = Object.values(duplicateGroups)
+        .filter(group => group.length > 1)
+        .flatMap(group => group.slice(1)); // Keep first, delete rest
+
+      if (duplicatesToDelete.length === 0) {
+        toast({
+          title: "No Duplicates Found",
+          description: "All templates are unique",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('task_templates')
+        .update({ is_active: false })
+        .in('id', duplicatesToDelete.map(t => t.id));
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Removed ${duplicatesToDelete.length} duplicate templates`,
+      });
+      
+      fetchTemplates();
+    } catch (error) {
+      console.error('Error cleaning duplicates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clean duplicate templates",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDeleteTemplate = async (templateId: string) => {
     try {
       const { error } = await supabase
@@ -202,6 +247,14 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
           <p className="text-muted-foreground">Create and manage reusable task templates for your team</p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={cleanupDuplicates} 
+            className="flex items-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Clean Duplicates
+          </Button>
           <Button 
             variant="outline"
             onClick={() => setShowImportDialog(true)} 

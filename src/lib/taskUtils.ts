@@ -19,7 +19,7 @@
  */
 
 import { Task, Assistant } from '@/types/task';
-import { TaskStatus } from '@/lib/taskStatus';
+import { TaskStatus, isCompleted } from '@/lib/taskStatus';
 import { addDays, addWeeks, addMonths, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
 
 // Priority utilities
@@ -243,20 +243,208 @@ export const generateRecurringInstances = (
     return [];
   }
 
+  // If task is already completed, don't generate instances
+  if (isCompleted(task.status)) {
+    return [];
+  }
+
   const instances: RecurringTaskInstance[] = [];
   const taskBaseDate = task.custom_due_date 
     ? new Date(task.custom_due_date)
     : new Date(task.created_at);
 
-  // Start from the task's original date, not the view start date
-  let currentDate = new Date(taskBaseDate);
+  // Handle special recurring patterns
+  switch (task.recurrence.toLowerCase()) {
+    case 'eow': // End of Week - show Monday to Sunday until completed
+      return generateEOWInstances(task, startDate, endDate, taskBaseDate);
+    case 'midm': // Mid Month - show for 7 days after 1st and 15th
+      return generateMidMInstances(task, startDate, endDate, taskBaseDate);
+    case 'eom': // End of Month - show from 25th to end of month or 1st-5th
+      return generateEOMInstances(task, startDate, endDate, taskBaseDate);
+    default:
+      // Handle standard recurrence patterns
+      return generateStandardRecurrence(task, startDate, endDate, taskBaseDate);
+  }
+};
+
+/**
+ * Generate EOW (End of Week) instances - show Monday to Sunday until completed
+ */
+const generateEOWInstances = (
+  task: Task,
+  startDate: Date,
+  endDate: Date,
+  taskBaseDate: Date
+): RecurringTaskInstance[] => {
+  const instances: RecurringTaskInstance[] = [];
+  let currentWeekStart = new Date(startDate);
   
-  // Limit to prevent infinite loops - max 365 instances
+  // Find the Monday of the week containing startDate
+  currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1);
+  
+  while (currentWeekStart <= endDate) {
+    // Generate instances for Monday through Sunday of this week
+    for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+      const instanceDate = new Date(currentWeekStart);
+      instanceDate.setDate(instanceDate.getDate() + dayOfWeek);
+      
+      if (instanceDate >= startDate && instanceDate <= endDate) {
+        const instance: RecurringTaskInstance = {
+          ...task,
+          id: `${task.id}_eow_${instanceDate.toISOString().split('T')[0]}`,
+          isRecurringInstance: true,
+          parentTaskId: task.id,
+          instanceDate: new Date(instanceDate),
+          originalDueDate: taskBaseDate,
+          custom_due_date: instanceDate.toISOString(),
+          status: 'pending' as TaskStatus,
+          completed_at: undefined,
+          completed_by: undefined
+        };
+        instances.push(instance);
+      }
+    }
+    
+    // Move to next week
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+  }
+  
+  return instances;
+};
+
+/**
+ * Generate MidM (Mid Month) instances - show for 7 days after 1st and 15th
+ */
+const generateMidMInstances = (
+  task: Task,
+  startDate: Date,
+  endDate: Date,
+  taskBaseDate: Date
+): RecurringTaskInstance[] => {
+  const instances: RecurringTaskInstance[] = [];
+  let currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  
+  while (currentDate <= endDate) {
+    // Generate instances for 1st-7th of the month
+    const firstPeriodStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const firstPeriodEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 7);
+    
+    for (let day = 1; day <= 7; day++) {
+      const instanceDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      if (instanceDate >= startDate && instanceDate <= endDate) {
+        instances.push(createMidMInstance(task, instanceDate, taskBaseDate, 'first'));
+      }
+    }
+    
+    // Generate instances for 15th-21st of the month
+    const secondPeriodStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 15);
+    const secondPeriodEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 21);
+    
+    for (let day = 15; day <= 21; day++) {
+      const instanceDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      if (instanceDate >= startDate && instanceDate <= endDate) {
+        instances.push(createMidMInstance(task, instanceDate, taskBaseDate, 'second'));
+      }
+    }
+    
+    // Move to next month
+    currentDate.setMonth(currentDate.getMonth() + 1);
+  }
+  
+  return instances;
+};
+
+const createMidMInstance = (
+  task: Task,
+  instanceDate: Date,
+  taskBaseDate: Date,
+  period: 'first' | 'second'
+): RecurringTaskInstance => ({
+  ...task,
+  id: `${task.id}_midm_${period}_${instanceDate.toISOString().split('T')[0]}`,
+  isRecurringInstance: true,
+  parentTaskId: task.id,
+  instanceDate: new Date(instanceDate),
+  originalDueDate: taskBaseDate,
+  custom_due_date: instanceDate.toISOString(),
+  status: 'pending' as TaskStatus,
+  completed_at: undefined,
+  completed_by: undefined
+});
+
+/**
+ * Generate EOM (End of Month) instances - show from 25th to end of month or 1st-5th
+ */
+const generateEOMInstances = (
+  task: Task,
+  startDate: Date,
+  endDate: Date,
+  taskBaseDate: Date
+): RecurringTaskInstance[] => {
+  const instances: RecurringTaskInstance[] = [];
+  let currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  
+  while (currentDate <= endDate) {
+    // Generate instances for 25th to end of month
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    
+    for (let day = 25; day <= lastDayOfMonth; day++) {
+      const instanceDate = new Date(year, month, day);
+      if (instanceDate >= startDate && instanceDate <= endDate) {
+        instances.push(createEOMInstance(task, instanceDate, taskBaseDate, 'end'));
+      }
+    }
+    
+    // Generate instances for 1st-5th of the month (continuation of previous month's EOM)
+    for (let day = 1; day <= 5; day++) {
+      const instanceDate = new Date(year, month, day);
+      if (instanceDate >= startDate && instanceDate <= endDate) {
+        instances.push(createEOMInstance(task, instanceDate, taskBaseDate, 'start'));
+      }
+    }
+    
+    // Move to next month
+    currentDate.setMonth(currentDate.getMonth() + 1);
+  }
+  
+  return instances;
+};
+
+const createEOMInstance = (
+  task: Task,
+  instanceDate: Date,
+  taskBaseDate: Date,
+  period: 'end' | 'start'
+): RecurringTaskInstance => ({
+  ...task,
+  id: `${task.id}_eom_${period}_${instanceDate.toISOString().split('T')[0]}`,
+  isRecurringInstance: true,
+  parentTaskId: task.id,
+  instanceDate: new Date(instanceDate),
+  originalDueDate: taskBaseDate,
+  custom_due_date: instanceDate.toISOString(),
+  status: 'pending' as TaskStatus,
+  completed_at: undefined,
+  completed_by: undefined
+});
+
+/**
+ * Generate standard recurrence instances (daily, weekly, monthly, etc.)
+ */
+const generateStandardRecurrence = (
+  task: Task,
+  startDate: Date,
+  endDate: Date,
+  taskBaseDate: Date
+): RecurringTaskInstance[] => {
+  const instances: RecurringTaskInstance[] = [];
+  let currentDate = new Date(taskBaseDate);
   let instanceCount = 0;
   const maxInstances = 365;
 
   while (currentDate <= endDate && instanceCount < maxInstances) {
-    // Only include instances that fall within the requested date range
     if (currentDate >= startDate) {
       const instance: RecurringTaskInstance = {
         ...task,
@@ -266,11 +454,10 @@ export const generateRecurringInstances = (
         instanceDate: new Date(currentDate),
         originalDueDate: taskBaseDate,
         custom_due_date: currentDate.toISOString(),
-        status: 'pending' as TaskStatus, // Reset status for each instance
+        status: 'pending' as TaskStatus,
         completed_at: undefined,
         completed_by: undefined
       };
-
       instances.push(instance);
     }
     
@@ -317,12 +504,35 @@ export const expandTasksWithRecurrence = (
   
   tasks.forEach(task => {
     if (task.recurrence && task.recurrence !== 'none') {
-      const instances = generateRecurringInstances(task, startDate, endDate);
-      expandedTasks.push(...instances);
+      // Only generate instances if the task is not completed
+      // For recurring tasks, we consider them "active" until explicitly completed
+      if (!isCompleted(task.status)) {
+        const instances = generateRecurringInstances(task, startDate, endDate);
+        expandedTasks.push(...instances);
+      }
     }
   });
 
   return expandedTasks;
+};
+
+/**
+ * Check if a recurring task should show instances based on completion status
+ */
+export const shouldShowRecurringInstances = (task: Task): boolean => {
+  // Don't show instances if the parent task is completed
+  if (isCompleted(task.status)) {
+    return false;
+  }
+  
+  // For EOW, MidM, EOM tasks, they should continue showing until marked complete
+  const recurringPatterns = ['eow', 'midm', 'eom'];
+  if (recurringPatterns.includes(task.recurrence?.toLowerCase() || '')) {
+    return true;
+  }
+  
+  // For other recurring patterns, use standard logic
+  return !isCompleted(task.status);
 };
 
 /**
@@ -417,6 +627,7 @@ export const taskUtils = {
   isRecurringInstance,
   getTasksForDate,
   getTasksForDateRange,
+  shouldShowRecurringInstances,
   
   // Validation
   isValidTask,

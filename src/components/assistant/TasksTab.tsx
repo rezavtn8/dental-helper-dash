@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
 import { getTasksForDate, getTodaysTasks, getPriorityStyles } from '@/lib/taskUtils';
-import { TaskActionButton, TaskStatusIcon } from '@/components/ui/task-action-button';
+import { TaskStatusIcon } from '@/components/ui/task-action-button';
 import {
   format,
   startOfWeek,
@@ -119,14 +119,42 @@ export default function TasksTab({
       `}
       onClick={() => onTaskClick?.(task)}
     >
-      <TaskActionButton
-        status={task.status}
-        size="md"
-        onClick={(e) => {
-          e.stopPropagation();
-          toggleTaskStatus(task.id, task.status);
-        }}
-      />
+      <div className="flex items-center gap-2">
+        {task.status === 'pending' && (
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTaskStatus(task.id, task.status);
+            }}
+          >
+            Start
+          </Button>
+        )}
+        {task.status === 'in-progress' && (
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTaskStatus(task.id, task.status);
+            }}
+          >
+            Complete
+          </Button>
+        )}
+        {task.status === 'completed' && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              undoTaskCompletion(task.id);
+            }}
+          >
+            Undo
+          </Button>
+        )}
+      </div>
       
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -237,14 +265,30 @@ export default function TasksTab({
                         onClick={() => onTaskClick?.(task)}
                       >
                         <div className="flex items-center gap-1 mb-1">
-                          <TaskActionButton
-                            status={task.status}
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleTaskStatus(task.id, task.status);
-                            }}
-                          />
+                        <div className="flex items-center gap-2">
+                          {task.status === 'pending' && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleTaskStatus(task.id, task.status);
+                              }}
+                            >
+                              Start
+                            </Button>
+                          )}
+                          {task.status === 'in-progress' && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleTaskStatus(task.id, task.status);
+                              }}
+                            >
+                              Complete
+                            </Button>
+                          )}
+                        </div>
                           <span className={`font-medium truncate flex-1 transition-all duration-200 ${task.status === 'completed' ? 'line-through' : ''}`}>
                             {task.title}
                           </span>

@@ -97,30 +97,51 @@ export default function TaskBlock({
       }`}></div>
 
       <div className="flex items-start gap-3 mt-1">
-        {/* Status Icon */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-6 h-6 p-0 hover:bg-primary/10 hover:scale-110 transition-all duration-200 rounded-full"
-          onClick={toggleStatus}
-        >
-          {getStatusIcon()}
-        </Button>
-
         {/* Task Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <span className={`font-semibold leading-tight ${
-              task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'
-            } ${compact ? 'text-xs' : 'text-sm'}`}>
-              {task.title}
-            </span>
-            {isRecurringInstance(task) && (
-              <div title="Recurring task instance" className="flex-shrink-0">
-                <Repeat className="w-3 h-3 text-primary animate-pulse" />
-              </div>
-            )}
-            {getPriorityIcon()}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2">
+              <span className={`font-semibold leading-tight ${
+                task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'
+              } ${compact ? 'text-xs' : 'text-sm'}`}>
+                {task.title}
+              </span>
+              {isRecurringInstance(task) && (
+                <div title="Recurring task instance" className="flex-shrink-0">
+                  <Repeat className="w-3 h-3 text-primary animate-pulse" />
+                </div>
+              )}
+              {getPriorityIcon()}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              {task.status === 'pending' && (
+                <Button
+                  size="sm"
+                  onClick={toggleStatus}
+                >
+                  Start
+                </Button>
+              )}
+              {task.status === 'in-progress' && (
+                <Button
+                  size="sm"
+                  onClick={toggleStatus}
+                >
+                  Complete
+                </Button>
+              )}
+              {task.status === 'completed' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleStatus}
+                >
+                  Undo
+                </Button>
+              )}
+            </div>
           </div>
 
           {!compact && task.description && (

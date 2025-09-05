@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   MoreHorizontal, 
   Edit, 
@@ -55,6 +56,9 @@ interface TemplateListProps {
   onDelete: (templateId: string) => void;
   onRefresh: () => void;
   clinicId: string;
+  selectedTemplates: string[];
+  onToggleSelect: (templateId: string) => void;
+  onSelectAll: (selectAll: boolean) => void;
 }
 
 export default function TemplateList({ 
@@ -63,7 +67,10 @@ export default function TemplateList({
   onEdit, 
   onDelete,
   onRefresh,
-  clinicId 
+  clinicId,
+  selectedTemplates,
+  onToggleSelect,
+  onSelectAll
 }: TemplateListProps) {
   const [deleteDialog, setDeleteDialog] = useState<string | null>(null);
   const [applyDialog, setApplyDialog] = useState<TaskTemplate | null>(null);
@@ -190,16 +197,41 @@ export default function TemplateList({
     );
   }
 
+  const allSelected = templates.length > 0 && selectedTemplates.length === templates.length;
+  const someSelected = selectedTemplates.length > 0 && selectedTemplates.length < templates.length;
+
   return (
     <>
+      {templates.length > 0 && (
+        <div className="mb-4 flex items-center gap-2">
+          <Checkbox
+            checked={allSelected}
+            onCheckedChange={(checked) => onSelectAll(!!checked)}
+            className={someSelected ? "data-[state=checked]:bg-primary data-[state=checked]:border-primary" : ""}
+          />
+          <span className="text-sm text-muted-foreground">
+            {selectedTemplates.length > 0 
+              ? `${selectedTemplates.length} selected`
+              : 'Select all templates'
+            }
+          </span>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {templates.map((template) => (
-          <Card key={template.id} className="hover:shadow-lg transition-shadow">
+          <Card key={template.id} className={`hover:shadow-lg transition-shadow ${selectedTemplates.includes(template.id) ? 'ring-2 ring-primary' : ''}`}>
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
-                <CardTitle className="text-lg font-semibold line-clamp-2">
-                  {template.title}
-                </CardTitle>
+                <div className="flex items-start gap-3 flex-1">
+                  <Checkbox
+                    checked={selectedTemplates.includes(template.id)}
+                    onCheckedChange={() => onToggleSelect(template.id)}
+                    className="mt-1"
+                  />
+                  <CardTitle className="text-lg font-semibold line-clamp-2">
+                    {template.title}
+                  </CardTitle>
+                </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

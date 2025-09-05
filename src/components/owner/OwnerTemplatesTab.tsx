@@ -5,6 +5,7 @@ import { Plus, Search, Upload, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import TemplateBuilder from './TemplateBuilder';
 import TemplateList from './TemplateList';
 import ImportTemplatesDialog from './ImportTemplatesDialog';
@@ -34,6 +35,8 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
   const [showBuilder, setShowBuilder] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TaskTemplate | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const { toast } = useToast();
 
   const importDefaultTemplates = async () => {
@@ -214,6 +217,7 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
       });
       
       fetchTemplates();
+      setSelectedTemplates(prev => prev.filter(id => id !== templateId));
     } catch (error) {
       console.error('Error deleting template:', error);
       toast({
@@ -222,6 +226,44 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
         variant: "destructive",
       });
     }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('task_templates')
+        .update({ is_active: false })
+        .in('id', selectedTemplates);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `${selectedTemplates.length} templates deleted successfully`,
+      });
+      
+      setSelectedTemplates([]);
+      fetchTemplates();
+    } catch (error) {
+      console.error('Error deleting templates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete templates",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleSelect = (templateId: string) => {
+    setSelectedTemplates(prev => 
+      prev.includes(templateId) 
+        ? prev.filter(id => id !== templateId)
+        : [...prev, templateId]
+    );
+  };
+
+  const handleSelectAll = (selectAll: boolean) => {
+    setSelectedTemplates(selectAll ? filteredTemplates.map(t => t.id) : []);
   };
 
   if (showBuilder) {
@@ -263,6 +305,16 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
             <Upload className="w-4 h-4" />
             Import
           </Button>
+          {selectedTemplates.length > 0 && (
+            <Button
+              onClick={() => setDeleteConfirmOpen(true)}
+              variant="destructive"
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Selected ({selectedTemplates.length})
+            </Button>
+          )}
           <Button 
             onClick={() => setShowBuilder(true)} 
             className="flex items-center gap-2"
@@ -291,14 +343,17 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
       </Card>
 
       {/* Templates List */}
-      <TemplateList
-        templates={filteredTemplates}
-        loading={loading}
-        onEdit={handleEditTemplate}
-        onDelete={handleDeleteTemplate}
-        onRefresh={fetchTemplates}
-        clinicId={clinicId}
-      />
+        <TemplateList
+          templates={filteredTemplates}
+          loading={loading}
+          onEdit={handleEditTemplate}
+          onDelete={handleDeleteTemplate}
+          onRefresh={fetchTemplates}
+          clinicId={clinicId}
+          selectedTemplates={selectedTemplates}
+          onToggleSelect={handleToggleSelect}
+          onSelectAll={handleSelectAll}
+        />
 
       {/* Import Dialog */}
       <ImportTemplatesDialog
@@ -307,6 +362,31 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
         clinicId={clinicId}
         onImportComplete={fetchTemplates}
       />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Selected Templates</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedTemplates.length} selected template{selectedTemplates.length !== 1 ? 's' : ''}? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleBulkDelete();
+                setDeleteConfirmOpen(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete {selectedTemplates.length} Template{selectedTemplates.length !== 1 ? 's' : ''}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -20,7 +20,8 @@
 
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus, isCompleted } from '@/lib/taskStatus';
-import { addDays, addWeeks, addMonths, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
+import { addDays, addWeeks, addMonths, isBefore, isAfter, startOfDay, endOfDay, format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
 
 // Priority utilities
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -618,6 +619,9 @@ export const getOverdueReason = (task: Task): string => {
       return 'Overdue';
   }
 };
+/**
+ * Check if a recurring task should show instances based on completion status
+ */
 export const shouldShowRecurringInstances = (task: Task): boolean => {
   // Don't show instances if the parent task is completed
   if (isCompleted(task.status)) {
@@ -632,6 +636,130 @@ export const shouldShowRecurringInstances = (task: Task): boolean => {
   
   // For other recurring patterns, use standard logic
   return !isCompleted(task.status);
+};
+
+/**
+ * Check if a date is a working day for a clinic
+ */
+export const isWorkingDay = async (clinicId: string, date: Date): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.rpc('is_working_day', {
+      p_clinic_id: clinicId,
+      p_date: format(date, 'yyyy-MM-dd')
+    });
+
+    if (error) {
+      console.error('Error checking working day:', error);
+      return true; // Default to working day if error
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error checking working day:', error);
+    return true; // Default to working day if error
+  }
+};
+
+/**
+ * Get clinic working days settings
+ */
+export const getClinicWorkingDaysSettings = async (clinicId: string) => {
+  try {
+    const { data, error } = await supabase.rpc('get_clinic_working_days_settings', {
+      p_clinic_id: clinicId
+    });
+
+    if (error) {
+      console.error('Error fetching working days settings:', error);
+      return { weekends_are_workdays: false, holidays: [] };
+    }
+
+    return {
+      weekends_are_workdays: data[0]?.weekends_are_workdays || false,
+      holidays: data[0]?.holidays || []
+    };
+  } catch (error) {
+    console.error('Error fetching working days settings:', error);
+    return { weekends_are_workdays: false, holidays: [] };
+  }
+};
+
+/**
+ * Generate recurring task instances that respect working days
+ */
+export const generateWorkingDayRecurringInstances = async (
+  task: Task, 
+  startDate: Date, 
+  endDate: Date,
+  clinicId: string
+): Promise<RecurringTaskInstance[]> => {
+  // First generate all instances using the standard logic
+  const allInstances = generateRecurringInstances(task, startDate, endDate);
+  
+  // Then filter to only include working days
+  const workingDayInstances: RecurringTaskInstance[] = [];
+  
+  for (const instance of allInstances) {
+    const instanceDate = instance.instanceDate;
+    const isWorking = await isWorkingDay(clinicId, instanceDate);
+    
+    if (isWorking) {
+      workingDayInstances.push(instance);
+    }
+  }
+  
+  return workingDayInstances;
+};
+
+/**
+ * Expand tasks with recurrence that respects working days
+ */
+export const expandTasksWithWorkingDayRecurrence = async (
+  tasks: Task[], 
+  startDate: Date, 
+  endDate: Date,
+  clinicId: string
+): Promise<(Task | RecurringTaskInstance)[]> => {
+  const expandedTasks: (Task | RecurringTaskInstance)[] = [...tasks];
+  
+  for (const task of tasks) {
+    if (task.recurrence && task.recurrence !== 'none' && !isCompleted(task.status)) {
+      const instances = await generateWorkingDayRecurringInstances(task, startDate, endDate, clinicId);
+      expandedTasks.push(...instances);
+    }
+  }
+
+  return expandedTasks;
+};
+
+/**
+ * Get tasks for a specific date that respects working days
+ */
+export const getTasksForWorkingDay = async (
+  tasks: Task[], 
+  targetDate: Date,
+  clinicId: string
+): Promise<(Task | RecurringTaskInstance)[]> => {
+  // Check if target date is a working day first
+  const isWorkingDayTarget = await isWorkingDay(clinicId, targetDate);
+  if (!isWorkingDayTarget) {
+    return [];
+  }
+  
+  const startOfTargetDate = startOfDay(targetDate);
+  const endOfTargetDate = endOfDay(targetDate);
+  
+  // Expand tasks with working day recurrence for the target date range
+  const expandedTasks = await expandTasksWithWorkingDayRecurrence(tasks, startOfTargetDate, endOfTargetDate, clinicId);
+  
+  // Filter tasks that match the target date
+  return expandedTasks.filter(task => {
+    const taskDate = task.custom_due_date 
+      ? startOfDay(new Date(task.custom_due_date))
+      : startOfDay(new Date(task.created_at));
+    
+    return taskDate.getTime() === startOfTargetDate.getTime();
+  });
 };
 
 /**
@@ -729,6 +857,13 @@ export const taskUtils = {
   shouldShowRecurringInstances,
   isRecurringTaskOverdue,
   getOverdueReason,
+  
+  // Working Days
+  isWorkingDay,
+  getClinicWorkingDaysSettings,
+  generateWorkingDayRecurringInstances,
+  expandTasksWithWorkingDayRecurrence,
+  getTasksForWorkingDay,
   
   // Validation
   isValidTask,

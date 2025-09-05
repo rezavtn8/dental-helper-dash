@@ -7,9 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import SchedulingSettings from './SchedulingSettings';
 import { 
   Settings, 
   Building2, 
@@ -22,7 +24,9 @@ import {
   Save,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Calendar,
+  Clock
 } from 'lucide-react';
 
 interface ClinicSettings {
@@ -138,173 +142,207 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
         <p className="text-muted-foreground">Manage your clinic information and preferences</p>
       </div>
 
-      {/* Clinic Information */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center text-lg">
-            <Building2 className="w-4 h-4 mr-2" />
-            Clinic Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor="clinic-name" className="text-sm">Clinic Name</Label>
-              <Input
-                id="clinic-name"
-                value={clinic.name}
-                onChange={(e) => setClinic(prev => prev ? { ...prev, name: e.target.value } : null)}
-                placeholder="Enter clinic name"
-                className="h-9"
-              />
-            </div>
-            
-            <div className="space-y-1">
-              <Label htmlFor="clinic-email" className="text-sm">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground w-3 h-3" />
-                <Input
-                  id="clinic-email"
-                  type="email"
-                  value={clinic.email || ''}
-                  onChange={(e) => setClinic(prev => prev ? { ...prev, email: e.target.value } : null)}
-                  placeholder="clinic@example.com"
-                  className="pl-7 h-9"
-                />
+      <Tabs defaultValue="general" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="general" className="flex items-center gap-2">
+            <Settings className="w-4 h-4" />
+            General
+          </TabsTrigger>
+          <TabsTrigger value="scheduling" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Scheduling
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="w-4 h-4" />
+            Notifications
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="general" className="space-y-4">
+          {/* Clinic Information */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-lg">
+                <Building2 className="w-4 h-4 mr-2" />
+                Clinic Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="clinic-name" className="text-sm">Clinic Name</Label>
+                  <Input
+                    id="clinic-name"
+                    value={clinic.name}
+                    onChange={(e) => setClinic(prev => prev ? { ...prev, name: e.target.value } : null)}
+                    placeholder="Enter clinic name"
+                    className="h-9"
+                  />
+                </div>
+                
+                <div className="space-y-1">
+                  <Label htmlFor="clinic-email" className="text-sm">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground w-3 h-3" />
+                    <Input
+                      id="clinic-email"
+                      type="email"
+                      value={clinic.email || ''}
+                      onChange={(e) => setClinic(prev => prev ? { ...prev, email: e.target.value } : null)}
+                      placeholder="clinic@example.com"
+                      className="pl-7 h-9"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <Label htmlFor="clinic-phone" className="text-sm">Phone</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground w-3 h-3" />
+                    <Input
+                      id="clinic-phone"
+                      value={clinic.phone || ''}
+                      onChange={(e) => setClinic(prev => prev ? { ...prev, phone: e.target.value } : null)}
+                      placeholder="(555) 123-4567"
+                      className="pl-7 h-9"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <Label htmlFor="subscription-status" className="text-sm">Subscription</Label>
+                  <Input
+                    id="subscription-status"
+                    value={clinic.subscription_status}
+                    disabled
+                    className="bg-muted h-9"
+                  />
+                </div>
               </div>
-            </div>
-            
-            <div className="space-y-1">
-              <Label htmlFor="clinic-phone" className="text-sm">Phone</Label>
-              <div className="relative">
-                <Phone className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground w-3 h-3" />
-                <Input
-                  id="clinic-phone"
-                  value={clinic.phone || ''}
-                  onChange={(e) => setClinic(prev => prev ? { ...prev, phone: e.target.value } : null)}
-                  placeholder="(555) 123-4567"
-                  className="pl-7 h-9"
-                />
+
+              <div className="space-y-1">
+                <Label htmlFor="clinic-address" className="text-sm">Address</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-2 top-2 text-muted-foreground w-3 h-3" />
+                  <Textarea
+                    id="clinic-address"
+                    value={clinic.address || ''}
+                    onChange={(e) => setClinic(prev => prev ? { ...prev, address: e.target.value } : null)}
+                    placeholder="Enter clinic address"
+                    rows={2}
+                    className="pl-7 text-sm"
+                  />
+                </div>
               </div>
-            </div>
-            
-            <div className="space-y-1">
-              <Label htmlFor="subscription-status" className="text-sm">Subscription</Label>
-              <Input
-                id="subscription-status"
-                value={clinic.subscription_status}
-                disabled
-                className="bg-muted h-9"
-              />
-            </div>
-          </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="clinic-address" className="text-sm">Address</Label>
-            <div className="relative">
-              <MapPin className="absolute left-2 top-2 text-muted-foreground w-3 h-3" />
-              <Textarea
-                id="clinic-address"
-                value={clinic.address || ''}
-                onChange={(e) => setClinic(prev => prev ? { ...prev, address: e.target.value } : null)}
-                placeholder="Enter clinic address"
-                rows={2}
-                className="pl-7 text-sm"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <Button onClick={handleSaveClinicInfo} disabled={saving} size="sm">
-              {saving ? (
-                <div className="w-3 h-3 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
-              ) : (
-                <Save className="w-3 h-3 mr-2" />
-              )}
-              Save Changes
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Clinic Code Management */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center text-lg">
-              <Shield className="w-4 h-4 mr-2" />
-              Access Code
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Share this code with assistants to join your clinic.
-              </p>
-              
-              <div className="flex items-center gap-2">
-                <Input
-                  value={clinic.clinic_code}
-                  disabled
-                  className="bg-muted font-mono text-sm h-9"
-                />
-                <Button
-                  variant="outline"
-                  onClick={copyClinicCode}
-                  size="sm"
-                  className="px-3"
-                >
-                  <Copy className="w-3 h-3" />
+              <div className="flex justify-end pt-2">
+                <Button onClick={handleSaveClinicInfo} disabled={saving} size="sm">
+                  {saving ? (
+                    <div className="w-3 h-3 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
+                  ) : (
+                    <Save className="w-3 h-3 mr-2" />
+                  )}
+                  Save Changes
                 </Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Notification Settings */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center text-lg">
-              <Bell className="w-4 h-4 mr-2" />
-              Notifications
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-sm">Email Notifications</Label>
-                <p className="text-xs text-muted-foreground">Important updates</p>
+          {/* Clinic Code Management */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-lg">
+                <Shield className="w-4 h-4 mr-2" />
+                Access Code
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Share this code with assistants to join your clinic.
+                </p>
+                
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={clinic.clinic_code}
+                    disabled
+                    className="bg-muted font-mono text-sm h-9"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={copyClinicCode}
+                    size="sm"
+                    className="px-3"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
-              <Switch
-                checked={settings.emailNotifications}
-                onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailNotifications: checked }))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-sm">Task Reminders</Label>
-                <p className="text-xs text-muted-foreground">Overdue tasks</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="scheduling">
+          <SchedulingSettings />
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-4">
+          {/* Notification Settings */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-lg">
+                <Bell className="w-4 h-4 mr-2" />
+                Notification Preferences
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm">Email Notifications</Label>
+                  <p className="text-xs text-muted-foreground">Important updates and alerts</p>
+                </div>
+                <Switch
+                  checked={settings.emailNotifications}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailNotifications: checked }))}
+                />
               </div>
-              <Switch
-                checked={settings.taskReminders}
-                onCheckedChange={(checked) => setSettings(prev => ({ ...prev, taskReminders: checked }))}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-sm">Weekly Reports</Label>
-                <p className="text-xs text-muted-foreground">Performance analytics</p>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm">Task Reminders</Label>
+                  <p className="text-xs text-muted-foreground">Notifications for overdue tasks</p>
+                </div>
+                <Switch
+                  checked={settings.taskReminders}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, taskReminders: checked }))}
+                />
               </div>
-              <Switch
-                checked={settings.weeklyReports}
-                onCheckedChange={(checked) => setSettings(prev => ({ ...prev, weeklyReports: checked }))}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm">Weekly Reports</Label>
+                  <p className="text-xs text-muted-foreground">Performance analytics and summaries</p>
+                </div>
+                <Switch
+                  checked={settings.weeklyReports}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, weeklyReports: checked }))}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm">Auto-assign Tasks</Label>
+                  <p className="text-xs text-muted-foreground">Automatically assign tasks to available assistants</p>
+                </div>
+                <Switch
+                  checked={settings.autoAssignTasks}
+                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoAssignTasks: checked }))}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

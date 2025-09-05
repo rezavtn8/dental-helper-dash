@@ -15,10 +15,9 @@ interface ClinicSetupFormProps {
     name: string;
     role: string;
   };
-  onSuccess?: () => void;
 }
 
-export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupFormProps) {
+export default function ClinicSetupForm({ userProfile }: ClinicSetupFormProps) {
   const [clinicName, setClinicName] = useState('');
   const [clinicCode, setClinicCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -67,9 +66,6 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
         // Refresh user profile to get the updated clinic_id
         await refreshUserProfile();
         
-        // Call onSuccess callback to close dialog
-        onSuccess?.();
-        
         // Navigate to owner dashboard
         navigate('/owner');
       } else {
@@ -93,6 +89,14 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="text-center mb-6">
+        <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <Building2 className="w-8 h-8 text-primary" />
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Welcome, {userProfile.name}! Let's set up your clinic.
+        </p>
+      </div>
 
       <div className="space-y-4">
         <div className="space-y-2">

@@ -6,7 +6,7 @@ import { Crown, UserCheck } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import AuthWidget from '@/components/auth/AuthWidget';
-import ClinicSetupDialog from '@/components/ClinicSetupDialog';
+import ClinicSetupForm from '@/components/ClinicSetupForm';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
 
 // Import new components
@@ -105,16 +105,7 @@ export default function Home() {
             
             <CardContent>
               {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? (
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm">
-                      <Crown className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">Ready to get started?</h3>
-                    <p className="text-muted-foreground text-sm mb-6">Set up your clinic to begin managing your team and tasks.</p>
-                  </div>
-                  <ClinicSetupDialog userProfile={userProfile} />
-                </div>
+                <ClinicSetupForm userProfile={userProfile} />
               ) : (
                 <Tabs defaultValue="owner" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted p-1 h-11">

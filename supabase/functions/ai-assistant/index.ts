@@ -8,9 +8,130 @@ const corsHeaders = {
 };
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+// Model selection based on request complexity
+const selectOptimalModel = (action: string, message: string) => {
+  const isComplex = message.length > 200 || 
+                   action === 'analyze' || 
+                   message.includes('create multiple') ||
+                   message.includes('complex') ||
+                   message.includes('schedule') ||
+                   message.includes('optimize');
+  
+  return {
+    model: isComplex ? 'gpt-4o' : 'gemini-1.5-flash',
+    provider: isComplex ? 'openai' : 'gemini'
+  };
+};
+
+// Chain-of-thought prompting for complex reasoning
+const createChainOfThoughtPrompt = (basePrompt: string, context: string) => {
+  return `
+You are an intelligent AI assistant for a dental clinic. Use step-by-step reasoning to provide the best response.
+
+REASONING PROCESS:
+1. First, analyze the user's request carefully
+2. Consider the clinic context and available data  
+3. Think through potential solutions step by step
+4. Choose the optimal approach
+5. Provide your final response
+
+CONTEXT: ${context}
+
+USER REQUEST: ${basePrompt}
+
+Please think through this step by step, then provide your response.
+  `;
+};
+
+// OpenAI API call function
+const callOpenAI = async (prompt: string, model = 'gpt-4o') => {
+  if (!OPENAI_API_KEY) {
+    throw new Error('OpenAI API key not configured');
+  }
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        { role: 'system', content: 'You are an intelligent AI assistant for dental clinic management.' },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: 2000,
+      temperature: 0.7
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('OpenAI API Error:', errorData);
+    throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+};
+
+// Conversation memory functions
+const saveConversationMemory = async (supabase: any, userId: string, clinicId: string, message: string, response: string) => {
+  try {
+    await supabase
+      .from('conversation_memory')
+      .insert({
+        user_id: userId,
+        clinic_id: clinicId,
+        user_message: message,
+        ai_response: response,
+        created_at: new Date().toISOString()
+      });
+  } catch (error) {
+    console.error('Failed to save conversation memory:', error);
+    // Don't throw - this shouldn't break the main functionality
+  }
+};
+
+const getConversationContext = async (supabase: any, userId: string, clinicId: string, limit = 5) => {
+  try {
+    const { data } = await supabase
+      .from('conversation_memory')
+      .select('user_message, ai_response, created_at')
+      .eq('user_id', userId)
+      .eq('clinic_id', clinicId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (!data || data.length === 0) return '';
+    
+    return data.reverse().map(conv => 
+      `User: ${conv.user_message}\nAI: ${conv.ai_response}\n---`
+    ).join('\n');
+  } catch (error) {
+    console.error('Failed to get conversation context:', error);
+    return '';
+  }
+};
+
+// Enhanced error handling with fallback strategies
+const handleAPIError = async (error: any, fallbackAction: () => Promise<any>) => {
+  console.error('Primary API call failed:', error);
+  
+  try {
+    console.log('Attempting fallback strategy...');
+    return await fallbackAction();
+  } catch (fallbackError) {
+    console.error('Fallback also failed:', fallbackError);
+    throw new Error(`Both primary and fallback methods failed: ${error.message}`);
+  }
+};
 
 console.log('Environment check:', {
   hasGeminiKey: !!GEMINI_API_KEY,

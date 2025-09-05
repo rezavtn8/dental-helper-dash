@@ -1147,6 +1147,14 @@ export type Database = {
           invitation_url: string
         }[]
       }
+      calculate_next_generation_date: {
+        Args: {
+          last_date: string
+          recurrence_type: string
+          start_date?: string
+        }
+        Returns: string
+      }
       can_create_user: {
         Args: { target_role: string }
         Returns: boolean
@@ -1267,6 +1275,13 @@ export type Database = {
       generate_clinic_code: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      generate_tasks_from_templates: {
+        Args: { target_date?: string }
+        Returns: {
+          tasks_created: number
+          template_id: string
+        }[]
       }
       get_clinic_working_days_settings: {
         Args: { p_clinic_id: string }

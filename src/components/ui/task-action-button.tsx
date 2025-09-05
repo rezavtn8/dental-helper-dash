@@ -36,10 +36,8 @@ export function TaskActionButton({
       return {
         icon: ArrowRight,
         label: 'Take Task',
-        bgColor: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
-        iconColor: 'text-white',
-        borderColor: 'border-blue-500',
-        textColor: 'text-white'
+        variant: 'default' as const,
+        className: 'bg-blue-600 hover:bg-blue-700 text-white'
       };
     }
     
@@ -47,10 +45,8 @@ export function TaskActionButton({
       return {
         icon: ArrowLeft,
         label: 'Return',
-        bgColor: 'bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700',
-        iconColor: 'text-white',
-        borderColor: 'border-slate-500',
-        textColor: 'text-white'
+        variant: 'outline' as const,
+        className: 'border-slate-300 hover:bg-slate-50'
       };
     }
     
@@ -58,50 +54,40 @@ export function TaskActionButton({
       return {
         icon: RotateCcw,
         label: 'Undo',
-        bgColor: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
-        iconColor: 'text-white',
-        borderColor: 'border-orange-500',
-        textColor: 'text-white'
+        variant: 'outline' as const,
+        className: 'border-orange-300 text-orange-600 hover:bg-orange-50'
       };
     }
 
-    // Default toggle behavior with modern styling
+    // Default toggle behavior with simple styling
     switch (status) {
       case 'pending':
         return {
           icon: Play,
-          label: 'Start Task',
-          bgColor: 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25',
-          iconColor: 'text-primary-foreground',
-          borderColor: 'border-primary',
-          textColor: 'text-primary-foreground'
+          label: 'Start',
+          variant: 'default' as const,
+          className: 'bg-blue-600 hover:bg-blue-700 text-white'
         };
       case 'in-progress':
         return {
           icon: CheckCircle2,
           label: 'Complete',
-          bgColor: 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg shadow-green-500/25',
-          iconColor: 'text-white',
-          borderColor: 'border-green-500',
-          textColor: 'text-white'
+          variant: 'default' as const,
+          className: 'bg-green-600 hover:bg-green-700 text-white'
         };
       case 'completed':
         return {
           icon: RotateCcw,
           label: 'Undo',
-          bgColor: 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25',
-          iconColor: 'text-white',
-          borderColor: 'border-orange-500',
-          textColor: 'text-white'
+          variant: 'outline' as const,
+          className: 'border-orange-300 text-orange-600 hover:bg-orange-50'
         };
       default:
         return {
           icon: Circle,
           label: 'Start',
-          bgColor: 'bg-gradient-to-r from-muted to-muted/90 hover:from-muted/90 hover:to-muted',
-          iconColor: 'text-muted-foreground',
-          borderColor: 'border-muted',
-          textColor: 'text-muted-foreground'
+          variant: 'outline' as const,
+          className: 'border-muted-foreground/30 hover:bg-muted'
         };
     }
   };
@@ -110,34 +96,31 @@ export function TaskActionButton({
   const Icon = config.icon;
   
   const sizeClasses = {
-    sm: showLabel ? 'h-8 px-3 text-xs font-medium' : 'h-8 w-8 p-0',
-    md: showLabel ? 'h-10 px-4 text-sm font-medium' : 'h-10 w-10 p-0',
-    lg: showLabel ? 'h-12 px-5 text-base font-medium' : 'h-12 w-12 p-0'
+    sm: showLabel ? 'h-8 px-3 text-xs' : 'h-8 w-8 p-0',
+    md: showLabel ? 'h-9 px-4 text-sm' : 'h-9 w-9 p-0',
+    lg: showLabel ? 'h-10 px-5 text-base' : 'h-10 w-10 p-0'
   };
 
   const iconSizes = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6'
+    sm: 'w-3 h-3',
+    md: 'w-4 h-4',
+    lg: 'w-5 h-5'
   };
 
   return (
     <Button
+      variant={config.variant}
       className={cn(
         sizeClasses[size],
-        config.bgColor,
-        config.borderColor,
-        'transition-all duration-300 hover:scale-105 active:scale-95 transform-gpu',
-        'border-2 rounded-xl font-medium',
-        'focus:ring-4 focus:ring-primary/20 focus:outline-none',
+        config.className,
         className
       )}
       onClick={onClick}
       title={config.label}
     >
-      <Icon className={cn(iconSizes[size], config.iconColor, 'transition-all duration-200')} />
+      <Icon className={iconSizes[size]} />
       {showLabel && (
-        <span className={cn('ml-2', config.textColor)}>{config.label}</span>
+        <span className="ml-2">{config.label}</span>
       )}
     </Button>
   );

@@ -18,7 +18,6 @@ import {
 interface TeamMember {
   id: string;
   name: string;
-  email: string;
   role: string;
   is_active: boolean;
   created_at: string;
@@ -171,7 +170,9 @@ const OwnerTeam: React.FC<OwnerTeamProps> = ({ assistants, tasks, onTeamUpdate }
                     </Avatar>
                     <div className="flex-1">
                       <h3 className="font-semibold">{member.name}</h3>
-                      <p className="text-sm text-muted-foreground">{member.email}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {member.role} • Joined {new Date(member.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                     <Badge variant={member.is_active ? 'secondary' : 'outline'}>
                       {member.is_active ? 'Active' : 'Inactive'}

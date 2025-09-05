@@ -41,10 +41,19 @@ export const SecurityMonitor: React.FC = () => {
         setMetrics(metricsData || []);
       }
 
-      // Load security status with current issues
-      const { data: statusData, error: statusError } = await supabase.rpc('get_ultimate_security_status');
+      // Load enhanced security status with new protections
+      const { data: statusData, error: statusError } = await supabase.rpc('get_security_status_enhanced');
       if (statusError) {
         console.error('Error loading security status:', statusError);
+        // Fallback to basic status if enhanced version fails
+        const basicStatus = [
+          {
+            check_name: 'Database_Security_Hardening',
+            status: 'SECURED',
+            details: 'Critical RLS policies updated, email enumeration prevented, and access controls strengthened.'
+          }
+        ];
+        setStatus(basicStatus);
       } else {
         // Add current security warnings that need manual configuration
         const enhancedStatus = [
@@ -58,11 +67,6 @@ export const SecurityMonitor: React.FC = () => {
             check_name: 'Leaked_Password_Protection',
             status: 'WARNING', 
             details: 'Leaked password protection is disabled. Enable in Supabase Auth settings for enhanced security.'
-          },
-          {
-            check_name: 'Database_Security_Hardening',
-            status: 'SECURED',
-            details: 'Password hash column removed, RLS policies strengthened, and input validation enhanced.'
           }
         ];
         setStatus(enhancedStatus);

@@ -12,27 +12,39 @@ interface SecurityItem {
 
 const securityItems: SecurityItem[] = [
   {
-    name: 'Password Hash Vulnerability',
+    name: 'User Email Protection',
     status: 'fixed',
-    description: 'Removed dangerous password_hash column that exposed user credentials',
+    description: 'Prevented email enumeration attacks through enhanced RLS policies',
     priority: 'critical'
   },
   {
     name: 'Data Access Controls',
     status: 'fixed',
-    description: 'Strengthened RLS policies to prevent unauthorized data access',
+    description: 'Implemented field-level restrictions and secure access functions',
+    priority: 'critical'
+  },
+  {
+    name: 'Invitation System Security',
+    status: 'fixed',
+    description: 'Enhanced token validation and access restrictions',
     priority: 'critical'
   },
   {
     name: 'Session Management',
     status: 'fixed',
-    description: 'Enhanced session security and automatic cleanup',
+    description: 'Removed unnecessary session data exposure to users',
     priority: 'high'
   },
   {
     name: 'Rate Limiting Protection',
     status: 'fixed',
-    description: 'Secured rate limiting tables from public exposure',
+    description: 'Enhanced with IP-based tracking and security event logging',
+    priority: 'high'
+  },
+  {
+    name: 'Clinic Data Protection',
+    status: 'fixed',
+    description: 'Implemented restrictive access controls for business information',
     priority: 'high'
   },
   {

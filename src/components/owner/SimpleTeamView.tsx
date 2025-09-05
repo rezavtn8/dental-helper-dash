@@ -10,9 +10,10 @@ import { supabase } from '@/integrations/supabase/client';
 interface TeamMember {
   id: string;
   name: string;
-  email: string;
   role: string;
   is_active: boolean;
+  created_at?: string;
+  last_login?: string;
 }
 
 interface Invitation {
@@ -37,12 +38,8 @@ export default function SimpleTeamView() {
     try {
       setLoading(true);
       
-      // Fetch team members  
-      const { data: membersData, error: membersError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('clinic_id', userProfile?.clinic_id)
-        .eq('is_active', true);
+      // Use the new secure function that protects user privacy
+      const { data: membersData, error: membersError } = await supabase.rpc('get_team_members_safe');
 
       if (membersError) {
         console.error('Error fetching members:', membersError);
@@ -98,7 +95,9 @@ export default function SimpleTeamView() {
               </Avatar>
               <div className="flex-1">
                 <h4 className="font-medium">{member.name}</h4>
-                <p className="text-sm text-muted-foreground">{member.email}</p>
+                <p className="text-sm text-muted-foreground">
+                  Member since {new Date(member.created_at || '').toLocaleDateString()}
+                </p>
               </div>
               <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
                 {member.role}

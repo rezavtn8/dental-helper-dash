@@ -28,7 +28,6 @@ import {
 interface TeamMember {
   id: string;
   name: string;
-  email: string;
   role: string;
   is_active: boolean;
   created_at: string;
@@ -71,12 +70,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     try {
       setLoading(true);
 
-      // Fetch team members
-      const { data: membersData, error: membersError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('clinic_id', clinicId)
-        .order('created_at', { ascending: false });
+      // Use secure function for team member access (no bulk email exposure)
+      const { data: membersData, error: membersError } = await supabase.rpc('get_team_members_safe');
 
       if (membersError) throw membersError;
       setTeamMembers(membersData || []);
@@ -235,7 +230,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
   const filteredMembers = teamMembers.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.email.toLowerCase().includes(searchTerm.toLowerCase());
+                         member.role.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || 
                          (statusFilter === 'active' && member.is_active) ||
@@ -391,7 +386,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Joined On</TableHead>
@@ -407,13 +401,10 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                         <div className="w-8 h-8 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
                           <User className="w-4 h-4 text-primary" />
                         </div>
-                        <span className="font-medium">{member.name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-muted-foreground" />
-                        {member.email}
+                        <div>
+                          <span className="font-medium">{member.name}</span>
+                          <div className="text-sm text-muted-foreground">{member.role}</div>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>

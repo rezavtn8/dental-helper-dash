@@ -1212,6 +1212,17 @@ export type Database = {
           status: string
         }[]
       }
+      get_team_members_safe: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          id: string
+          is_active: boolean
+          last_login: string
+          name: string
+          role: string
+        }[]
+      }
       get_team_members_secure: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1230,6 +1241,18 @@ export type Database = {
           details: string
           severity: string
           status: string
+        }[]
+      }
+      get_user_profile_safe: {
+        Args: { target_user_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          last_login: string
+          name: string
+          role: string
         }[]
       }
       get_user_profile_secure: {

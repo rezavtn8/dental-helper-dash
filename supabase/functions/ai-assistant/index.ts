@@ -11,6 +11,12 @@ const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
 
+console.log('Environment check:', {
+  hasGeminiKey: !!GEMINI_API_KEY,
+  hasSupabaseUrl: !!SUPABASE_URL,
+  hasSupabaseKey: !!SUPABASE_ANON_KEY
+});
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -75,6 +81,18 @@ serve(async (req) => {
       });
 
       const geminiData = await geminiResponse.json();
+      console.log('Gemini API Response:', JSON.stringify(geminiData, null, 2));
+      
+      if (!geminiResponse.ok) {
+        console.error('Gemini API Error:', geminiData);
+        throw new Error(`Gemini API error: ${geminiData.error?.message || 'Unknown error'}`);
+      }
+      
+      if (!geminiData.candidates || !geminiData.candidates[0] || !geminiData.candidates[0].content) {
+        console.error('Invalid Gemini response structure:', geminiData);
+        throw new Error('Invalid response from Gemini API');
+      }
+      
       const responseText = geminiData.candidates[0].content.parts[0].text;
       
       // Parse JSON from response
@@ -128,6 +146,18 @@ serve(async (req) => {
       });
 
       const geminiData = await geminiResponse.json();
+      console.log('Gemini API Response for task creation:', JSON.stringify(geminiData, null, 2));
+      
+      if (!geminiResponse.ok) {
+        console.error('Gemini API Error:', geminiData);
+        throw new Error(`Gemini API error: ${geminiData.error?.message || 'Unknown error'}`);
+      }
+      
+      if (!geminiData.candidates || !geminiData.candidates[0] || !geminiData.candidates[0].content) {
+        console.error('Invalid Gemini response structure:', geminiData);
+        throw new Error('Invalid response from Gemini API');
+      }
+      
       const responseText = geminiData.candidates[0].content.parts[0].text;
       
       // Parse JSON from response
@@ -146,10 +176,17 @@ serve(async (req) => {
         throw new Error('No task data extracted');
       }
 
+      // Get assistants data first
+      const { data: assistants } = await supabase
+        .from('users')
+        .select('*')
+        .eq('clinic_id', clinicId)
+        .eq('role', 'assistant');
+
       // Find assistant ID if assigned
       let assignedToId = null;
       if (taskData.assigned_to) {
-        const assistant = assistants.find(a => 
+        const assistant = assistants?.find(a => 
           a.name.toLowerCase().includes(taskData.assigned_to.toLowerCase())
         );
         assignedToId = assistant?.id || null;

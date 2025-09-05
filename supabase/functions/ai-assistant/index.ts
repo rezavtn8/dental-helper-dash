@@ -8,78 +8,9 @@ const corsHeaders = {
 };
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-// Model selection based on request complexity
-const selectOptimalModel = (action: string, message: string) => {
-  const isComplex = message.length > 200 || 
-                   action === 'analyze' || 
-                   message.includes('create multiple') ||
-                   message.includes('complex') ||
-                   message.includes('schedule') ||
-                   message.includes('optimize');
-  
-  return {
-    model: isComplex ? 'gpt-4o' : 'gemini-1.5-flash',
-    provider: isComplex ? 'openai' : 'gemini'
-  };
-};
-
-// Chain-of-thought prompting for complex reasoning
-const createChainOfThoughtPrompt = (basePrompt: string, context: string) => {
-  return `
-You are an intelligent AI assistant for a dental clinic. Use step-by-step reasoning to provide the best response.
-
-REASONING PROCESS:
-1. First, analyze the user's request carefully
-2. Consider the clinic context and available data  
-3. Think through potential solutions step by step
-4. Choose the optimal approach
-5. Provide your final response
-
-CONTEXT: ${context}
-
-USER REQUEST: ${basePrompt}
-
-Please think through this step by step, then provide your response.
-  `;
-};
-
-// OpenAI API call function
-const callOpenAI = async (prompt: string, model = 'gpt-4o') => {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured');
-  }
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: [
-        { role: 'system', content: 'You are an intelligent AI assistant for dental clinic management.' },
-        { role: 'user', content: prompt }
-      ],
-      max_tokens: 2000,
-      temperature: 0.7
-    })
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('OpenAI API Error:', errorData);
-    throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`);
-  }
-
-  const data = await response.json();
-  return data.choices[0].message.content;
-};
 
 // Conversation memory functions
 const saveConversationMemory = async (supabase: any, userId: string, clinicId: string, message: string, response: string) => {
@@ -220,10 +151,6 @@ serve(async (req) => {
       try {
         // Get conversation context for better understanding
         const conversationContext = await getConversationContext(supabase, userId, clinicId);
-        
-        // Select optimal model based on request complexity
-        const { provider, model } = selectOptimalModel(action, message);
-        console.log(`Using ${provider} model (${model}) for analysis request`);
 
         // Fetch clinic data with enhanced context
         const [tasksResult, assistantsResult, patientLogsResult] = await Promise.all([
@@ -253,41 +180,8 @@ ${conversationContext}
 
         let analysisResponse;
         
-        if (provider === 'openai' && OPENAI_API_KEY) {
-          // Use GPT-4o with chain-of-thought prompting for complex analysis
-          const chainOfThoughtPrompt = createChainOfThoughtPrompt(`
-Analyze this dental clinic's operations and provide actionable insights as JSON cards.
-
-Think step by step:
-1. What patterns do you see in the data?
-2. What are the main issues or opportunities?
-3. What specific recommendations would help most?
-4. How should these be prioritized?
-
-Return 3-4 insight cards in this exact JSON format:
-{
-  "cards": [
-    {
-      "id": "unique-id",
-      "title": "Brief Title",
-      "description": "Detailed actionable recommendation",
-      "type": "alert|suggestion|balance|overdue",
-      "priority": "high|medium|low",
-      "icon": "Lucide icon name",
-      "size": "small|medium|large"
-    }
-  ]
-}
-          `, clinicData);
-
-          analysisResponse = await handleAPIError(
-            () => callOpenAI(chainOfThoughtPrompt, model),
-            () => callGeminiAPI(createBasicAnalysisPrompt(clinicData))
-          );
-        } else {
-          // Use Gemini for simpler analysis or as fallback
-          analysisResponse = await callGeminiAPI(createBasicAnalysisPrompt(clinicData));
-        }
+        // Use Gemini for analysis
+        analysisResponse = await callGeminiAPI(createBasicAnalysisPrompt(clinicData));
 
         console.log('AI Analysis Response:', analysisResponse);
 

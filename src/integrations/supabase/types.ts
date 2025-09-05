@@ -852,6 +852,7 @@ export type Database = {
           owner_notes: string | null
           priority: string | null
           recurrence: string | null
+          source_type: string | null
           specialty: string | null
           title: string
           updated_at: string
@@ -871,6 +872,7 @@ export type Database = {
           owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
+          source_type?: string | null
           specialty?: string | null
           title: string
           updated_at?: string
@@ -890,6 +892,7 @@ export type Database = {
           owner_notes?: string | null
           priority?: string | null
           recurrence?: string | null
+          source_type?: string | null
           specialty?: string | null
           title?: string
           updated_at?: string

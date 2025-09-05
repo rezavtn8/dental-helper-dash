@@ -115,16 +115,35 @@ serve(async (req) => {
       
       const responseText = geminiData.candidates[0].content.parts[0].text;
       
-      // Parse JSON from response
+      // Parse JSON from response with improved error handling  
       let cards = [];
       try {
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        console.log('Raw analysis response:', responseText);
+        
+        // Clean the response text by removing markdown code blocks if present
+        let cleanedResponse = responseText.trim();
+        if (cleanedResponse.startsWith('```json')) {
+          cleanedResponse = cleanedResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanedResponse.startsWith('```')) {
+          cleanedResponse = cleanedResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+        
+        // Try to find JSON in the response
+        const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
           cards = parsed.cards || [];
+        } else {
+          // Try to parse the entire cleaned response as JSON
+          const parsed = JSON.parse(cleanedResponse);
+          cards = parsed.cards || [];
         }
+        
       } catch (e) {
-        console.error('Failed to parse JSON:', e);
+        console.error('Failed to parse analysis JSON:', e);
+        console.error('Response text was:', responseText);
+        // Return empty cards array instead of failing
+        cards = [];
       }
 
       return new Response(JSON.stringify({ cards }), {
@@ -186,20 +205,37 @@ serve(async (req) => {
       
       const responseText = geminiData.candidates[0].content.parts[0].text;
       
-      // Parse JSON from response
+      // Parse JSON from response with improved error handling
       let bulkTaskData = null;
       try {
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        console.log('Raw bulk task response:', responseText);
+        
+        // Clean the response text by removing markdown code blocks if present
+        let cleanedResponse = responseText.trim();
+        if (cleanedResponse.startsWith('```json')) {
+          cleanedResponse = cleanedResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanedResponse.startsWith('```')) {
+          cleanedResponse = cleanedResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+        
+        // Try to find JSON in the response
+        const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           bulkTaskData = JSON.parse(jsonMatch[0]);
+        } else {
+          // Try to parse the entire cleaned response as JSON
+          bulkTaskData = JSON.parse(cleanedResponse);
         }
+        
       } catch (e) {
         console.error('Failed to parse bulk task JSON:', e);
-        throw new Error('Failed to parse bulk task data');
+        console.error('Response text was:', responseText);
+        throw new Error(`Failed to parse bulk task data: ${e.message}`);
       }
 
-      if (!bulkTaskData || !bulkTaskData.tasks) {
-        throw new Error('No bulk task data extracted');
+      if (!bulkTaskData || !bulkTaskData.tasks || !Array.isArray(bulkTaskData.tasks)) {
+        console.error('Invalid bulk task data structure:', bulkTaskData);
+        throw new Error('No valid bulk task data found in response');
       }
 
       // Get assistants data first
@@ -265,6 +301,8 @@ serve(async (req) => {
         Parse this task request into structured data:
         "${message}"
         
+        IMPORTANT: Return ONLY a single JSON object, not an array.
+        
         Extract and return JSON in this exact format:
         {
           "title": "Task title",
@@ -278,11 +316,13 @@ serve(async (req) => {
         }
         
         Rules:
+        - Return ONLY ONE task object, not multiple tasks
         - Only use assistants: Behgum, Kim, Hafsa, May
         - Default recurrence: "once"
         - If no specific assistant mentioned, set assigned_to to null
         - Infer category from context
         - Set priority based on urgency keywords
+        - Do not wrap the response in markdown code blocks
       `;
 
       const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -308,20 +348,62 @@ serve(async (req) => {
       
       const responseText = geminiData.candidates[0].content.parts[0].text;
       
-      // Parse JSON from response
+      // Parse JSON from response with improved error handling
       let taskData = null;
       try {
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          taskData = JSON.parse(jsonMatch[0]);
+        console.log('Raw Gemini response:', responseText);
+        
+        // Clean the response text by removing markdown code blocks if present
+        let cleanedResponse = responseText.trim();
+        if (cleanedResponse.startsWith('```json')) {
+          cleanedResponse = cleanedResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanedResponse.startsWith('```')) {
+          cleanedResponse = cleanedResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
         }
+        
+        // Try to find JSON in the response
+        let jsonToparse = null;
+        
+        // Look for both objects {...} and arrays [...]
+        const objectMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+        const arrayMatch = cleanedResponse.match(/\[[\s\S]*\]/);
+        
+        if (objectMatch && arrayMatch) {
+          // Both found, prefer object for single task creation
+          jsonToparse = objectMatch[0];
+        } else if (objectMatch) {
+          jsonToparse = objectMatch[0];
+        } else if (arrayMatch) {
+          // If only array found, we'll extract the first item
+          const arrayData = JSON.parse(arrayMatch[0]);
+          if (Array.isArray(arrayData) && arrayData.length > 0) {
+            taskData = arrayData[0]; // Take first item from array
+          } else {
+            throw new Error('Empty array returned');
+          }
+        } else {
+          // Try to parse the entire cleaned response as JSON
+          jsonToparse = cleanedResponse;
+        }
+        
+        if (jsonToparse && !taskData) {
+          taskData = JSON.parse(jsonToparse);
+        }
+        
       } catch (e) {
         console.error('Failed to parse task JSON:', e);
-        throw new Error('Failed to parse task data');
+        console.error('Response text was:', responseText);
+        throw new Error(`Failed to parse task data: ${e.message}`);
       }
 
       if (!taskData) {
-        throw new Error('No task data extracted');
+        console.error('No task data extracted from response:', responseText);
+        throw new Error('No valid task data found in response');
+      }
+      
+      // Validate required fields
+      if (!taskData.title || taskData.title.trim() === '') {
+        throw new Error('Task title is required');
       }
 
       // Get assistants data first

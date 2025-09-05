@@ -10,11 +10,13 @@ const corsHeaders = {
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
 console.log('Environment check:', {
   hasGeminiKey: !!GEMINI_API_KEY,
   hasSupabaseUrl: !!SUPABASE_URL,
-  hasSupabaseKey: !!SUPABASE_ANON_KEY
+  hasSupabaseKey: !!SUPABASE_ANON_KEY,
+  hasServiceKey: !!SUPABASE_SERVICE_ROLE_KEY
 });
 
 serve(async (req) => {
@@ -25,9 +27,27 @@ serve(async (req) => {
   try {
     const { message, clinicId, userId, action } = await req.json();
     
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
-      global: { headers: { Authorization: req.headers.get('Authorization')! } }
+    // Create supabase client with service role for data access
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
     });
+    
+    // Verify user has access to this clinic
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('clinic_id, role')
+      .eq('id', userId)
+      .single();
+    
+    if (!userProfile || userProfile.clinic_id !== clinicId) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
     if (action === 'analyze') {
       // Fetch current data for analysis
@@ -108,6 +128,130 @@ serve(async (req) => {
       }
 
       return new Response(JSON.stringify({ cards }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (action === 'create_bulk_tasks') {
+      const bulkTaskPrompt = `
+        Generate exactly 20 realistic tasks for an endodontics dental clinic. Return as JSON in this format:
+        {
+          "tasks": [
+            {
+              "title": "Task title",
+              "description": "Detailed task description",
+              "priority": "high|medium|low",
+              "assigned_to": "Behgum|Kim|Hafsa|May|null",
+              "due_type": "daily|weekly|monthly|once|EoD",
+              "recurrence": "daily|weekly|monthly|once",
+              "category": "cleaning|maintenance|inventory|patient-care|administrative|sterilization|equipment"
+            }
+          ]
+        }
+        
+        Create diverse, realistic endodontic clinic tasks including:
+        - Equipment maintenance (microscopes, rotary instruments, apex locators)
+        - Sterilization procedures
+        - Inventory management (gutta-percha, files, irrigation solutions)
+        - Patient care protocols
+        - Administrative duties
+        - Cleaning routines
+        - Emergency preparedness
+        
+        Distribute tasks among: Behgum, Kim, Hafsa, May (some can be unassigned)
+        Use varied priorities and frequencies
+        Make descriptions specific to endodontics
+      `;
+
+      const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: bulkTaskPrompt }] }]
+        })
+      });
+
+      const geminiData = await geminiResponse.json();
+      console.log('Gemini API Response for bulk tasks:', JSON.stringify(geminiData, null, 2));
+      
+      if (!geminiResponse.ok) {
+        console.error('Gemini API Error:', geminiData);
+        throw new Error(`Gemini API error: ${geminiData.error?.message || 'Unknown error'}`);
+      }
+      
+      if (!geminiData.candidates || !geminiData.candidates[0] || !geminiData.candidates[0].content) {
+        console.error('Invalid Gemini response structure:', geminiData);
+        throw new Error('Invalid response from Gemini API');
+      }
+      
+      const responseText = geminiData.candidates[0].content.parts[0].text;
+      
+      // Parse JSON from response
+      let bulkTaskData = null;
+      try {
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          bulkTaskData = JSON.parse(jsonMatch[0]);
+        }
+      } catch (e) {
+        console.error('Failed to parse bulk task JSON:', e);
+        throw new Error('Failed to parse bulk task data');
+      }
+
+      if (!bulkTaskData || !bulkTaskData.tasks) {
+        throw new Error('No bulk task data extracted');
+      }
+
+      // Get assistants data first
+      const { data: assistants } = await supabase
+        .from('users')
+        .select('*')
+        .eq('clinic_id', clinicId)
+        .eq('role', 'assistant');
+
+      // Process and create all tasks
+      const createdTasks = [];
+      for (const taskData of bulkTaskData.tasks) {
+        // Find assistant ID if assigned
+        let assignedToId = null;
+        if (taskData.assigned_to && taskData.assigned_to !== 'null') {
+          const assistant = assistants?.find(a => 
+            a.name.toLowerCase().includes(taskData.assigned_to.toLowerCase())
+          );
+          assignedToId = assistant?.id || null;
+        }
+
+        // Create task in database
+        const { data: newTask, error } = await supabase
+          .from('tasks')
+          .insert({
+            title: taskData.title,
+            description: taskData.description,
+            priority: taskData.priority || 'medium',
+            assigned_to: assignedToId,
+            'due-type': taskData.due_type || 'once',
+            recurrence: taskData.recurrence || 'once',
+            category: taskData.category || 'administrative',
+            clinic_id: clinicId,
+            created_by: userId,
+            status: 'pending'
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Database error creating task:', error);
+          // Continue with other tasks instead of failing completely
+        } else {
+          createdTasks.push(newTask);
+        }
+      }
+
+      return new Response(JSON.stringify({ 
+        success: true, 
+        created_count: createdTasks.length,
+        message: `Successfully created ${createdTasks.length} endodontic clinic tasks!`
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }

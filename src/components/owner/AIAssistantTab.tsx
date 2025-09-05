@@ -89,16 +89,22 @@ const AIAssistantTab: React.FC<AIAssistantTabProps> = ({ clinicId }) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const originalInput = input;
     setInput('');
     setLoading(true);
 
     try {
+      // Check if this is a bulk task request
+      const isBulkRequest = originalInput.toLowerCase().includes('20 tasks') || 
+                           originalInput.toLowerCase().includes('bulk') ||
+                           originalInput.toLowerCase().includes('many tasks');
+      
       const { data, error } = await supabase.functions.invoke('ai-assistant', {
         body: {
-          message: input,
+          message: originalInput,
           clinicId,
           userId: user.id,
-          action: 'create_task'
+          action: isBulkRequest ? 'create_bulk_tasks' : 'create_task'
         }
       });
 
@@ -115,7 +121,7 @@ const AIAssistantTab: React.FC<AIAssistantTabProps> = ({ clinicId }) => {
       
       if (data.success) {
         toast({
-          title: "Task Created",
+          title: isBulkRequest ? "Bulk Tasks Created" : "Task Created",
           description: data.message,
         });
         // Reload recommendations after task creation

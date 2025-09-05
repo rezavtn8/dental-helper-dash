@@ -315,14 +315,44 @@ serve(async (req) => {
           "custom_due_date": "YYYY-MM-DD HH:mm:ss or null"
         }
         
-        Rules:
+        ASSIGNMENT RULES (VERY IMPORTANT):
+        - Available assistants: Behgum, Kim, Hafsa, May
+        - Use "null" (without quotes in JSON) if ANY of these phrases appear:
+          * "keep it unassigned"
+          * "don't assign"
+          * "no one assigned" 
+          * "leave unassigned"
+          * "unassigned"
+          * "no specific person"
+          * "anyone can do it"
+          * "open task"
+          * "no assignment"
+          * "leave it open"
+          * "not assigned to anyone"
+        - Only use assistant names if specifically mentioned: "assign to Kim", "for Hafsa", etc.
+        - If no assistant is mentioned and no unassignment phrase is used, default to null
+        
+        EXAMPLES:
+        Input: "Add cleaning task, keep it unassigned"
+        Output: {"assigned_to": null}
+        
+        Input: "Create inventory check for Kim" 
+        Output: {"assigned_to": "Kim"}
+        
+        Input: "Equipment maintenance, don't assign to anyone"
+        Output: {"assigned_to": null}
+        
+        Input: "Daily cleaning task"
+        Output: {"assigned_to": null}
+        
+        OTHER RULES:
         - Return ONLY ONE task object, not multiple tasks
-        - Only use assistants: Behgum, Kim, Hafsa, May
-        - Default recurrence: "once"
-        - If no specific assistant mentioned, set assigned_to to null
-        - Infer category from context
-        - Set priority based on urgency keywords
+        - Default recurrence: "once" 
+        - Infer category from context (cleaning, maintenance, inventory, patient-care, administrative)
+        - Set priority based on urgency keywords (high for "urgent"/"ASAP", medium for normal, low for "when possible")
+        - Use "once" for due_type unless specified otherwise
         - Do not wrap the response in markdown code blocks
+        - Return valid JSON only
       `;
 
       const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -415,11 +445,16 @@ serve(async (req) => {
 
       // Find assistant ID if assigned
       let assignedToId = null;
-      if (taskData.assigned_to) {
+      console.log('Original assigned_to from Gemini:', taskData.assigned_to);
+      
+      if (taskData.assigned_to && taskData.assigned_to !== 'null' && taskData.assigned_to !== null) {
         const assistant = assistants?.find(a => 
           a.name.toLowerCase().includes(taskData.assigned_to.toLowerCase())
         );
         assignedToId = assistant?.id || null;
+        console.log(`Assigning to: ${taskData.assigned_to} -> ${assignedToId ? 'Found assistant' : 'Not found, leaving unassigned'}`);
+      } else {
+        console.log('Task left unassigned (null or "null" value)');
       }
 
       // Convert string "null" values to actual null for database insertion

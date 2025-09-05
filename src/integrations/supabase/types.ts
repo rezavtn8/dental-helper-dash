@@ -118,6 +118,38 @@ export type Database = {
           },
         ]
       }
+      clinic_settings: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          weekends_are_workdays: boolean
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          weekends_are_workdays?: boolean
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          weekends_are_workdays?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_clinic_settings_clinic"
+            columns: ["clinic_id"]
+            isOneToOne: true
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinics: {
         Row: {
           address: string | null
@@ -278,6 +310,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "feedback_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holiday_settings: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          end_date: string | null
+          holiday_date: string
+          holiday_name: string
+          id: string
+          is_custom: boolean
+          is_enabled: boolean
+          is_federal_holiday: boolean
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          end_date?: string | null
+          holiday_date: string
+          holiday_name: string
+          id?: string
+          is_custom?: boolean
+          is_enabled?: boolean
+          is_federal_holiday?: boolean
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          end_date?: string | null
+          holiday_date?: string
+          holiday_name?: string
+          id?: string
+          is_custom?: boolean
+          is_enabled?: boolean
+          is_federal_holiday?: boolean
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_holiday_settings_clinic"
             columns: ["clinic_id"]
             isOneToOne: false
             referencedRelation: "clinics"
@@ -1151,6 +1233,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_clinic_working_days_settings: {
+        Args: { p_clinic_id: string }
+        Returns: {
+          holidays: string[]
+          weekends_are_workdays: boolean
+        }[]
+      }
       get_current_timestamp: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1296,6 +1385,14 @@ export type Database = {
           name: string
           role: string
         }[]
+      }
+      initialize_federal_holidays: {
+        Args: { p_clinic_id: string }
+        Returns: undefined
+      }
+      is_working_day: {
+        Args: { p_clinic_id: string; p_date: string }
+        Returns: boolean
       }
       link_user_to_pending_invitation: {
         Args: { user_email: string }

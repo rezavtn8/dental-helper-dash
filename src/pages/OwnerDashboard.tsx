@@ -9,6 +9,7 @@ import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import OwnerDashboardTabs from '@/components/owner/OwnerDashboardTabs';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
 import { useNavigate } from 'react-router-dom';
+import ClinicSetupDialog from '@/components/ClinicSetupDialog';
 
 interface Clinic {
   id: string;
@@ -25,6 +26,7 @@ const OwnerDashboard = () => {
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     if (session && user && userProfile) {
@@ -131,7 +133,7 @@ const OwnerDashboard = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <Button 
-                      onClick={() => navigate('/')} 
+                      onClick={() => setShowCreateDialog(true)} 
                       className="w-full"
                     >
                       <Plus className="w-4 h-4 mr-2" />
@@ -157,6 +159,21 @@ const OwnerDashboard = () => {
           </main>
         </div>
       </div>
+      
+      {/* Clinic Setup Dialog */}
+      {userProfile && (
+        <ClinicSetupDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          userProfile={userProfile}
+          onSuccess={() => {
+            // Refresh the clinic data after successful creation
+            if (userProfile.clinic_id) {
+              fetchClinic();
+            }
+          }}
+        />
+      )}
     </SidebarProvider>
   );
 };

@@ -15,9 +15,10 @@ interface ClinicSetupFormProps {
     name: string;
     role: string;
   };
+  onSuccess?: () => void;
 }
 
-export default function ClinicSetupForm({ userProfile }: ClinicSetupFormProps) {
+export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupFormProps) {
   const [clinicName, setClinicName] = useState('');
   const [clinicCode, setClinicCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -66,8 +67,12 @@ export default function ClinicSetupForm({ userProfile }: ClinicSetupFormProps) {
         // Refresh user profile to get the updated clinic_id
         await refreshUserProfile();
         
-        // Navigate to owner dashboard
-        navigate('/owner');
+        // Call success callback if provided, otherwise navigate
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          navigate('/owner');
+        }
       } else {
         const errorMessage = data && data.length > 0 ? data[0].message : 'Failed to create clinic';
         toast.error(errorMessage);

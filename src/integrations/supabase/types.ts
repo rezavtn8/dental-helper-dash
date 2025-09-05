@@ -839,6 +839,7 @@ export type Database = {
       task_templates: {
         Row: {
           assigned_at: string | null
+          attachments: Json | null
           category: string | null
           checklist: Json | null
           clinic_id: string
@@ -849,6 +850,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           owner_notes: string | null
+          priority: string | null
           recurrence: string | null
           specialty: string | null
           title: string
@@ -856,6 +858,7 @@ export type Database = {
         }
         Insert: {
           assigned_at?: string | null
+          attachments?: Json | null
           category?: string | null
           checklist?: Json | null
           clinic_id: string
@@ -866,6 +869,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           owner_notes?: string | null
+          priority?: string | null
           recurrence?: string | null
           specialty?: string | null
           title: string
@@ -873,6 +877,7 @@ export type Database = {
         }
         Update: {
           assigned_at?: string | null
+          attachments?: Json | null
           category?: string | null
           checklist?: Json | null
           clinic_id?: string
@@ -883,6 +888,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           owner_notes?: string | null
+          priority?: string | null
           recurrence?: string | null
           specialty?: string | null
           title?: string

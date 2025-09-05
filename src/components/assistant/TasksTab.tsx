@@ -237,6 +237,22 @@ export default function TasksTab({
     );
   };
 
+  // Define time slots for the day view
+  const timeSlots = [
+    { time: '8:00 AM', period: 'Before Opening', tasks: groupedTasks['Before Opening'] },
+    { time: '9:00 AM', period: 'Morning', tasks: [] },
+    { time: '10:00 AM', period: 'Morning', tasks: [] },
+    { time: '11:00 AM', period: 'Morning', tasks: [] },
+    { time: '12:00 PM', period: 'Before 1 PM', tasks: groupedTasks['Before 1 PM'] },
+    { time: '1:00 PM', period: 'Afternoon', tasks: [] },
+    { time: '2:00 PM', period: 'Afternoon', tasks: [] },
+    { time: '3:00 PM', period: 'Afternoon', tasks: [] },
+    { time: '4:00 PM', period: 'Afternoon', tasks: [] },
+    { time: '5:00 PM', period: 'End of Day', tasks: groupedTasks['End of Day'] },
+    { time: '6:00 PM', period: 'Evening', tasks: [] },
+    { time: 'Flexible', period: 'Flexible', tasks: groupedTasks['Flexible'] }
+  ];
+
   return (
     <div className="space-y-4">
       {/* Calendar Section */}
@@ -271,32 +287,81 @@ export default function TasksTab({
         </CardHeader>
         <CardContent>
           {viewMode === 'day' ? (
-            <div className="flex items-center justify-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedDate(subDays(selectedDate, 1))}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <div className={`text-center p-4 rounded-lg min-w-[160px] ${isToday(selectedDate) ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                <div className="text-sm font-medium">
-                  {format(selectedDate, 'EEEE')}
+            <div>
+              {/* Day Navigation */}
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedDate(subDays(selectedDate, 1))}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <div className={`text-center p-4 rounded-lg min-w-[160px] ${isToday(selectedDate) ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                  <div className="text-sm font-medium">
+                    {format(selectedDate, 'EEEE')}
+                  </div>
+                  <div className="text-2xl font-bold">
+                    {format(selectedDate, 'MMM d, yyyy')}
+                  </div>
+                  <div className="text-sm mt-1">
+                    {selectedDateTasks.length} {selectedDateTasks.length === 1 ? 'task' : 'tasks'}
+                  </div>
                 </div>
-                <div className="text-2xl font-bold">
-                  {format(selectedDate, 'MMM d, yyyy')}
-                </div>
-                <div className="text-sm mt-1">
-                  {selectedDateTasks.length} {selectedDateTasks.length === 1 ? 'task' : 'tasks'}
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedDate(addDays(selectedDate, 1))}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedDate(addDays(selectedDate, 1))}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+
+              {/* Time-slotted Calendar View */}
+              <div className="border rounded-lg overflow-hidden">
+                {timeSlots.map((slot, index) => (
+                  <div key={index} className="border-b last:border-b-0">
+                    <div className="flex">
+                      {/* Time column */}
+                      <div className="w-20 p-3 bg-muted/30 border-r text-sm font-medium text-muted-foreground text-center">
+                        {slot.time}
+                      </div>
+                      {/* Tasks column */}
+                      <div className="flex-1 min-h-[60px] p-2">
+                        {slot.tasks.length > 0 ? (
+                          <div className="space-y-1">
+                            {slot.tasks.map(task => (
+                              <div
+                                key={task.id}
+                                className={`
+                                  p-2 rounded text-xs border-l-4 cursor-pointer transition-all duration-200
+                                  ${task.status === 'completed' ? 
+                                    'bg-green-50 border-l-green-500 text-green-800' : 
+                                    task.priority === 'high' ? 'bg-red-50 border-l-red-500 text-red-800' :
+                                    task.priority === 'medium' ? 'bg-orange-50 border-l-orange-500 text-orange-800' :
+                                    'bg-blue-50 border-l-blue-500 text-blue-800'
+                                  }
+                                  hover:shadow-sm
+                                `}
+                                onClick={() => onTaskClick?.(task)}
+                              >
+                                <div className="font-medium">{task.title}</div>
+                                <div className="text-xs opacity-70">
+                                  {getAssistantName(task.assigned_to)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="h-full flex items-center justify-center text-muted-foreground text-xs">
+                            No tasks
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div>

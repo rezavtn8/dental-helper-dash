@@ -217,11 +217,16 @@ const AIAssistantTab: React.FC<AIAssistantTabProps> = ({ clinicId }) => {
           <div className="text-center text-muted-foreground py-8">
             <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium">AI Assistant Ready</p>
-            <p className="text-sm">
-              Try: "Add a weekly inventory check for May, due every Friday"
+            <p className="text-sm mb-2">
+              Create tasks naturally! Try these examples:
             </p>
-            <p className="text-xs mt-2">
-              Available assistants: Behgum, Kim, Hafsa, May
+            <div className="text-xs space-y-1 max-w-md mx-auto">
+              <p className="bg-muted/50 rounded px-2 py-1">"Add weekly inventory check for May"</p>
+              <p className="bg-muted/50 rounded px-2 py-1">"Create 20 tasks for our clinic"</p>
+              <p className="bg-muted/50 rounded px-2 py-1">"Equipment maintenance due tomorrow"</p>
+            </div>
+            <p className="text-xs mt-3 opacity-70">
+              Available team: Behgum, Kim, Hafsa, May
             </p>
           </div>
         )}

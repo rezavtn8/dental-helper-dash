@@ -9,3 +9,6 @@ max_rows = 1000
 
 [functions.send-invitation]
 verify_jwt = false
+
+[functions.ai-assistant]
+verify_jwt = true

@@ -7,7 +7,8 @@ import {
   Users, 
   BarChart3, 
   MessageSquare, 
-  Settings 
+  Settings,
+  Bot
 } from 'lucide-react';
 import OwnerDashboardTab from './OwnerDashboardTab';
 import OwnerTasksTab from './OwnerTasksTab';
@@ -19,6 +20,7 @@ import OwnerLogTab from './OwnerLogTab';
 import OwnerAnalyticsTab from './OwnerAnalyticsTab';
 import OwnerFeedbackTab from './OwnerFeedbackTab';
 import OwnerSettingsTab from './OwnerSettingsTab';
+import AIAssistantTab from './AIAssistantTab';
 
 interface OwnerDashboardTabsProps {
   clinicId?: string;
@@ -100,6 +102,10 @@ export default function OwnerDashboardTabs({
 
       <TabsContent value="feedback">
         {clinicId && <OwnerFeedbackTab clinicId={clinicId} />}
+      </TabsContent>
+
+      <TabsContent value="ai-assistant">
+        {clinicId && <AIAssistantTab clinicId={clinicId} />}
       </TabsContent>
 
       <TabsContent value="settings">

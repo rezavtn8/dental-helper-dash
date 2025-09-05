@@ -32,7 +32,8 @@ import {
   TrendingUp,
   FileText,
   UserPlus,
-  ScrollText
+  ScrollText,
+  Bot
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -53,6 +54,7 @@ const navigationItems = [
   { id: 'log', label: 'Logs', icon: ScrollText },
   { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { id: 'ai-assistant', label: 'AI Assistant', icon: Bot },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 

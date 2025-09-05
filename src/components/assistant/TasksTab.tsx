@@ -113,7 +113,7 @@ export default function TasksTab({
     onTaskUpdate?.();
   };
 
-  // Group tasks by time periods
+  // Group tasks by time periods based on due-type
   const groupTasksByTime = (tasks: Task[]) => {
     const groups = {
       'Before Opening': [] as Task[],
@@ -125,11 +125,11 @@ export default function TasksTab({
     tasks.forEach(task => {
       const dueType = task['due-type']?.toLowerCase();
       
-      if (dueType === 'morning') {
+      if (dueType === 'morning' || dueType === 'before-opening') {
         groups['Before Opening'].push(task);
-      } else if (dueType === 'afternoon') {
+      } else if (dueType === 'afternoon' || dueType === 'before-1pm') {
         groups['Before 1 PM'].push(task);
-      } else if (dueType === 'end-of-day' || dueType === 'eod' || dueType === 'evening') {
+      } else if (dueType === 'evening' || dueType === 'end-of-day' || dueType === 'eod') {
         groups['End of Day'].push(task);
       } else {
         groups['Flexible'].push(task);
@@ -150,7 +150,7 @@ export default function TasksTab({
     return (
       <div
         className={`
-          flex items-center justify-between p-3 border rounded-lg transition-all duration-200 cursor-pointer
+          flex items-center justify-between p-4 border rounded-lg transition-all duration-200 cursor-pointer
           ${task.status === 'completed' ? 'bg-green-50/50 border-green-200' : 'bg-background border-border hover:bg-muted/30'}
         `}
         onClick={() => onTaskClick?.(task)}
@@ -190,15 +190,16 @@ export default function TasksTab({
             </Button>
           )}
 
-          {/* Assigned tasks - different states */}
-          {isAssignedToMe && task.status === 'pending' && (
+          {/* Assigned tasks that are not completed - Show Start + Done buttons */}
+          {isAssignedToMe && task.status !== 'completed' && (
             <>
               <Button
                 size="sm"
                 className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleTaskStatus(task.id, task.status);
+                  onTaskStatusUpdate?.(task.id, 'in-progress');
+                  onTaskUpdate?.();
                 }}
               >
                 Start
@@ -217,32 +218,7 @@ export default function TasksTab({
             </>
           )}
 
-          {isAssignedToMe && task.status === 'in-progress' && (
-            <>
-              <Button
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleTaskStatus(task.id, task.status);
-                }}
-              >
-                Start
-              </Button>
-              <Button
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTaskStatusUpdate?.(task.id, 'completed');
-                  onTaskUpdate?.();
-                }}
-              >
-                Done
-              </Button>
-            </>
-          )}
-
+          {/* Completed tasks - only Undo button */}
           {isAssignedToMe && task.status === 'completed' && (
             <Button
               variant="outline"

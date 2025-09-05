@@ -114,11 +114,11 @@ export default function TaskBlock({
               {getPriorityIcon()}
             </div>
             
-            {/* Action Buttons */}
             <div className="flex items-center gap-2">
               {task.status === 'pending' && (
                 <Button
                   size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
                   onClick={toggleStatus}
                 >
                   Start
@@ -127,15 +127,17 @@ export default function TaskBlock({
               {task.status === 'in-progress' && (
                 <Button
                   size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
                   onClick={toggleStatus}
                 >
-                  Complete
+                  Done
                 </Button>
               )}
               {task.status === 'completed' && (
                 <Button
                   variant="outline"
                   size="sm"
+                  className="border-orange-300 text-orange-600 hover:bg-orange-50 rounded-full px-4"
                   onClick={toggleStatus}
                 >
                   Undo

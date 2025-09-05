@@ -123,6 +123,7 @@ export default function TasksTab({
         {task.status === 'pending' && (
           <Button
             size="sm"
+            className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
             onClick={(e) => {
               e.stopPropagation();
               toggleTaskStatus(task.id, task.status);
@@ -134,18 +135,20 @@ export default function TasksTab({
         {task.status === 'in-progress' && (
           <Button
             size="sm"
+            className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
             onClick={(e) => {
               e.stopPropagation();
               toggleTaskStatus(task.id, task.status);
             }}
           >
-            Complete
+            Done
           </Button>
         )}
         {task.status === 'completed' && (
           <Button
             variant="outline"
             size="sm"
+            className="border-orange-300 text-orange-600 hover:bg-orange-50 rounded-full px-4"
             onClick={(e) => {
               e.stopPropagation();
               undoTaskCompletion(task.id);
@@ -172,13 +175,12 @@ export default function TasksTab({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-6 px-2 text-xs hover:bg-orange-50 hover:border-orange-200 transition-all duration-200"
+                className="h-6 px-2 text-xs hover:bg-orange-50 hover:border-orange-200 transition-all duration-200 border-orange-300 text-orange-600 rounded-full"
                 onClick={(e) => {
                   e.stopPropagation();
                   undoTaskCompletion(task.id);
                 }}
               >
-                <Undo2 className="w-3 h-3 mr-1 text-orange-600" />
                 Undo
               </Button>
             </div>
@@ -269,6 +271,7 @@ export default function TasksTab({
                           {task.status === 'pending' && (
                             <Button
                               size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white rounded-full px-3 h-6 text-xs"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleTaskStatus(task.id, task.status);
@@ -280,12 +283,13 @@ export default function TasksTab({
                           {task.status === 'in-progress' && (
                             <Button
                               size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white rounded-full px-3 h-6 text-xs"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleTaskStatus(task.id, task.status);
                               }}
                             >
-                              Complete
+                              Done
                             </Button>
                           )}
                         </div>
@@ -296,14 +300,14 @@ export default function TasksTab({
                             <Button
                               variant="ghost" 
                               size="sm"
-                              className="h-5 w-8 p-0 text-xs opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-orange-50"
+                              className="h-5 w-12 p-0 text-xs opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-orange-50 border-orange-300 text-orange-600 rounded-full"
                               onClick={(e) => {
                                 e.stopPropagation();  
                                 undoTaskCompletion(task.id);
                               }}
                               title="Undo completion"
                             >
-                              <Undo2 className="w-3 h-3 text-orange-600" />
+                              Undo
                             </Button>
                           )}
                         </div>

@@ -12,13 +12,18 @@ import {
   format,
   startOfWeek,
   endOfWeek,
+  startOfMonth,
+  endOfMonth,
   eachDayOfInterval,
   isSameDay,
   addWeeks,
   subWeeks,
+  addMonths,
+  subMonths,
   isToday,
   addDays,
-  subDays
+  subDays,
+  isSameMonth
 } from 'date-fns';
 
 interface TasksTabProps {
@@ -57,8 +62,26 @@ export default function TasksTab({
     return getTasksForDate(filteredTasks, selectedDate);
   }, [filteredTasks, selectedDate]);
 
-  // Get week dates for weekly view
-  const weekDates = useMemo(() => {
+  // Get calendar dates for proper calendar view
+  const calendarDates = useMemo(() => {
+    if (viewMode === 'day') {
+      return [selectedDate];
+    } else {
+      // For week view, show full calendar month but highlight the week
+      const monthStart = startOfMonth(selectedDate);
+      const monthEnd = endOfMonth(selectedDate);
+      const calendarStart = startOfWeek(monthStart);
+      const calendarEnd = endOfWeek(monthEnd);
+      
+      return eachDayOfInterval({
+        start: calendarStart,
+        end: calendarEnd
+      });
+    }
+  }, [viewMode, selectedDate]);
+
+  // Get current week dates for highlighting
+  const currentWeekDates = useMemo(() => {
     return eachDayOfInterval({
       start: startOfWeek(selectedDate),
       end: endOfWeek(selectedDate)
@@ -298,64 +321,95 @@ export default function TasksTab({
             </div>
           ) : (
             <div>
-              {/* Week Navigation */}
+              {/* Month/Week Navigation */}
               <div className="flex items-center justify-between mb-4">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSelectedDate(subWeeks(selectedDate, 1))}
+                  onClick={() => setSelectedDate(subMonths(selectedDate, 1))}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 <h4 className="font-semibold text-lg min-w-[200px] text-center">
-                  Week of {format(startOfWeek(selectedDate), 'MMM d, yyyy')}
+                  {format(selectedDate, 'MMMM yyyy')}
                 </h4>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSelectedDate(addWeeks(selectedDate, 1))}
+                  onClick={() => setSelectedDate(addMonths(selectedDate, 1))}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
               
-              {/* Week Grid */}
-              <div className="grid grid-cols-7 gap-2">
-                {weekDates.map(date => {
-                  const dayTasks = getTasksForDate(filteredTasks, date);
-                  const isCurrentDay = isToday(date);
-                  const isSelectedDay = isSameDay(date, selectedDate);
-                  
-                  return (
-                    <div
-                      key={date.toISOString()}
-                      className={`
-                        p-3 rounded-lg border cursor-pointer transition-all duration-200
-                        ${isCurrentDay ? 'bg-primary text-primary-foreground border-primary' : 
-                          isSelectedDay ? 'bg-muted border-primary' : 'bg-background border-border hover:bg-muted/50'}
-                      `}
-                      onClick={() => setSelectedDate(date)}
-                    >
-                      <div className="text-center">
-                        <div className="text-xs font-medium">
-                          {format(date, 'EEE')}
-                        </div>
-                        <div className="text-lg font-bold">
-                          {format(date, 'd')}
-                        </div>
-                        <div className="flex justify-center mt-1">
-                          {dayTasks.length > 0 && (
-                            <Badge variant="secondary" className={`text-xs px-2 py-1 ${
-                              isCurrentDay ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-primary/20 text-primary'
-                            }`}>
-                              {dayTasks.length}
-                            </Badge>
-                          )}
+              {/* Calendar Grid */}
+              <div className="space-y-2">
+                {/* Week headers */}
+                <div className="grid grid-cols-7 gap-2">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} className="p-2 text-center text-sm font-semibold text-muted-foreground">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Calendar dates */}
+                <div className="grid grid-cols-7 gap-2">
+                  {calendarDates.map(date => {
+                    const dayTasks = getTasksForDate(filteredTasks, date);
+                    const isCurrentDay = isToday(date);
+                    const isSelectedDay = isSameDay(date, selectedDate);
+                    const isCurrentMonth = isSameMonth(date, selectedDate);
+                    const isInCurrentWeek = currentWeekDates.some(weekDate => isSameDay(weekDate, date));
+                    
+                    return (
+                      <div
+                        key={date.toISOString()}
+                        className={`
+                          min-h-[80px] p-2 rounded-lg border cursor-pointer transition-all duration-200 relative
+                          ${isCurrentDay ? 'bg-primary text-primary-foreground border-primary shadow-lg' : 
+                            isSelectedDay ? 'bg-muted border-primary ring-2 ring-primary/30' : 
+                            isInCurrentWeek ? 'bg-primary/5 border-primary/30' :
+                            isCurrentMonth ? 'bg-background border-border hover:bg-muted/50' : 
+                            'bg-muted/30 border-muted text-muted-foreground'}
+                        `}
+                        onClick={() => setSelectedDate(date)}
+                      >
+                        <div className="flex flex-col h-full">
+                          {/* Date number */}
+                          <div className={`
+                            flex items-center justify-center w-6 h-6 rounded-full text-sm font-bold mb-1
+                            ${isCurrentDay ? 'bg-primary-foreground/20' : ''}
+                          `}>
+                            {format(date, 'd')}
+                          </div>
+                          
+                          {/* Task indicators */}
+                          <div className="flex-1 space-y-1">
+                            {dayTasks.slice(0, 3).map((task, index) => (
+                              <div
+                                key={task.id}
+                                className={`
+                                  w-full h-1.5 rounded-full
+                                  ${task.status === 'completed' ? 'bg-green-500' :
+                                    task.priority === 'high' ? 'bg-red-500' :
+                                    task.priority === 'medium' ? 'bg-orange-500' :
+                                    'bg-blue-500'}
+                                `}
+                              />
+                            ))}
+                            
+                            {dayTasks.length > 3 && (
+                              <div className="text-xs text-center font-medium">
+                                +{dayTasks.length - 3}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

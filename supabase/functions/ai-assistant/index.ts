@@ -133,6 +133,52 @@ const handleAPIError = async (error: any, fallbackAction: () => Promise<any>) =>
   }
 };
 
+// Gemini API call function for fallback
+const callGeminiAPI = async (prompt: string) => {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Gemini API error: ${errorData.error?.message || 'Unknown error'}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
+};
+
+// Basic analysis prompt for fallback
+const createBasicAnalysisPrompt = (clinicData: string) => {
+  return `
+Analyze this dental clinic data and provide 3-4 actionable recommendations as JSON cards:
+
+${clinicData}
+
+Return JSON in this exact format:
+{
+  "cards": [
+    {
+      "id": "unique-id",
+      "title": "Brief Title",
+      "description": "Detailed actionable recommendation",
+      "type": "alert|suggestion|balance|overdue",
+      "priority": "high|medium|low",
+      "icon": "Lucide icon name",
+      "size": "small|medium|large"
+    }
+  ]
+}
+
+Focus on: overdue tasks, workload balance, efficiency suggestions, missing data.
+Do not wrap in markdown. Return only valid JSON.
+  `;
+};
+
 console.log('Environment check:', {
   hasGeminiKey: !!GEMINI_API_KEY,
   hasSupabaseUrl: !!SUPABASE_URL,
@@ -171,105 +217,132 @@ serve(async (req) => {
     }
 
     if (action === 'analyze') {
-      // Fetch current data for analysis
-      const [tasksResponse, assistantsResponse, patientLogsResponse] = await Promise.all([
-        supabase.from('tasks').select('*').eq('clinic_id', clinicId),
-        supabase.from('users').select('*').eq('clinic_id', clinicId).eq('role', 'assistant'),
-        supabase.from('patient_logs').select('*').eq('clinic_id', clinicId)
-      ]);
-
-      const tasks = tasksResponse.data || [];
-      const assistants = assistantsResponse.data || [];
-      const patientLogs = patientLogsResponse.data || [];
-
-      const analysisPrompt = `
-        Analyze this dental clinic data and provide recommendations as JSON cards:
-        
-        Tasks: ${JSON.stringify(tasks)}
-        Assistants: ${JSON.stringify(assistants)}
-        Patient Logs: ${JSON.stringify(patientLogs)}
-        
-        Create exactly 4 recommendation cards based on this data. Return JSON in this format:
-        {
-          "cards": [
-            {
-              "id": "unique-id",
-              "title": "Card Title",
-              "description": "Brief description",
-              "type": "overdue|balance|suggestion|alert",
-              "priority": "high|medium|low",
-              "icon": "AlertTriangle|Users|Lightbulb|Bell",
-              "size": "small|medium|large"
-            }
-          ]
-        }
-        
-        Focus on:
-        - Overdue tasks (if any)
-        - Patient load balance between assistants
-        - Maintenance/recurring task suggestions
-        - Missing logs or data alerts
-        
-        Only use assistant names: Behgum, Kim, Hafsa, May
-      `;
-
-      const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: analysisPrompt }] }]
-        })
-      });
-
-      const geminiData = await geminiResponse.json();
-      console.log('Gemini API Response:', JSON.stringify(geminiData, null, 2));
-      
-      if (!geminiResponse.ok) {
-        console.error('Gemini API Error:', geminiData);
-        throw new Error(`Gemini API error: ${geminiData.error?.message || 'Unknown error'}`);
-      }
-      
-      if (!geminiData.candidates || !geminiData.candidates[0] || !geminiData.candidates[0].content) {
-        console.error('Invalid Gemini response structure:', geminiData);
-        throw new Error('Invalid response from Gemini API');
-      }
-      
-      const responseText = geminiData.candidates[0].content.parts[0].text;
-      
-      // Parse JSON from response with improved error handling  
-      let cards = [];
       try {
-        console.log('Raw analysis response:', responseText);
+        // Get conversation context for better understanding
+        const conversationContext = await getConversationContext(supabase, userId, clinicId);
         
-        // Clean the response text by removing markdown code blocks if present
-        let cleanedResponse = responseText.trim();
-        if (cleanedResponse.startsWith('```json')) {
-          cleanedResponse = cleanedResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        } else if (cleanedResponse.startsWith('```')) {
-          cleanedResponse = cleanedResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
-        }
-        
-        // Try to find JSON in the response
-        const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          cards = parsed.cards || [];
-        } else {
-          // Try to parse the entire cleaned response as JSON
-          const parsed = JSON.parse(cleanedResponse);
-          cards = parsed.cards || [];
-        }
-        
-      } catch (e) {
-        console.error('Failed to parse analysis JSON:', e);
-        console.error('Response text was:', responseText);
-        // Return empty cards array instead of failing
-        cards = [];
-      }
+        // Select optimal model based on request complexity
+        const { provider, model } = selectOptimalModel(action, message);
+        console.log(`Using ${provider} model (${model}) for analysis request`);
 
-      return new Response(JSON.stringify({ cards }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+        // Fetch clinic data with enhanced context
+        const [tasksResult, assistantsResult, patientLogsResult] = await Promise.all([
+          supabase.from('tasks').select('*').eq('clinic_id', clinicId),
+          supabase.from('users').select('*').eq('clinic_id', clinicId).eq('role', 'assistant'),
+          supabase.from('patient_logs').select('*').eq('clinic_id', clinicId)
+        ]);
+
+        const tasks = tasksResult.data || [];
+        const assistants = assistantsResult.data || [];
+        const patientLogs = patientLogsResult.data || [];
+
+        const clinicData = `
+CLINIC DATA ANALYSIS:
+Tasks (${tasks.length} total):
+${tasks.map(t => `- ${t.title} (${t.status}, Priority: ${t.priority}, Assigned: ${t.assigned_to ? 'Yes' : 'No'})`).join('\n')}
+
+Team Members (${assistants.length} total):
+${assistants.map(a => `- ${a.name}`).join('\n')}
+
+Recent Patient Logs:
+${patientLogs.slice(-10).map(p => `- ${p.date}: ${p.patient_count} patients (${p.assistant_id})`).join('\n')}
+
+Previous Conversation Context:
+${conversationContext}
+        `;
+
+        let analysisResponse;
+        
+        if (provider === 'openai' && OPENAI_API_KEY) {
+          // Use GPT-4o with chain-of-thought prompting for complex analysis
+          const chainOfThoughtPrompt = createChainOfThoughtPrompt(`
+Analyze this dental clinic's operations and provide actionable insights as JSON cards.
+
+Think step by step:
+1. What patterns do you see in the data?
+2. What are the main issues or opportunities?
+3. What specific recommendations would help most?
+4. How should these be prioritized?
+
+Return 3-4 insight cards in this exact JSON format:
+{
+  "cards": [
+    {
+      "id": "unique-id",
+      "title": "Brief Title",
+      "description": "Detailed actionable recommendation",
+      "type": "alert|suggestion|balance|overdue",
+      "priority": "high|medium|low",
+      "icon": "Lucide icon name",
+      "size": "small|medium|large"
+    }
+  ]
+}
+          `, clinicData);
+
+          analysisResponse = await handleAPIError(
+            () => callOpenAI(chainOfThoughtPrompt, model),
+            () => callGeminiAPI(createBasicAnalysisPrompt(clinicData))
+          );
+        } else {
+          // Use Gemini for simpler analysis or as fallback
+          analysisResponse = await callGeminiAPI(createBasicAnalysisPrompt(clinicData));
+        }
+
+        console.log('AI Analysis Response:', analysisResponse);
+
+        // Parse JSON response with better error handling
+        let cards = [];
+        try {
+          // Extract JSON from response if wrapped in markdown
+          const jsonMatch = analysisResponse.match(/```json\n(.*)\n```/s) || 
+                           analysisResponse.match(/```\n(.*)\n```/s) ||
+                           [null, analysisResponse];
+          
+          const jsonStr = jsonMatch[1] || analysisResponse;
+          const parsed = JSON.parse(jsonStr.trim());
+          cards = parsed.cards || [];
+        } catch (parseError) {
+          console.error('Failed to parse analysis response:', parseError);
+          console.error('Raw response:', analysisResponse);
+          
+          // Fallback: create a generic insight card
+          cards = [{
+            id: 'analysis-error',
+            title: 'Analysis Available',
+            description: 'AI analysis completed. Check logs for detailed insights.',
+            type: 'suggestion',
+            priority: 'medium',
+            icon: 'Brain',
+            size: 'medium'
+          }];
+        }
+
+        // Save conversation to memory
+        await saveConversationMemory(supabase, userId, clinicId, message, JSON.stringify(cards));
+
+        return new Response(JSON.stringify({ cards }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+
+      } catch (error) {
+        console.error('Analysis error:', error);
+        
+        // Enhanced error handling with user-friendly response
+        const fallbackCards = [{
+          id: 'error-fallback',
+          title: 'Analysis Temporarily Unavailable',
+          description: 'Our AI analysis is temporarily unavailable. Please try again in a moment.',
+          type: 'alert',  
+          priority: 'medium',
+          icon: 'AlertCircle',
+          size: 'medium'
+        }];
+
+        return new Response(JSON.stringify({ cards: fallbackCards }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     if (action === 'create_bulk_tasks') {

@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import TemplateBuilder from './TemplateBuilder';
 import TemplateList from './TemplateList';
-import ImportTemplatesDialog from './ImportTemplatesDialog';
+import BulkImportTasksDialog from './BulkImportTasksDialog';
 
 interface OwnerTemplatesTabProps {
   clinicId: string;
@@ -307,7 +307,7 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
             className="flex items-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            Import
+            Bulk Import Tasks
           </Button>
           {selectedTemplates.length > 0 && (
             <Button
@@ -360,12 +360,11 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
         />
 
       {/* Import Dialog */}
-        <ImportTemplatesDialog
+        <BulkImportTasksDialog
           open={showImportDialog}
           onOpenChange={setShowImportDialog}
           clinicId={clinicId}
           onImportComplete={fetchTemplates}
-          templates={templates}
         />
 
       {/* Bulk Delete Confirmation Dialog */}

@@ -360,12 +360,13 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
         />
 
       {/* Import Dialog */}
-      <ImportTemplatesDialog
-        open={showImportDialog}
-        onOpenChange={setShowImportDialog}
-        clinicId={clinicId}
-        onImportComplete={fetchTemplates}
-      />
+        <ImportTemplatesDialog
+          open={showImportDialog}
+          onOpenChange={setShowImportDialog}
+          clinicId={clinicId}
+          onImportComplete={fetchTemplates}
+          templates={templates}
+        />
 
       {/* Bulk Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>

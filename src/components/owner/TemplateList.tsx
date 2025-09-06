@@ -42,7 +42,7 @@ interface TaskTemplate {
   description?: string;
   category?: string;
   specialty?: string;
-  checklist?: any;
+  tasks_count?: number;
   'due-type'?: string;
   recurrence?: string;
   owner_notes?: string;
@@ -155,8 +155,17 @@ export default function TemplateList({
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
-      // If template has no checklist, create a single task
-      if (!template.checklist || !Array.isArray(template.checklist) || template.checklist.length === 0) {
+      // Get existing tasks for this template to duplicate them
+      const { data: existingTasks, error: fetchError } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('template_id', template.id)
+        .limit(10); // Limit to prevent too many tasks
+
+      if (fetchError) throw fetchError;
+
+      if (!existingTasks || existingTasks.length === 0) {
+        // If template has no existing tasks, create a single task
         const taskData = {
           title: template.title,
           description: template.description,
@@ -182,15 +191,16 @@ export default function TemplateList({
           description: `Created 1 task from template "${template.title}"`,
         });
       } else {
-        // Create individual tasks from checklist items
-        const tasks = template.checklist.map((item: any) => ({
-          title: item.title || item.description || 'Checklist Item',
-          description: item.description || '',
-          category: template.category,
-          'due-type': template['due-type'],
-          recurrence: 'once',
-          priority: 'medium' as const,
-          owner_notes: item.owner_notes || template.owner_notes,
+        // Create new tasks based on existing tasks in the template
+        const newTasks = existingTasks.map((existingTask: any) => ({
+          title: existingTask.title,
+          description: existingTask.description || '',
+          category: existingTask.category || template.category,
+          'due-type': existingTask['due-type'] || template['due-type'],
+          recurrence: 'once', // New generated tasks are one-time
+          priority: existingTask.priority || 'medium' as const,
+          owner_notes: existingTask.owner_notes || template.owner_notes,
+          checklist: existingTask.checklist,
           clinic_id: clinicId,
           created_by: user.user.id,
           status: 'pending' as const,
@@ -199,13 +209,13 @@ export default function TemplateList({
 
         const { error } = await supabase
           .from('tasks')
-          .insert(tasks);
+          .insert(newTasks);
 
         if (error) throw error;
 
         toast({
           title: "Tasks Created",
-          description: `Created ${tasks.length} tasks from template "${template.title}"`,
+          description: `Created ${newTasks.length} tasks from template "${template.title}"`,
         });
       }
       
@@ -229,7 +239,6 @@ export default function TemplateList({
           description: template.description,
           category: template.category,
           specialty: template.specialty,
-          checklist: template.checklist,
           'due-type': template['due-type'],
           recurrence: template.recurrence,
           owner_notes: template.owner_notes,
@@ -257,10 +266,8 @@ export default function TemplateList({
     }
   };
 
-  const getTaskCount = (checklist: any) => {
-    if (!checklist) return 0;
-    if (Array.isArray(checklist)) return checklist.length;
-    return 0;
+  const getTaskCount = (tasksCount?: number) => {
+    return tasksCount || 0;
   };
 
   const allSelected = templates.length > 0 && selectedTemplates.length === templates.length;
@@ -432,7 +439,7 @@ export default function TemplateList({
 
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <CheckSquare className="w-3 h-3" />
-                  <span>{getTaskCount(template.checklist)} tasks in checklist</span>
+                  <span>{getTaskCount(template.tasks_count)} tasks in template</span>
                 </div>
 
                 {template.next_generation_date && (

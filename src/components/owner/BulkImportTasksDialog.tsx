@@ -125,13 +125,16 @@ export default function BulkImportTasksDialog({
         .eq('id', clinicId)
         .single();
 
-      const checklistItems = [];
+      const templates = [];
       
       for (let i = 1; i < lines.length; i++) {
         const values = parseCsvRow(lines[i]).map(v => v.replace(/"/g, ''));
-        const checklistItem: any = {
-          id: `item-${i}`,
-          completed: false,
+        const templateData: any = {
+          clinic_id: clinicId,
+          created_by: user.user.id,
+          is_active: true,
+          is_enabled: true,
+          start_date: new Date().toISOString().split('T')[0]
         };
 
         headers.forEach((header, index) => {
@@ -139,65 +142,59 @@ export default function BulkImportTasksDialog({
           if (value) {
             switch (header) {
               case 'title':
-                checklistItem.title = value;
+                templateData.title = value;
                 break;
               case 'description':
-                checklistItem.description = value;
+                templateData.description = value;
                 break;
               case 'category':
-                checklistItem.category = value;
+                templateData.category = value;
                 break;
               case 'specialty':
-                checklistItem.specialty = value;
+                templateData.specialty = value;
                 break;
               case 'due_type':
-                checklistItem.due_type = value;
+                templateData['due-type'] = value;
                 break;
               case 'recurrence':
-                checklistItem.recurrence = value;
+                templateData.recurrence = value;
                 break;
               case 'priority':
-                checklistItem.priority = value;
+                templateData.priority = value;
                 break;
               case 'owner_notes':
-                checklistItem.owner_notes = value;
+                templateData.owner_notes = value;
                 break;
             }
           }
         });
 
-        if (checklistItem.title) {
-          checklistItems.push(checklistItem);
-        }
+        // Set defaults for required fields
+        if (!templateData.title) continue;
+        templateData.category = templateData.category || 'operational';
+        templateData.specialty = templateData.specialty || 'custom_workflow';
+        templateData['due-type'] = templateData['due-type'] || 'anytime';
+        templateData.recurrence = templateData.recurrence || 'once';
+        templateData.priority = templateData.priority || 'medium';
+        templateData.description = templateData.description || '';
+        templateData.owner_notes = templateData.owner_notes || '';
+
+        templates.push(templateData);
       }
 
-      // Create a single template with all items as checklist
-      const templateData = {
-        title: `${clinic?.name || 'Custom'} Workflow Template`,
-        description: `Bulk imported template with ${checklistItems.length} tasks`,
-        category: checklistItems[0]?.category || 'operational',
-        specialty: checklistItems[0]?.specialty || 'custom_workflow',
-        'due-type': checklistItems[0]?.due_type || 'anytime',
-        recurrence: checklistItems[0]?.recurrence || 'once',
-        priority: 'medium',
-        owner_notes: 'Imported from CSV file',
-        checklist: checklistItems,
-        clinic_id: clinicId,
-        created_by: user.user.id,
-        is_active: true,
-        is_enabled: true,
-        start_date: new Date().toISOString().split('T')[0]
-      };
+      if (templates.length === 0) {
+        throw new Error('No valid tasks found in CSV');
+      }
 
       const { error } = await supabase
         .from('task_templates')
-        .insert([templateData]);
+        .insert(templates);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: `Successfully created template with ${checklistItems.length} checklist items`,
+        description: `Successfully created ${templates.length} task templates`,
       });
 
       setCsvFile(null);
@@ -238,7 +235,7 @@ export default function BulkImportTasksDialog({
             <div>
               <h3 className="text-lg font-semibold mb-2">Step 1: Download CSV Template</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Download the CSV template, fill it with checklist items, and upload it to create a single template with all items as a checklist.
+                Download the CSV template, fill it with task details, and upload it to create individual task templates for each row.
               </p>
               
               <div className="bg-muted p-4 rounded-lg mb-4">
@@ -255,7 +252,7 @@ export default function BulkImportTasksDialog({
                 </ul>
                 <div className="mt-3 p-3 bg-background rounded border">
                   <p className="text-sm font-medium">Note:</p>
-                  <p className="text-sm text-muted-foreground">All CSV rows will be combined into a single template named after your clinic with each row becoming a checklist item.</p>
+                  <p className="text-sm text-muted-foreground">Each CSV row will become a separate task template with its own recurrence, due type, and priority settings.</p>
                 </div>
               </div>
             </div>
@@ -275,7 +272,7 @@ export default function BulkImportTasksDialog({
             <div>
               <h3 className="text-lg font-semibold mb-2">Step 2: Upload Filled CSV</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Upload your completed CSV file to create a single template with all rows as checklist items. The template will be named after your clinic.
+                Upload your completed CSV file to create individual task templates for each row. Each row will become a separate template with its own recurrence and settings.
               </p>
             </div>
 

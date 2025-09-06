@@ -88,9 +88,9 @@ export default function OwnerSidebar({
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="font-semibold text-slate-800 truncate text-sm">
-                  {clinic?.name || 'Dental Clinic'}
+                  Navigation
                 </h1>
-                <p className="text-xs text-slate-500">Owner Portal</p>
+                <p className="text-xs text-slate-500">Menu</p>
               </div>
             </div>
           ) : (
@@ -102,47 +102,7 @@ export default function OwnerSidebar({
           )}
         </div>
 
-        {/* User Profile - Compact */}
-        <div className="p-3 border-b border-slate-100/80">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className={`w-full justify-start p-1 h-auto hover:bg-slate-50 rounded-lg ${!open || isCollapsed ? 'justify-center' : ''}`}>
-                <div className={`flex items-center space-x-2 ${!open || isCollapsed ? 'flex-col space-x-0' : ''}`}>
-                  <Avatar className="w-8 h-8 border border-slate-200">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-medium">
-                      {getUserInitials(userProfile?.name || 'Owner')}
-                    </AvatarFallback>
-                  </Avatar>
-                  {open && !isCollapsed && (
-                    <>
-                      <div className="flex-1 text-left min-w-0">
-                        <p className="font-medium text-slate-800 truncate text-sm">
-                          {userProfile?.name || 'Practice Owner'}
-                        </p>
-                        <Badge variant="secondary" className="bg-blue-50 text-blue-600 text-xs border-blue-100 h-4 px-1.5">
-                          <Crown className="w-2.5 h-2.5 mr-1" />
-                          Owner
-                        </Badge>
-                      </div>
-                      <ChevronDown className="w-3 h-3 text-slate-400" />
-                    </>
-                  )}
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align={!open || isCollapsed ? "start" : "end"} className="w-48 shadow-lg border-slate-200">
-              <DropdownMenuItem onClick={() => onTabChange('settings')} className="hover:bg-slate-50 text-sm">
-                <Settings className="mr-2 h-3.5 w-3.5 text-slate-500" />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut} className="text-red-600 hover:bg-red-50 text-sm">
-                <LogOut className="mr-2 h-3.5 w-3.5" />
-                Sign Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {/* User Profile Section Removed - Now in Header */}
 
         {/* Navigation - Compact */}
         <SidebarGroup className="py-2">

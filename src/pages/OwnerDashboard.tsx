@@ -4,7 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building2, Plus } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Building2, Plus, Crown, ChevronDown, Settings, LogOut } from 'lucide-react';
+import { getUserInitials } from '@/lib/taskUtils';
 import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import OwnerDashboardTabs from '@/components/owner/OwnerDashboardTabs';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
@@ -21,7 +25,7 @@ interface Clinic {
 }
 
 const OwnerDashboard = () => {
-  const { session, user, userProfile } = useAuth();
+  const { session, user, userProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,17 +108,65 @@ const OwnerDashboard = () => {
           {/* Header */}
           <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40 p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              {/* Left: App Name and Logo */}
+              <div className="flex items-center gap-3">
                 <SidebarTrigger />
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <Building2 className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-sm text-foreground">DentalFlow</h2>
+                    <p className="text-xs text-muted-foreground">Practice Management</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Center: Clinic Name */}
+              <div className="flex-1 flex justify-center">
                 <h1 className="text-lg font-semibold text-foreground">
                   {clinic?.name || 'Clinic Management'}
                 </h1>
               </div>
               
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground hidden sm:block">
-                  {userProfile?.email}
-                </span>
+              {/* Right: User Profile */}
+              <div className="flex items-center gap-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2 h-auto p-2 hover:bg-muted/50 rounded-lg">
+                      <Avatar className="w-8 h-8 border border-border">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-medium">
+                          {getUserInitials(userProfile?.name || 'Owner')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="text-left hidden sm:block">
+                        <p className="font-medium text-sm text-foreground">
+                          {userProfile?.name || 'Practice Owner'}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          <Badge variant="secondary" className="bg-blue-50 text-blue-600 text-xs border-blue-100 h-4 px-1.5">
+                            <Crown className="w-2.5 h-2.5 mr-1" />
+                            Owner
+                          </Badge>
+                        </div>
+                      </div>
+                      <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 shadow-lg">
+                    <DropdownMenuItem onClick={() => setActiveTab('settings')} className="hover:bg-muted/50 text-sm">
+                      <Settings className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => {
+                      signOut();
+                    }} className="text-red-600 hover:bg-red-50 text-sm">
+                      <LogOut className="mr-2 h-3.5 w-3.5" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </header>

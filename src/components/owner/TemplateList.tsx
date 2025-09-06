@@ -13,7 +13,8 @@ import {
   Repeat,
   CheckSquare,
   Files,
-  Power
+  Power,
+  Plus
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -144,6 +145,76 @@ export default function TemplateList({
       toast({
         title: "Error",
         description: "Failed to update template",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGenerateTasks = async (template: TaskTemplate) => {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      // If template has no checklist, create a single task
+      if (!template.checklist || !Array.isArray(template.checklist) || template.checklist.length === 0) {
+        const taskData = {
+          title: template.title,
+          description: template.description,
+          category: template.category,
+          'due-type': template['due-type'],
+          recurrence: template.recurrence,
+          priority: 'medium' as const,
+          owner_notes: template.owner_notes,
+          clinic_id: clinicId,
+          created_by: user.user.id,
+          status: 'pending' as const,
+          template_id: template.id
+        };
+
+        const { error } = await supabase
+          .from('tasks')
+          .insert(taskData);
+
+        if (error) throw error;
+
+        toast({
+          title: "Task Created",
+          description: `Created 1 task from template "${template.title}"`,
+        });
+      } else {
+        // Create individual tasks from checklist items
+        const tasks = template.checklist.map((item: any) => ({
+          title: item.title || item.description || 'Checklist Item',
+          description: item.description || '',
+          category: template.category,
+          'due-type': template['due-type'],
+          recurrence: 'once',
+          priority: 'medium' as const,
+          owner_notes: item.owner_notes || template.owner_notes,
+          clinic_id: clinicId,
+          created_by: user.user.id,
+          status: 'pending' as const,
+          template_id: template.id
+        }));
+
+        const { error } = await supabase
+          .from('tasks')
+          .insert(tasks);
+
+        if (error) throw error;
+
+        toast({
+          title: "Tasks Created",
+          description: `Created ${tasks.length} tasks from template "${template.title}"`,
+        });
+      }
+      
+      onRefresh();
+    } catch (error) {
+      console.error('Error generating tasks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate tasks from template",
         variant: "destructive",
       });
     }
@@ -286,6 +357,15 @@ export default function TemplateList({
                       <Copy className="w-4 h-4 mr-2" />
                       Duplicate
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => handleGenerateTasks(template)}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Generate Tasks
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={() => handleToggleEnabled(template)}
                     >

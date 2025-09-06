@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Building2, Plus, Crown, ChevronDown, Settings, LogOut } from 'lucide-react';
 import { getUserInitials } from '@/lib/taskUtils';
+import { AnimatedLogo } from '@/components/ui/animated-logo';
 import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import OwnerDashboardTabs from '@/components/owner/OwnerDashboardTabs';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
@@ -112,11 +113,9 @@ const OwnerDashboard = () => {
               <div className="flex items-center gap-3">
                 <SidebarTrigger />
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                    <Building2 className="w-4 h-4 text-white" />
-                  </div>
+                  <AnimatedLogo size={28} animated={false} className="text-primary" />
                   <div>
-                    <h2 className="font-semibold text-sm text-foreground">DentalFlow</h2>
+                    <h2 className="font-semibold text-sm text-foreground">DentaLeague</h2>
                     <p className="text-xs text-muted-foreground">Practice Management</p>
                   </div>
                 </div>

@@ -26,11 +26,13 @@ export default function ImportTemplatesDialog({
   const sampleTemplate = {
     title: "Morning Opening Routine",
     description: "Complete checklist for opening the clinic",
-    category: "Operational",
-    specialty: "General",
-    "due-type": "Before Opening",
-    recurrence: "Daily",
+    category: "operational",
+    specialty: "daily_opening",
+    "due-type": "before_opening",
+    recurrence: "daily",
     owner_notes: "Must be completed before first patient",
+    is_enabled: true,
+    start_date: new Date().toISOString().split('T')[0],
     checklist: [
       {
         id: "1",

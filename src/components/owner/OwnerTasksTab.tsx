@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
@@ -38,6 +40,8 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
   const [assistantFilter, setAssistantFilter] = useState('all');
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (clinicId) {
@@ -81,21 +85,68 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
     }
   };
 
-
-  const handleReassignTask = async (taskId: string, newAssignee: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ assigned_to: newAssignee === 'unassigned' ? null : newAssignee })
+        .delete()
         .eq('id', taskId);
 
       if (error) throw error;
 
-      toast.success('Task reassigned successfully');
+      toast.success('Task deleted successfully');
       fetchData();
     } catch (error) {
-      console.error('Error reassigning task:', error);
-      toast.error('Failed to reassign task');
+      console.error('Error deleting task:', error);
+      toast.error('Failed to delete task');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .in('id', selectedTasks);
+
+      if (error) throw error;
+
+      toast.success(`Deleted ${selectedTasks.length} task(s)`);
+      setSelectedTasks([]);
+      setDeleteConfirmOpen(false);
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting tasks:', error);
+      toast.error('Failed to delete tasks');
+    }
+  };
+
+  const handleToggleSelect = (taskId: string) => {
+    setSelectedTasks(prev => 
+      prev.includes(taskId) 
+        ? prev.filter(id => id !== taskId)
+        : [...prev, taskId]
+    );
+  };
+
+  const handleSelectAll = (selectAll: boolean) => {
+    if (selectAll) {
+      const currentFilteredTasks = tasks.filter(task => {
+        const assistantName = getAssistantName(task.assigned_to);
+        const matchesSearch = task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             task.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             assistantName.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+        const matchesAssistant = assistantFilter === 'all' || 
+                                (assistantFilter === 'unassigned' && !task.assigned_to) ||
+                                task.assigned_to === assistantFilter;
+
+        return matchesSearch && matchesStatus && matchesAssistant;
+      });
+      setSelectedTasks(currentFilteredTasks.map(task => task.id));
+    } else {
+      setSelectedTasks([]);
     }
   };
 
@@ -118,6 +169,26 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
 
     return matchesSearch && matchesStatus && matchesAssistant;
   });
+
+  const handleReassignTask = async (taskId: string, newAssignee: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ assigned_to: newAssignee === 'unassigned' ? null : newAssignee })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      toast.success('Task reassigned successfully');
+      fetchData();
+    } catch (error) {
+      console.error('Error reassigning task:', error);
+      toast.error('Failed to reassign task');
+    }
+  };
+
+  const allSelected = filteredTasks.length > 0 && selectedTasks.length === filteredTasks.length;
+  const someSelected = selectedTasks.length > 0 && selectedTasks.length < filteredTasks.length;
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -164,16 +235,28 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
           <p className="text-muted-foreground">Create, assign, and track tasks for your team</p>
         </div>
         
-        <CreateTaskDialog 
-          assistants={assistants}
-          onTaskCreated={fetchData}
-          trigger={
-            <Button className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Create Task
+        <div className="flex gap-2">
+          {selectedTasks.length > 0 && (
+            <Button
+              onClick={() => setDeleteConfirmOpen(true)}
+              variant="destructive"
+              size="sm"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selectedTasks.length})
             </Button>
-          }
-        />
+          )}
+          <CreateTaskDialog 
+            assistants={assistants}
+            onTaskCreated={fetchData}
+            trigger={
+              <Button className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Create Task
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       {/* Filters */}
@@ -223,10 +306,28 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
       {/* Tasks Table */}
       <Card>
         <CardContent className="p-0">
+          {filteredTasks.length > 0 && (
+            <div className="p-4 border-b flex items-center gap-2">
+              <Checkbox
+                checked={allSelected}
+                onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                className={someSelected ? "data-[state=checked]:bg-primary data-[state=checked]:border-primary" : ""}
+              />
+              <span className="text-sm text-muted-foreground">
+                {selectedTasks.length > 0 
+                  ? `${selectedTasks.length} selected`
+                  : 'Select all tasks'
+                }
+              </span>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">
+                    <span className="sr-only">Select</span>
+                  </TableHead>
                   <TableHead>Task</TableHead>
                   <TableHead>Assigned To</TableHead>
                   <TableHead>Priority</TableHead>
@@ -238,7 +339,13 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
               </TableHeader>
               <TableBody>
                 {filteredTasks.map((task) => (
-                  <TableRow key={task.id}>
+                  <TableRow key={task.id} className={selectedTasks.includes(task.id) ? 'bg-muted/50' : ''}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedTasks.includes(task.id)}
+                        onCheckedChange={() => handleToggleSelect(task.id)}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div>
                         <div className="font-medium">{task.title}</div>
@@ -305,7 +412,10 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Task
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteTask(task.id)}
+                            className="text-red-600"
+                          >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete Task
                           </DropdownMenuItem>
@@ -341,6 +451,27 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
         onTaskUpdated={fetchData}
         assistants={assistants}
       />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Tasks</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedTasks.length} selected task(s)? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

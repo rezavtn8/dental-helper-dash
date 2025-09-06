@@ -25,12 +25,12 @@ export default function BulkImportTasksDialog({
   const { toast } = useToast();
 
   const csvTemplate = [
-    ['title', 'description', 'category', 'priority', 'owner_notes'],
-    ['Morning Opening Routine', 'Complete checklist for opening the clinic', 'operational', 'high', 'Must be completed before first patient'],
-    ['Equipment Check', 'Daily equipment maintenance check', 'operational', 'medium', 'Check all equipment is functioning'],
-    ['Weekly Deep Clean', 'Thorough cleaning of all areas', 'operational', 'medium', 'Schedule for Friday evenings'],
-    ['Inventory Check', 'Count and order supplies', 'operational', 'low', 'Check stock levels and reorder as needed'],
-    ['Patient Records Update', 'Update and file patient records', 'administrative', 'medium', 'Ensure all records are current and complete']
+    ['title', 'description', 'category', 'specialty', 'due_type', 'recurrence', 'priority', 'owner_notes'],
+    ['Morning Opening Routine', 'Complete checklist for opening the clinic', 'operational', 'daily_opening', 'before_opening', 'daily', 'high', 'Must be completed before first patient'],
+    ['Equipment Check', 'Daily equipment maintenance check', 'operational', 'equipment_check', 'anytime', 'daily', 'medium', 'Check all equipment is functioning'],
+    ['Weekly Deep Clean', 'Thorough cleaning of all areas', 'operational', 'weekly_deep_clean', 'end_of_week', 'weekly', 'medium', 'Schedule for Friday evenings'],
+    ['Inventory Check', 'Count and order supplies', 'operational', 'custom_workflow', 'anytime', 'monthly', 'low', 'Check stock levels and reorder as needed'],
+    ['Patient Records Update', 'Update and file patient records', 'administrative', 'custom_workflow', 'end_of_day', 'weekly', 'medium', 'Ensure all records are current and complete']
   ];
 
   const handleDownloadTemplate = () => {
@@ -147,6 +147,15 @@ export default function BulkImportTasksDialog({
               case 'category':
                 checklistItem.category = value;
                 break;
+              case 'specialty':
+                checklistItem.specialty = value;
+                break;
+              case 'due_type':
+                checklistItem.due_type = value;
+                break;
+              case 'recurrence':
+                checklistItem.recurrence = value;
+                break;
               case 'priority':
                 checklistItem.priority = value;
                 break;
@@ -166,10 +175,10 @@ export default function BulkImportTasksDialog({
       const templateData = {
         title: `${clinic?.name || 'Custom'} Workflow Template`,
         description: `Bulk imported template with ${checklistItems.length} tasks`,
-        category: 'operational',
-        specialty: 'custom_workflow',
-        'due-type': 'anytime',
-        recurrence: 'once',
+        category: checklistItems[0]?.category || 'operational',
+        specialty: checklistItems[0]?.specialty || 'custom_workflow',
+        'due-type': checklistItems[0]?.due_type || 'anytime',
+        recurrence: checklistItems[0]?.recurrence || 'once',
         priority: 'medium',
         owner_notes: 'Imported from CSV file',
         checklist: checklistItems,
@@ -238,6 +247,9 @@ export default function BulkImportTasksDialog({
                   <li><strong>title:</strong> Checklist item name (required)</li>
                   <li><strong>description:</strong> Item details</li>
                   <li><strong>category:</strong> operational, administrative, clinical</li>
+                  <li><strong>specialty:</strong> daily_opening, daily_closing, weekly_deep_clean, etc.</li>
+                  <li><strong>due_type:</strong> before_opening, before_1pm, end_of_day, anytime</li>
+                  <li><strong>recurrence:</strong> daily, weekly, monthly, once</li>
                   <li><strong>priority:</strong> high, medium, low</li>
                   <li><strong>owner_notes:</strong> Instructions for this checklist item</li>
                 </ul>

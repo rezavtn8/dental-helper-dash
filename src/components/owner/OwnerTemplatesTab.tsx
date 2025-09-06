@@ -307,7 +307,7 @@ export default function OwnerTemplatesTab({ clinicId }: OwnerTemplatesTabProps) 
             className="flex items-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            Bulk Import Tasks
+            Create Template from CSV
           </Button>
           {selectedTemplates.length > 0 && (
             <Button

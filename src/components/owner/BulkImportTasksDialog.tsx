@@ -25,10 +25,12 @@ export default function BulkImportTasksDialog({
   const { toast } = useToast();
 
   const csvTemplate = [
-    ['title', 'description', 'category', 'specialty', 'due_type', 'recurrence', 'priority', 'owner_notes', 'assigned_to_email'],
-    ['Morning Opening Routine', 'Complete checklist for opening the clinic', 'operational', 'daily_opening', 'before_opening', 'daily', 'high', 'Must be completed before first patient', 'assistant@clinic.com'],
-    ['Equipment Check', 'Daily equipment maintenance check', 'operational', 'equipment_check', 'anytime', 'daily', 'medium', 'Check all equipment is functioning', ''],
-    ['Weekly Deep Clean', 'Thorough cleaning of all areas', 'operational', 'weekly_deep_clean', 'end_of_week', 'weekly', 'medium', 'Schedule for Friday evenings', 'cleaning@clinic.com']
+    ['title', 'description', 'category', 'priority', 'owner_notes'],
+    ['Morning Opening Routine', 'Complete checklist for opening the clinic', 'operational', 'high', 'Must be completed before first patient'],
+    ['Equipment Check', 'Daily equipment maintenance check', 'operational', 'medium', 'Check all equipment is functioning'],
+    ['Weekly Deep Clean', 'Thorough cleaning of all areas', 'operational', 'medium', 'Schedule for Friday evenings'],
+    ['Inventory Check', 'Count and order supplies', 'operational', 'low', 'Check stock levels and reorder as needed'],
+    ['Patient Records Update', 'Update and file patient records', 'administrative', 'medium', 'Ensure all records are current and complete']
   ];
 
   const handleDownloadTemplate = () => {
@@ -116,13 +118,20 @@ export default function BulkImportTasksDialog({
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
-      const tasks = [];
+      // Get clinic name for template title
+      const { data: clinic } = await supabase
+        .from('clinics')
+        .select('name')
+        .eq('id', clinicId)
+        .single();
+
+      const checklistItems = [];
       
       for (let i = 1; i < lines.length; i++) {
         const values = parseCsvRow(lines[i]).map(v => v.replace(/"/g, ''));
-        const taskData: any = {
-          clinic_id: clinicId,
-          created_by: user.user.id,
+        const checklistItem: any = {
+          id: `item-${i}`,
+          completed: false,
         };
 
         headers.forEach((header, index) => {
@@ -130,81 +139,56 @@ export default function BulkImportTasksDialog({
           if (value) {
             switch (header) {
               case 'title':
-                taskData.title = value;
+                checklistItem.title = value;
                 break;
               case 'description':
-                taskData.description = value;
+                checklistItem.description = value;
                 break;
               case 'category':
-                taskData.category = value;
-                break;
-              case 'specialty':
-                taskData.specialty = value;
-                break;
-              case 'due_type':
-                taskData['due-type'] = value;
-                break;
-              case 'recurrence':
-                taskData.recurrence = value;
+                checklistItem.category = value;
                 break;
               case 'priority':
-                taskData.priority = value;
+                checklistItem.priority = value;
                 break;
               case 'owner_notes':
-                taskData.owner_notes = value;
-                break;
-              case 'assigned_to_email':
-                // We'll handle email-to-user lookup later
-                taskData.assigned_to_email = value;
+                checklistItem.owner_notes = value;
                 break;
             }
           }
         });
 
-        if (taskData.title) {
-          tasks.push(taskData);
+        if (checklistItem.title) {
+          checklistItems.push(checklistItem);
         }
       }
 
-      // Look up assigned users by email
-      const emails = tasks.map(t => t.assigned_to_email).filter(Boolean);
-      let userEmailMap: Record<string, string> = {};
-      
-      if (emails.length > 0) {
-        const { data: users } = await supabase
-          .from('users')
-          .select('id, email')
-          .eq('clinic_id', clinicId)
-          .in('email', emails);
-        
-        if (users) {
-          userEmailMap = users.reduce((acc, user) => {
-            acc[user.email] = user.id;
-            return acc;
-          }, {} as Record<string, string>);
-        }
-      }
-
-      // Convert email assignments to user IDs
-      const finalTasks = tasks.map(task => {
-        const { assigned_to_email, ...taskWithoutEmail } = task;
-        return {
-          ...taskWithoutEmail,
-          assigned_to: assigned_to_email ? userEmailMap[assigned_to_email] || null : null,
-          status: 'pending',
-          'due-date': null
-        };
-      });
+      // Create a single template with all items as checklist
+      const templateData = {
+        title: `${clinic?.name || 'Custom'} Workflow Template`,
+        description: `Bulk imported template with ${checklistItems.length} tasks`,
+        category: 'operational',
+        specialty: 'custom_workflow',
+        'due-type': 'anytime',
+        recurrence: 'once',
+        priority: 'medium',
+        owner_notes: 'Imported from CSV file',
+        checklist: checklistItems,
+        clinic_id: clinicId,
+        created_by: user.user.id,
+        is_active: true,
+        is_enabled: true,
+        start_date: new Date().toISOString().split('T')[0]
+      };
 
       const { error } = await supabase
-        .from('tasks')
-        .insert(finalTasks);
+        .from('task_templates')
+        .insert([templateData]);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: `Successfully imported ${finalTasks.length} task(s)`,
+        description: `Successfully created template with ${checklistItems.length} checklist items`,
       });
 
       setCsvFile(null);
@@ -231,7 +215,7 @@ export default function BulkImportTasksDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5" />
-            Bulk Import Tasks
+            Create Template from CSV
           </DialogTitle>
         </DialogHeader>
 
@@ -245,22 +229,22 @@ export default function BulkImportTasksDialog({
             <div>
               <h3 className="text-lg font-semibold mb-2">Step 1: Download CSV Template</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Download the CSV template, fill it with your tasks, and then upload it back to create multiple tasks at once.
+                Download the CSV template, fill it with checklist items, and upload it to create a single template with all items as a checklist.
               </p>
               
               <div className="bg-muted p-4 rounded-lg mb-4">
                 <h4 className="font-medium mb-2">CSV Columns:</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li><strong>title:</strong> Task name (required)</li>
-                  <li><strong>description:</strong> Task details</li>
-                  <li><strong>category:</strong> operational, specialty, training, calendar</li>
-                  <li><strong>specialty:</strong> daily_opening, daily_closing, weekly_deep_clean, etc.</li>
-                  <li><strong>due_type:</strong> before_opening, before_1pm, end_of_day, anytime</li>
-                  <li><strong>recurrence:</strong> daily, weekly, monthly, once</li>
+                  <li><strong>title:</strong> Checklist item name (required)</li>
+                  <li><strong>description:</strong> Item details</li>
+                  <li><strong>category:</strong> operational, administrative, clinical</li>
                   <li><strong>priority:</strong> high, medium, low</li>
-                  <li><strong>owner_notes:</strong> Instructions for the task</li>
-                  <li><strong>assigned_to_email:</strong> Email of team member to assign</li>
+                  <li><strong>owner_notes:</strong> Instructions for this checklist item</li>
                 </ul>
+                <div className="mt-3 p-3 bg-background rounded border">
+                  <p className="text-sm font-medium">Note:</p>
+                  <p className="text-sm text-muted-foreground">All CSV rows will be combined into a single template named after your clinic with each row becoming a checklist item.</p>
+                </div>
               </div>
             </div>
 
@@ -279,7 +263,7 @@ export default function BulkImportTasksDialog({
             <div>
               <h3 className="text-lg font-semibold mb-2">Step 2: Upload Filled CSV</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Upload your completed CSV file to create all the tasks at once. Make sure to follow the template format.
+                Upload your completed CSV file to create a single template with all rows as checklist items. The template will be named after your clinic.
               </p>
             </div>
 
@@ -314,7 +298,7 @@ export default function BulkImportTasksDialog({
               </Button>
               <Button onClick={handleImportCsv} disabled={importing || !csvFile}>
                 <Upload className="w-4 h-4 mr-2" />
-                {importing ? 'Importing...' : 'Import Tasks'}
+                {importing ? 'Creating Template...' : 'Create Template'}
               </Button>
             </div>
           </TabsContent>

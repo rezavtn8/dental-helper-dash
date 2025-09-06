@@ -165,8 +165,7 @@ export default function BulkImportTasksDialog({
                 if (i === 1) templateSettings.category = value;
                 break;
               case 'specialty':
-                taskData.specialty = value;
-                // Use first row's specialty for template
+                // Specialty is only for template, not individual tasks
                 if (i === 1) templateSettings.specialty = value;
                 break;
               case 'due_type':

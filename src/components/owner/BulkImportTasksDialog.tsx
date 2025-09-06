@@ -125,16 +125,20 @@ export default function BulkImportTasksDialog({
         .eq('id', clinicId)
         .single();
 
-      const templates = [];
+      const checklistItems = [];
+      let templateSettings = {
+        category: 'operational',
+        specialty: 'custom_workflow',
+        'due-type': 'anytime',
+        recurrence: 'once',
+        priority: 'medium'
+      };
       
       for (let i = 1; i < lines.length; i++) {
         const values = parseCsvRow(lines[i]).map(v => v.replace(/"/g, ''));
-        const templateData: any = {
-          clinic_id: clinicId,
-          created_by: user.user.id,
-          is_active: true,
-          is_enabled: true,
-          start_date: new Date().toISOString().split('T')[0]
+        const checklistItem: any = {
+          id: `item-${i}`,
+          completed: false,
         };
 
         headers.forEach((header, index) => {
@@ -142,59 +146,104 @@ export default function BulkImportTasksDialog({
           if (value) {
             switch (header) {
               case 'title':
-                templateData.title = value;
+                checklistItem.title = value;
                 break;
               case 'description':
-                templateData.description = value;
+                checklistItem.description = value;
                 break;
               case 'category':
-                templateData.category = value;
+                checklistItem.category = value;
+                // Use first row's category for template
+                if (i === 1) templateSettings.category = value;
                 break;
               case 'specialty':
-                templateData.specialty = value;
+                checklistItem.specialty = value;
+                // Use first row's specialty for template
+                if (i === 1) templateSettings.specialty = value;
                 break;
               case 'due_type':
-                templateData['due-type'] = value;
+                checklistItem.due_type = value;
+                // Use first row's due_type for template
+                if (i === 1) templateSettings['due-type'] = value;
                 break;
               case 'recurrence':
-                templateData.recurrence = value;
+                checklistItem.recurrence = value;
+                // Use first row's recurrence for template
+                if (i === 1) templateSettings.recurrence = value;
                 break;
               case 'priority':
-                templateData.priority = value;
+                checklistItem.priority = value;
+                // Use first row's priority for template
+                if (i === 1) templateSettings.priority = value;
                 break;
               case 'owner_notes':
-                templateData.owner_notes = value;
+                checklistItem.owner_notes = value;
                 break;
             }
           }
         });
 
-        // Set defaults for required fields
-        if (!templateData.title) continue;
-        templateData.category = templateData.category || 'operational';
-        templateData.specialty = templateData.specialty || 'custom_workflow';
-        templateData['due-type'] = templateData['due-type'] || 'anytime';
-        templateData.recurrence = templateData.recurrence || 'once';
-        templateData.priority = templateData.priority || 'medium';
-        templateData.description = templateData.description || '';
-        templateData.owner_notes = templateData.owner_notes || '';
-
-        templates.push(templateData);
+        if (checklistItem.title) {
+          checklistItems.push(checklistItem);
+        }
       }
 
-      if (templates.length === 0) {
-        throw new Error('No valid tasks found in CSV');
+      if (checklistItems.length === 0) {
+        throw new Error('No valid checklist items found in CSV');
       }
 
-      const { error } = await supabase
+      // Create a single template with all items as checklist
+      const templateData = {
+        title: `${clinic?.name || 'Custom'} Workflow Template - ${new Date().toLocaleDateString()}`,
+        description: `Bulk imported template with ${checklistItems.length} checklist items`,
+        category: templateSettings.category,
+        specialty: templateSettings.specialty,
+        'due-type': templateSettings['due-type'],
+        recurrence: templateSettings.recurrence,
+        priority: templateSettings.priority,
+        owner_notes: `Imported from CSV file on ${new Date().toLocaleDateString()}`,
+        checklist: checklistItems,
+        clinic_id: clinicId,
+        created_by: user.user.id,
+        is_active: true,
+        is_enabled: true,
+        start_date: new Date().toISOString().split('T')[0]
+      };
+
+      const { data: newTemplate, error } = await supabase
         .from('task_templates')
-        .insert(templates);
+        .insert([templateData])
+        .select()
+        .single();
 
       if (error) throw error;
 
+      // Generate tasks from the template
+      const taskData = {
+        title: templateData.title,
+        description: templateData.description,
+        category: templateData.category,
+        priority: templateData.priority,
+        'due-type': templateData['due-type'],
+        recurrence: templateData.recurrence,
+        owner_notes: templateData.owner_notes,
+        checklist: checklistItems,
+        clinic_id: clinicId,
+        created_by: user.user.id,
+        template_id: newTemplate.id,
+        status: 'pending' as const,
+        generated_date: new Date().toISOString().split('T')[0]
+      };
+
+      const { error: taskError } = await supabase
+        .from('tasks')
+        .insert(taskData);
+
+      if (taskError) throw taskError;
+
       toast({
         title: "Success",
-        description: `Successfully created ${templates.length} task templates`,
+        description: `Successfully created template with ${checklistItems.length} checklist items and generated task`,
       });
 
       setCsvFile(null);
@@ -221,7 +270,7 @@ export default function BulkImportTasksDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5" />
-            Create Template from CSV
+            Create Template & Task from CSV
           </DialogTitle>
         </DialogHeader>
 
@@ -235,7 +284,7 @@ export default function BulkImportTasksDialog({
             <div>
               <h3 className="text-lg font-semibold mb-2">Step 1: Download CSV Template</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Download the CSV template, fill it with task details, and upload it to create individual task templates for each row.
+                Download the CSV template, fill it with checklist items, and upload it to create a template with checklist items and automatically generate a task from it.
               </p>
               
               <div className="bg-muted p-4 rounded-lg mb-4">
@@ -252,7 +301,7 @@ export default function BulkImportTasksDialog({
                 </ul>
                 <div className="mt-3 p-3 bg-background rounded border">
                   <p className="text-sm font-medium">Note:</p>
-                  <p className="text-sm text-muted-foreground">Each CSV row will become a separate task template with its own recurrence, due type, and priority settings.</p>
+                  <p className="text-sm text-muted-foreground">Each CSV row will become a checklist item in a single template, and a task will be automatically generated from that template.</p>
                 </div>
               </div>
             </div>
@@ -272,7 +321,7 @@ export default function BulkImportTasksDialog({
             <div>
               <h3 className="text-lg font-semibold mb-2">Step 2: Upload Filled CSV</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Upload your completed CSV file to create individual task templates for each row. Each row will become a separate template with its own recurrence and settings.
+                Upload your completed CSV file to create a template with checklist items and automatically generate a task from it.
               </p>
             </div>
 

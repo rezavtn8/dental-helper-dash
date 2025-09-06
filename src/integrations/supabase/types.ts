@@ -841,7 +841,6 @@ export type Database = {
           assigned_at: string | null
           attachments: Json | null
           category: string | null
-          checklist: Json | null
           clinic_id: string
           created_at: string
           created_by: string
@@ -858,6 +857,7 @@ export type Database = {
           source_type: string | null
           specialty: string | null
           start_date: string | null
+          tasks_count: number | null
           title: string
           updated_at: string
         }
@@ -865,7 +865,6 @@ export type Database = {
           assigned_at?: string | null
           attachments?: Json | null
           category?: string | null
-          checklist?: Json | null
           clinic_id: string
           created_at?: string
           created_by: string
@@ -882,6 +881,7 @@ export type Database = {
           source_type?: string | null
           specialty?: string | null
           start_date?: string | null
+          tasks_count?: number | null
           title: string
           updated_at?: string
         }
@@ -889,7 +889,6 @@ export type Database = {
           assigned_at?: string | null
           attachments?: Json | null
           category?: string | null
-          checklist?: Json | null
           clinic_id?: string
           created_at?: string
           created_by?: string
@@ -906,6 +905,7 @@ export type Database = {
           source_type?: string | null
           specialty?: string | null
           start_date?: string | null
+          tasks_count?: number | null
           title?: string
           updated_at?: string
         }

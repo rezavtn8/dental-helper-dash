@@ -3,13 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, ArrowRight, Star, Users, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function PricingCTA() {
+  const navigate = useNavigate();
   const [isAnnual, setIsAnnual] = useState(false);
-
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   const plans = [
     {
@@ -179,7 +177,7 @@ export function PricingCTA() {
                 <Button 
                   className="w-full" 
                   variant={plan.popular ? "gradient" : "outline"}
-                  onClick={() => scrollToSection('auth-section')}
+                  onClick={() => navigate('/auth')}
                 >
                   Get Started
                   <ArrowRight className="w-4 h-4 ml-2" />

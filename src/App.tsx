@@ -9,6 +9,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "@/components/ui/error-fallback";
 import { ClinicRequiredRoute } from "@/components/routes/ClinicRequiredRoute";
 import Home from "./pages/Home";
+import Auth from "./pages/Auth";
 import AssistantDashboard from "./pages/AssistantDashboard";
 import AssistantHub from "./pages/AssistantHub";
 import OwnerDashboard from "./pages/OwnerDashboard";
@@ -54,6 +55,7 @@ const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/auth" element={<Auth />} />
       <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
       <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
       <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />

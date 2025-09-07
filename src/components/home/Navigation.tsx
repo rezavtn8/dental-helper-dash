@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export function Navigation() {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -56,12 +58,21 @@ export function Navigation() {
                 {item.name}
               </button>
             ))}
-            <Button 
-              onClick={() => scrollToSection('auth-section')}
-              className="rounded-full h-9 px-6 font-medium"
-            >
-              Get Started
-            </Button>
+            <div className="flex items-center space-x-3">
+              <Button 
+                variant="ghost"
+                onClick={() => navigate('/auth')}
+                className="text-sm font-medium"
+              >
+                Sign In
+              </Button>
+              <Button 
+                onClick={() => navigate('/auth')}
+                className="rounded-full h-9 px-6 font-medium"
+              >
+                Get Started
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -88,9 +99,16 @@ export function Navigation() {
                     {item.name}
                   </button>
                 ))}
-                <div className="pt-3">
+                <div className="pt-3 space-y-3">
                   <Button 
-                    onClick={() => scrollToSection('auth-section')}
+                    variant="ghost"
+                    onClick={() => navigate('/auth')}
+                    className="w-full text-base font-medium"
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/auth')}
                     className="w-full rounded-full h-11 text-base font-medium"
                   >
                     Get Started

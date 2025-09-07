@@ -1,8 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { ArrowRight, Play } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export function HeroSection() {
+  const navigate = useNavigate();
+  
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -47,7 +50,7 @@ export function HeroSection() {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
           <Button 
-            onClick={() => scrollToSection('auth-section')}
+            onClick={() => navigate('/auth')}
             variant="gradient"
             size="lg" 
             className="text-base font-medium px-8 py-3 h-auto"

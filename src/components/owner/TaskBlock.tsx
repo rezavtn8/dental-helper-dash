@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
 import { RecurringTaskInstance, isRecurringInstance } from '@/lib/taskUtils';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   CheckCircle, 
   Circle, 
@@ -33,6 +34,8 @@ export default function TaskBlock({
   onDragStart,
   compact = false
 }: TaskBlockProps) {
+  const { userProfile } = useAuth();
+  const isOwner = userProfile?.role === 'owner';
   const isOverdue = isRecurringInstance(task) && task.isOverdue;
   
   const getStatusIcon = () => {
@@ -128,7 +131,7 @@ export default function TaskBlock({
             </div>
             
             <div className="flex items-center gap-2">
-              {task.status === 'pending' && (
+              {!isOwner && task.status === 'pending' && (
                 <Button
                   size="sm"
                   className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
@@ -137,7 +140,7 @@ export default function TaskBlock({
                   Start
                 </Button>
               )}
-              {task.status === 'in-progress' && (
+              {!isOwner && task.status === 'in-progress' && (
                 <Button
                   size="sm"
                   className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
@@ -146,7 +149,7 @@ export default function TaskBlock({
                   Done
                 </Button>
               )}
-              {task.status === 'completed' && (
+              {!isOwner && task.status === 'completed' && (
                 <Button
                   variant="outline"
                   size="sm"

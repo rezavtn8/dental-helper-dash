@@ -18,6 +18,7 @@ import { TaskStatus } from '@/lib/taskStatus';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { sanitizeText } from '@/utils/sanitize';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   Calendar,
   User,
@@ -46,6 +47,8 @@ export default function TaskDetailModal({
   onOpenChange,
   onTaskUpdated
 }: TaskDetailModalProps) {
+  const { userProfile } = useAuth();
+  const isOwner = userProfile?.role === 'owner';
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editedTask, setEditedTask] = useState<Partial<Task>>({});
@@ -223,7 +226,7 @@ export default function TaskDetailModal({
 
               <div className="space-y-2">
                 <Label>Status</Label>
-                {isEditing ? (
+                {isEditing && !isOwner ? (
                   <Select 
                     value={editedTask.status || 'pending'} 
                     onValueChange={(value: TaskStatus) => setEditedTask({ ...editedTask, status: value })}

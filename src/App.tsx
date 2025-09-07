@@ -8,6 +8,7 @@ import { AuthErrorBoundary } from "@/components/auth/AuthErrorBoundary";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "@/components/ui/error-fallback";
 import { ClinicRequiredRoute } from "@/components/routes/ClinicRequiredRoute";
+import { errorLogger } from "@/lib/errorLogger";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import AssistantDashboard from "./pages/AssistantDashboard";
@@ -20,12 +21,22 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1,
+      retry: (failureCount, error: any) => {
+        // Don't retry on auth errors
+        if (error?.status >= 400 && error?.status < 500) return false;
+        return failureCount < 3;
+      },
       refetchOnWindowFocus: false,
       refetchOnMount: false,
     },
     mutations: {
-      retry: 1,
+      retry: false,
+      onError: (error) => {
+        errorLogger.logError(error as Error, {
+          component: 'ReactQuery',
+          action: 'mutation_error'
+        });
+      }
     },
   },
 });
@@ -66,7 +77,16 @@ const AppRoutes = () => (
 );
 
 const App = () => (
-  <ErrorBoundary FallbackComponent={ErrorFallback}>
+  <ErrorBoundary 
+    FallbackComponent={ErrorFallback}
+    onError={(error, errorInfo) => {
+      errorLogger.logError(error, {
+        component: 'AppErrorBoundary',
+        action: 'react_error',
+        additionalData: { componentStack: errorInfo.componentStack }
+      });
+    }}
+  >
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />

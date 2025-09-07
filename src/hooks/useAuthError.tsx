@@ -1,5 +1,12 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { 
+  AuthenticationError, 
+  ValidationError,
+  createErrorContext 
+} from '@/lib/errors';
+import { ErrorUtils } from '@/utils/errorUtils';
+import { errorLogger } from '@/lib/errorLogger';
 
 interface AuthError {
   code?: string;

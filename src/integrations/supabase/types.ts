@@ -1540,6 +1540,14 @@ export type Database = {
         Args: { email_input: string }
         Returns: boolean
       }
+      validate_user_session: {
+        Args: { p_session_token: string }
+        Returns: {
+          clinic_id: string
+          is_valid: boolean
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       invitation_type: "email_signup" | "magic_link"

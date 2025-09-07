@@ -147,6 +147,32 @@ const AssistantDashboard = () => {
     }
   }, [session, user, userProfile]);
 
+  // Real-time task synchronization
+  useEffect(() => {
+    if (!userProfile?.clinic_id) return;
+
+    const channel = supabase
+      .channel('assistant-tasks-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks',
+          filter: `clinic_id=eq.${userProfile.clinic_id}`
+        },
+        (payload) => {
+          console.log('Task change detected:', payload);
+          fetchTasks(); // Refresh task list
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userProfile?.clinic_id]);
+
   if (loading || !userProfile) {
     return (
       <SidebarProvider>

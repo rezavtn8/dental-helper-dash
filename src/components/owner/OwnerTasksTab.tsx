@@ -49,6 +49,32 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
     }
   }, [clinicId]);
 
+  // Real-time task synchronization
+  useEffect(() => {
+    if (!clinicId) return;
+
+    const channel = supabase
+      .channel('owner-tasks-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks',
+          filter: `clinic_id=eq.${clinicId}`
+        },
+        (payload) => {
+          console.log('Task change detected:', payload);
+          fetchData(); // Refresh task list and assistants
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [clinicId]);
+
   const fetchData = async () => {
     try {
       setLoading(true);

@@ -237,7 +237,7 @@ export default function TasksTab({
                   onTaskUpdate?.();
                 }}
               >
-                Start
+                {task.status === 'in-progress' ? 'Started' : 'Start'}
               </Button>
               <Button
                 size="sm"

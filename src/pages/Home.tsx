@@ -13,7 +13,6 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { PricingCTA } from '@/components/home/PricingCTA';
 import { AppPreview } from '@/components/home/AppPreview';
 import { Footer } from '@/components/home/Footer';
-
 export default function Home() {
   const navigate = useNavigate();
   const {
@@ -32,19 +31,15 @@ export default function Home() {
       }
     }
   }, [user, userProfile, navigate, loading]);
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       
       {/* Loading State */}
-      {loading && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+      {loading && <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto mb-4" />
             <p className="text-muted-foreground">Loading...</p>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Navigation */}
       <Navigation />
@@ -53,18 +48,7 @@ export default function Home() {
       <HeroSection />
 
       {/* Feature Cards Section */}
-      <section id="features" className="container mx-auto py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-[1.75rem] font-semibold mb-4 leading-[2.25rem]">
-            Why choose DentaLeague?
-          </h2>
-          <p className="text-muted-foreground text-base leading-[1.5rem] max-w-2xl mx-auto">
-            Built for dental teams who value gentle structure, clear communication, and smooth daily operations
-          </p>
-        </div>
-        
-        <FeatureCards />
-      </section>
+      
 
       {/* Metrics Strip */}
       <MetricsStrip />
@@ -86,6 +70,5 @@ export default function Home() {
 
       {/* Footer */}
       <Footer />
-    </div>
-  );
+    </div>;
 }

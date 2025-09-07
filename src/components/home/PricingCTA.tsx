@@ -4,90 +4,52 @@ import { Badge } from '@/components/ui/badge';
 import { Check, ArrowRight, Star, Users, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 export function PricingCTA() {
   const navigate = useNavigate();
   const [isAnnual, setIsAnnual] = useState(false);
-
-  const plans = [
-    {
-      name: "Starter",
-      price: isAnnual ? 79 : 99,
-      assistants: "Up to 3 assistants included",
-      addOnPrice: 25,
-      features: [
-        "All task management features",
-        "Unlimited tasks & templates", 
-        "Patient tracking",
-        "Schedule view",
-        "Basic reports",
-        "90-day history",
-        "Email support"
-      ],
-      icon: Users,
-      popular: false
-    },
-    {
-      name: "Professional", 
-      price: isAnnual ? 159 : 199,
-      assistants: "Up to 8 assistants included",
-      addOnPrice: 20,
-      features: [
-        "Everything in Starter",
-        "Analytics dashboard",
-        "Performance insights", 
-        "Custom reports",
-        "1-year history",
-        "Data exports (Excel/PDF)",
-        "Priority support"
-      ],
-      icon: TrendingUp,
-      popular: true
-    },
-    {
-      name: "Unlimited",
-      price: isAnnual ? 319 : 399, 
-      assistants: "Unlimited assistants",
-      addOnPrice: 0,
-      features: [
-        "Everything in Professional",
-        "Unlimited history",
-        "API access",
-        "Multi-location dashboard",
-        "White-label option", 
-        "Phone support",
-        "Training included"
-      ],
-      icon: Zap,
-      popular: false
-    }
-  ];
-
-  const examples = [
-    {
-      title: "Small clinic (2 assistants)",
-      calculation: "Starter = $99 ✓",
-      recommended: "Starter"
-    },
-    {
-      title: "Growing clinic (5 assistants)", 
-      calculation: ["Starter = $99 + $50 = $149", "Professional = $199 ✓ (better value)"],
-      recommended: "Professional"
-    },
-    {
-      title: "Large clinic (12 assistants)",
-      calculation: ["Professional = $199 + $80 = $279", "Unlimited = $399 ✓ (better value)"],
-      recommended: "Unlimited"
-    },
-    {
-      title: "Multi-location (25 assistants)",
-      calculation: "Unlimited = $399 ✓ (no-brainer)",
-      recommended: "Unlimited"
-    }
-  ];
-
-  return (
-    <section className="container mx-auto py-20">
+  const plans = [{
+    name: "Starter",
+    price: isAnnual ? 79 : 99,
+    assistants: "Up to 3 assistants included",
+    addOnPrice: 25,
+    features: ["All task management features", "Unlimited tasks & templates", "Patient tracking", "Schedule view", "Basic reports", "90-day history", "Email support"],
+    icon: Users,
+    popular: false
+  }, {
+    name: "Professional",
+    price: isAnnual ? 159 : 199,
+    assistants: "Up to 8 assistants included",
+    addOnPrice: 20,
+    features: ["Everything in Starter", "Analytics dashboard", "Performance insights", "Custom reports", "1-year history", "Data exports (Excel/PDF)", "Priority support"],
+    icon: TrendingUp,
+    popular: true
+  }, {
+    name: "Unlimited",
+    price: isAnnual ? 319 : 399,
+    assistants: "Unlimited assistants",
+    addOnPrice: 0,
+    features: ["Everything in Professional", "Unlimited history", "API access", "Multi-location dashboard", "White-label option", "Phone support", "Training included"],
+    icon: Zap,
+    popular: false
+  }];
+  const examples = [{
+    title: "Small clinic (2 assistants)",
+    calculation: "Starter = $99 ✓",
+    recommended: "Starter"
+  }, {
+    title: "Growing clinic (5 assistants)",
+    calculation: ["Starter = $99 + $50 = $149", "Professional = $199 ✓ (better value)"],
+    recommended: "Professional"
+  }, {
+    title: "Large clinic (12 assistants)",
+    calculation: ["Professional = $199 + $80 = $279", "Unlimited = $399 ✓ (better value)"],
+    recommended: "Unlimited"
+  }, {
+    title: "Multi-location (25 assistants)",
+    calculation: "Unlimited = $399 ✓ (no-brainer)",
+    recommended: "Unlimited"
+  }];
+  return <section className="container mx-auto py-20">
       {/* Header */}
       <div className="text-center mb-16">
         <h2 className="text-4xl font-bold text-foreground mb-4">
@@ -102,41 +64,27 @@ export function PricingCTA() {
           <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
             Monthly
           </span>
-          <button
-            onClick={() => setIsAnnual(!isAnnual)}
-            className={`relative inline-flex w-12 h-6 items-center rounded-full transition-colors ${
-              isAnnual ? 'bg-primary' : 'bg-muted'
-            }`}
-          >
-            <span
-              className={`inline-block w-4 h-4 transform rounded-full bg-white transition-transform ${
-                isAnnual ? 'translate-x-7' : 'translate-x-1'
-              }`}
-            />
+          <button onClick={() => setIsAnnual(!isAnnual)} className={`relative inline-flex w-12 h-6 items-center rounded-full transition-colors ${isAnnual ? 'bg-primary' : 'bg-muted'}`}>
+            <span className={`inline-block w-4 h-4 transform rounded-full bg-white transition-transform ${isAnnual ? 'translate-x-7' : 'translate-x-1'}`} />
           </button>
           <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
             Annual
           </span>
         </div>
-        {isAnnual && (
-          <p className="text-sm text-primary font-medium">Save 20% with annual billing</p>
-        )}
+        {isAnnual && <p className="text-sm text-primary font-medium">Save 20% with annual billing</p>}
       </div>
 
       {/* Pricing Cards */}
       <div className="grid md:grid-cols-3 gap-8 mb-16">
         {plans.map((plan, index) => {
-          const IconComponent = plan.icon;
-          return (
-            <Card key={plan.name} className={`relative ${plan.popular ? 'border-primary shadow-xl scale-105' : 'border-border'} transition-all hover:shadow-lg`}>
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+        const IconComponent = plan.icon;
+        return <Card key={plan.name} className={`relative ${plan.popular ? 'border-primary shadow-xl scale-105' : 'border-border'} transition-all hover:shadow-lg`}>
+              {plan.popular && <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <Badge className="bg-primary text-primary-foreground px-4 py-1 flex items-center gap-1">
                     <Star className="w-3 h-3" />
                     Most Popular
                   </Badge>
-                </div>
-              )}
+                </div>}
               
               <CardHeader className="text-center">
                 <div className="flex justify-center mb-4">
@@ -148,105 +96,39 @@ export function PricingCTA() {
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-foreground">${plan.price}</span>
                   <span className="text-muted-foreground">/month</span>
-                  {isAnnual && (
-                    <div className="text-sm text-muted-foreground mt-1">
+                  {isAnnual && <div className="text-sm text-muted-foreground mt-1">
                       ${plan.price * 12}/year
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 <CardDescription className="mt-2 font-medium text-primary">
                   {plan.assistants}
                 </CardDescription>
-                {plan.addOnPrice > 0 && (
-                  <p className="text-sm text-muted-foreground mt-1">
+                {plan.addOnPrice > 0 && <p className="text-sm text-muted-foreground mt-1">
                     Add assistants: +${plan.addOnPrice}/each
-                  </p>
-                )}
+                  </p>}
               </CardHeader>
               
               <CardContent>
                 <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start gap-3">
+                  {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
                 
-                <Button 
-                  className="w-full" 
-                  variant={plan.popular ? "gradient" : "outline"}
-                  onClick={() => navigate('/auth')}
-                >
+                <Button className="w-full" variant={plan.popular ? "gradient" : "outline"} onClick={() => navigate('/auth')}>
                   Get Started
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </CardContent>
-            </Card>
-          );
-        })}
+            </Card>;
+      })}
       </div>
 
       {/* Real Examples */}
-      <div className="bg-muted/30 rounded-2xl p-8 mb-12">
-        <h3 className="text-2xl font-bold text-center mb-8 flex items-center justify-center gap-2">
-          💰 Real Examples
-        </h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          {examples.map((example, index) => (
-            <div key={index} className="bg-background rounded-lg p-6 border">
-              <h4 className="font-semibold mb-3">{example.title}:</h4>
-              <div className="space-y-1 text-sm">
-                {Array.isArray(example.calculation) ? (
-                  example.calculation.map((calc, calcIndex) => (
-                    <p key={calcIndex} className={calc.includes('✓') ? 'text-primary font-medium' : 'text-muted-foreground'}>
-                      {calc}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-primary font-medium">{example.calculation}</p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      
 
       {/* Why This Works */}
-      <div className="text-center">
-        <h3 className="text-2xl font-bold mb-6">✅ Why This Works</h3>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-              <TrendingUp className="w-6 h-6 text-primary" />
-            </div>
-            <h4 className="font-semibold mb-2">Natural upgrade points</h4>
-            <p className="text-sm text-muted-foreground">Price crossovers push people up tiers</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Check className="w-6 h-6 text-primary" />
-            </div>
-            <h4 className="font-semibold mb-2">No feature frustration</h4>
-            <p className="text-sm text-muted-foreground">Everyone gets full task management</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-            <h4 className="font-semibold mb-2">Simple math</h4>
-            <p className="text-sm text-muted-foreground">Easy to calculate and explain</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Star className="w-6 h-6 text-primary" />
-            </div>
-            <h4 className="font-semibold mb-2">Rewards growth</h4>
-            <p className="text-sm text-muted-foreground">Bigger clinics get better per-assistant rates</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+      
+    </section>;
 }

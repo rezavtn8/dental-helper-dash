@@ -7,6 +7,8 @@ import { Loader2, Building2, Key, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { useClinicSetupForm, useFormErrors } from '@/hooks/useFormValidation';
+import { sanitizeText, sanitizeClinicCode } from '@/utils/sanitize';
 
 interface ClinicSetupFormProps {
   userProfile: {
@@ -19,41 +21,34 @@ interface ClinicSetupFormProps {
 }
 
 export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupFormProps) {
-  const [clinicName, setClinicName] = useState('');
-  const [clinicCode, setClinicCode] = useState('');
   const [loading, setLoading] = useState(false);
   const { refreshUserProfile } = useAuth();
+  const { getFieldError, hasFieldError } = useFormErrors();
   const navigate = useNavigate();
+  const form = useClinicSetupForm();
 
   const generateClinicCode = () => {
+    const clinicName = form.getValues('clinicName');
     if (clinicName.trim()) {
       const cleanName = clinicName.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
       const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       const code = (cleanName.slice(0, 6) + randomSuffix).toUpperCase();
-      setClinicCode(code);
+      form.setValue('clinicCode', code);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!clinicName.trim() || clinicName.trim().length < 2) {
-      toast.error('Clinic name must be at least 2 characters');
-      return;
-    }
-
-    if (!clinicCode.trim() || clinicCode.trim().length < 3) {
-      toast.error('Please generate or enter a clinic code');
-      return;
-    }
-
+  const handleSubmit = async (data: any) => {
     setLoading(true);
 
     try {
+      // Sanitize inputs
+      const sanitizedClinicName = sanitizeText(data.clinicName);
+      const sanitizedClinicCode = sanitizeClinicCode(data.clinicCode);
+
       // Use the existing database function to create clinic and update user
-      const { data, error } = await supabase.rpc('create_clinic_with_owner', {
-        p_clinic_name: clinicName.trim(),
-        p_clinic_code: clinicCode.trim().toUpperCase(),
+      const { data: result, error } = await supabase.rpc('create_clinic_with_owner', {
+        p_clinic_name: sanitizedClinicName,
+        p_clinic_code: sanitizedClinicCode,
         p_owner_name: userProfile.name,
         p_owner_email: userProfile.email,
         p_owner_id: userProfile.id
@@ -61,7 +56,7 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
 
       if (error) throw error;
 
-      if (data && data.length > 0 && data[0].success) {
+      if (result && result.length > 0 && result[0].success) {
         toast.success('Clinic created successfully!');
         
         // Refresh user profile to get the updated clinic_id
@@ -74,7 +69,7 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
           navigate('/owner');
         }
       } else {
-        const errorMessage = data && data.length > 0 ? data[0].message : 'Failed to create clinic';
+        const errorMessage = result && result.length > 0 ? result[0].message : 'Failed to create clinic';
         toast.error(errorMessage);
       }
     } catch (error: any) {
@@ -93,7 +88,7 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <div className="text-center mb-6">
         <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
           <Building2 className="w-8 h-8 text-primary" />
@@ -111,14 +106,15 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
             <Input
               id="clinic-name"
               type="text"
-              value={clinicName}
-              onChange={(e) => setClinicName(e.target.value)}
+              {...form.register('clinicName')}
               onBlur={generateClinicCode}
               placeholder="Enter your clinic name"
               className="pl-10"
-              required
             />
           </div>
+          {hasFieldError(form.formState.errors.clinicName) && (
+            <p className="text-sm text-destructive">{getFieldError(form.formState.errors.clinicName)}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -129,22 +125,24 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
               <Input
                 id="clinic-code"
                 type="text"
-                value={clinicCode}
-                onChange={(e) => setClinicCode(e.target.value.toUpperCase())}
+                {...form.register('clinicCode')}
                 placeholder="Clinic code"
                 className="pl-10 font-mono"
-                required
+                onChange={(e) => form.setValue('clinicCode', e.target.value.toUpperCase())}
               />
             </div>
             <Button 
               type="button" 
               variant="outline" 
               onClick={generateClinicCode}
-              disabled={!clinicName.trim()}
+              disabled={!form.watch('clinicName')?.trim()}
             >
               Generate
             </Button>
           </div>
+          {hasFieldError(form.formState.errors.clinicCode) && (
+            <p className="text-sm text-destructive">{getFieldError(form.formState.errors.clinicCode)}</p>
+          )}
           <p className="text-xs text-muted-foreground">
             Your assistants will use this code to join your clinic
           </p>

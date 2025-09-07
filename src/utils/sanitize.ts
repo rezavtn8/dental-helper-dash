@@ -4,18 +4,37 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import DOMPurify from 'dompurify';
+import { parsePhoneNumber } from 'libphonenumber-js';
+
+/**
+ * Enhanced HTML content sanitization using DOMPurify
+ * This provides comprehensive protection against XSS attacks
+ */
+export const sanitizeHtml = (input: string): string => {
+  if (!input) return '';
+  
+  return DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    ALLOWED_ATTR: [],
+    FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'button'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'style', 'class']
+  });
+};
 
 /**
  * Synchronous text sanitization for immediate use (client-side only)
+ * Now enhanced with DOMPurify for better security
  */
 export const sanitizeText = (input: string): string => {
   if (!input) return '';
   
-  return input
-    .trim()
-    .replace(/[<>]/g, '') // Remove < and > to prevent HTML injection
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+\s*=/gi, ''); // Remove event handlers like onclick=
+  // Use DOMPurify for basic text sanitization
+  return DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: [],
+    KEEP_CONTENT: true
+  }).trim();
 };
 
 /**
@@ -173,32 +192,46 @@ export const sanitizeNumeric = (input: string): string => {
 };
 
 /**
- * Sanitizes phone numbers with server-side validation
+ * Sanitizes and validates phone numbers using libphonenumber-js
+ * Validates format and returns standardized E.164 format
  */
 export const sanitizePhone = async (input: string): Promise<string> => {
   if (!input) return '';
   
   try {
+    // First try server-side validation
     const { data, error } = await supabase.rpc('sanitize_and_validate_input', {
       input_type: 'phone',
       input_value: input
     });
-    
-    if (error) {
-      console.warn('Server-side phone sanitization failed, using fallback');
-    } else {
-      return data || '';
+
+    if (!error && data) {
+      return data;
     }
   } catch (error) {
-    console.warn('Phone sanitization error, using fallback:', error);
+    console.warn('Server-side phone validation failed, using client-side fallback:', error);
   }
-  
-  // Fallback to client-side sanitization
-  const sanitized = input.replace(/[^0-9+\-\(\)\s]/g, '');
-  if (sanitized.length > 20) {
-    throw new Error('Phone number too long');
+
+  // Client-side fallback using libphonenumber-js
+  try {
+    const phoneNumber = parsePhoneNumber(input, 'US'); // Default to US, but accepts international
+    
+    if (!phoneNumber.isValid()) {
+      throw new Error('Invalid phone number format');
+    }
+    
+    return phoneNumber.format('E.164');
+  } catch (error) {
+    // Final fallback - basic cleaning
+    const cleaned = input.replace(/[^\d\s\-\(\)\+\.]/g, '').trim();
+    const digitsOnly = cleaned.replace(/\D/g, '');
+    
+    if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+      throw new Error('Invalid phone number format');
+    }
+    
+    return cleaned;
   }
-  return sanitized;
 };
 
 /**

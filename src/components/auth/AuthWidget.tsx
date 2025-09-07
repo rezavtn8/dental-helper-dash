@@ -3,11 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Loader2, Eye, EyeOff, Mail, Lock, User, Building2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { useAuthSignInForm, useAuthSignUpForm, useFormErrors } from '@/hooks/useFormValidation';
+import { sanitizeText, sanitizeEmail } from '@/utils/sanitize';
+import { useAuthError } from '@/hooks/useAuthError';
 
 interface AuthWidgetProps {
   role: 'owner' | 'assistant';
@@ -15,34 +17,35 @@ interface AuthWidgetProps {
 
 export default function AuthWidget({ role }: AuthWidgetProps) {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { signInWithEmail, signUp, signInWithGoogle, signInWithMagicLink } = useAuth();
+  const { signInWithEmail, signUp, signInWithGoogle } = useAuth();
+  const { handleAuthError } = useAuthError();
+  const { getFieldError, hasFieldError } = useFormErrors();
   const navigate = useNavigate();
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Forms with validation
+  const signInForm = useAuthSignInForm();
+  const signUpForm = useAuthSignUpForm();
+  
+  const currentForm = authMode === 'signin' ? signInForm : signUpForm;
+
+  const handleEmailAuth = async (data: any) => {
     setLoading(true);
 
     try {
+      // Sanitize inputs
+      const sanitizedEmail = sanitizeEmail(data.email);
+      const sanitizedPassword = data.password; // Password not sanitized to preserve special chars
+      const sanitizedName = data.name ? sanitizeText(data.name) : '';
+
       if (authMode === 'signin') {
         console.log('Attempting sign in...');
-        const { error } = await signInWithEmail(email, password);
+        const { error } = await signInWithEmail(sanitizedEmail, sanitizedPassword);
         
         if (error) {
           console.error('Sign in error:', error);
-          if (error.includes('Invalid login credentials')) {
-            toast.error('Invalid email or password. Please check your credentials and try again.');
-          } else if (error.includes('Email not confirmed')) {
-            toast.error('Please check your email and click the confirmation link before signing in.');
-          } else if (error.includes('too_many_requests')) {
-            toast.error('Too many login attempts. Please wait a moment before trying again.');
-          } else {
-            toast.error(error);
-          }
+          handleAuthError(error);
         } else {
           console.log('Sign in successful!');
           toast.success('Signed in successfully!');
@@ -50,35 +53,11 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
       } else {
         // Sign up
         console.log('Attempting sign up...');
-        if (!name.trim()) {
-          toast.error('Please enter your name');
-          return;
-        }
-
-        if (!email.trim()) {
-          toast.error('Please enter your email');
-          return;
-        }
-
-        if (password.length < 6) {
-          toast.error('Password must be at least 6 characters long');
-          return;
-        }
-
-        const { error } = await signUp(email, password, name, role);
+        const { error } = await signUp(sanitizedEmail, sanitizedPassword, sanitizedName, role);
         
         if (error) {
           console.error('Sign up error:', error);
-          if (error.includes('User already registered')) {
-            toast.error('An account with this email already exists. Please sign in instead.');
-            setAuthMode('signin');
-          } else if (error.includes('Password should be at least 6 characters')) {
-            toast.error('Password must be at least 6 characters long.');
-          } else if (error.includes('signup_disabled')) {
-            toast.error('Account creation is currently disabled. Please contact support.');
-          } else {
-            toast.error(error);
-          }
+          handleAuthError(error);
         } else {
           console.log('Sign up successful!');
           toast.success('Account created successfully! Please check your email to confirm your account.');
@@ -86,7 +65,7 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
       }
     } catch (error) {
       console.error('Auth error:', error);
-      toast.error('Authentication failed. Please try again.');
+      handleAuthError(error);
     } finally {
       setLoading(false);
     }
@@ -118,7 +97,7 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
         </TabsList>
         
         <TabsContent value="signin" className="space-y-4 mt-6">
-          <form onSubmit={handleEmailAuth} className="space-y-4">
+          <form onSubmit={signInForm.handleSubmit(handleEmailAuth)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -126,13 +105,14 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  {...signInForm.register('email')}
                   placeholder="Enter your email"
                   className="pl-10"
-                  required
                 />
               </div>
+              {hasFieldError(signInForm.formState.errors.email) && (
+                <p className="text-sm text-destructive">{getFieldError(signInForm.formState.errors.email)}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -142,11 +122,9 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...signInForm.register('password')}
                   placeholder="Enter your password"
                   className="pl-10 pr-10"
-                  required
                 />
                 <Button
                   type="button"
@@ -158,6 +136,9 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
+              {hasFieldError(signInForm.formState.errors.password) && (
+                <p className="text-sm text-destructive">{getFieldError(signInForm.formState.errors.password)}</p>
+              )}
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
@@ -190,7 +171,7 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
         </TabsContent>
         
         <TabsContent value="signup" className="space-y-4 mt-6">
-          <form onSubmit={handleEmailAuth} className="space-y-4">
+          <form onSubmit={signUpForm.handleSubmit(handleEmailAuth)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="signup-name">Full Name</Label>
               <div className="relative">
@@ -198,13 +179,14 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
                 <Input
                   id="signup-name"
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  {...signUpForm.register('name')}
                   placeholder="Enter your full name"
                   className="pl-10"
-                  required
                 />
               </div>
+              {hasFieldError(signUpForm.formState.errors.name) && (
+                <p className="text-sm text-destructive">{getFieldError(signUpForm.formState.errors.name)}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -214,13 +196,14 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
                 <Input
                   id="signup-email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  {...signUpForm.register('email')}
                   placeholder="Enter your email"
                   className="pl-10"
-                  required
                 />
               </div>
+              {hasFieldError(signUpForm.formState.errors.email) && (
+                <p className="text-sm text-destructive">{getFieldError(signUpForm.formState.errors.email)}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -230,12 +213,9 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
                 <Input
                   id="signup-password"
                   type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Create a password (min. 6 characters)"
+                  {...signUpForm.register('password')}
+                  placeholder="Create a password (min. 8 characters)"
                   className="pl-10 pr-10"
-                  required
-                  minLength={6}
                 />
                 <Button
                   type="button"
@@ -247,6 +227,9 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
+              {hasFieldError(signUpForm.formState.errors.password) && (
+                <p className="text-sm text-destructive">{getFieldError(signUpForm.formState.errors.password)}</p>
+              )}
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>

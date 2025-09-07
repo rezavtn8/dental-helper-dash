@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Building2, Clock, CheckCircle, XCircle, ArrowLeft, Shield } from 'lucide-react';
+import { useJoinClinicForm, useFormErrors } from '@/hooks/useFormValidation';
+import { sanitizeClinicCode } from '@/utils/sanitize';
 
 interface JoinRequest {
   id: string;
@@ -28,10 +30,11 @@ interface JoinRequest {
 export default function JoinClinic() {
   const navigate = useNavigate();
   const { user, session } = useAuth();
-  const [clinicCode, setClinicCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const { getFieldError, hasFieldError } = useFormErrors();
+  const form = useJoinClinicForm();
 
   useEffect(() => {
     if (!session) {
@@ -76,31 +79,27 @@ export default function JoinClinic() {
     }
   };
 
-  const handleSubmitRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!clinicCode.trim()) {
-      toast.error('Please enter a clinic code');
-      return;
-    }
-
+  const handleSubmitRequest = async (data: any) => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.rpc('submit_join_request_with_rate_limit', {
-        p_clinic_code: clinicCode.trim()
+      // Sanitize the clinic code
+      const sanitizedClinicCode = sanitizeClinicCode(data.clinicCode);
+      
+      const { data: result, error } = await supabase.rpc('submit_join_request_with_rate_limit', {
+        p_clinic_code: sanitizedClinicCode
       });
 
       if (error) throw error;
 
-      const result = data[0];
-      if (result.success) {
-        toast.success(result.message);
-        setClinicCode('');
+      const responseData = result[0];
+      if (responseData.success) {
+        toast.success(responseData.message);
+        form.reset();
         // Refresh the join requests immediately with optimistic update
         await fetchJoinRequests();
       } else {
-        toast.error(result.message);
+        toast.error(responseData.message);
       }
     } catch (error: any) {
       console.error('Error submitting join request:', error);
@@ -173,21 +172,24 @@ export default function JoinClinic() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmitRequest} className="space-y-4">
+              <form onSubmit={form.handleSubmit(handleSubmitRequest)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="clinicCode">Clinic Code</Label>
                   <Input
                     id="clinicCode"
-                    value={clinicCode}
-                    onChange={(e) => setClinicCode(e.target.value.toUpperCase())}
+                    {...form.register('clinicCode')}
                     placeholder="Enter clinic code (e.g., ABC123)"
                     className="font-mono"
-                    maxLength={10}
+                    maxLength={20}
                     disabled={loading}
+                    onChange={(e) => form.setValue('clinicCode', e.target.value.toUpperCase())}
                   />
-                  {clinicCode.length >= 3 && (
+                  {hasFieldError(form.formState.errors.clinicCode) && (
+                    <p className="text-sm text-destructive">{getFieldError(form.formState.errors.clinicCode)}</p>
+                  )}
+                  {form.watch('clinicCode')?.length >= 3 && (
                     <div className="mt-2">
-                      <ClinicPreview clinicCode={clinicCode} />
+                      <ClinicPreview clinicCode={form.watch('clinicCode')} />
                     </div>
                   )}
                 </div>
@@ -202,7 +204,7 @@ export default function JoinClinic() {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={loading || !clinicCode.trim()}
+                  disabled={loading || !form.watch('clinicCode')?.trim()}
                 >
                   {loading ? (
                     <>

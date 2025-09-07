@@ -117,7 +117,7 @@ export function PricingCTA() {
                 </ul>
                 
                 <Button className="w-full" variant={plan.popular ? "gradient" : "outline"} onClick={() => navigate('/auth')}>
-                  Get Started
+                  Start {plan.name} Plan
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </CardContent>

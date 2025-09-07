@@ -55,7 +55,7 @@ export function HeroSection() {
             size="lg" 
             className="text-base font-medium px-8 py-3 h-auto"
           >
-            Start your clinic
+            Start Free Trial
             <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
           <Button 
@@ -64,7 +64,7 @@ export function HeroSection() {
             size="lg" 
             className="text-base font-medium px-8 py-3 h-auto"
           >
-            See how it works
+            Watch Demo
             <Play className="w-4 h-4 ml-1" />
           </Button>
         </div>

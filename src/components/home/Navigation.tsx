@@ -68,9 +68,10 @@ export function Navigation() {
               </Button>
               <Button 
                 onClick={() => navigate('/auth')}
+                variant="default"
                 className="rounded-full h-9 px-6 font-medium"
               >
-                Get Started
+                Start Free Trial
               </Button>
             </div>
           </div>
@@ -109,9 +110,10 @@ export function Navigation() {
                   </Button>
                   <Button 
                     onClick={() => navigate('/auth')}
+                    variant="default"
                     className="w-full rounded-full h-11 text-base font-medium"
                   >
-                    Get Started
+                    Start Free Trial
                   </Button>
                 </div>
               </div>

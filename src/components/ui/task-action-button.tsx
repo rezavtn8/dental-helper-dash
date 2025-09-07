@@ -59,33 +59,33 @@ export function TaskActionButton({
       };
     }
 
-    // Default toggle behavior with simple styling
+    // Default toggle behavior with clear naming
     switch (status) {
       case 'pending':
         return {
           icon: Play,
-          label: 'Start',
+          label: 'Begin Task',
           variant: 'default' as const,
           className: 'bg-blue-600 hover:bg-blue-700 text-white'
         };
       case 'in-progress':
         return {
           icon: CheckCircle2,
-          label: 'Complete',
+          label: 'Mark Complete',
           variant: 'default' as const,
           className: 'bg-green-600 hover:bg-green-700 text-white'
         };
       case 'completed':
         return {
           icon: RotateCcw,
-          label: 'Undo',
+          label: 'Reopen Task',
           variant: 'outline' as const,
           className: 'border-orange-300 text-orange-600 hover:bg-orange-50'
         };
       default:
         return {
           icon: Circle,
-          label: 'Start',
+          label: 'Begin Task',
           variant: 'outline' as const,
           className: 'border-muted-foreground/30 hover:bg-muted'
         };

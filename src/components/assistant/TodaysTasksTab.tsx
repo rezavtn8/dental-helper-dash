@@ -81,26 +81,45 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     !isCompleted(task.status)
   );
 
-  const pickTask = async (taskId: string) => {
+  const claimTask = async (taskId: string) => {
     try {
       const { error } = await supabase
         .from('tasks')
         .update({ 
-          status: 'in-progress' as TaskStatus,
           assigned_to: user?.id 
         })
         .eq('id', taskId);
 
       if (error) throw error;
       
-      toast.success('Task assigned to you!', {
-        description: 'The task has been added to your list.'
+      toast.success('Task claimed!', {
+        description: 'The task has been assigned to you.'
       });
       
       onTaskUpdate();
     } catch (error) {
-      console.error('Error picking task:', error);
-      toast.error('Failed to assign task');
+      console.error('Error claiming task:', error);
+      toast.error('Failed to claim task');
+    }
+  };
+
+  const startTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'in-progress' as TaskStatus
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      
+      toast.success('Task started!');
+      
+      onTaskUpdate();
+    } catch (error) {
+      console.error('Error starting task:', error);
+      toast.error('Failed to start task');
     }
   };
 
@@ -414,48 +433,81 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
             </Button>
 
             {showPickUp && (
-              <TaskActionButton
-                status={task.status}
-                action="pickup"
+              <Button
                 size="sm"
-                showLabel={true}
                 onClick={(e) => {
                   e.stopPropagation();
-                  pickTask(task.id);
+                  claimTask(task.id);
                 }}
-                className="h-6 px-2 bg-blue-600 hover:bg-blue-700 text-white"
-              />
+                className="h-6 px-2 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+              >
+                Claim
+              </Button>
             )}
 
             {!showPickUp && !showCompleted && (
               <>
+                {task.status === 'pending' && (
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startTask(task.id);
+                    }}
+                    className="h-6 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
+                  >
+                    Start
+                  </Button>
+                )}
+                
+                {task.status === 'in-progress' && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      className="h-6 px-2 border-blue-300 text-blue-600 text-xs"
+                    >
+                      Started
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markTaskDone(task.id);
+                      }}
+                      className="h-6 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
+                    >
+                      Done
+                    </Button>
+                  </>
+                )}
+                
                 {isCompleted(task.status) && (
-                  <TaskActionButton
-                    status={task.status}
-                    action="undo"
-                    size="sm" 
-                    showLabel={true}
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={(e) => {
                       e.stopPropagation();
                       markTaskUndone(task.id);
                     }}
-                    className="h-6 px-2 border-green-200 text-green-700 hover:bg-green-50"
-                    variant="outline"
-                  />
+                    className="h-6 px-2 border-orange-300 text-orange-600 hover:bg-orange-50 text-xs"
+                  >
+                    Undo
+                  </Button>
                 )}
                 
-                <TaskActionButton
-                  status={task.status}
-                  action="return"
+                <Button
                   size="sm"
-                  showLabel={true}
+                  variant="outline"
                   onClick={(e) => {
                     e.stopPropagation();
                     returnTask(task.id);
                   }}
-                  className="h-6 px-2"
-                  variant="outline"
-                />
+                  className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
+                >
+                  Return
+                </Button>
               </>
             )}
         </div>

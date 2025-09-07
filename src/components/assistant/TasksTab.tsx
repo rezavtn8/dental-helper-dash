@@ -25,6 +25,8 @@ import {
   subDays,
   isSameMonth
 } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface TasksTabProps {
   tasks: Task[];
@@ -111,14 +113,48 @@ export default function TasksTab({
     );
   }
 
-  const assignTask = (taskId: string) => {
+  const claimTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase.from('tasks')
+        .update({ assigned_to: userProfile?.id })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      onTaskUpdate?.();
+    } catch (error) {
+      console.error('Error claiming task:', error);
+    }
+  };
+
+  const startTask = (taskId: string) => {
     onTaskStatusUpdate?.(taskId, 'in-progress');
+    onTaskUpdate?.();
+  };
+
+  const completeTask = (taskId: string) => {
+    onTaskStatusUpdate?.(taskId, 'completed');
     onTaskUpdate?.();
   };
 
   const undoTaskCompletion = (taskId: string) => {
     onTaskStatusUpdate?.(taskId, 'pending');
     onTaskUpdate?.();
+  };
+
+  const returnTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase.from('tasks')
+        .update({ 
+          assigned_to: null,
+          status: 'pending' as any
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      onTaskUpdate?.();
+    } catch (error) {
+      console.error('Error returning task:', error);
+    }
   };
 
   const getAssistantName = (assignedTo: string | null) => {
@@ -160,6 +196,7 @@ export default function TasksTab({
   const TaskCard = ({ task }: { task: Task | RecurringTaskInstance }) => {
     const isAssignedToMe = task.assigned_to === userProfile?.id;
     const isUnassigned = !task.assigned_to;
+    const isAssignedToOther = task.assigned_to && task.assigned_to !== userProfile?.id;
     const isOverdue = isRecurringInstance(task) && task.isOverdue;
     
     return (
@@ -211,61 +248,100 @@ export default function TasksTab({
         </div>
 
         <div className="flex items-center gap-2 ml-4">
-          {/* Unassigned tasks - only Start button */}
-          {isUnassigned && (
-            <Button
-              size="sm"
-              className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                assignTask(task.id);
-              }}
-            >
-              Start
-            </Button>
-          )}
-
-          {/* Assigned tasks that are not completed - Show Start + Done buttons */}
-          {isAssignedToMe && task.status !== 'completed' && (
+          {/* Don't show any buttons for tasks assigned to others */}
+          {!isAssignedToOther && (
             <>
-              <Button
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTaskStatusUpdate?.(task.id, 'in-progress');
-                  onTaskUpdate?.();
-                }}
-              >
-                {task.status === 'in-progress' ? 'Started' : 'Start'}
-              </Button>
-              <Button
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTaskStatusUpdate?.(task.id, 'completed');
-                  onTaskUpdate?.();
-                }}
-              >
-                Done
-              </Button>
-            </>
-          )}
+              {/* Unassigned tasks - only Claim button */}
+              {isUnassigned && (
+                <Button
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 h-7 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    claimTask(task.id);
+                  }}
+                >
+                  Claim
+                </Button>
+              )}
 
-          {/* Completed tasks - only Undo button */}
-          {isAssignedToMe && task.status === 'completed' && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-orange-300 text-orange-600 hover:bg-orange-50 rounded-full px-4 h-7 text-xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                undoTaskCompletion(task.id);
-              }}
-            >
-              Undo
-            </Button>
+              {/* Assigned tasks that are pending - Show Start + Return buttons */}
+              {isAssignedToMe && task.status === 'pending' && (
+                <>
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startTask(task.id);
+                    }}
+                  >
+                    Start
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-4 h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      returnTask(task.id);
+                    }}
+                  >
+                    Return
+                  </Button>
+                </>
+              )}
+
+              {/* Started tasks - Show Done + Return buttons */}
+              {isAssignedToMe && task.status === 'in-progress' && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-blue-300 text-blue-600 hover:bg-blue-50 rounded-full px-4 h-7 text-xs"
+                    disabled
+                  >
+                    Started
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      completeTask(task.id);
+                    }}
+                  >
+                    Done
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-4 h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      returnTask(task.id);
+                    }}
+                  >
+                    Return
+                  </Button>
+                </>
+              )}
+
+              {/* Completed tasks - Show Undo button */}
+              {isAssignedToMe && task.status === 'completed' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-orange-300 text-orange-600 hover:bg-orange-50 rounded-full px-4 h-7 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    undoTaskCompletion(task.id);
+                  }}
+                >
+                  Undo
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>

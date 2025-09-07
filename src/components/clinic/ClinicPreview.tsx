@@ -27,7 +27,7 @@ export const ClinicPreview: React.FC<ClinicPreviewProps> = ({ clinicCode }) => {
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .rpc('authenticated_clinic_lookup', { p_code: clinicCode.trim().toUpperCase() });
+          .rpc('lookup_clinic_for_join', { p_code: clinicCode.trim().toUpperCase() });
 
         if (error) throw error;
         

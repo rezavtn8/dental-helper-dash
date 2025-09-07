@@ -80,6 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchUserProfile = async (userId: string) => {
     try {
       setLoading(true);
+      console.log('Fetching user profile for:', userId);
+      
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -88,17 +90,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching user profile:', error);
+        toast.error('Failed to load user profile');
         return;
       }
 
+      console.log('Profile fetch result:', data);
+
       if (!data) {
+        console.log('No profile found, creating new profile');
         // User profile doesn't exist, create it
         await createUserProfile(userId);
       } else {
+        console.log('Profile found, setting user profile');
         setUserProfile(data);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      toast.error('Failed to load user profile');
     } finally {
       setLoading(false);
     }
@@ -107,7 +115,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const createUserProfile = async (userId: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        console.error('No user found when creating profile');
+        return;
+      }
 
       const profileData = {
         id: user.id,
@@ -118,13 +129,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         is_active: true
       };
 
+      console.log('Creating user profile:', profileData);
+
       const { data, error } = await supabase
         .from('users')
         .insert([profileData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error inserting user profile:', error);
+        // Try to handle duplicate key error
+        if (error.code === '23505') {
+          console.log('Profile already exists, fetching existing profile');
+          const { data: existingData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+          if (existingData) {
+            setUserProfile(existingData);
+          }
+        }
+        return;
+      }
+
+      console.log('User profile created:', data);
       setUserProfile(data);
     } catch (error) {
       console.error('Error creating user profile:', error);
@@ -133,14 +163,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithEmail = async (email: string, password: string): Promise<{ error?: string }> => {
     try {
+      console.log('Attempting sign in for:', email);
+      
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Sign-in error:', error);
         return { error: error.message };
       }
+
+      console.log('Sign-in successful:', data);
 
       // Update last_login timestamp
       if (data.user) {
@@ -191,7 +226,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, name: string, role: 'owner' | 'assistant' = 'assistant'): Promise<{ error?: string }> => {
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log('Attempting sign up for:', email, 'with role:', role);
+      
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -204,9 +241,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        console.error('Sign-up error:', error);
         return { error: error.message };
       }
 
+      console.log('Sign-up successful:', data);
       return {};
     } catch (error) {
       console.error('Sign-up error:', error);

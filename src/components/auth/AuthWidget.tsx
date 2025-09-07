@@ -29,9 +29,11 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
 
     try {
       if (authMode === 'signin') {
+        console.log('Attempting sign in...');
         const { error } = await signInWithEmail(email, password);
         
         if (error) {
+          console.error('Sign in error:', error);
           if (error.includes('Invalid login credentials')) {
             toast.error('Invalid email or password. Please check your credentials and try again.');
           } else if (error.includes('Email not confirmed')) {
@@ -42,35 +44,52 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
             toast.error(error);
           }
         } else {
+          console.log('Sign in successful!');
           toast.success('Signed in successfully!');
         }
       } else {
         // Sign up
+        console.log('Attempting sign up...');
         if (!name.trim()) {
           toast.error('Please enter your name');
+          return;
+        }
+
+        if (!email.trim()) {
+          toast.error('Please enter your email');
+          return;
+        }
+
+        if (password.length < 6) {
+          toast.error('Password must be at least 6 characters long');
           return;
         }
 
         const { error } = await signUp(email, password, name, role);
         
         if (error) {
+          console.error('Sign up error:', error);
           if (error.includes('User already registered')) {
             toast.error('An account with this email already exists. Please sign in instead.');
+            setAuthMode('signin');
           } else if (error.includes('Password should be at least 6 characters')) {
             toast.error('Password must be at least 6 characters long.');
+          } else if (error.includes('signup_disabled')) {
+            toast.error('Account creation is currently disabled. Please contact support.');
           } else {
             toast.error(error);
           }
         } else {
+          console.log('Sign up successful!');
           toast.success('Account created successfully! Please check your email to confirm your account.');
         }
       }
     } catch (error) {
       console.error('Auth error:', error);
       toast.error('Authentication failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
 

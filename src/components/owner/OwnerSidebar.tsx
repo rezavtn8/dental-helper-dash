@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { getUserInitials } from '@/lib/taskUtils';
+import { useNavigate } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -33,7 +34,8 @@ import {
   FileText,
   UserPlus,
   ScrollText,
-  Bot
+  Bot,
+  Home
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -66,6 +68,7 @@ export default function OwnerSidebar({
 }: OwnerSidebarProps) {
   const { signOut } = useAuth();
   const { open } = useSidebar();
+  const navigate = useNavigate();
   const [isCollapsed] = useState(false);
 
   const isActive = (tabId: string) => activeTab === tabId;
@@ -79,27 +82,27 @@ export default function OwnerSidebar({
   return (
     <Sidebar className="border-r border-slate-200/60 bg-white/95 backdrop-blur-sm">
       <SidebarContent className="px-2">
-        {/* DentalLeague Header */}
+        {/* DentaLeague Brand */}
         <div className="p-3 border-b border-slate-100/80">
-          {open && !isCollapsed ? (
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-white" />
+          <Button 
+            variant="ghost" 
+            className="flex items-center gap-2 h-auto p-0 hover:bg-transparent w-full justify-start"
+            onClick={() => navigate('/')}
+            aria-label="DentaLeague home"
+          >
+            {open && !isCollapsed ? (
+              <>
+                <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded flex items-center justify-center">
+                  <Home className="w-3 h-3 text-primary-foreground" />
+                </div>
+                <span className="font-semibold text-base text-foreground">DentaLeague</span>
+              </>
+            ) : (
+              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded flex items-center justify-center mx-auto">
+                <Home className="w-3 h-3 text-primary-foreground" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="font-semibold text-slate-800 truncate text-sm">
-                  DentalLeague
-                </h1>
-                <p className="text-xs text-slate-500">Practice Management</p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-white" />
-              </div>
-            </div>
-          )}
+            )}
+          </Button>
         </div>
 
         {/* User Profile Section Removed - Now in Header */}

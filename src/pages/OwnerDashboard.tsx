@@ -110,19 +110,6 @@ const OwnerDashboard = () => {
             <div className="flex items-center gap-4 h-14 px-4">
               <SidebarTrigger />
               
-              {/* Brand Group */}
-              <Button 
-                variant="ghost" 
-                className="flex items-center gap-2 h-auto p-0 hover:bg-transparent"
-                onClick={() => navigate('/')}
-                aria-label="DentaLeague home"
-              >
-                <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded flex items-center justify-center">
-                  <Home className="w-3 h-3 text-primary-foreground" />
-                </div>
-                <span className="font-semibold text-base hidden sm:inline">DentaLeague</span>
-              </Button>
-              
               {/* Context Title Group */}
               <div className="flex items-center gap-1.5">
                 <Building2 className="w-5 h-5 text-muted-foreground" aria-hidden="true" />

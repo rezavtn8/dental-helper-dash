@@ -25,12 +25,12 @@ export default function BulkImportTasksDialog({
   const { toast } = useToast();
 
   const csvTemplate = [
-    ['title', 'description', 'category', 'specialty', 'due_type', 'recurrence', 'priority', 'owner_notes'],
-    ['Morning Opening Routine', 'Complete checklist for opening the clinic', 'operational', 'daily_opening', 'before_opening', 'daily', 'high', 'Must be completed before first patient'],
-    ['Equipment Check', 'Daily equipment maintenance check', 'operational', 'equipment_check', 'anytime', 'daily', 'medium', 'Check all equipment is functioning'],
-    ['Weekly Deep Clean', 'Thorough cleaning of all areas', 'operational', 'weekly_deep_clean', 'end_of_week', 'weekly', 'medium', 'Schedule for Friday evenings'],
-    ['Inventory Check', 'Count and order supplies', 'operational', 'custom_workflow', 'anytime', 'monthly', 'low', 'Check stock levels and reorder as needed'],
-    ['Patient Records Update', 'Update and file patient records', 'administrative', 'custom_workflow', 'end_of_day', 'weekly', 'medium', 'Ensure all records are current and complete']
+    ['title', 'description', 'category', 'specialty', 'due_type', 'due_date', 'custom_due_date', 'recurrence', 'priority', 'owner_notes', 'assigned_to', 'checklist_items', 'attachments'],
+    ['Morning Opening Routine', 'Complete checklist for opening the clinic', 'operational', 'daily_opening', 'before_opening', '2024-01-15T09:00:00Z', '', 'daily', 'high', 'Must be completed before first patient', '', 'Unlock doors|Turn on lights|Check temperature', ''],
+    ['Equipment Check', 'Daily equipment maintenance check', 'operational', 'equipment_check', 'anytime', '', '', 'daily', 'medium', 'Check all equipment is functioning', '', 'Test X-ray machine|Check suction units|Verify autoclave', ''],
+    ['Weekly Deep Clean', 'Thorough cleaning of all areas', 'operational', 'weekly_deep_clean', 'end_of_week', '', '', 'weekly', 'medium', 'Schedule for Friday evenings', '', 'Deep clean operatories|Sanitize equipment|Mop floors', ''],
+    ['Inventory Check', 'Count and order supplies', 'operational', 'custom_workflow', 'anytime', '', '', 'monthly', 'low', 'Check stock levels and reorder as needed', '', 'Count disposables|Check materials|Order supplies', ''],
+    ['Patient Records Update', 'Update and file patient records', 'administrative', 'custom_workflow', 'end_of_day', '', '', 'weekly', 'medium', 'Ensure all records are current and complete', '', 'File patient files|Update database|Backup records', '']
   ];
 
   const handleDownloadTemplate = () => {
@@ -167,12 +167,6 @@ export default function BulkImportTasksDialog({
                 break;
               case 'description':
                 taskData.description = value;
-                // Create checklist from description
-                taskData.checklist = [{
-                  id: `item-1`,
-                  title: value,
-                  completed: false
-                }];
                 break;
               case 'category':
                 taskData.category = value;
@@ -186,6 +180,28 @@ export default function BulkImportTasksDialog({
                 taskData['due-type'] = value;
                 if (i === 1) templateSettings['due-type'] = value;
                 break;
+              case 'due_date':
+                // Parse and set due date
+                try {
+                  const date = new Date(value);
+                  if (!isNaN(date.getTime())) {
+                    taskData['due-date'] = date.toISOString();
+                  }
+                } catch {
+                  console.log(`⚠️ Invalid due_date format in row ${i}: ${value}`);
+                }
+                break;
+              case 'custom_due_date':
+                // Parse and set custom due date
+                try {
+                  const date = new Date(value);
+                  if (!isNaN(date.getTime())) {
+                    taskData.custom_due_date = date.toISOString();
+                  }
+                } catch {
+                  console.log(`⚠️ Invalid custom_due_date format in row ${i}: ${value}`);
+                }
+                break;
               case 'recurrence':
                 taskData.recurrence = value;
                 if (i === 1) templateSettings.recurrence = value;
@@ -197,9 +213,47 @@ export default function BulkImportTasksDialog({
               case 'owner_notes':
                 taskData.owner_notes = value;
                 break;
+              case 'assigned_to':
+                // This should be a user ID - in real use case you'd need to look up users
+                taskData.assigned_to = value;
+                break;
+              case 'checklist_items':
+                // Parse checklist items separated by pipe |
+                if (value) {
+                  const items = value.split('|').filter(item => item.trim());
+                  taskData.checklist = items.map((item, idx) => ({
+                    id: `item-${idx + 1}`,
+                    title: item.trim(),
+                    completed: false
+                  }));
+                }
+                break;
+              case 'attachments':
+                // Parse attachments as JSON or simple string
+                if (value) {
+                  try {
+                    taskData.attachments = JSON.parse(value);
+                  } catch {
+                    // If not JSON, treat as simple string
+                    taskData.attachments = value;
+                  }
+                }
+                break;
+              default:
+                console.log(`⚠️ Unhandled field: ${header} = ${value}`);
+                break;
             }
           }
         });
+
+        // Create default checklist from description if no checklist items provided
+        if (!taskData.checklist && taskData.description) {
+          taskData.checklist = [{
+            id: `item-1`,
+            title: taskData.description,
+            completed: false
+          }];
+        }
 
         // Validate and set defaults for required fields
         if (!taskData.title || taskData.title.length < 2) {
@@ -361,14 +415,19 @@ export default function BulkImportTasksDialog({
               <div className="bg-muted p-4 rounded-lg mb-4">
                 <h4 className="font-medium mb-2">CSV Columns:</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li><strong>title:</strong> Checklist item name (required)</li>
-                  <li><strong>description:</strong> Item details</li>
+                  <li><strong>title:</strong> Task name (required)</li>
+                  <li><strong>description:</strong> Task details</li>
                   <li><strong>category:</strong> operational, administrative, clinical</li>
                   <li><strong>specialty:</strong> daily_opening, daily_closing, weekly_deep_clean, etc.</li>
                   <li><strong>due_type:</strong> before_opening, before_1pm, end_of_day, anytime</li>
+                  <li><strong>due_date:</strong> ISO date when task is due (e.g., 2024-01-15T09:00:00Z)</li>
+                  <li><strong>custom_due_date:</strong> Custom due date override</li>
                   <li><strong>recurrence:</strong> daily, weekly, monthly, once</li>
                   <li><strong>priority:</strong> high, medium, low</li>
-                  <li><strong>owner_notes:</strong> Instructions for this checklist item</li>
+                  <li><strong>owner_notes:</strong> Instructions for this task</li>
+                  <li><strong>assigned_to:</strong> User ID to assign task to</li>
+                  <li><strong>checklist_items:</strong> Pipe-separated items (e.g., "Item 1|Item 2|Item 3")</li>
+                  <li><strong>attachments:</strong> JSON string or simple text for attachments</li>
                 </ul>
                 <div className="mt-3 p-3 bg-background rounded border">
                   <p className="text-sm font-medium">Note:</p>

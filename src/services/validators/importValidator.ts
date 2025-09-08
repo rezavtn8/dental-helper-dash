@@ -144,27 +144,51 @@ function isValidUUIDOrEmail(value: string): boolean {
 }
 
 export function sanitizeTemplateData(template: ImportableTaskTemplate): ImportableTaskTemplate {
+  const validRecurrences = ['once', 'daily', 'weekly', 'biweekly', 'monthly'];
+  const validCategories = ['operational', 'administrative', 'clinical', 'specialty', 'training', 'calendar'];
+  const validPriorities = ['low', 'medium', 'high'];
+  const validDueTypes = ['before_opening', 'before_1pm', 'end_of_day', 'end_of_week', 'anytime'];
+
+  // Normalize and validate recurrence
+  let recurrence = 'once';
+  if (template.recurrence && typeof template.recurrence === 'string') {
+    const normalizedRecurrence = template.recurrence.toLowerCase().trim();
+    recurrence = validRecurrences.includes(normalizedRecurrence) ? normalizedRecurrence : 'once';
+  }
+
   return {
     ...template,
     title: template.title?.trim(),
     description: template.description?.trim(),
-    category: template.category || 'operational',
-    priority: template.priority || 'medium',
-    'due-type': template['due-type'] || 'anytime',
-    recurrence: template.recurrence || 'once',
+    category: validCategories.includes(template.category) ? template.category : 'operational',
+    priority: validPriorities.includes(template.priority) ? template.priority : 'medium',
+    'due-type': validDueTypes.includes(template['due-type']) ? template['due-type'] : 'anytime',
+    recurrence,
     owner_notes: template.owner_notes?.trim()
   };
 }
 
 export function sanitizeTaskData(task: ImportableTask): ImportableTask {
+  const validRecurrences = ['once', 'daily', 'weekly', 'biweekly', 'monthly'];
+  const validCategories = ['operational', 'administrative', 'clinical', 'specialty', 'training', 'calendar'];
+  const validPriorities = ['low', 'medium', 'high'];
+  const validDueTypes = ['before_opening', 'before_1pm', 'end_of_day', 'end_of_week', 'anytime'];
+
+  // Normalize and validate recurrence
+  let recurrence = 'once';
+  if (task.recurrence && typeof task.recurrence === 'string') {
+    const normalizedRecurrence = task.recurrence.toLowerCase().trim();
+    recurrence = validRecurrences.includes(normalizedRecurrence) ? normalizedRecurrence : 'once';
+  }
+
   return {
     ...task,
     title: task.title?.trim(),
     description: task.description?.trim(),
-    category: task.category || 'operational',
-    priority: task.priority || 'medium',
-    'due-type': task['due-type'] || 'anytime',
-    recurrence: task.recurrence || 'once',
+    category: validCategories.includes(task.category) ? task.category : 'operational',
+    priority: validPriorities.includes(task.priority) ? task.priority : 'medium',
+    'due-type': validDueTypes.includes(task['due-type']) ? task['due-type'] : 'anytime',
+    recurrence,
     owner_notes: task.owner_notes?.trim(),
     assigned_to: task.assigned_to?.trim() || null,
     checklist_items: task.checklist_items?.filter(item => item.trim().length > 0)

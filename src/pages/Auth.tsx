@@ -25,20 +25,37 @@ export default function Auth() {
   }, [user, userProfile, navigate, loading]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col">
+    <div className="min-h-screen relative overflow-hidden" 
+         style={{ background: 'var(--gradient-hero)' }}>
+      
+      {/* Floating geometric shapes */}
+      <div className="floating-shapes">
+        <div className="floating-shape"></div>
+        <div className="floating-shape"></div>
+        <div className="floating-shape"></div>
+        <div className="floating-shape"></div>
+      </div>
+
+      {/* Additional avant-garde elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 rounded-full bg-accent/5 blur-xl"></div>
+        <div className="absolute bottom-32 right-20 w-24 h-24 rounded-full bg-blue-400/10 blur-lg"></div>
+        <div className="absolute top-1/2 left-1/4 w-16 h-16 rotate-45 bg-blue-200/20 blur-sm"></div>
+      </div>
+
       {/* Header */}
-      <div className="w-full py-4 px-4 lg:px-8">
+      <div className="relative z-10 w-full py-6 px-4 lg:px-8">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center space-x-3">
-            <AnimatedLogo size={28} animated={false} className="text-primary" />
-            <span className="text-lg font-semibold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">
+            <AnimatedLogo size={32} animated={false} className="text-accent" />
+            <span className="text-xl font-display font-bold text-accent">
               DentaLeague
             </span>
           </div>
           <Button 
             variant="ghost" 
             onClick={() => navigate('/')}
-            className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+            className="flex items-center space-x-2 text-muted-foreground hover:text-accent glow-effect rounded-xl"
           >
             <ArrowLeft size={16} />
             <span>Back to Home</span>
@@ -47,73 +64,79 @@ export default function Auth() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md">
-          <Card className="border-2 border-blue-200/50 shadow-2xl bg-white/95 backdrop-blur-sm">
-            <CardHeader className="text-center pb-6 space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-                <AnimatedLogo size={28} animated={true} className="text-white" />
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-lg">
+          
+          {/* Large Logo Section */}
+          <div className="text-center mb-12 space-y-6">
+            <div className="relative inline-block">
+              <div className="absolute inset-0 bg-accent/20 rounded-full blur-3xl scale-150"></div>
+              <div className="relative w-32 h-32 mx-auto mb-6 rounded-3xl glass-card flex items-center justify-center glow-effect">
+                <AnimatedLogo size={64} animated={true} className="text-accent" />
               </div>
-              
-              <div className="space-y-2">
-                <CardTitle className="text-2xl font-bold text-gray-900">
-                  {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
-                    ? 'Complete Setup' 
-                    : 'Welcome to DentaLeague'
-                  }
-                </CardTitle>
-                <CardDescription className="text-base text-gray-600 leading-relaxed">
-                  {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
-                    ? 'Set up your clinic information to get started' 
-                    : 'Sign in to your account or create a new one'
-                  }
-                </CardDescription>
-              </div>
-            </CardHeader>
+            </div>
             
-            <CardContent className="px-8 pb-8">
+            <div className="space-y-3">
+              <h1 className="text-4xl font-display font-bold text-foreground">
+                {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
+                  ? 'Complete Your Setup' 
+                  : 'Welcome to DentaLeague'
+                }
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-md mx-auto">
+                {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
+                  ? 'Let\'s set up your clinic to get started with your dental practice management' 
+                  : 'Modern dental practice management made simple and efficient'
+                }
+              </p>
+            </div>
+          </div>
+
+          {/* Auth Card */}
+          <Card className="glass-card border-0 shadow-2xl backdrop-blur-xl">
+            <CardContent className="p-8">
               {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? (
                 <ClinicSetupForm userProfile={userProfile} />
               ) : (
                 <Tabs defaultValue="owner" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100 p-1 h-12 rounded-lg">
+                  <TabsList className="grid w-full grid-cols-2 mb-8 bg-surface-muted/50 p-2 h-14 rounded-2xl backdrop-blur-sm">
                     <TabsTrigger 
                       value="owner" 
-                      className="flex items-center space-x-2 py-2.5 text-sm font-medium rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
+                      className="flex items-center space-x-2 py-3 text-sm font-medium rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-lg transition-all duration-200"
                     >
-                      <Crown className="w-4 h-4" />
+                      <Crown className="w-5 h-5" />
                       <span>Clinic Owner</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="assistant" 
-                      className="flex items-center space-x-2 py-2.5 text-sm font-medium rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
+                      className="flex items-center space-x-2 py-3 text-sm font-medium rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-lg transition-all duration-200"
                     >
-                      <UserCheck className="w-4 h-4" />
+                      <UserCheck className="w-5 h-5" />
                       <span>Assistant</span>
                     </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="owner" className="space-y-6 mt-0">
-                    <div className="text-center space-y-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center mx-auto shadow-md">
-                        <Crown className="w-6 h-6 text-white" />
+                    <div className="text-center space-y-4">
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg glass-card">
+                        <Crown className="w-8 h-8 text-accent" />
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Clinic Owner</h3>
-                        <p className="text-gray-600 text-sm">Manage your clinic and dental team</p>
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-display font-semibold text-foreground">Clinic Owner</h3>
+                        <p className="text-muted-foreground">Manage your clinic and lead your dental team to excellence</p>
                       </div>
                     </div>
                     <AuthWidget role="owner" />
                   </TabsContent>
                   
                   <TabsContent value="assistant" className="space-y-6 mt-0">
-                    <div className="text-center space-y-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-md">
-                        <UserCheck className="w-6 h-6 text-white" />
+                    <div className="text-center space-y-4">
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg glass-card">
+                        <UserCheck className="w-8 h-8 text-accent" />
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Dental Assistant</h3>
-                        <p className="text-gray-600 text-sm">Access your daily tasks and patient tracking</p>
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-display font-semibold text-foreground">Dental Assistant</h3>
+                        <p className="text-muted-foreground">Access your tasks and track patient care seamlessly</p>
                       </div>
                     </div>
                     <AuthWidget role="assistant" />
@@ -124,9 +147,9 @@ export default function Auth() {
           </Card>
 
           {/* Footer Text */}
-          <div className="text-center mt-8 text-sm text-gray-500 space-y-2">
+          <div className="text-center mt-8 text-sm text-muted-foreground space-y-2 opacity-80">
             <p>By continuing, you agree to our Terms of Service and Privacy Policy</p>
-            <p>Secure authentication powered by Supabase</p>
+            <p>🔒 Secure authentication powered by Supabase</p>
           </div>
         </div>
       </div>

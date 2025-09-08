@@ -151,48 +151,39 @@ export default function TaskCalendar({
                       'EEEE, MMM d, yyyy';
 
   return (
-    <div className="space-y-6">
-      {/* Header with navigation - Enhanced Design */}
-      <div className="bg-gradient-to-r from-muted/20 via-background to-muted/20 p-6 rounded-2xl border border-border/50 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3 bg-background/80 rounded-xl p-2 shadow-sm border border-border/50">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={navigatePrevious}
-                className="w-10 h-10 rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </Button>
-              <h4 className="font-bold text-xl min-w-[280px] text-center px-4 py-2">
-                {format(selectedDate, headerFormat)}
-              </h4>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={navigateNext}
-                className="w-10 h-10 rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => onDateSelect(new Date())}
-            className="flex items-center gap-2 h-10 px-4 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 rounded-xl transition-all duration-200 font-semibold"
+    <div className="w-full h-full bg-background rounded-lg border">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={navigatePrevious}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <CalendarIcon className="w-4 h-4" />
-            Today
-          </Button>
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          
+          <h2 className="text-lg font-semibold text-foreground">
+            {format(selectedDate, headerFormat)}
+          </h2>
+          
+          <button
+            onClick={navigateNext}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
+        
+        <button
+          onClick={() => onDateSelect(new Date())}
+          className="px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md transition-colors text-sm font-medium"
+        >
+          Today
+        </button>
       </div>
 
-      {/* Calendar Grid - Enhanced Design */}
-      <div className={`grid gap-4 ${
+      {/* Calendar Grid */}
+      <div className={`grid gap-2 p-3 ${
         viewMode === 'monthly' ? 'grid-cols-7' :
         viewMode === 'weekly' ? 'grid-cols-7' :
         'grid-cols-1'
@@ -200,7 +191,7 @@ export default function TaskCalendar({
         {/* Week headers for weekly/monthly view */}
         {(viewMode === 'weekly' || viewMode === 'monthly') && (
           ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => (
-            <div key={day} className="p-4 text-center text-sm font-bold text-foreground bg-gradient-to-b from-muted/50 to-muted/30 rounded-t-xl border-b-2 border-primary/20">
+            <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground border-b">
               {day.substring(0, 3)}
             </div>
           ))
@@ -217,63 +208,65 @@ export default function TaskCalendar({
             <div
               key={date.toISOString()}
               className={`
-                min-h-[160px] p-5 border-2 rounded-2xl shadow-lg backdrop-blur-sm
-                transition-all duration-300 hover:shadow-xl hover:scale-[1.02] transform-gpu
-                ${isCurrentMonth ? 'bg-gradient-to-br from-background via-background/95 to-background/90' : 'bg-gradient-to-br from-muted/20 to-muted/10'}
+                min-h-[140px] p-3 rounded-lg border transition-colors hover:bg-muted/50
                 ${isCurrentDay 
-                  ? 'bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary shadow-xl ring-2 ring-primary/20' 
-                  : 'border-border/50 hover:border-primary/30'
+                  ? 'bg-primary/5 border-primary/30' 
+                  : isSelectedDay
+                  ? 'bg-muted border-muted-foreground/30'
+                  : isCurrentMonth
+                  ? 'bg-background border-border hover:bg-muted/30'
+                  : 'bg-muted/30 border-border/50 text-muted-foreground'
                 }
-                ${isSelectedDay ? 'ring-4 ring-primary/30 ring-offset-2' : ''}
-                ${!isCurrentMonth ? 'opacity-50' : ''}
-                ${viewMode === 'daily' ? 'min-h-[600px]' : ''}
-                group relative overflow-hidden
+                ${viewMode === 'monthly' ? 'aspect-square' : ''}
               `}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, date)}
             >
-              {/* Current day glow effect */}
-              {isCurrentDay && (
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 animate-pulse"></div>
-              )}
-
-              {/* Day header */}
-              <div className="relative flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`
-                    flex items-center justify-center w-10 h-10 rounded-xl text-base font-bold transition-all duration-300
-                    ${isCurrentDay 
-                      ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg ring-2 ring-primary/30' 
-                      : 'bg-gradient-to-br from-muted/50 to-muted/70 text-foreground hover:from-primary/20 hover:to-primary/30'
-                    }
-                  `}>
+              {/* Day Header */}
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-semibold ${
+                    isCurrentDay ? 'text-primary' :
+                    isSelectedDay ? 'text-foreground' :
+                    isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
+                  }`}>
                     {format(date, 'd')}
-                  </div>
-                  {viewMode !== 'monthly' && (
-                    <div className="text-sm font-semibold text-muted-foreground bg-muted/30 px-3 py-1 rounded-full">
+                  </span>
+                  {viewMode === 'weekly' && (
+                    <span className={`text-xs ${
+                      isCurrentMonth ? 'text-muted-foreground' : 'text-muted-foreground/60'
+                    }`}>
                       {format(date, 'EEE')}
-                    </div>
-                  )}
-                  {dayTasks.length > 0 && (
-                    <Badge className="text-xs px-3 py-1 bg-gradient-to-r from-primary/20 to-primary/30 text-primary border-primary/30 font-bold shadow-sm">
-                      {dayTasks.length} task{dayTasks.length !== 1 ? 's' : ''}
-                    </Badge>
+                    </span>
                   )}
                 </div>
                 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-9 h-9 p-0 opacity-0 group-hover:opacity-100 hover:bg-gradient-to-br hover:from-primary/20 hover:to-primary/30 hover:text-primary transition-all duration-300 rounded-xl shadow-lg"
-                  onClick={() => onDayClick(date)}
-                >
-                  <Plus className="w-5 h-5" />
-                </Button>
+                {dayTasks.length > 0 && (
+                  <span className="text-xs px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-medium">
+                    {dayTasks.length}
+                  </span>
+                )}
               </div>
 
+              {/* Add Task Button */}
+              <button
+                onClick={() => onDayClick(date)}
+                className={`w-full p-2 rounded-md border border-dashed transition-colors mb-2 group ${
+                  isCurrentMonth 
+                    ? 'border-border hover:border-primary hover:bg-primary/5' 
+                    : 'border-border/50 hover:border-border'
+                }`}
+              >
+                <Plus className={`h-4 w-4 mx-auto transition-colors ${
+                  isCurrentMonth 
+                    ? 'text-muted-foreground group-hover:text-primary' 
+                    : 'text-muted-foreground/50'
+                }`} />
+              </button>
+
               {/* Tasks */}
-              <div className="relative space-y-3">
-                {dayTasks.slice(0, viewMode === 'daily' ? 25 : 5).map(task => (
+              <div className="space-y-1.5 flex-1 overflow-y-auto">
+                {dayTasks.slice(0, 4).map(task => (
                   <TaskBlock
                     key={task.id}
                     task={task}
@@ -282,23 +275,25 @@ export default function TaskCalendar({
                     onTaskClick={onTaskClick}
                     onStatusUpdate={onTaskStatusUpdate}
                     onDragStart={handleDragStart}
-                    compact={viewMode !== 'daily'}
+                    compact={viewMode === 'monthly'}
                   />
                 ))}
                 
-                {dayTasks.length > (viewMode === 'daily' ? 25 : 5) && (
-                  <div className="text-xs text-center py-3 px-4 bg-gradient-to-r from-muted/30 to-muted/20 rounded-xl border border-border/30 font-semibold text-muted-foreground">
-                    +{dayTasks.length - (viewMode === 'daily' ? 25 : 5)} more tasks
+                {dayTasks.length > 4 && (
+                  <div className="text-xs px-2 py-1 rounded-md text-center bg-muted text-muted-foreground">
+                    +{dayTasks.length - 4} more
                   </div>
                 )}
                 
-                {dayTasks.length === 0 && (
-                  <div 
-                    className="text-xs text-center py-8 cursor-pointer transition-all duration-300 border-2 border-dashed border-muted/50 rounded-xl hover:border-primary/50 hover:bg-primary/5 group/add"
-                    onClick={() => onDayClick(date)}
-                  >
-                    <Plus className="w-6 h-6 mx-auto mb-2 opacity-30 group-hover/add:opacity-70 group-hover/add:text-primary transition-all duration-300" />
-                    <span className="text-muted-foreground group-hover/add:text-primary font-medium">Add task</span>
+                {dayTasks.length === 0 && isCurrentMonth && (
+                  <div className="text-center py-2">
+                    <p className="text-xs text-muted-foreground mb-1">No tasks</p>
+                    <button
+                      onClick={() => onDayClick(date)}
+                      className="text-xs text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Add a task
+                    </button>
                   </div>
                 )}
               </div>
@@ -307,25 +302,23 @@ export default function TaskCalendar({
         })}
       </div>
 
-      {/* Legend - Enhanced Design */}
-      <div className="bg-gradient-to-r from-muted/20 to-background p-6 rounded-2xl border border-border/50 shadow-lg">
-        <div className="flex flex-col gap-4">
-          <h5 className="text-sm font-bold text-foreground uppercase tracking-wide">Team Assignments</h5>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-3 bg-muted/30 rounded-full px-4 py-2 border border-border/30">
-              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-muted/50 to-muted/70 border-2 border-muted"></div>
-              <span className="text-sm font-medium text-muted-foreground">Unassigned</span>
-            </div>
-            {assistants.map((assistant, index) => {
-              const colorClass = getAssistantColor(assistant.id);
-              const bgColorClass = colorClass.split(' ').find(cls => cls.startsWith('bg-gradient-to-br'));
-              return (
-                <div key={assistant.id} className="flex items-center gap-3 bg-background/50 rounded-full px-4 py-2 border border-border/30 shadow-sm">
-                  <div className={`w-4 h-4 rounded-full ${bgColorClass} border-2`}></div>
-                  <span className="text-sm font-medium text-foreground">{assistant.name}</span>
-                </div>
-              );
-            })}
+      {/* Assistant Legend */}
+      <div className="p-3 pt-0 border-t">
+        <div className="flex flex-wrap gap-2 justify-center">
+          {assistants.map((assistant) => {
+            const colorClass = getAssistantColor(assistant.id);
+            return (
+              <div key={assistant.id} className="flex items-center gap-1.5">
+                <div className={`w-3 h-3 rounded-full ${colorClass.replace('from-', 'bg-').split(' ')[0]}`} />
+                <span className="text-xs text-muted-foreground">
+                  {assistant.name}
+                </span>
+              </div>
+            );
+          })}
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-muted-foreground/30" />
+            <span className="text-xs text-muted-foreground">Unassigned</span>
           </div>
         </div>
       </div>

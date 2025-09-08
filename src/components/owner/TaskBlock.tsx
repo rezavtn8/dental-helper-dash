@@ -72,6 +72,33 @@ export default function TaskBlock({
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  // Helper function to safely check and format dates
+  const isValidDate = (dateValue: any): boolean => {
+    if (!dateValue) return false;
+    const date = new Date(dateValue);
+    return !isNaN(date.getTime());
+  };
+
+  const formatSafeDate = (dateValue: any, formatString: string, fallback: string = 'No date'): string => {
+    if (!isValidDate(dateValue)) return fallback;
+    try {
+      return format(new Date(dateValue), formatString);
+    } catch (error) {
+      console.warn('Date formatting error:', error);
+      return fallback;
+    }
+  };
+
+  const isTaskToday = (dateValue: any): boolean => {
+    if (!isValidDate(dateValue)) return false;
+    try {
+      return isToday(new Date(dateValue));
+    } catch (error) {
+      console.warn('Date comparison error:', error);
+      return false;
+    }
+  };
+
   const toggleStatus = (e: React.MouseEvent) => {
     e.stopPropagation();
     const nextStatus: TaskStatus = task.status === 'completed' ? 'pending' : 
@@ -184,11 +211,11 @@ export default function TaskBlock({
             <span className={`text-xs px-1.5 py-0.5 rounded text-center ${
               isOverdue 
                 ? 'bg-red-100 text-red-700' 
-                : isToday(new Date(task['due-date']))
+                : isTaskToday(task['due-date'])
                 ? 'bg-blue-100 text-blue-700'
                 : 'bg-muted text-muted-foreground'
             }`}>
-              {format(task['due-date'], 'MMM d')}
+              {formatSafeDate(task['due-date'], 'MMM d', 'No date')}
             </span>
 
             {/* Status Badge */}

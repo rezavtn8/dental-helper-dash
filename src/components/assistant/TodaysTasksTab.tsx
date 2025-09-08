@@ -190,23 +190,33 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
   // Helper function to calculate next due date for recurring tasks
   const calculateNextDueDate = (currentDueDate: string, recurrence: string): string => {
-    const date = new Date(currentDueDate);
+    if (!currentDueDate) return new Date().toISOString();
     
-    switch (recurrence) {
-      case 'daily':
-        date.setDate(date.getDate() + 1);
-        break;
-      case 'weekly':
-        date.setDate(date.getDate() + 7);
-        break;
-      case 'monthly':
-        date.setMonth(date.getMonth() + 1);
-        break;
-      default:
-        date.setDate(date.getDate() + 1); // Default to daily
+    try {
+      const date = new Date(currentDueDate);
+      if (isNaN(date.getTime())) {
+        return new Date().toISOString();
+      }
+    
+      switch (recurrence) {
+        case 'daily':
+          date.setDate(date.getDate() + 1);
+          break;
+        case 'weekly':
+          date.setDate(date.getDate() + 7);
+          break;
+        case 'monthly':
+          date.setMonth(date.getMonth() + 1);
+          break;
+        default:
+          date.setDate(date.getDate() + 1); // Default to daily
+      }
+      
+      return date.toISOString();
+    } catch (error) {
+      console.warn('Error calculating next due date:', error);
+      return new Date().toISOString();
     }
-    
-    return date.toISOString();
   };
 
   const markTaskUndone = async (taskId: string) => {

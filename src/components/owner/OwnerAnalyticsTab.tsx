@@ -149,8 +149,13 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
       
       const completed = weekTasks.filter(task => task.status === 'completed').length;
       const overdue = weekTasks.filter(task => {
-        const dueDate = task['due-date'] ? new Date(task['due-date']) : null;
-        return dueDate && dueDate < now && task.status !== 'completed';
+        if (!task['due-date']) return false;
+        try {
+          const dueDate = new Date(task['due-date']);
+          return !isNaN(dueDate.getTime()) && dueDate < now && task.status !== 'completed';
+        } catch (error) {
+          return false;
+        }
       }).length;
       
       weeklyTasksMap.set(weekKey, { week: weekKey, completed, overdue });
@@ -196,8 +201,13 @@ export default function OwnerAnalyticsTab({ clinicId }: OwnerAnalyticsTabProps) 
       const dateKey = date.toLocaleDateString();
       
       const overdue = tasks.filter(task => {
-        const dueDate = task['due-date'] ? new Date(task['due-date']) : null;
-        return dueDate && dueDate.toDateString() === date.toDateString() && task.status !== 'completed';
+        if (!task['due-date']) return false;
+        try {
+          const dueDate = new Date(task['due-date']);
+          return !isNaN(dueDate.getTime()) && dueDate.toDateString() === date.toDateString() && task.status !== 'completed';
+        } catch (error) {
+          return false;
+        }
       }).length;
       
       overdueTrendMap.set(dateKey, { date: dateKey, overdue });

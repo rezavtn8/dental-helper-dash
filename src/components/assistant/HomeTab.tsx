@@ -49,7 +49,13 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
   const overdueTasks = tasks.filter(task => {
     if (task.status === 'completed') return false;
     const dueDate = task['due-date'] || task.custom_due_date;
-    return dueDate && new Date(dueDate) < new Date();
+    if (!dueDate) return false;
+    try {
+      const taskDueDate = new Date(dueDate);
+      return !isNaN(taskDueDate.getTime()) && taskDueDate < new Date();
+    } catch (error) {
+      return false;
+    }
   }).length;
 
   const quickStats = [

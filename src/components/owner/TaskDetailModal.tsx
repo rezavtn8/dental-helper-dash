@@ -408,12 +408,30 @@ export default function TaskDetailModal({
           <div className="space-y-2">
             <h4 className="font-semibold">Timeline</h4>
             <div className="text-sm text-muted-foreground space-y-1">
-              <p>Created: {task.created_at ? format(new Date(task.created_at), 'PPp') : 'Unknown'}</p>
+              <p>Created: {task.created_at ? (() => {
+                try {
+                  return format(new Date(task.created_at), 'PPp');
+                } catch (error) {
+                  return 'Invalid date';
+                }
+              })() : 'Unknown'}</p>
               {task.completed_at && (
-                <p>Completed: {format(new Date(task.completed_at), 'PPp')}</p>
+                <p>Completed: {(() => {
+                  try {
+                    return format(new Date(task.completed_at), 'PPp');
+                  } catch (error) {
+                    return 'Invalid date';
+                  }
+                })()}</p>
               )}
               {task.custom_due_date && (
-                <p>Due Date: {format(new Date(task.custom_due_date), 'PPp')}</p>
+                <p>Due Date: {(() => {
+                  try {
+                    return format(new Date(task.custom_due_date), 'PPp');
+                  } catch (error) {
+                    return 'Invalid date';
+                  }
+                })()}</p>
               )}
             </div>
           </div>

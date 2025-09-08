@@ -106,33 +106,32 @@ const OwnerDashboard = () => {
         
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40 p-4">
-            <div className="flex items-center justify-between">
-              {/* Left: DentaLeague Brand */}
-              <div className="flex items-center gap-3">
-                <SidebarTrigger />
-                <Button 
-                  variant="ghost" 
-                  className="flex items-center gap-2 h-auto p-0 hover:bg-transparent"
-                  onClick={() => navigate('/')}
-                  aria-label="DentaLeague home"
-                >
-                  <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded flex items-center justify-center">
-                    <Home className="w-3 h-3 text-primary-foreground" />
-                  </div>
-                  <span className="font-semibold text-foreground">DentaLeague</span>
-                </Button>
-              </div>
+          <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
+            <div className="flex items-center gap-4 h-14 px-4">
+              <SidebarTrigger />
               
-              {/* Center: Page Title */}
-              <div className="flex items-center gap-2">
+              {/* Brand Group */}
+              <Button 
+                variant="ghost" 
+                className="flex items-center gap-2 h-auto p-0 hover:bg-transparent"
+                onClick={() => navigate('/')}
+                aria-label="DentaLeague home"
+              >
+                <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded flex items-center justify-center">
+                  <Home className="w-3 h-3 text-primary-foreground" />
+                </div>
+                <span className="font-semibold text-base hidden sm:inline">DentaLeague</span>
+              </Button>
+              
+              {/* Context Title Group */}
+              <div className="flex items-center gap-1.5">
                 <Building2 className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
-                <h1 className="font-semibold text-lg text-foreground">
+                <h1 className="font-semibold text-lg text-foreground max-w-[55vw] sm:max-w-none truncate">
                   {clinic?.name || 'Your Clinic'}
                 </h1>
               </div>
               
-              {/* Center: Empty space for better balance */}
+              {/* Spacer */}
               <div className="flex-1"></div>
               
               {/* Right: User Profile */}

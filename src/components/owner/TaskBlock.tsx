@@ -82,48 +82,53 @@ export default function TaskBlock({
   return (
     <div
       className={`
-        ${colorClass} border-2 rounded-xl p-3 cursor-pointer relative overflow-hidden
-        hover:shadow-lg transition-all duration-300 hover:scale-[1.02] transform-gpu
-        ${compact ? 'text-xs p-2' : 'text-sm'}
-        ${task.status === 'completed' ? 'opacity-80 saturate-50' : 'shadow-md'}
-        group bg-gradient-to-br from-background to-background/95
+        ${colorClass} border-2 rounded-2xl p-4 cursor-pointer relative overflow-hidden backdrop-blur-sm
+        hover:shadow-xl transition-all duration-300 hover:scale-[1.03] transform-gpu
+        ${compact ? 'text-xs p-3' : 'text-sm'}
+        ${task.status === 'completed' ? 'opacity-80 saturate-75' : 'shadow-lg'}
+        group relative
       `}
       draggable
       onDragStart={(e) => onDragStart(e, task)}
       onClick={() => onTaskClick(task)}
     >
-      {/* Priority indicator */}
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/5 pointer-events-none"></div>
+      
+      {/* Priority indicator - Enhanced */}
       {task.priority === 'high' && (
-        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full shadow-lg animate-pulse"></div>
-      )}
-
-      {/* Status indicator line */}
-      <div className={`absolute top-0 left-0 right-0 h-1 ${
-        isOverdue ? 'bg-red-500' :
-        task.status === 'completed' ? 'bg-green-500' :
-        task.status === 'in-progress' ? 'bg-orange-500' :
-        'bg-muted'
-      }`}></div>
-
-      {/* Overdue indicator */}
-      {isOverdue && (
-        <div className="absolute -top-1 -left-1 w-4 h-4 bg-red-500 rounded-full shadow-lg animate-pulse flex items-center justify-center">
-          <AlertCircle className="w-2 h-2 text-white" />
+        <div className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-br from-red-400 to-red-600 rounded-full shadow-lg animate-pulse flex items-center justify-center border-2 border-white">
+          <Flag className="w-2.5 h-2.5 text-white" />
         </div>
       )}
 
-      <div className="flex items-start gap-3 mt-1">
+      {/* Status indicator line - Enhanced */}
+      <div className={`absolute top-0 left-0 right-0 h-2 rounded-t-2xl ${
+        isOverdue ? 'bg-gradient-to-r from-red-500 to-red-600' :
+        task.status === 'completed' ? 'bg-gradient-to-r from-green-400 to-green-600' :
+        task.status === 'in-progress' ? 'bg-gradient-to-r from-orange-400 to-orange-600' :
+        'bg-gradient-to-r from-muted to-muted/80'
+      }`}></div>
+
+      {/* Overdue indicator - Enhanced */}
+      {isOverdue && (
+        <div className="absolute -top-2 -left-2 w-6 h-6 bg-gradient-to-br from-red-500 to-red-700 rounded-full shadow-xl animate-pulse flex items-center justify-center border-2 border-white">
+          <AlertCircle className="w-3 h-3 text-white" />
+        </div>
+      )}
+
+      <div className="relative flex items-start gap-4 mt-2">
         {/* Task Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
-              <span className={`font-semibold leading-tight ${
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-center gap-3 flex-1">
+              <span className={`font-bold leading-tight ${
                 task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'
-              } ${compact ? 'text-xs' : 'text-sm'}`}>
+              } ${compact ? 'text-sm' : 'text-base'}`}>
                 {task.title}
               </span>
               {isRecurringInstance(task) && (
-                <div title="Recurring task instance" className="flex-shrink-0">
+                <div title="Recurring task instance" className="flex-shrink-0 bg-primary/20 rounded-full p-1">
                   <Repeat className="w-3 h-3 text-primary animate-pulse" />
                 </div>
               )}
@@ -134,7 +139,7 @@ export default function TaskBlock({
               {!isOwner && task.status === 'pending' && (
                 <Button
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full px-5 py-2 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold"
                   onClick={toggleStatus}
                 >
                   Start
@@ -143,17 +148,17 @@ export default function TaskBlock({
               {!isOwner && task.status === 'in-progress' && (
                 <Button
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full px-5 py-2 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold"
                   onClick={toggleStatus}
                 >
-                  Done
+                  Complete
                 </Button>
               )}
               {!isOwner && task.status === 'completed' && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="border-orange-300 text-orange-600 hover:bg-orange-50 rounded-full px-4"
+                  className="border-2 border-orange-300 text-orange-600 hover:bg-orange-50 hover:border-orange-400 rounded-full px-5 py-2 font-semibold transition-all duration-200"
                   onClick={toggleStatus}
                 >
                   Undo
@@ -163,59 +168,62 @@ export default function TaskBlock({
           </div>
 
           {!compact && task.description && (
-            <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+            <p className="text-sm text-muted-foreground mb-4 leading-relaxed bg-muted/20 rounded-lg p-3">
               {task.description}
             </p>
           )}
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Assignment */}
-            <div className="flex items-center gap-2 bg-muted/50 rounded-full px-2 py-1">
-              <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Assignment - Enhanced */}
+            <div className="flex items-center gap-3 bg-background/60 backdrop-blur-sm rounded-full px-4 py-2 border border-border/30 shadow-sm">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center border-2 border-primary/30">
                 <span className="text-xs font-bold text-primary">
                   {getAssistantInitials()}
                 </span>
               </div>
               {!compact && (
-                <span className="text-xs font-medium text-foreground">
+                <span className="text-sm font-semibold text-foreground">
                   {getAssistantName()}
                 </span>
               )}
             </div>
 
-            {/* Overdue Badge */}
+            {/* Overdue Badge - Enhanced */}
             {isOverdue && (
-              <Badge className="text-xs px-2 py-1 font-medium bg-red-100 border-red-300 text-red-700 border-2">
-                OVERDUE
+              <Badge className="text-xs px-3 py-1.5 font-bold bg-gradient-to-r from-red-100 to-red-200 border-2 border-red-300 text-red-800 shadow-sm animate-pulse">
+                ⚠️ OVERDUE
               </Badge>
             )}
 
-            {/* Priority Badge */}
+            {/* Priority Badge - Enhanced */}
             {task.priority && task.priority !== 'medium' && (
               <Badge 
-                className={`text-xs px-2 py-1 font-medium border-2 ${
-                  task.priority === 'high' ? 'bg-red-50 border-red-300 text-red-700' :
-                  task.priority === 'low' ? 'bg-green-50 border-green-300 text-green-700' :
-                  'bg-muted border-border text-muted-foreground'
+                className={`text-xs px-3 py-1.5 font-bold border-2 shadow-sm ${
+                  task.priority === 'high' ? 'bg-gradient-to-r from-red-50 to-red-100 border-red-300 text-red-800' :
+                  task.priority === 'low' ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-300 text-green-800' :
+                  'bg-gradient-to-r from-muted to-muted/80 border-border text-muted-foreground'
                 }`}
               >
-                {task.priority}
+                {task.priority === 'high' && '🔴'}
+                {task.priority === 'low' && '🟢'}
+                {task.priority?.toUpperCase()}
               </Badge>
             )}
 
-            {/* Due Type */}
+            {/* Due Type - Enhanced */}
             {task['due-type'] && (
-              <Badge variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary border border-primary/20">
-                {task['due-type']}
+              <Badge className="text-xs px-3 py-1.5 bg-gradient-to-r from-primary/10 to-primary/20 text-primary border-2 border-primary/30 font-semibold shadow-sm">
+                📅 {task['due-type']}
               </Badge>
             )}
 
-            {/* Overdue Reason */}
+            {/* Overdue Reason - Enhanced */}
             {isOverdue && isRecurringInstance(task) && task.overdueReason && !compact && (
-              <div className="w-full mt-2">
-                <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1">
-                  {task.overdueReason}
-                </p>
+              <div className="w-full mt-3">
+                <div className="text-xs p-3 bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-200 rounded-xl shadow-sm">
+                  <span className="font-semibold text-red-800">Overdue Reason:</span>
+                  <p className="text-red-700 mt-1">{task.overdueReason}</p>
+                </div>
               </div>
             )}
           </div>

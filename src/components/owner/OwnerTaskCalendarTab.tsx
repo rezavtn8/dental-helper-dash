@@ -148,74 +148,112 @@ export default function OwnerTaskCalendarTab({ clinicId }: OwnerTaskCalendarTabP
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <div>
-          <h3 className="text-lg font-semibold">Task Calendar</h3>
-          <p className="text-muted-foreground">Visual overview of task schedules and assignments</p>
-        </div>
+    <div className="space-y-8">
+      {/* Header - Enhanced Design */}
+      <div className="bg-gradient-to-r from-background via-background/95 to-background/80 p-8 rounded-2xl border border-border/50 shadow-lg backdrop-blur-sm">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center border border-primary/30">
+                <CalendarIcon className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-foreground">Task Calendar</h3>
+                <p className="text-muted-foreground text-base">Visual overview of task schedules and team assignments</p>
+              </div>
+            </div>
+          </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            onClick={() => setShowCreateTask(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Create Task
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={() => setShowCreateTask(true)}
+              className="flex items-center gap-2 h-12 px-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl font-semibold"
+            >
+              <Plus className="w-5 h-5" />
+              Create Task
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Controls */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
+      {/* Controls - Modern Design */}
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-background to-background/80 backdrop-blur-sm">
+        <CardContent className="p-6">
+          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
             {/* View Mode Toggle */}
-            <div className="flex gap-1 p-1 bg-muted rounded-lg">
-              {(['daily', 'weekly', 'monthly'] as ViewMode[]).map((mode) => (
-                <Button
-                  key={mode}
-                  variant={viewMode === mode ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode(mode)}
-                  className="capitalize"
-                >
-                  {mode}
-                </Button>
-              ))}
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">View Mode</label>
+              <div className="flex gap-2 p-2 bg-muted/50 rounded-xl border border-border/50">
+                {(['daily', 'weekly', 'monthly'] as ViewMode[]).map((mode) => (
+                  <Button
+                    key={mode}
+                    variant={viewMode === mode ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode(mode)}
+                    className={`capitalize px-4 py-2 rounded-lg transition-all duration-200 ${
+                      viewMode === mode 
+                        ? 'bg-primary text-primary-foreground shadow-md font-semibold' 
+                        : 'hover:bg-background/50'
+                    }`}
+                  >
+                    {mode === 'daily' && '📅'}
+                    {mode === 'weekly' && '📆'}
+                    {mode === 'monthly' && '🗓️'}
+                    <span className="ml-2">{mode}</span>
+                  </Button>
+                ))}
+              </div>
             </div>
 
             {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-muted-foreground" />
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Filter by Status</label>
               <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
+                <SelectTrigger className="min-w-[160px] h-11 bg-background/80 border-border/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-primary" />
+                    <SelectValue />
+                  </div>
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Tasks</SelectItem>
-                  <SelectItem value="pending">To Do</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Done</SelectItem>
+                <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                  <SelectItem value="all" className="rounded-lg">🔍 All Tasks</SelectItem>
+                  <SelectItem value="pending" className="rounded-lg">📋 To Do</SelectItem>
+                  <SelectItem value="in-progress" className="rounded-lg">⚡ In Progress</SelectItem>
+                  <SelectItem value="completed" className="rounded-lg">✅ Completed</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Tasks Count */}
-            <div className="flex items-center gap-2 ml-auto">
-              <Badge variant="outline" className="flex items-center gap-1">
-                <CalendarIcon className="w-3 h-3" />
-                {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
-              </Badge>
+            {/* Stats Display */}
+            <div className="flex items-center gap-6 ml-auto">
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">{filteredTasks.length}</div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide">Visible Tasks</div>
+                </div>
+                <div className="w-px h-12 bg-border"></div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {filteredTasks.filter(t => t.status === 'completed').length}
+                  </div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide">Completed</div>
+                </div>
+                <div className="w-px h-12 bg-border"></div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {filteredTasks.filter(t => t.status === 'in-progress').length}
+                  </div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide">In Progress</div>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Calendar */}
-      <Card>
-        <CardContent className="p-6">
+      {/* Calendar - Enhanced Container */}
+      <Card className="border-0 shadow-xl bg-gradient-to-br from-background to-background/95 backdrop-blur-sm overflow-hidden">
+        <CardContent className="p-8">
           <TaskCalendar
             tasks={filteredTasks}
             assistants={assistants}

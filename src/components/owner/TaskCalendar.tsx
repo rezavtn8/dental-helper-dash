@@ -54,19 +54,19 @@ export default function TaskCalendar({
 }: TaskCalendarProps) {
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
 
-  // Generate assistant colors
+  // Generate assistant colors with modern gradients
   const getAssistantColor = (assistantId: string | null | undefined) => {
-    if (!assistantId) return 'bg-slate-300 border-slate-400';
+    if (!assistantId) return 'bg-gradient-to-br from-muted/50 to-muted/70 border-muted text-muted-foreground';
     
     const colors = [
-      'bg-blue-200 border-blue-400 text-blue-800',
-      'bg-green-200 border-green-400 text-green-800',
-      'bg-purple-200 border-purple-400 text-purple-800',
-      'bg-orange-200 border-orange-400 text-orange-800',
-      'bg-pink-200 border-pink-400 text-pink-800',
-      'bg-indigo-200 border-indigo-400 text-indigo-800',
-      'bg-cyan-200 border-cyan-400 text-cyan-800',
-      'bg-teal-200 border-teal-400 text-teal-800',
+      'bg-gradient-to-br from-blue-100 to-blue-200 border-blue-300 text-blue-800',
+      'bg-gradient-to-br from-green-100 to-green-200 border-green-300 text-green-800',
+      'bg-gradient-to-br from-purple-100 to-purple-200 border-purple-300 text-purple-800',
+      'bg-gradient-to-br from-orange-100 to-orange-200 border-orange-300 text-orange-800',
+      'bg-gradient-to-br from-pink-100 to-pink-200 border-pink-300 text-pink-800',
+      'bg-gradient-to-br from-indigo-100 to-indigo-200 border-indigo-300 text-indigo-800',
+      'bg-gradient-to-br from-cyan-100 to-cyan-200 border-cyan-300 text-cyan-800',
+      'bg-gradient-to-br from-teal-100 to-teal-200 border-teal-300 text-teal-800',
     ];
     
     const index = assistants.findIndex(a => a.id === assistantId);
@@ -151,35 +151,47 @@ export default function TaskCalendar({
                       'EEEE, MMM d, yyyy';
 
   return (
-    <div className="space-y-4">
-      {/* Header with navigation */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={navigatePrevious}>
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <h4 className="font-semibold text-lg min-w-[200px] text-center">
-              {format(selectedDate, headerFormat)}
-            </h4>
-            <Button variant="outline" size="sm" onClick={navigateNext}>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+    <div className="space-y-6">
+      {/* Header with navigation - Enhanced Design */}
+      <div className="bg-gradient-to-r from-muted/20 via-background to-muted/20 p-6 rounded-2xl border border-border/50 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 bg-background/80 rounded-xl p-2 shadow-sm border border-border/50">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={navigatePrevious}
+                className="w-10 h-10 rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <h4 className="font-bold text-xl min-w-[280px] text-center px-4 py-2">
+                {format(selectedDate, headerFormat)}
+              </h4>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={navigateNext}
+                className="w-10 h-10 rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => onDateSelect(new Date())}
+            className="flex items-center gap-2 h-10 px-4 bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 rounded-xl transition-all duration-200 font-semibold"
+          >
+            <CalendarIcon className="w-4 h-4" />
+            Today
+          </Button>
         </div>
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => onDateSelect(new Date())}
-          className="flex items-center gap-2"
-        >
-          <CalendarIcon className="w-4 h-4" />
-          Today
-        </Button>
       </div>
 
-      {/* Calendar Grid */}
+      {/* Calendar Grid - Enhanced Design */}
       <div className={`grid gap-4 ${
         viewMode === 'monthly' ? 'grid-cols-7' :
         viewMode === 'weekly' ? 'grid-cols-7' :
@@ -188,8 +200,8 @@ export default function TaskCalendar({
         {/* Week headers for weekly/monthly view */}
         {(viewMode === 'weekly' || viewMode === 'monthly') && (
           ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => (
-            <div key={day} className="p-4 text-center text-sm font-semibold text-foreground border-b-2 border-border">
-              {day}
+            <div key={day} className="p-4 text-center text-sm font-bold text-foreground bg-gradient-to-b from-muted/50 to-muted/30 rounded-t-xl border-b-2 border-primary/20">
+              {day.substring(0, 3)}
             </div>
           ))
         )}
@@ -205,33 +217,45 @@ export default function TaskCalendar({
             <div
               key={date.toISOString()}
               className={`
-                min-h-[140px] p-4 border border-border rounded-xl bg-card shadow-sm
-                transition-all duration-300 hover:shadow-md hover:border-primary/30
-                ${isCurrentDay ? 'bg-primary/5 border-primary/50 shadow-lg' : ''}
-                ${isSelectedDay ? 'ring-2 ring-primary/30 ring-offset-2' : ''}
-                ${!isCurrentMonth ? 'opacity-40' : ''}
-                ${viewMode === 'daily' ? 'min-h-[500px]' : ''}
+                min-h-[160px] p-5 border-2 rounded-2xl shadow-lg backdrop-blur-sm
+                transition-all duration-300 hover:shadow-xl hover:scale-[1.02] transform-gpu
+                ${isCurrentMonth ? 'bg-gradient-to-br from-background via-background/95 to-background/90' : 'bg-gradient-to-br from-muted/20 to-muted/10'}
+                ${isCurrentDay 
+                  ? 'bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary shadow-xl ring-2 ring-primary/20' 
+                  : 'border-border/50 hover:border-primary/30'
+                }
+                ${isSelectedDay ? 'ring-4 ring-primary/30 ring-offset-2' : ''}
+                ${!isCurrentMonth ? 'opacity-50' : ''}
+                ${viewMode === 'daily' ? 'min-h-[600px]' : ''}
                 group relative overflow-hidden
               `}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, date)}
             >
+              {/* Current day glow effect */}
+              {isCurrentDay && (
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 animate-pulse"></div>
+              )}
+
               {/* Day header */}
-              <div className="flex items-center justify-between mb-3">
+              <div className="relative flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`
-                    flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold transition-all duration-200
-                    ${isCurrentDay ? 'bg-primary text-primary-foreground shadow-lg' : 'text-foreground'}
+                    flex items-center justify-center w-10 h-10 rounded-xl text-base font-bold transition-all duration-300
+                    ${isCurrentDay 
+                      ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg ring-2 ring-primary/30' 
+                      : 'bg-gradient-to-br from-muted/50 to-muted/70 text-foreground hover:from-primary/20 hover:to-primary/30'
+                    }
                   `}>
                     {format(date, 'd')}
                   </div>
                   {viewMode !== 'monthly' && (
-                    <span className="text-sm font-medium text-muted-foreground">
+                    <div className="text-sm font-semibold text-muted-foreground bg-muted/30 px-3 py-1 rounded-full">
                       {format(date, 'EEE')}
-                    </span>
+                    </div>
                   )}
                   {dayTasks.length > 0 && (
-                    <Badge variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary border-primary/20">
+                    <Badge className="text-xs px-3 py-1 bg-gradient-to-r from-primary/20 to-primary/30 text-primary border-primary/30 font-bold shadow-sm">
                       {dayTasks.length} task{dayTasks.length !== 1 ? 's' : ''}
                     </Badge>
                   )}
@@ -240,16 +264,16 @@ export default function TaskCalendar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-8 h-8 p-0 opacity-0 group-hover:opacity-100 hover:bg-primary/10 hover:text-primary transition-all duration-200 rounded-full"
+                  className="w-9 h-9 p-0 opacity-0 group-hover:opacity-100 hover:bg-gradient-to-br hover:from-primary/20 hover:to-primary/30 hover:text-primary transition-all duration-300 rounded-xl shadow-lg"
                   onClick={() => onDayClick(date)}
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-5 h-5" />
                 </Button>
               </div>
 
               {/* Tasks */}
-              <div className="space-y-2">
-                {dayTasks.slice(0, viewMode === 'daily' ? 20 : 4).map(task => (
+              <div className="relative space-y-3">
+                {dayTasks.slice(0, viewMode === 'daily' ? 25 : 5).map(task => (
                   <TaskBlock
                     key={task.id}
                     task={task}
@@ -262,19 +286,19 @@ export default function TaskCalendar({
                   />
                 ))}
                 
-                {dayTasks.length > (viewMode === 'daily' ? 20 : 4) && (
-                  <div className="text-xs text-muted-foreground text-center py-2 px-3 bg-muted/50 rounded-lg">
-                    +{dayTasks.length - (viewMode === 'daily' ? 20 : 4)} more tasks
+                {dayTasks.length > (viewMode === 'daily' ? 25 : 5) && (
+                  <div className="text-xs text-center py-3 px-4 bg-gradient-to-r from-muted/30 to-muted/20 rounded-xl border border-border/30 font-semibold text-muted-foreground">
+                    +{dayTasks.length - (viewMode === 'daily' ? 25 : 5)} more tasks
                   </div>
                 )}
                 
                 {dayTasks.length === 0 && (
                   <div 
-                    className="text-xs text-muted-foreground text-center py-6 cursor-pointer hover:text-foreground transition-colors duration-200 border-2 border-dashed border-muted rounded-lg hover:border-primary/30"
+                    className="text-xs text-center py-8 cursor-pointer transition-all duration-300 border-2 border-dashed border-muted/50 rounded-xl hover:border-primary/50 hover:bg-primary/5 group/add"
                     onClick={() => onDayClick(date)}
                   >
-                    <Plus className="w-4 h-4 mx-auto mb-1 opacity-50" />
-                    Add task
+                    <Plus className="w-6 h-6 mx-auto mb-2 opacity-30 group-hover/add:opacity-70 group-hover/add:text-primary transition-all duration-300" />
+                    <span className="text-muted-foreground group-hover/add:text-primary font-medium">Add task</span>
                   </div>
                 )}
               </div>
@@ -283,19 +307,27 @@ export default function TaskCalendar({
         })}
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 pt-4 border-t">
-        <div className="text-sm font-medium text-muted-foreground">Assignments:</div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-slate-300 border border-slate-400"></div>
-          <span className="text-sm text-muted-foreground">Unassigned</span>
-        </div>
-        {assistants.map((assistant, index) => (
-          <div key={assistant.id} className="flex items-center gap-1">
-            <div className={`w-3 h-3 rounded ${getAssistantColor(assistant.id).split(' ')[0]} border`}></div>
-            <span className="text-sm text-muted-foreground">{assistant.name}</span>
+      {/* Legend - Enhanced Design */}
+      <div className="bg-gradient-to-r from-muted/20 to-background p-6 rounded-2xl border border-border/50 shadow-lg">
+        <div className="flex flex-col gap-4">
+          <h5 className="text-sm font-bold text-foreground uppercase tracking-wide">Team Assignments</h5>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-3 bg-muted/30 rounded-full px-4 py-2 border border-border/30">
+              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-muted/50 to-muted/70 border-2 border-muted"></div>
+              <span className="text-sm font-medium text-muted-foreground">Unassigned</span>
+            </div>
+            {assistants.map((assistant, index) => {
+              const colorClass = getAssistantColor(assistant.id);
+              const bgColorClass = colorClass.split(' ').find(cls => cls.startsWith('bg-gradient-to-br'));
+              return (
+                <div key={assistant.id} className="flex items-center gap-3 bg-background/50 rounded-full px-4 py-2 border border-border/30 shadow-sm">
+                  <div className={`w-4 h-4 rounded-full ${bgColorClass} border-2`}></div>
+                  <span className="text-sm font-medium text-foreground">{assistant.name}</span>
+                </div>
+              );
+            })}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

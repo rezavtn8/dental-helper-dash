@@ -20,7 +20,7 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
-    --accent: 220 85% 55%;
+    --accent: 215 20% 65%;
     --accent-foreground: 0 0% 98%;
 
     /* Additional grey variations for depth */
@@ -39,33 +39,33 @@ All colors MUST be HSL.
     --ring: 0 0% 9%;
 
     
-    /* Blue theme colors - different shades */
-    --blue-50: 217 91% 98%;
-    --blue-100: 217 91% 95%;
-    --blue-200: 220 85% 85%;
-    --blue-300: 220 85% 75%;
-    --blue-400: 220 85% 65%;
-    --blue-500: 220 85% 55%;
-    --blue-600: 220 85% 45%;
-    --blue-700: 220 85% 35%;
-    --blue-800: 220 85% 25%;
-    --blue-900: 220 85% 15%;
-    --blue-950: 220 85% 10%;
+    /* Slate theme colors - sophisticated and refined */
+    --blue-50: 210 14% 97%;
+    --blue-100: 210 14% 93%;
+    --blue-200: 210 16% 82%;
+    --blue-300: 210 16% 71%;
+    --blue-400: 215 19% 60%;
+    --blue-500: 215 22% 49%;
+    --blue-600: 215 25% 38%;
+    --blue-700: 215 28% 27%;
+    --blue-800: 220 39% 18%;
+    --blue-900: 220 50% 11%;
+    --blue-950: 220 62% 7%;
     
-    /* Logo colors - blue variations */
-    --logo-primary: 220 85% 45%;
-    --logo-secondary: 220 85% 55%;
-    --logo-accent: 220 85% 35%;
+    /* Logo colors - slate variations */
+    --logo-primary: 215 25% 38%;
+    --logo-secondary: 215 22% 49%;
+    --logo-accent: 215 28% 27%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 40%));
-    --gradient-blue: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 45%));
-    --gradient-dark-blue: linear-gradient(135deg, hsl(217 91% 30%), hsl(217 91% 15%));
-    --gradient-subtle: linear-gradient(180deg, hsl(217 91% 98%), hsl(217 91% 95%));
-    --gradient-hero: linear-gradient(135deg, hsl(217 91% 98%) 0%, hsl(217 91% 95%) 25%, hsl(217 91% 98%) 50%, hsl(217 91% 96%) 75%, hsl(217 91% 98%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(217 91% 99%) 100%);
-    --gradient-button: linear-gradient(135deg, hsl(217 91% 55%) 0%, hsl(217 91% 45%) 100%);
-    --gradient-button-hover: linear-gradient(135deg, hsl(217 91% 50%) 0%, hsl(217 91% 40%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(215 22% 49%), hsl(215 25% 38%));
+    --gradient-blue: linear-gradient(135deg, hsl(215 22% 49%), hsl(215 25% 38%));
+    --gradient-dark-blue: linear-gradient(135deg, hsl(215 28% 27%), hsl(220 39% 18%));
+    --gradient-subtle: linear-gradient(180deg, hsl(210 14% 97%), hsl(210 14% 93%));
+    --gradient-hero: linear-gradient(135deg, hsl(210 14% 97%) 0%, hsl(210 14% 93%) 25%, hsl(210 14% 97%) 50%, hsl(210 16% 90%) 75%, hsl(210 14% 97%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(210 14% 97%) 100%);
+    --gradient-button: linear-gradient(135deg, hsl(215 22% 49%) 0%, hsl(215 25% 38%) 100%);
+    --gradient-button-hover: linear-gradient(135deg, hsl(215 19% 44%) 0%, hsl(215 28% 32%) 100%);
 
     --radius: 1rem;
     
@@ -95,45 +95,45 @@ All colors MUST be HSL.
 
     --sidebar-border: 220 13% 91%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 215 22% 49%;
   }
 
   .dark {
-    --background: 217 91% 8%;
+    --background: 220 39% 11%;
     --foreground: 0 0% 95%;
 
-    --card: 217 91% 12%;
+    --card: 220 39% 15%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 217 91% 12%;
+    --popover: 220 39% 15%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 217 91% 60%;
+    --primary: 215 22% 49%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 91% 15%;
+    --secondary: 220 39% 18%;
     --secondary-foreground: 0 0% 95%;
 
-    --muted: 217 91% 15%;
+    --muted: 220 39% 18%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 217 91% 60%;
+    --accent: 215 20% 65%;
     --accent-foreground: 0 0% 100%;
 
     /* Additional grey variations for depth in dark mode */
-    --muted-light: 217 91% 20%;
-    --muted-medium: 217 91% 13%;
-    --muted-dark: 217 91% 10%;
-    --surface: 217 91% 14%;
-    --surface-muted: 217 91% 11%;
-    --surface-subtle: 217 91% 9%;
+    --muted-light: 220 39% 22%;
+    --muted-medium: 220 39% 16%;
+    --muted-dark: 220 39% 13%;
+    --surface: 220 39% 17%;
+    --surface-muted: 220 39% 14%;
+    --surface-subtle: 220 39% 12%;
 
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 217 91% 18%;
-    --input: 217 91% 18%;
-    --ring: 217 91% 60%;
+    --border: 220 39% 21%;
+    --input: 220 39% 21%;
+    --ring: 215 22% 49%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -141,7 +141,7 @@ All colors MUST be HSL.
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 215 22% 49%;
   }
 }
 
@@ -165,7 +165,7 @@ All colors MUST be HSL.
   
   .floating-shape {
     position: absolute;
-    background: linear-gradient(135deg, hsl(217 91% 90% / 0.1), hsl(217 91% 70% / 0.05));
+    background: linear-gradient(135deg, hsl(210 16% 82% / 0.1), hsl(215 19% 60% / 0.05));
     border-radius: 50%;
     animation: float 6s ease-in-out infinite;
   }
@@ -204,7 +204,7 @@ All colors MUST be HSL.
   
   .gradient-button {
     background: var(--gradient-button);
-    border: 1px solid hsl(217 91% 50% / 0.2);
+    border: 1px solid hsl(215 22% 49% / 0.2);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -225,7 +225,7 @@ All colors MUST be HSL.
   
   .gradient-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px hsl(217 91% 50% / 0.4);
+    box-shadow: 0 10px 25px -5px hsl(215 22% 49% / 0.4);
   }
   
   .gradient-button > * {
@@ -234,9 +234,9 @@ All colors MUST be HSL.
   }
   
   .glass-card {
-    background: linear-gradient(145deg, hsl(0 0% 100% / 0.9) 0%, hsl(217 91% 99% / 0.7) 100%);
+    background: linear-gradient(145deg, hsl(0 0% 100% / 0.9) 0%, hsl(210 14% 97% / 0.7) 100%);
     backdrop-filter: blur(10px);
-    border: 1px solid hsl(217 91% 90% / 0.3);
+    border: 1px solid hsl(210 16% 82% / 0.3);
   }
   
   .glow-effect {
@@ -247,7 +247,7 @@ All colors MUST be HSL.
     content: '';
     position: absolute;
     inset: -2px;
-    background: linear-gradient(45deg, hsl(217 91% 60% / 0.3), hsl(217 91% 40% / 0.3));
+    background: linear-gradient(45deg, hsl(215 22% 49% / 0.3), hsl(215 25% 38% / 0.3));
     border-radius: inherit;
     z-index: -1;
     opacity: 0;

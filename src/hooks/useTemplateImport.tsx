@@ -60,7 +60,7 @@ export function useTemplateImport({ clinicId, onSuccess }: UseTemplateImportOpti
       }
 
       // Stage 2: Validate data
-      updateProgress('validating', 25, 'Validating data...');
+      updateProgress('validating', 30, 'Validating data...');
       
       // Show warnings if any
       if (result.summary?.warnings && result.summary.warnings.length > 0) {
@@ -72,17 +72,19 @@ export function useTemplateImport({ clinicId, onSuccess }: UseTemplateImportOpti
       }
 
       // Stage 3: Create template
-      updateProgress('creating_template', 50, 'Creating template...');
+      updateProgress('creating_template', 60, 'Creating template...');
       
       const sanitizedTemplate = sanitizeTemplateData({
         ...result.data.template,
-        clinic_id: clinicId
+        clinic_id: clinicId,
+        specialty: result.data.template.specialty || 'general',
+        source_type: 'csv_import'
       });
 
       const createdTemplate = await TemplateService.createTemplate(sanitizedTemplate);
 
       // Stage 4: Create tasks
-      updateProgress('creating_tasks', 75, 'Creating tasks...', 0, result.data.tasks.length);
+      updateProgress('creating_tasks', 80, 'Creating tasks...', 0, result.data.tasks.length);
 
       const sanitizedTasks = result.data.tasks.map(task => sanitizeTaskData(task));
       const taskInputs = sanitizedTasks.map(task => ({
@@ -106,14 +108,20 @@ export function useTemplateImport({ clinicId, onSuccess }: UseTemplateImportOpti
         created_by: createdTemplate.created_by
       }));
 
+      updateProgress('creating_tasks', 90, 'Inserting tasks into database...');
+
       const createdTasks = await TaskService.createTasksFromTemplate(
         createdTemplate,
         taskInputs,
         clinicId
       );
 
+      // Clear assignment cache after successful import
+      const { AssignmentResolver } = await import('@/services/assignmentResolver');
+      AssignmentResolver.clearCache();
+
       // Stage 5: Complete
-      updateProgress('complete', 100, 'Import completed successfully!');
+      updateProgress('complete', 100, `Import completed! Created ${createdTasks.length} tasks.`);
 
       toast({
         title: "Import Successful",
@@ -125,6 +133,10 @@ export function useTemplateImport({ clinicId, onSuccess }: UseTemplateImportOpti
 
     } catch (error) {
       console.error('Import error:', error);
+      // Clear cache on error too
+      const { AssignmentResolver } = await import('@/services/assignmentResolver');
+      AssignmentResolver.clearCache();
+      
       toast({
         title: "Import Failed",
         description: error instanceof Error ? error.message : "Unknown error occurred",

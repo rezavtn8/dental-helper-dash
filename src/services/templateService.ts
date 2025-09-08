@@ -21,12 +21,16 @@ export class TemplateService {
     // Remove any fields that don't exist in the database schema
     const { tasks, ...cleanTemplate } = template as any;
     
+    // Ensure all required fields are present with defaults
     const templateData = {
       ...cleanTemplate,
       created_by: user.user.id,
       is_active: true,
       is_enabled: true,
-      tasks_count: 0
+      tasks_count: 0,
+      specialty: cleanTemplate.specialty || 'general',
+      source_type: cleanTemplate.source_type || 'custom',
+      start_date: cleanTemplate.start_date || new Date().toISOString().split('T')[0]
     };
 
     const { data, error } = await supabase

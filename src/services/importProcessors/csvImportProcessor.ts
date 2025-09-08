@@ -98,12 +98,17 @@ export class CSVImportProcessor implements ImportProcessor {
 
   private parseTaskFromRow(headers: string[], values: string[], rowIndex: number): ImportableTask | null {
     const task: Partial<ImportableTask> = {};
+    
+    // Normalize headers (handle both underscores and hyphens)
+    const normalizedHeaders = headers.map(h => h.toLowerCase().replace(/_/g, '-'));
 
     headers.forEach((header, index) => {
       const value = values[index]?.trim();
       if (!value) return;
+      
+      const normalizedHeader = header.toLowerCase().replace(/_/g, '-');
 
-      switch (header) {
+      switch (normalizedHeader) {
         case 'title':
           task.title = value;
           break;
@@ -116,15 +121,18 @@ export class CSVImportProcessor implements ImportProcessor {
         case 'priority':
           task.priority = value;
           break;
-        case 'due_type':
+        case 'due-type':
+        case 'duetype':
           task['due-type'] = value;
           break;
-        case 'due_date':
+        case 'due-date':
+        case 'duedate':
           if (this.isValidDate(value)) {
             task['due-date'] = new Date(value).toISOString();
           }
           break;
-        case 'custom_due_date':
+        case 'custom-due-date':
+        case 'customduedate':
           if (this.isValidDate(value)) {
             task.custom_due_date = new Date(value).toISOString();
           }
@@ -132,13 +140,17 @@ export class CSVImportProcessor implements ImportProcessor {
         case 'recurrence':
           task.recurrence = value;
           break;
-        case 'owner_notes':
+        case 'owner-notes':
+        case 'ownernotes':
           task.owner_notes = value;
           break;
-        case 'assigned_to':
+        case 'assigned-to':
+        case 'assignedto':
           task.assigned_to = value;
           break;
-        case 'checklist_items':
+        case 'checklist-items':
+        case 'checklistitems':
+        case 'checklist':
           task.checklist_items = value.split('|').filter(item => item.trim());
           break;
         case 'attachments':
@@ -175,10 +187,11 @@ export class CSVImportProcessor implements ImportProcessor {
   private extractTemplateSettings() {
     return {
       category: 'operational',
-      specialty: 'custom_workflow',
+      specialty: 'general',
       'due-type': 'anytime',
       recurrence: 'once',
-      priority: 'medium'
+      priority: 'medium',
+      source_type: 'import'
     };
   }
 
@@ -204,13 +217,13 @@ export class CSVImportProcessor implements ImportProcessor {
       'description', 
       'category',
       'priority',
-      'due_type',
-      'due_date',
-      'custom_due_date',
+      'due-type',
+      'due-date',
+      'custom-due-date',
       'recurrence',
-      'owner_notes',
-      'assigned_to',
-      'checklist_items',
+      'owner-notes',
+      'assigned-to',
+      'checklist-items',
       'attachments'
     ];
   }
@@ -218,9 +231,9 @@ export class CSVImportProcessor implements ImportProcessor {
   generateTemplate(): string {
     const headers = this.getTemplateHeaders();
     const sampleData = [
-      ['Morning Opening Routine', 'Complete checklist for opening the clinic', 'operational', 'high', 'before_opening', '2024-01-15T09:00:00Z', '', 'daily', 'Must be completed before first patient', '', 'Unlock doors|Turn on lights|Check temperature', ''],
+      ['Morning Opening Routine', 'Complete checklist for opening the clinic', 'operational', 'high', 'before-opening', '2024-01-15T09:00:00Z', '', 'daily', 'Must be completed before first patient', '', 'Unlock doors|Turn on lights|Check temperature', ''],
       ['Equipment Check', 'Daily equipment maintenance check', 'operational', 'medium', 'anytime', '', '', 'daily', 'Check all equipment is functioning', '', 'Test X-ray machine|Check suction units|Verify autoclave', ''],
-      ['Weekly Deep Clean', 'Thorough cleaning of all areas', 'operational', 'medium', 'end_of_week', '', '', 'weekly', 'Schedule for Friday evenings', '', 'Deep clean operatories|Sanitize equipment|Mop floors', '']
+      ['Weekly Deep Clean', 'Thorough cleaning of all areas', 'operational', 'medium', 'end-of-week', '', '', 'weekly', 'Schedule for Friday evenings', 'Dr. Smith', 'Deep clean operatories|Sanitize equipment|Mop floors', '']
     ];
 
     const csvContent = [headers, ...sampleData]

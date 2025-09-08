@@ -11,6 +11,7 @@ import { TaskTemplate } from '@/types/template';
 import TemplateBuilder from '../owner/TemplateBuilder';
 import TemplateList from '../owner/TemplateList';
 import { ImportDialog } from './ImportDialog';
+import { SimpleImportDialog } from './SimpleImportDialog';
 
 interface TemplateManagerProps {
   clinicId: string;
@@ -215,7 +216,7 @@ export function TemplateManager({ clinicId }: TemplateManagerProps) {
       />
 
       {/* Import Dialog */}
-      <ImportDialog
+      <SimpleImportDialog
         open={showImportDialog}
         onOpenChange={setShowImportDialog}
         clinicId={clinicId}

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { getUserInitials } from '@/lib/taskUtils';
 import { useNavigate } from 'react-router-dom';
+import { AnimatedLogo } from '@/components/ui/animated-logo';
 import {
   Sidebar,
   SidebarContent,
@@ -35,7 +36,6 @@ import {
   UserPlus,
   ScrollText,
   Bot,
-  Home
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -92,14 +92,12 @@ export default function OwnerSidebar({
           >
             {open && !isCollapsed ? (
               <>
-                <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded flex items-center justify-center">
-                  <Home className="w-3 h-3 text-primary-foreground" />
-                </div>
+                <AnimatedLogo size={24} animated={false} className="text-primary" />
                 <span className="font-semibold text-base text-foreground">DentaLeague</span>
               </>
             ) : (
-              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded flex items-center justify-center mx-auto">
-                <Home className="w-3 h-3 text-primary-foreground" />
+              <div className="mx-auto">
+                <AnimatedLogo size={24} animated={false} className="text-primary" />
               </div>
             )}
           </Button>

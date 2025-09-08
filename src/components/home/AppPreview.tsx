@@ -2,34 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Calendar, 
-  CheckCircle,
-  CheckSquare,
-  Clock, 
-  User, 
-  Building2,
-  BarChart3,
-  Users,
-  ClipboardList,
-  Star,
-  ChevronRight,
-  LayoutDashboard,
-  FileText,
-  CalendarDays,
-  MessageSquare,
-  Settings,
-  BookOpen,
-  Award,
-  TrendingUp,
-  ScrollText,
-  Crown,
-  ChevronDown
-} from 'lucide-react';
-
+import { Calendar, CheckCircle, CheckSquare, Clock, User, Building2, BarChart3, Users, ClipboardList, Star, ChevronRight, LayoutDashboard, FileText, CalendarDays, MessageSquare, Settings, BookOpen, Award, TrendingUp, ScrollText, Crown, ChevronDown } from 'lucide-react';
 export const AppPreview = () => {
-  return (
-    <section className="relative overflow-hidden py-20 bg-gradient-to-br from-muted/20 via-background to-muted/30">
+  return <section className="relative overflow-hidden py-20 bg-gradient-to-br from-muted/20 via-background to-muted/30">
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       
       <div className="container mx-auto px-4 relative">
@@ -69,34 +44,54 @@ export const AppPreview = () => {
         </div>
 
         {/* CTA Below Preview */}
-        <div className="text-center">
-          <Button size="lg" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
-            Try DentaLeague Free
-            <ChevronRight className="w-4 h-4 ml-2" />
-          </Button>
-          <p className="text-sm text-muted-foreground mt-2">No credit card required • 14-day free trial</p>
-        </div>
+        
       </div>
-    </section>
-  );
+    </section>;
 };
-
 const OwnerDashboardPreview = () => {
-  const ownerNavItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, active: true },
-    { id: 'task-calendar', label: 'Task Calendar', icon: Calendar },
-    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-    { id: 'templates', label: 'Templates', icon: FileText },
-    { id: 'team', label: 'Team', icon: Users },
-    { id: 'schedule', label: 'Team Schedule', icon: CalendarDays },
-    { id: 'logs', label: 'Logs', icon: ScrollText },
-    { id: 'feedback', label: 'Feedback', icon: MessageSquare },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'settings', label: 'Settings', icon: Settings },
-  ];
-
-  return (
-    <div className="bg-gradient-to-br from-background to-muted/50 rounded-xl shadow-2xl border overflow-hidden">
+  const ownerNavItems = [{
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    active: true
+  }, {
+    id: 'task-calendar',
+    label: 'Task Calendar',
+    icon: Calendar
+  }, {
+    id: 'tasks',
+    label: 'Tasks',
+    icon: CheckSquare
+  }, {
+    id: 'templates',
+    label: 'Templates',
+    icon: FileText
+  }, {
+    id: 'team',
+    label: 'Team',
+    icon: Users
+  }, {
+    id: 'schedule',
+    label: 'Team Schedule',
+    icon: CalendarDays
+  }, {
+    id: 'logs',
+    label: 'Logs',
+    icon: ScrollText
+  }, {
+    id: 'feedback',
+    label: 'Feedback',
+    icon: MessageSquare
+  }, {
+    id: 'analytics',
+    label: 'Analytics',
+    icon: BarChart3
+  }, {
+    id: 'settings',
+    label: 'Settings',
+    icon: Settings
+  }];
+  return <div className="bg-gradient-to-br from-background to-muted/50 rounded-xl shadow-2xl border overflow-hidden">
       {/* Browser Header */}
       <div className="bg-muted/80 px-4 py-3 border-b flex items-center gap-2">
         <div className="flex gap-1.5">
@@ -142,18 +137,14 @@ const OwnerDashboardPreview = () => {
             
             <nav className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground mb-2 px-2">NAVIGATION</p>
-              {ownerNavItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${
-                    item.active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/50'
-                  }`}>
+              {ownerNavItems.map(item => {
+              const Icon = item.icon;
+              return <div key={item.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${item.active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/50'}`}>
                     <Icon className="w-4 h-4" />
                     <span className="font-medium">{item.label}</span>
                     {item.active && <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full" />}
-                  </div>
-                );
-              })}
+                  </div>;
+            })}
             </nav>
 
             {/* Clinic Code */}
@@ -169,24 +160,44 @@ const OwnerDashboardPreview = () => {
           <OwnerDashboardContent />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 const AssistantDashboardPreview = () => {
-  const assistantNavItems = [
-    { id: 'home', label: 'Dashboard', icon: LayoutDashboard, active: true },
-    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-    { id: 'schedule', label: 'Schedule', icon: Calendar },
-    { id: 'stats', label: 'My Stats', icon: BarChart3 },
-    { id: 'learning', label: 'Learning', icon: BookOpen },
-    { id: 'certifications', label: 'Certifications', icon: Award },
-    { id: 'feedback', label: 'Feedback & Growth', icon: TrendingUp },
-    { id: 'settings', label: 'Settings', icon: Settings },
-  ];
-
-  return (
-    <div className="bg-gradient-to-br from-background to-muted/50 rounded-xl shadow-2xl border overflow-hidden">
+  const assistantNavItems = [{
+    id: 'home',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    active: true
+  }, {
+    id: 'tasks',
+    label: 'Tasks',
+    icon: CheckSquare
+  }, {
+    id: 'schedule',
+    label: 'Schedule',
+    icon: Calendar
+  }, {
+    id: 'stats',
+    label: 'My Stats',
+    icon: BarChart3
+  }, {
+    id: 'learning',
+    label: 'Learning',
+    icon: BookOpen
+  }, {
+    id: 'certifications',
+    label: 'Certifications',
+    icon: Award
+  }, {
+    id: 'feedback',
+    label: 'Feedback & Growth',
+    icon: TrendingUp
+  }, {
+    id: 'settings',
+    label: 'Settings',
+    icon: Settings
+  }];
+  return <div className="bg-gradient-to-br from-background to-muted/50 rounded-xl shadow-2xl border overflow-hidden">
       {/* Browser Header */}
       <div className="bg-muted/80 px-4 py-3 border-b flex items-center gap-2">
         <div className="flex gap-1.5">
@@ -231,18 +242,14 @@ const AssistantDashboardPreview = () => {
             
             <nav className="space-y-1">
               <p className="text-xs font-medium text-muted-foreground mb-2 px-2">NAVIGATION</p>
-              {assistantNavItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${
-                    item.active ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:bg-muted/50'
-                  }`}>
+              {assistantNavItems.map(item => {
+              const Icon = item.icon;
+              return <div key={item.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${item.active ? 'bg-blue-500 text-white' : 'text-muted-foreground hover:bg-muted/50'}`}>
                     <Icon className="w-4 h-4" />
                     <span className="font-medium">{item.label}</span>
                     {item.active && <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full" />}
-                  </div>
-                );
-              })}
+                  </div>;
+            })}
             </nav>
 
             {/* Clinic Code */}
@@ -258,12 +265,9 @@ const AssistantDashboardPreview = () => {
           <AssistantDashboardContent />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
-const OwnerDashboardContent = () => (
-  <div className="space-y-6">
+const OwnerDashboardContent = () => <div className="space-y-6">
     {/* Overview Stats */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="hover:shadow-md transition-shadow">
@@ -498,18 +502,17 @@ const OwnerDashboardContent = () => (
               <span className="text-sm font-bold">28</span>
             </div>
             <div className="w-full bg-muted/50 rounded-full h-2">
-              <div className="bg-primary h-2 rounded-full" style={{width: '85%'}} />
+              <div className="bg-primary h-2 rounded-full" style={{
+              width: '85%'
+            }} />
             </div>
             <div className="text-xs text-muted-foreground mt-1">85% capacity</div>
           </div>
         </CardContent>
       </Card>
     </div>
-  </div>
-);
-
-const AssistantDashboardContent = () => (
-  <div className="space-y-8">
+  </div>;
+const AssistantDashboardContent = () => <div className="space-y-8">
     {/* Welcome Header with Patient Counter */}
     <div className="space-y-4">
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-100">
@@ -755,5 +758,4 @@ const AssistantDashboardContent = () => (
         </CardContent>
       </Card>
     </div>
-  </div>
-);
+  </div>;

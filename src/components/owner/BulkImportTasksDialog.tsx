@@ -100,7 +100,10 @@ export default function BulkImportTasksDialog({
     }
 
     setImporting(true);
+    let templateId: string | null = null;
+    
     try {
+      console.log('🚀 Starting CSV import process...');
       const text = await csvFile.text();
       const lines = text.split('\n').filter(line => line.trim());
       
@@ -108,9 +111,10 @@ export default function BulkImportTasksDialog({
         throw new Error('CSV must contain at least a header row and one data row');
       }
 
-      const headers = parseCsvRow(lines[0]).map(h => h.replace(/"/g, '').toLowerCase());
-      const requiredHeaders = ['title'];
+      const headers = parseCsvRow(lines[0]).map(h => h.replace(/"/g, '').toLowerCase().trim());
+      console.log('📊 CSV Headers:', headers);
       
+      const requiredHeaders = ['title'];
       if (!requiredHeaders.every(header => headers.includes(header))) {
         throw new Error('CSV must contain at least a "title" column');
       }
@@ -125,7 +129,7 @@ export default function BulkImportTasksDialog({
         .eq('id', clinicId)
         .single();
 
-      const tasks = [];
+      const tasks: any[] = [];
       let templateSettings = {
         category: 'operational',
         specialty: 'custom_workflow',
@@ -134,15 +138,26 @@ export default function BulkImportTasksDialog({
         priority: 'medium'
       };
       
+      console.log('📝 Processing CSV rows...');
       for (let i = 1; i < lines.length; i++) {
-        const values = parseCsvRow(lines[i]).map(v => v.replace(/"/g, ''));
+        const values = parseCsvRow(lines[i]).map(v => v.replace(/"/g, '').trim());
+        
+        // Skip empty rows
+        if (values.every(v => !v)) {
+          console.log(`⚠️ Skipping empty row ${i}`);
+          continue;
+        }
+        
+        console.log(`📄 Processing row ${i}:`, values);
+        
         const taskData: any = {
           clinic_id: clinicId,
           created_by: user.user.id,
-          status: 'pending' as const,
+          status: 'pending',
           generated_date: new Date().toISOString().split('T')[0]
         };
 
+        // Process each column
         headers.forEach((header, index) => {
           const value = values[index]?.trim();
           if (value) {
@@ -152,7 +167,7 @@ export default function BulkImportTasksDialog({
                 break;
               case 'description':
                 taskData.description = value;
-                // Create checklist item from description
+                // Create checklist from description
                 taskData.checklist = [{
                   id: `item-1`,
                   title: value,
@@ -161,26 +176,22 @@ export default function BulkImportTasksDialog({
                 break;
               case 'category':
                 taskData.category = value;
-                // Use first row's category for template
                 if (i === 1) templateSettings.category = value;
                 break;
               case 'specialty':
-                // Specialty is only for template, not individual tasks
+                // Specialty is only for template
                 if (i === 1) templateSettings.specialty = value;
                 break;
               case 'due_type':
                 taskData['due-type'] = value;
-                // Use first row's due_type for template
                 if (i === 1) templateSettings['due-type'] = value;
                 break;
               case 'recurrence':
                 taskData.recurrence = value;
-                // Use first row's recurrence for template
                 if (i === 1) templateSettings.recurrence = value;
                 break;
               case 'priority':
                 taskData.priority = value;
-                // Use first row's priority for template
                 if (i === 1) templateSettings.priority = value;
                 break;
               case 'owner_notes':
@@ -190,8 +201,13 @@ export default function BulkImportTasksDialog({
           }
         });
 
-        // Set defaults for required fields
-        if (!taskData.title) continue;
+        // Validate and set defaults for required fields
+        if (!taskData.title || taskData.title.length < 2) {
+          console.log(`⚠️ Skipping row ${i} - invalid or missing title`);
+          continue;
+        }
+        
+        // Set defaults
         taskData.category = taskData.category || templateSettings.category;
         taskData['due-type'] = taskData['due-type'] || templateSettings['due-type'];
         taskData.recurrence = taskData.recurrence || templateSettings.recurrence;
@@ -199,14 +215,17 @@ export default function BulkImportTasksDialog({
         taskData.description = taskData.description || '';
         taskData.owner_notes = taskData.owner_notes || '';
 
+        console.log(`✅ Valid task data for row ${i}:`, taskData);
         tasks.push(taskData);
       }
 
       if (tasks.length === 0) {
-        throw new Error('No valid tasks found in CSV');
+        throw new Error('No valid tasks found in CSV. Make sure at least one row has a title.');
       }
 
-      // Create a single template first
+      console.log(`📋 Processed ${tasks.length} valid tasks`);
+
+      // Create template first
       const templateData = {
         title: `${clinic?.name || 'Custom'} Workflow Template - ${new Date().toLocaleDateString()}`,
         description: `Bulk imported template with ${tasks.length} tasks`,
@@ -215,21 +234,30 @@ export default function BulkImportTasksDialog({
         'due-type': templateSettings['due-type'],
         recurrence: templateSettings.recurrence,
         priority: templateSettings.priority,
-        owner_notes: `Imported from CSV file on ${new Date().toLocaleDateString()}`,
+        owner_notes: `Imported from CSV file "${csvFile.name}" on ${new Date().toLocaleDateString()}`,
         clinic_id: clinicId,
         created_by: user.user.id,
         is_active: true,
         is_enabled: true,
-        start_date: new Date().toISOString().split('T')[0]
+        start_date: new Date().toISOString().split('T')[0],
+        tasks_count: 0 // Will be updated after task insertion
       };
 
-      const { data: newTemplate, error } = await supabase
+      console.log('📄 Creating template:', templateData);
+
+      const { data: newTemplate, error: templateError } = await supabase
         .from('task_templates')
         .insert([templateData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (templateError) {
+        console.error('❌ Template creation error:', templateError);
+        throw new Error(`Failed to create template: ${templateError.message}`);
+      }
+
+      templateId = newTemplate.id;
+      console.log('✅ Template created successfully:', newTemplate);
 
       // Add template_id to all tasks
       const tasksWithTemplate = tasks.map(task => ({
@@ -237,16 +265,48 @@ export default function BulkImportTasksDialog({
         template_id: newTemplate.id
       }));
 
-      // Insert all tasks
-      const { error: tasksError } = await supabase
-        .from('tasks')
-        .insert(tasksWithTemplate);
+      console.log('📤 Inserting tasks:', tasksWithTemplate);
 
-      if (tasksError) throw tasksError;
+      // Insert tasks in smaller batches to avoid issues
+      const batchSize = 10;
+      let insertedCount = 0;
+      
+      for (let i = 0; i < tasksWithTemplate.length; i += batchSize) {
+        const batch = tasksWithTemplate.slice(i, i + batchSize);
+        console.log(`📦 Inserting batch ${Math.floor(i/batchSize) + 1}:`, batch);
+        
+        const { data: insertedTasks, error: tasksError } = await supabase
+          .from('tasks')
+          .insert(batch)
+          .select('id');
+
+        if (tasksError) {
+          console.error('❌ Task insertion error:', tasksError);
+          throw new Error(`Failed to insert tasks (batch ${Math.floor(i/batchSize) + 1}): ${tasksError.message}`);
+        }
+        
+        insertedCount += insertedTasks?.length || 0;
+        console.log(`✅ Batch inserted successfully. Count: ${insertedTasks?.length}`);
+      }
+
+      console.log(`✅ All tasks inserted successfully. Total: ${insertedCount}`);
+
+      // Manually update template task count as backup to trigger
+      const { error: updateError } = await supabase
+        .from('task_templates')
+        .update({ tasks_count: insertedCount })
+        .eq('id', newTemplate.id);
+
+      if (updateError) {
+        console.error('❌ Failed to update template count:', updateError);
+        // Don't throw error here as tasks were created successfully
+      } else {
+        console.log(`✅ Template task count updated to ${insertedCount}`);
+      }
 
       toast({
         title: "Success",
-        description: `Successfully created template with ${tasks.length} tasks`,
+        description: `Successfully created template with ${insertedCount} tasks`,
       });
 
       setCsvFile(null);
@@ -255,11 +315,19 @@ export default function BulkImportTasksDialog({
       }
       onOpenChange(false);
       onImportComplete();
+      
     } catch (error) {
-      console.error('Import error:', error);
+      console.error('❌ Import error:', error);
+      
+      // If template was created but tasks failed, clean up the template
+      if (templateId) {
+        console.log('🧹 Cleaning up failed template...');
+        await supabase.from('task_templates').delete().eq('id', templateId);
+      }
+      
       toast({
         title: "Import Failed",
-        description: error instanceof Error ? error.message : "Invalid CSV format",
+        description: error instanceof Error ? error.message : "Invalid CSV format or data",
         variant: "destructive",
       });
     } finally {

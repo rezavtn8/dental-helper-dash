@@ -79,23 +79,23 @@ export default function OwnerSidebar({
   return (
     <Sidebar className="border-r border-slate-200/60 bg-white/95 backdrop-blur-sm">
       <SidebarContent className="px-2">
-        {/* Clinic Header - Compact */}
+        {/* DentalLeague Header */}
         <div className="p-3 border-b border-slate-100/80">
           {open && !isCollapsed ? (
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="font-semibold text-slate-800 truncate text-sm">
-                  Navigation
+                  DentalLeague
                 </h1>
-                <p className="text-xs text-slate-500">Menu</p>
+                <p className="text-xs text-slate-500">Practice Management</p>
               </div>
             </div>
           ) : (
             <div className="flex justify-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
             </div>

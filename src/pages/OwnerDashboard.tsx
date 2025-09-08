@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Building2, Plus, Crown, ChevronDown, Settings, LogOut } from 'lucide-react';
 import { getUserInitials } from '@/lib/taskUtils';
-import { AnimatedLogo } from '@/components/ui/animated-logo';
 import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import OwnerDashboardTabs from '@/components/owner/OwnerDashboardTabs';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
@@ -109,24 +108,24 @@ const OwnerDashboard = () => {
           {/* Header */}
           <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40 p-4">
             <div className="flex items-center justify-between">
-              {/* Left: App Name and Logo */}
+              {/* Left: Business Name */}
               <div className="flex items-center gap-3">
                 <SidebarTrigger />
                 <div className="flex items-center gap-2">
-                  <AnimatedLogo size={28} animated={false} className="text-primary" />
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/40 rounded-lg flex items-center justify-center border border-primary/30">
+                    <Building2 className="w-4 h-4 text-primary" />
+                  </div>
                   <div>
-                    <h2 className="font-semibold text-sm text-foreground">DentaLeague</h2>
-                    <p className="text-xs text-muted-foreground">Practice Management</p>
+                    <h2 className="font-semibold text-base text-foreground">
+                      {clinic?.name || 'Your Clinic'}
+                    </h2>
+                    <p className="text-xs text-muted-foreground">Management Dashboard</p>
                   </div>
                 </div>
               </div>
               
-              {/* Center: Clinic Name */}
-              <div className="flex-1 flex justify-center">
-                <h1 className="text-lg font-semibold text-foreground">
-                  {clinic?.name || 'Clinic Management'}
-                </h1>
-              </div>
+              {/* Center: Empty space for better balance */}
+              <div className="flex-1"></div>
               
               {/* Right: User Profile */}
               <div className="flex items-center gap-3">

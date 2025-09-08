@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Building2, Plus, Crown, ChevronDown, Settings, LogOut } from 'lucide-react';
+import { Building2, Plus, Crown, ChevronDown, Settings, LogOut, Home } from 'lucide-react';
 import { getUserInitials } from '@/lib/taskUtils';
 import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import OwnerDashboardTabs from '@/components/owner/OwnerDashboardTabs';
@@ -108,20 +108,28 @@ const OwnerDashboard = () => {
           {/* Header */}
           <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40 p-4">
             <div className="flex items-center justify-between">
-              {/* Left: Business Name */}
+              {/* Left: DentaLeague Brand */}
               <div className="flex items-center gap-3">
                 <SidebarTrigger />
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/40 rounded-lg flex items-center justify-center border border-primary/30">
-                    <Building2 className="w-4 h-4 text-primary" />
+                <Button 
+                  variant="ghost" 
+                  className="flex items-center gap-2 h-auto p-0 hover:bg-transparent"
+                  onClick={() => navigate('/')}
+                  aria-label="DentaLeague home"
+                >
+                  <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded flex items-center justify-center">
+                    <Home className="w-3 h-3 text-primary-foreground" />
                   </div>
-                  <div>
-                    <h2 className="font-semibold text-base text-foreground">
-                      {clinic?.name || 'Your Clinic'}
-                    </h2>
-                    <p className="text-xs text-muted-foreground">Management Dashboard</p>
-                  </div>
-                </div>
+                  <span className="font-semibold text-foreground">DentaLeague</span>
+                </Button>
+              </div>
+              
+              {/* Center: Page Title */}
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
+                <h1 className="font-semibold text-lg text-foreground">
+                  {clinic?.name || 'Your Clinic'}
+                </h1>
               </div>
               
               {/* Center: Empty space for better balance */}

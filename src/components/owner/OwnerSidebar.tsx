@@ -92,12 +92,12 @@ export default function OwnerSidebar({
           >
             {open && !isCollapsed ? (
               <>
-                <AnimatedLogo size={24} animated={false} className="text-primary" />
+                <AnimatedLogo size={32} animated={false} className="text-primary" />
                 <span className="font-semibold text-base text-foreground">DentaLeague</span>
               </>
             ) : (
               <div className="mx-auto">
-                <AnimatedLogo size={24} animated={false} className="text-primary" />
+                <AnimatedLogo size={32} animated={false} className="text-primary" />
               </div>
             )}
           </Button>

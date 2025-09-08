@@ -166,6 +166,7 @@ export function sanitizeTaskData(task: ImportableTask): ImportableTask {
     'due-type': task['due-type'] || 'anytime',
     recurrence: task.recurrence || 'once',
     owner_notes: task.owner_notes?.trim(),
+    assigned_to: task.assigned_to?.trim() || null,
     checklist_items: task.checklist_items?.filter(item => item.trim().length > 0)
   };
 }

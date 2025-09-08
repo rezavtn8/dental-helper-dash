@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Task } from '@/types/task';
 import { TaskTemplate } from '@/types/template';
+import { AssignmentResolver } from './assignmentResolver';
 
 export interface TaskInput {
   title: string;
@@ -48,22 +49,35 @@ export class TaskService {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error('Not authenticated');
 
-    // Prepare tasks with template reference
-    const tasksWithTemplate = tasks.map(task => ({
-      ...task,
-      clinic_id: clinicId,
-      created_by: user.user.id,
-      template_id: template.id,
-      status: 'pending' as const,
-      generated_date: new Date().toISOString().split('T')[0]
-    }));
+    // Resolve assignments for all tasks
+    const resolvedTasks = await Promise.all(
+      tasks.map(async (task) => {
+        const { userId, assigneeNote } = await AssignmentResolver.resolveAssignment(
+          task.assigned_to, 
+          clinicId
+        );
+
+        return {
+          ...task,
+          assigned_to: userId,
+          owner_notes: assigneeNote 
+            ? (task.owner_notes ? `${task.owner_notes}\n${assigneeNote}` : assigneeNote)
+            : task.owner_notes,
+          clinic_id: clinicId,
+          created_by: user.user.id,
+          template_id: template.id,
+          status: 'pending' as const,
+          generated_date: new Date().toISOString().split('T')[0]
+        };
+      })
+    );
 
     // Insert tasks in batches
     const batchSize = 10;
     const createdTasks: Task[] = [];
 
-    for (let i = 0; i < tasksWithTemplate.length; i += batchSize) {
-      const batch = tasksWithTemplate.slice(i, i + batchSize);
+    for (let i = 0; i < resolvedTasks.length; i += batchSize) {
+      const batch = resolvedTasks.slice(i, i + batchSize);
       
       const { data, error } = await supabase
         .from('tasks')

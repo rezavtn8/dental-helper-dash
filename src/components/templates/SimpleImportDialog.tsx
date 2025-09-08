@@ -32,16 +32,92 @@ export function SimpleImportDialog({ open, onOpenChange, clinicId, onImportCompl
   };
 
   const downloadTemplate = () => {
-    const csvContent = `title,description,category,priority,due_type,recurrence,assigned_to,checklist_items
-"Morning Opening","Complete opening checklist","operational","high","before_opening","daily","","Unlock doors|Turn on lights|Check equipment"
-"Equipment Check","Daily equipment inspection","operational","medium","anytime","daily","","Test X-ray|Check suction|Verify autoclave"
-"Weekly Deep Clean","Thorough cleaning","operational","medium","end_of_week","weekly","Dr. Smith","Clean operatories|Sanitize equipment|Mop floors"`;
+    const headers = [
+      'title',
+      'description', 
+      'category',
+      'priority',
+      'due_type',
+      'recurrence',
+      'assigned_to',
+      'checklist_items',
+      'owner_notes'
+    ];
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const sampleData = [
+      [
+        'Morning Opening Routine',
+        'Complete all opening procedures before first patient',
+        'operational',
+        'high',
+        'before_opening',
+        'daily',
+        'Front Desk Staff',
+        'Unlock front door|Turn on all lights|Check temperature settings|Start coffee machine|Review daily schedule|Check supply levels',
+        'Critical for smooth day operations'
+      ],
+      [
+        'Equipment Safety Check',
+        'Daily inspection of all dental equipment',
+        'operational',
+        'high',
+        'before_opening',
+        'daily',
+        'Dr. Smith',
+        'Test X-ray machine|Check suction units|Verify autoclave function|Inspect handpiece maintenance|Check emergency equipment',
+        'Required by safety regulations'
+      ],
+      [
+        'Patient Follow-up Calls',
+        'Call patients to check on recovery and schedule follow-ups',
+        'administrative',
+        'medium',
+        'anytime',
+        'daily',
+        'Office Manager',
+        'Review yesterday appointments|Call post-surgery patients|Schedule follow-up appointments|Update patient records|Send treatment reminders',
+        'Improve patient satisfaction and retention'
+      ],
+      [
+        'Weekly Deep Cleaning',
+        'Thorough sanitization of all treatment areas',
+        'operational',
+        'medium',
+        'end_of_week',
+        'weekly',
+        'Hygienist Team',
+        'Deep clean all operatories|Sanitize all equipment surfaces|Disinfect waiting area|Clean and organize supply rooms|Empty and sanitize waste containers',
+        'Schedule for Friday after last patient'
+      ],
+      [
+        'Monthly Inventory Check',
+        'Complete inventory audit and restocking',
+        'administrative',
+        'medium',
+        'end_of_week',
+        'monthly',
+        'Office Manager',
+        'Count all supplies|Check expiration dates|Update inventory system|Place orders for low stock|Organize storage areas',
+        'Schedule for last Friday of each month'
+      ]
+    ];
+
+    // Create CSV content with proper escaping
+    const csvRows = [headers, ...sampleData].map(row => 
+      row.map(cell => {
+        // Escape quotes and wrap in quotes if contains comma, quote, or newline
+        const escaped = cell.replace(/"/g, '""');
+        return /[",\n\r]/.test(cell) ? `"${escaped}"` : escaped;
+      }).join(',')
+    );
+
+    const csvContent = csvRows.join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'task-template.csv';
+    link.download = `task-import-template-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -49,7 +125,7 @@ export function SimpleImportDialog({ open, onOpenChange, clinicId, onImportCompl
 
     toast({
       title: "Template Downloaded",
-      description: "CSV template has been downloaded",
+      description: "CSV template with examples has been downloaded",
     });
   };
 
@@ -89,9 +165,15 @@ export function SimpleImportDialog({ open, onOpenChange, clinicId, onImportCompl
     setImporting(true);
     
     try {
+      console.log('Starting import process...');
+      
       // Read file
       const text = await file.text();
+      console.log('File content:', text.substring(0, 200) + '...');
+      
       const { headers, rows } = parseCSV(text);
+      console.log('Parsed headers:', headers);
+      console.log('Parsed rows count:', rows.length);
       
       if (rows.length === 0) {
         throw new Error('No data rows found in CSV');
@@ -101,43 +183,62 @@ export function SimpleImportDialog({ open, onOpenChange, clinicId, onImportCompl
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
+      console.log('Creating template...');
+      
       // Create template
-      const templateName = file.name.replace('.csv', '');
+      const templateName = file.name.replace('.csv', '').replace(/[^a-zA-Z0-9\s]/g, '');
+      const templateData = {
+        title: templateName || 'Imported Template',
+        description: `Imported from ${file.name} on ${new Date().toLocaleDateString()}`,
+        category: 'operational',
+        priority: 'medium',
+        'due-type': 'anytime',
+        recurrence: 'once',
+        clinic_id: clinicId,
+        created_by: user.user.id,
+        is_active: true,
+        is_enabled: true,
+        source_type: 'csv_import',
+        tasks_count: 0
+      };
+
       const { data: template, error: templateError } = await supabase
         .from('task_templates')
-        .insert({
-          title: templateName,
-          description: `Imported from ${file.name}`,
-          category: 'operational',
-          priority: 'medium',
-          'due-type': 'anytime',
-          recurrence: 'once',
-          clinic_id: clinicId,
-          created_by: user.user.id,
-          is_active: true,
-          is_enabled: true,
-          source_type: 'csv_import'
-        })
+        .insert(templateData)
         .select()
         .single();
 
-      if (templateError) throw templateError;
+      if (templateError) {
+        console.error('Template creation error:', templateError);
+        throw new Error(`Failed to create template: ${templateError.message}`);
+      }
+
+      console.log('Template created:', template);
 
       // Create tasks
-      const tasksData = rows.map(row => {
+      const tasksData: any[] = [];
+      
+      rows.forEach((row, rowIndex) => {
         const task: any = {
           clinic_id: clinicId,
           created_by: user.user.id,
           template_id: template.id,
           status: 'pending',
-          generated_date: new Date().toISOString().split('T')[0]
+          generated_date: new Date().toISOString().split('T')[0],
+          title: 'Untitled Task',
+          category: 'operational',
+          priority: 'medium',
+          'due-type': 'anytime',
+          recurrence: 'once'
         };
 
         headers.forEach((header, index) => {
           const value = row[index]?.replace(/^"|"$/g, '').trim();
           if (!value) return;
 
-          switch (header.toLowerCase()) {
+          const headerLower = header.toLowerCase().replace(/[_-]/g, '');
+
+          switch (headerLower) {
             case 'title':
               task.title = value;
               break;
@@ -145,70 +246,97 @@ export function SimpleImportDialog({ open, onOpenChange, clinicId, onImportCompl
               task.description = value;
               break;
             case 'category':
-              task.category = value;
+              const validCategories = ['operational', 'administrative', 'clinical', 'specialty', 'training', 'calendar'];
+              task.category = validCategories.includes(value.toLowerCase()) ? value.toLowerCase() : 'operational';
               break;
             case 'priority':
-              task.priority = value;
+              const validPriorities = ['low', 'medium', 'high'];
+              task.priority = validPriorities.includes(value.toLowerCase()) ? value.toLowerCase() : 'medium';
               break;
-            case 'due_type':
-            case 'due-type':
-              task['due-type'] = value;
+            case 'duetype':
+              const validDueTypes = ['before_opening', 'before_1pm', 'end_of_day', 'end_of_week', 'anytime'];
+              const normalizedDueType = value.toLowerCase().replace(/-/g, '_');
+              task['due-type'] = validDueTypes.includes(normalizedDueType) ? normalizedDueType : 'anytime';
               break;
             case 'recurrence':
-              task.recurrence = value;
+              const validRecurrences = ['once', 'daily', 'weekly', 'biweekly', 'monthly'];
+              task.recurrence = validRecurrences.includes(value.toLowerCase()) ? value.toLowerCase() : 'once';
               break;
-            case 'assigned_to':
-            case 'assigned-to':
-              // Simple: if it looks like a name, put it in owner_notes
-              if (value && !value.includes('@') && !value.match(/^[0-9a-f-]{36}$/i)) {
-                task.owner_notes = `Assigned to: ${value}`;
+            case 'assignedto':
+              // Put assignment info in owner_notes
+              if (value) {
+                const assignmentNote = `Assigned to: ${value}`;
+                task.owner_notes = task.owner_notes ? `${task.owner_notes}\n${assignmentNote}` : assignmentNote;
               }
               break;
-            case 'checklist_items':
-            case 'checklist-items':
+            case 'checklistitems':
+            case 'checklist':
               if (value) {
-                const items = value.split('|').map((item, idx) => ({
+                const items = value.split('|').filter(item => item.trim()).map((item, idx) => ({
                   id: `item-${idx + 1}`,
                   title: item.trim(),
                   completed: false
                 }));
-                task.checklist = items;
+                if (items.length > 0) {
+                  task.checklist = items;
+                }
               }
               break;
-            case 'owner_notes':
-            case 'owner-notes':
+            case 'ownernotes':
               task.owner_notes = task.owner_notes ? `${task.owner_notes}\n${value}` : value;
               break;
           }
         });
 
-        // Ensure required fields
-        if (!task.title) task.title = 'Imported Task';
-        if (!task.category) task.category = 'operational';
-        if (!task.priority) task.priority = 'medium';
-        if (!task['due-type']) task['due-type'] = 'anytime';
-        if (!task.recurrence) task.recurrence = 'once';
-
-        return task;
+        console.log(`Processed task ${rowIndex + 1}:`, task);
+        tasksData.push(task);
       });
 
-      // Insert tasks
-      const { data: createdTasks, error: tasksError } = await supabase
-        .from('tasks')
-        .insert(tasksData)
-        .select();
+      console.log('Inserting tasks...', tasksData.length);
 
-      if (tasksError) throw tasksError;
+      if (tasksData.length === 0) {
+        throw new Error('No valid tasks found to import');
+      }
+
+      // Insert tasks in smaller batches
+      const batchSize = 5;
+      const createdTasks: any[] = [];
+      
+      for (let i = 0; i < tasksData.length; i += batchSize) {
+        const batch = tasksData.slice(i, i + batchSize);
+        console.log(`Inserting batch ${Math.floor(i/batchSize) + 1}:`, batch);
+        
+        const { data: batchResult, error: batchError } = await supabase
+          .from('tasks')
+          .insert(batch)
+          .select();
+
+        if (batchError) {
+          console.error('Batch insert error:', batchError);
+          throw new Error(`Failed to insert tasks: ${batchError.message}`);
+        }
+
+        if (batchResult) {
+          createdTasks.push(...batchResult);
+          console.log(`Batch ${Math.floor(i/batchSize) + 1} inserted successfully`);
+        }
+      }
+
+      console.log('All tasks created:', createdTasks.length);
 
       // Update template task count
-      await supabase
+      const { error: updateError } = await supabase
         .from('task_templates')
-        .update({ tasks_count: createdTasks?.length || 0 })
+        .update({ tasks_count: createdTasks.length })
         .eq('id', template.id);
+
+      if (updateError) {
+        console.warn('Failed to update task count:', updateError);
+      }
 
       toast({
         title: "Import Successful",
-        description: `Created ${createdTasks?.length || 0} tasks from ${templateName}`,
+        description: `Created template "${template.title}" with ${createdTasks.length} tasks`,
       });
 
       onImportComplete();

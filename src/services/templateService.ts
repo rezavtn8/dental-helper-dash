@@ -18,8 +18,11 @@ export class TemplateService {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error('Not authenticated');
 
+    // Remove any fields that don't exist in the database schema
+    const { tasks, ...cleanTemplate } = template as any;
+    
     const templateData = {
-      ...template,
+      ...cleanTemplate,
       created_by: user.user.id,
       is_active: true,
       is_enabled: true,

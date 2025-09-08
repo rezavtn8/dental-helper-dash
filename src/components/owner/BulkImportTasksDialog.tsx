@@ -193,7 +193,6 @@ export default function BulkImportTasksDialog({
         // Set defaults for required fields
         if (!taskData.title) continue;
         taskData.category = taskData.category || templateSettings.category;
-        taskData.specialty = taskData.specialty || templateSettings.specialty;
         taskData['due-type'] = taskData['due-type'] || templateSettings['due-type'];
         taskData.recurrence = taskData.recurrence || templateSettings.recurrence;
         taskData.priority = taskData.priority || templateSettings.priority;

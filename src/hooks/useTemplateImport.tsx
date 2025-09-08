@@ -85,26 +85,45 @@ export function useTemplateImport({ clinicId, onSuccess }: UseTemplateImportOpti
       updateProgress('creating_tasks', 75, 'Creating tasks...', 0, result.data.tasks.length);
 
       const sanitizedTasks = result.data.tasks.map(task => sanitizeTaskData(task));
-      const taskInputs = sanitizedTasks.map(task => ({
-        title: task.title,
-        description: task.description,
-        category: task.category,
-        priority: task.priority,
-        'due-type': task['due-type'],
-        'due-date': task['due-date'],
-        custom_due_date: task.custom_due_date,
-        recurrence: task.recurrence,
-        owner_notes: task.owner_notes,
-        assigned_to: task.assigned_to,
-        checklist: task.checklist_items?.length ? task.checklist_items.map((item, idx) => ({
-          id: `item-${idx + 1}`,
-          title: item,
-          completed: false
-        })) : undefined,
-        attachments: task.attachments,
-        clinic_id: clinicId,
-        created_by: createdTemplate.created_by
-      }));
+      const taskInputs = sanitizedTasks.map(task => {
+        // Handle assigned_to - only use if it's a valid UUID, otherwise set to null
+        let assignedTo = null;
+        if (task.assigned_to) {
+          // Check if it's a valid UUID format
+          const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+          if (uuidPattern.test(task.assigned_to)) {
+            assignedTo = task.assigned_to;
+          }
+          // If it's a name (not UUID), add it to owner_notes
+          else {
+            const assigneeNote = `Assigned to: ${task.assigned_to}`;
+            task.owner_notes = task.owner_notes 
+              ? `${task.owner_notes}\n${assigneeNote}` 
+              : assigneeNote;
+          }
+        }
+
+        return {
+          title: task.title,
+          description: task.description,
+          category: task.category,
+          priority: task.priority,
+          'due-type': task['due-type'],
+          'due-date': task['due-date'],
+          custom_due_date: task.custom_due_date,
+          recurrence: task.recurrence,
+          owner_notes: task.owner_notes,
+          assigned_to: assignedTo,
+          checklist: task.checklist_items?.length ? task.checklist_items.map((item, idx) => ({
+            id: `item-${idx + 1}`,
+            title: item,
+            completed: false
+          })) : undefined,
+          attachments: task.attachments,
+          clinic_id: clinicId,
+          created_by: createdTemplate.created_by
+        };
+      });
 
       const createdTasks = await TaskService.createTasksFromTemplate(
         createdTemplate,

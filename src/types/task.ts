@@ -10,6 +10,7 @@ export interface Task {
   'due-date'?: string;
   category?: string;
   assigned_to: string | null;
+  claimed_by?: string | null; // Track who claimed the task
   recurrence?: string;
   created_at: string;
   updated_at?: string;

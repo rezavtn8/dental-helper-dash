@@ -122,13 +122,18 @@ export default function TasksTab({
   const claimTask = async (taskId: string) => {
     try {
       const { error } = await supabase.from('tasks')
-        .update({ assigned_to: userProfile?.id })
+        .update({ 
+          assigned_to: userProfile?.id,
+          claimed_by: userProfile?.id // Track who claimed it
+        })
         .eq('id', taskId);
 
       if (error) throw error;
       onTaskUpdate?.();
+      toast.success('Task claimed!');
     } catch (error) {
       console.error('Error claiming task:', error);
+      toast.error('Failed to claim task');
     }
   };
 
@@ -189,19 +194,39 @@ export default function TasksTab({
     }
   };
 
-  const returnTask = async (taskId: string) => {
+  const unstartTask = async (taskId: string) => {
     try {
       const { error } = await supabase.from('tasks')
         .update({ 
-          assigned_to: null,
-          status: 'pending' as any
+          status: 'pending' as TaskStatus
         })
         .eq('id', taskId);
 
       if (error) throw error;
       onTaskUpdate?.();
+      toast.success('Task reset to pending');
+    } catch (error) {
+      console.error('Error resetting task:', error);
+      toast.error('Failed to reset task');
+    }
+  };
+
+  const returnTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase.from('tasks')
+        .update({ 
+          assigned_to: null,
+          claimed_by: null,
+          status: 'pending' as TaskStatus
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      onTaskUpdate?.();
+      toast.success('Task returned to available tasks');
     } catch (error) {
       console.error('Error returning task:', error);
+      toast.error('Failed to return task');
     }
   };
 
@@ -246,6 +271,7 @@ export default function TasksTab({
     const isUnassigned = !task.assigned_to;
     const isAssignedToOther = task.assigned_to && task.assigned_to !== userProfile?.id;
     const isOverdue = isRecurringInstance(task) && task.isOverdue;
+    const wasClaimedByMe = task.claimed_by === userProfile?.id; // Track if user claimed vs owner assigned
     
     return (
       <div
@@ -275,19 +301,14 @@ export default function TasksTab({
               <Repeat className="w-3 h-3 text-primary" />
             )}
             {/* Status Indicators */}
-            {task.assigned_to === userProfile?.id && task.status === 'pending' && (
-              <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
-                Claimed
+            {task.status === 'completed' && (
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                ✓ Done
               </Badge>
             )}
             {task.assigned_to === userProfile?.id && task.status === 'in-progress' && (
               <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
                 Started
-              </Badge>
-            )}
-            {task.status === 'completed' && (
-              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
-                ✓ Done
               </Badge>
             )}
           </div>
@@ -312,34 +333,26 @@ export default function TasksTab({
         </div>
 
         <div className="flex items-center gap-2 ml-4">
-          {/* Don't show any buttons for tasks assigned to others */}
-          {!isAssignedToOther && (
-            <>
-              {/* Unassigned tasks - only Claim button */}
-              {isUnassigned && (
-                <Button
-                  size="sm"
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 h-7 text-xs"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    claimTask(task.id);
-                  }}
-                >
-                  Claim
-                </Button>
-              )}
+          {/* 1. UNASSIGNED TASKS - Show Claim button */}
+          {isUnassigned && (
+            <Button
+              size="sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 h-7 text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                claimTask(task.id);
+              }}
+            >
+              Claim
+            </Button>
+          )}
 
-              {/* Claimed tasks (assigned but not started) - Show Claimed + Start + Put Back */}
-              {isAssignedToMe && task.status === 'pending' && (
+          {/* 2. ASSIGNED TO ME - Show appropriate buttons based on status */}
+          {isAssignedToMe && (
+            <>
+              {/* PENDING state - Show Start, Done, and Put Back (only if claimed by me) */}
+              {task.status === 'pending' && (
                 <>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-blue-300 text-blue-600 bg-blue-50 rounded-full px-4 h-7 text-xs"
-                    disabled
-                  >
-                    Claimed
-                  </Button>
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
@@ -351,44 +364,8 @@ export default function TasksTab({
                     Start
                   </Button>
                   <Button
-                    variant="outline"
                     size="sm"
-                    className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-4 h-7 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      returnTask(task.id);
-                    }}
-                  >
-                    Put Back
-                  </Button>
-                </>
-              )}
-
-              {/* Started tasks - Show Started + Put Back + Done */}
-              {isAssignedToMe && task.status === 'in-progress' && (
-                <>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-blue-300 text-blue-600 bg-blue-50 rounded-full px-4 h-7 text-xs"
-                    disabled
-                  >
-                    Started
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-4 h-7 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      returnTask(task.id);
-                    }}
-                  >
-                    Put Back
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 h-7 text-xs"
                     onClick={(e) => {
                       e.stopPropagation();
                       completeTask(task.id);
@@ -396,11 +373,55 @@ export default function TasksTab({
                   >
                     Done
                   </Button>
+                  {/* Put Back only if task was claimed by me (not owner-assigned) */}
+                  {wasClaimedByMe && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-4 h-7 text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        returnTask(task.id);
+                      }}
+                    >
+                      Put Back
+                    </Button>
+                  )}
                 </>
               )}
 
-              {/* Completed tasks - Show only Undo button */}
-              {isAssignedToMe && task.status === 'completed' && (
+              {/* IN-PROGRESS state - Show Started label, Done, and Unstart */}
+              {task.status === 'in-progress' && (
+                <>
+                  <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700 px-3 h-7">
+                    Started
+                  </Badge>
+                  <Button
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      completeTask(task.id);
+                    }}
+                  >
+                    Done
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-4 h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      unstartTask(task.id);
+                    }}
+                  >
+                    Unstart
+                  </Button>
+                </>
+              )}
+
+              {/* COMPLETED state - Show only Undo button */}
+              {task.status === 'completed' && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -415,6 +436,8 @@ export default function TasksTab({
               )}
             </>
           )}
+
+          {/* 3. ASSIGNED TO OTHERS - No buttons shown */}
         </div>
       </div>
     );

@@ -94,7 +94,8 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
       const { error } = await supabase
         .from('tasks')
         .update({ 
-          assigned_to: user?.id 
+          assigned_to: user?.id,
+          claimed_by: user?.id // Track who claimed it
         })
         .eq('id', taskId);
 
@@ -249,13 +250,34 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     }
   };
 
+  const unstartTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'pending' as TaskStatus
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      
+      toast.success('Task reset to pending');
+      
+      onTaskUpdate();
+    } catch (error) {
+      console.error('Error resetting task:', error);
+      toast.error('Failed to reset task');
+    }
+  };
+
   const returnTask = async (taskId: string) => {
     try {
       const { error } = await supabase
         .from('tasks')
         .update({ 
           status: 'pending' as TaskStatus,
-          assigned_to: null 
+          assigned_to: null,
+          claimed_by: null
         })
         .eq('id', taskId);
 
@@ -273,6 +295,10 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
   const TaskCard = ({ task, showPickUp = false, showCompleted = false }: { task: Task; showPickUp?: boolean; showCompleted?: boolean }) => {
     const hasNote = taskNotes[task.id];
     const [checklistState, setChecklistState] = useState<Record<number, boolean>>({});
+    
+    const isAssignedToMe = task.assigned_to === user?.id;
+    const isUnassigned = !task.assigned_to;
+    const wasClaimedByMe = task.claimed_by === user?.id; // Track if user claimed vs owner assigned
     
     // Initialize checklist state from task data
     useEffect(() => {
@@ -353,19 +379,14 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     <Flag className="w-3 h-3 text-red-500 animate-pulse" />
                   )}
                   {/* Status Indicators */}
-                  {task.assigned_to === user?.id && task.status === 'pending' && (
-                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
-                      Claimed
+                  {isCompleted(task.status) && (
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 animate-scale-in">
+                      ✓ Done
                     </Badge>
                   )}
                   {task.assigned_to === user?.id && task.status === 'in-progress' && (
                     <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
                       Started
-                    </Badge>
-                  )}
-                  {isCompleted(task.status) && (
-                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 animate-scale-in">
-                      ✓ Done
                     </Badge>
                   )}
                 </div>
@@ -462,7 +483,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
             </Button>
 
             {/* Task Status and Action Buttons Logic */}
-            {showPickUp && (
+            {showPickUp && isUnassigned && (
               <Button
                 size="sm"
                 onClick={(e) => {
@@ -475,19 +496,11 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
               </Button>
             )}
 
-            {!showPickUp && !showCompleted && (
+            {!showPickUp && !showCompleted && isAssignedToMe && (
               <>
-                {/* Claimed state (assigned but not started) */}
-                {task.assigned_to === user?.id && task.status === 'pending' && (
+                {/* PENDING state - Show Start, Done, and Put Back (only if claimed by me) */}
+                {task.status === 'pending' && (
                   <>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled
-                      className="h-6 px-2 border-blue-300 text-blue-600 bg-blue-50 text-xs"
-                    >
-                      Claimed
-                    </Button>
                     <Button
                       size="sm"
                       onClick={(e) => {
@@ -500,54 +513,72 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     </Button>
                     <Button
                       size="sm"
-                      variant="outline"
                       onClick={(e) => {
                         e.stopPropagation();
-                        returnTask(task.id);
-                      }}
-                      className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
-                    >
-                      Put Back
-                    </Button>
-                  </>
-                )}
-                
-                {/* Started state */}
-                {task.assigned_to === user?.id && task.status === 'in-progress' && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled
-                      className="h-6 px-2 border-blue-300 text-blue-600 bg-blue-50 text-xs"
-                    >
-                      Started
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        returnTask(task.id);
-                      }}
-                      className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
-                    >
-                      Put Back
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                        if (!isChecklistComplete) {
+                          toast.error('Please complete all checklist items before marking as done');
+                          return;
+                        }
                         markTaskDone(task.id);
                       }}
-                      className="h-6 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
+                      className="h-6 px-2 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                      disabled={!isChecklistComplete}
                     >
                       Done
                     </Button>
+                    {/* Put Back only if task was claimed by me (not owner-assigned) */}
+                    {wasClaimedByMe && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          returnTask(task.id);
+                        }}
+                        className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
+                      >
+                        Put Back
+                      </Button>
+                    )}
                   </>
                 )}
-                
-                {/* Completed state */}
+
+                {/* IN-PROGRESS state - Show Started label, Done, and Unstart */}
+                {task.status === 'in-progress' && (
+                  <>
+                    <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800 px-2 h-6">
+                      Started
+                    </Badge>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isChecklistComplete) {
+                          toast.error('Please complete all checklist items before marking as done');
+                          return;
+                        }
+                        markTaskDone(task.id);
+                      }}
+                      className="h-6 px-2 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                      disabled={!isChecklistComplete}
+                    >
+                      Done
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        unstartTask(task.id);
+                      }}
+                      className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
+                    >
+                      Unstart
+                    </Button>
+                  </>
+                )}
+
+                {/* COMPLETED state - Show only Undo button */}
                 {isCompleted(task.status) && (
                   <Button
                     size="sm"
@@ -558,6 +589,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     }}
                     className="h-6 px-2 border-orange-300 text-orange-600 hover:bg-orange-50 text-xs"
                   >
+                    <Undo2 className="w-3 h-3 mr-1" />
                     Undo
                   </Button>
                 )}

@@ -55,7 +55,12 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
   // Filter today's tasks
   const todaysTasks = useMemo(() => {
     const today = currentDate.toISOString().split('T')[0];
-    return tasks.filter(task => {
+    console.log('📅 Filtering today\'s tasks for:', today, {
+      totalTasks: tasks.length,
+      userId: user?.id
+    });
+    
+    const filtered = tasks.filter(task => {
       // Show unassigned tasks or tasks assigned to current user
       const isRelevant = !task.assigned_to || task.assigned_to === user?.id;
       if (!isRelevant) return false;
@@ -68,11 +73,20 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
       }
       return false;
     });
+    
+    console.log('📅 Today\'s tasks filtered:', {
+      filteredCount: filtered.length,
+      assignedToMe: filtered.filter(t => t.assigned_to === user?.id).length,
+      unassigned: filtered.filter(t => !t.assigned_to).length
+    });
+    
+    return filtered;
   }, [tasks, user?.id, currentDate]);
 
   // Task action handlers
   const claimTask = async (taskId: string) => {
     try {
+      console.log('🎯 Claiming task:', taskId);
       // Handle recurring task instances - use parent ID for database operations
       const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
       
@@ -80,14 +94,15 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
         .from('tasks')
         .update({ 
           assigned_to: user?.id,
-          claimed_by: user?.id
+          claimed_by: user?.id // Track that this user claimed the task
         })
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      console.log('✅ Task claimed successfully:', dbTaskId);
       toast.success('Task claimed successfully');
     } catch (error) {
-      console.error('Error claiming task:', error);
+      console.error('❌ Error claiming task:', error);
       toast.error('Failed to claim task');
     }
   };

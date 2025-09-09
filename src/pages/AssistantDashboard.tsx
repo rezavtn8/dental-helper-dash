@@ -34,6 +34,12 @@ const AssistantDashboard = () => {
     if (!userProfile?.clinic_id || !user?.id) return;
     
     try {
+      console.log('📋 Fetching tasks for assistant:', {
+        userId: user.id,
+        clinicId: userProfile.clinic_id,
+        userRole: userProfile.role
+      });
+      
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
@@ -42,9 +48,17 @@ const AssistantDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('📋 Tasks fetched successfully:', {
+        totalTasks: data?.length || 0,
+        assignedToMe: data?.filter(t => t.assigned_to === user.id).length || 0,
+        unassigned: data?.filter(t => !t.assigned_to).length || 0,
+        recurring: data?.filter(t => t.recurrence).length || 0
+      });
+      
       setTasks((data || []) as Task[]);
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error('❌ Error fetching tasks:', error);
       toast.error('Failed to load tasks');
     }
   };

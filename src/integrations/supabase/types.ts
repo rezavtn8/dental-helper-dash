@@ -917,6 +917,7 @@ export type Database = {
           attachments: Json | null
           category: string | null
           checklist: Json | null
+          claimed_by: string | null
           clinic_id: string
           completed_at: string | null
           completed_by: string | null
@@ -941,6 +942,7 @@ export type Database = {
           attachments?: Json | null
           category?: string | null
           checklist?: Json | null
+          claimed_by?: string | null
           clinic_id: string
           completed_at?: string | null
           completed_by?: string | null
@@ -965,6 +967,7 @@ export type Database = {
           attachments?: Json | null
           category?: string | null
           checklist?: Json | null
+          claimed_by?: string | null
           clinic_id?: string
           completed_at?: string | null
           completed_by?: string | null

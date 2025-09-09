@@ -38,6 +38,9 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
   const [noteTask, setNoteTask] = useState<Task | null>(null);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
 
+  // Set current date to Tuesday, Sep 9, 2025 as requested  
+  const currentDate = new Date(2025, 8, 9); // Month is 0-indexed, so 8 = September
+
   const myTasks = useMemo(() => 
     tasks.filter(task => task.assigned_to === user?.id)
   , [tasks, user?.id]);
@@ -344,6 +347,17 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                   {task.priority === 'high' && (
                     <Flag className="w-3 h-3 text-red-500 animate-pulse" />
                   )}
+                  {/* Status Indicators */}
+                  {task.assigned_to === user?.id && task.status === 'pending' && (
+                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                      Claimed
+                    </Badge>
+                  )}
+                  {task.assigned_to === user?.id && task.status === 'in-progress' && (
+                    <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
+                      Started
+                    </Badge>
+                  )}
                   {isCompleted(task.status) && (
                     <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 animate-scale-in">
                       ✓ Done
@@ -379,7 +393,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     </Badge>
                   )}
                   <span className="text-gray-400">
-                    {new Date(task.created_at).toLocaleDateString()}
+                    {currentDate.toLocaleDateString()}
                   </span>
                 </div>
                 
@@ -442,6 +456,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
               <FileText className="w-3 h-3" />
             </Button>
 
+            {/* Task Status and Action Buttons Logic */}
             {showPickUp && (
               <Button
                 size="sm"
@@ -457,28 +472,62 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
 
             {!showPickUp && !showCompleted && (
               <>
-                {task.status === 'pending' && (
-                  <Button
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      startTask(task.id);
-                    }}
-                    className="h-6 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
-                  >
-                    Start
-                  </Button>
-                )}
-                
-                {task.status === 'in-progress' && (
+                {/* Claimed state (assigned but not started) */}
+                {task.assigned_to === user?.id && task.status === 'pending' && (
                   <>
                     <Button
                       size="sm"
                       variant="outline"
                       disabled
-                      className="h-6 px-2 border-blue-300 text-blue-600 text-xs"
+                      className="h-6 px-2 border-blue-300 text-blue-600 bg-blue-50 text-xs"
+                    >
+                      Claimed
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startTask(task.id);
+                      }}
+                      className="h-6 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
+                    >
+                      Start
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        returnTask(task.id);
+                      }}
+                      className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
+                    >
+                      Put Back
+                    </Button>
+                  </>
+                )}
+                
+                {/* Started state */}
+                {task.assigned_to === user?.id && task.status === 'in-progress' && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      className="h-6 px-2 border-blue-300 text-blue-600 bg-blue-50 text-xs"
                     >
                       Started
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        returnTask(task.id);
+                      }}
+                      className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
+                    >
+                      Put Back
                     </Button>
                     <Button
                       size="sm"
@@ -493,6 +542,7 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                   </>
                 )}
                 
+                {/* Completed state */}
                 {isCompleted(task.status) && (
                   <Button
                     size="sm"
@@ -506,18 +556,6 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
                     Undo
                   </Button>
                 )}
-                
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    returnTask(task.id);
-                  }}
-                  className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
-                >
-                  Return
-                </Button>
               </>
             )}
         </div>

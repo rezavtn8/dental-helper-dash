@@ -47,7 +47,8 @@ export default function TasksTab({
 }: TasksTabProps) {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  // Set the date to Tuesday, Sep 9, 2025 as requested
+  const [selectedDate, setSelectedDate] = useState(new Date(2025, 8, 9)); // Month is 0-indexed, so 8 = September
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
 
   // Filter tasks to show only assigned to current user or unassigned
@@ -226,6 +227,22 @@ export default function TasksTab({
             {isRecurringInstance(task) && (
               <Repeat className="w-3 h-3 text-primary" />
             )}
+            {/* Status Indicators */}
+            {task.assigned_to === userProfile?.id && task.status === 'pending' && (
+              <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                Claimed
+              </Badge>
+            )}
+            {task.assigned_to === userProfile?.id && task.status === 'in-progress' && (
+              <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
+                Started
+              </Badge>
+            )}
+            {task.status === 'completed' && (
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                ✓ Done
+              </Badge>
+            )}
           </div>
           
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -265,9 +282,17 @@ export default function TasksTab({
                 </Button>
               )}
 
-              {/* Assigned tasks that are pending - Show Start + Return buttons */}
+              {/* Claimed tasks (assigned but not started) - Show Claimed + Start + Put Back */}
               {isAssignedToMe && task.status === 'pending' && (
                 <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-blue-300 text-blue-600 bg-blue-50 rounded-full px-4 h-7 text-xs"
+                    disabled
+                  >
+                    Claimed
+                  </Button>
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-7 text-xs"
@@ -287,21 +312,32 @@ export default function TasksTab({
                       returnTask(task.id);
                     }}
                   >
-                    Return
+                    Put Back
                   </Button>
                 </>
               )}
 
-              {/* Started tasks - Show Done + Return buttons */}
+              {/* Started tasks - Show Started + Put Back + Done */}
               {isAssignedToMe && task.status === 'in-progress' && (
                 <>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-blue-300 text-blue-600 hover:bg-blue-50 rounded-full px-4 h-7 text-xs"
+                    className="border-blue-300 text-blue-600 bg-blue-50 rounded-full px-4 h-7 text-xs"
                     disabled
                   >
                     Started
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-4 h-7 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      returnTask(task.id);
+                    }}
+                  >
+                    Put Back
                   </Button>
                   <Button
                     size="sm"
@@ -313,21 +349,10 @@ export default function TasksTab({
                   >
                     Done
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-gray-300 text-gray-600 hover:bg-gray-50 rounded-full px-4 h-7 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      returnTask(task.id);
-                    }}
-                  >
-                    Return
-                  </Button>
                 </>
               )}
 
-              {/* Completed tasks - Show Undo button */}
+              {/* Completed tasks - Show only Undo button */}
               {isAssignedToMe && task.status === 'completed' && (
                 <Button
                   variant="outline"
@@ -394,6 +419,9 @@ export default function TasksTab({
                 </Button>
                 <h4 className="font-semibold text-lg min-w-[200px] text-center">
                   {format(selectedDate, 'EEEE, MMM d, yyyy')}
+                  {isToday(selectedDate) && (
+                    <Badge className="ml-2 bg-primary text-primary-foreground">Today</Badge>
+                  )}
                 </h4>
                 <Button
                   variant="outline"
@@ -404,104 +432,178 @@ export default function TasksTab({
                 </Button>
               </div>
               
-              {/* Day Overview */}
-              <div className={`p-6 rounded-lg border-2 ${isToday(selectedDate) ? 'bg-primary/5 border-primary/50' : 'bg-muted/30 border-border'}`}>
-                <div className="text-center">
-                  <div className="text-2xl font-bold mb-2">
-                    {selectedDateTasks.length} {selectedDateTasks.length === 1 ? 'Task' : 'Tasks'}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {isToday(selectedDate) ? 'Today' : format(selectedDate, 'EEEE')}
+              {/* Day Calendar View */}
+              <div className="space-y-4">
+                {/* Tasks Count */}
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium text-muted-foreground">
+                    {selectedDateTasks.length} {selectedDateTasks.length === 1 ? 'Task' : 'Tasks'} {isToday(selectedDate) ? 'Today' : 'Scheduled'}
                   </div>
                 </div>
+
+                {/* All Day / Flexible Tasks */}
+                {groupedTasks['Flexible'].length > 0 && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <h5 className="text-sm font-semibold text-muted-foreground mb-2">All Day / Flexible</h5>
+                    <div className="space-y-2">
+                      {groupedTasks['Flexible'].map((task) => (
+                        <div key={task.id} className="flex items-center gap-2 p-2 bg-background border border-border rounded text-sm">
+                          <div className={`w-3 h-3 rounded-full ${
+                            task.priority === 'high' ? 'bg-red-500' : 
+                            task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                          }`} />
+                          <TaskCard task={task} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Time Slots */}
+                <div className="space-y-3">
+                  {Object.entries(groupedTasks).filter(([time]) => time !== 'Flexible').map(([timeSlot, tasks]) => (
+                    <div key={timeSlot}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="text-sm font-semibold text-muted-foreground min-w-[120px]">
+                          {timeSlot}
+                        </div>
+                        <div className="flex-1 h-px bg-border" />
+                      </div>
+                      {tasks.length > 0 ? (
+                        <div className="grid gap-2 ml-[132px]">
+                          {tasks.map((task) => (
+                            <div key={task.id} className={`
+                              p-3 rounded-lg border-l-4 bg-background border shadow-sm
+                              ${task.priority === 'high' ? 'border-l-red-500 bg-red-50/50' : 
+                                task.priority === 'medium' ? 'border-l-yellow-500 bg-yellow-50/50' : 
+                                'border-l-green-500 bg-green-50/50'}
+                            `}>
+                              <TaskCard task={task} />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="ml-[132px] text-sm text-muted-foreground italic">
+                          No tasks scheduled
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Empty State */}
+                {selectedDateTasks.length === 0 && (
+                  <div className="text-center py-12">
+                    <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-muted-foreground mb-2">No tasks scheduled</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {isToday(selectedDate) ? "You're all caught up for today!" : `No tasks on ${format(selectedDate, 'MMM d')}`}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
             <div>
-              {/* Month/Week Navigation */}
+              {/* Week Navigation */}
               <div className="flex items-center justify-between mb-4">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSelectedDate(subMonths(selectedDate, 1))}
+                  onClick={() => setSelectedDate(subWeeks(selectedDate, 1))}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <h4 className="font-semibold text-lg min-w-[200px] text-center">
-                  {format(selectedDate, 'MMMM yyyy')}
+                <h4 className="font-semibold text-lg min-w-[300px] text-center">
+                  {format(startOfWeek(selectedDate), 'MMM d')} - {format(endOfWeek(selectedDate), 'MMM d, yyyy')}
                 </h4>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSelectedDate(addMonths(selectedDate, 1))}
+                  onClick={() => setSelectedDate(addWeeks(selectedDate, 1))}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
               
-              {/* Calendar Grid */}
-              <div className="space-y-2">
-                {/* Week headers */}
+              {/* Week Calendar Grid */}
+              <div className="space-y-4">
+                {/* Week Headers */}
                 <div className="grid grid-cols-7 gap-2">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="p-2 text-center text-sm font-semibold text-muted-foreground">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Calendar dates */}
-                <div className="grid grid-cols-7 gap-2">
-                  {calendarDates.map(date => {
+                  {currentWeekDates.map(date => {
                     const dayTasks = getTasksForDate(filteredTasks, date);
                     const isCurrentDay = isToday(date);
-                    const isSelectedDay = isSameDay(date, selectedDate);
-                    const isCurrentMonth = isSameMonth(date, selectedDate);
-                    const isInCurrentWeek = currentWeekDates.some(weekDate => isSameDay(weekDate, date));
                     
                     return (
-                      <div
-                        key={date.toISOString()}
-                        className={`
-                          min-h-[80px] p-2 rounded-lg border cursor-pointer transition-all duration-200 relative
-                          ${isCurrentDay ? 'bg-primary text-primary-foreground border-primary shadow-lg' : 
-                            isSelectedDay ? 'bg-muted border-primary ring-2 ring-primary/30' : 
-                            isInCurrentWeek ? 'bg-primary/5 border-primary/30' :
-                            isCurrentMonth ? 'bg-background border-border hover:bg-muted/50' : 
-                            'bg-muted/30 border-muted text-muted-foreground'}
+                      <div key={date.toISOString()} className="text-center">
+                        <div className={`
+                          p-2 rounded-lg text-sm font-semibold cursor-pointer transition-colors
+                          ${isCurrentDay ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}
                         `}
                         onClick={() => setSelectedDate(date)}
-                      >
-                        <div className="flex flex-col h-full">
-                          {/* Date number */}
-                          <div className={`
-                            flex items-center justify-center w-6 h-6 rounded-full text-sm font-bold mb-1
-                            ${isCurrentDay ? 'bg-primary-foreground/20' : ''}
-                          `}>
-                            {format(date, 'd')}
-                          </div>
-                          
-                          {/* Task indicators */}
-                          <div className="flex-1 space-y-1">
-                            {dayTasks.slice(0, 3).map((task, index) => (
-                              <div
-                                key={task.id}
-                                className={`
-                                  w-full h-1.5 rounded-full
-                                  ${task.status === 'completed' ? 'bg-green-500' :
-                                    task.priority === 'high' ? 'bg-red-500' :
-                                    task.priority === 'medium' ? 'bg-orange-500' :
-                                    'bg-blue-500'}
-                                `}
-                              />
-                            ))}
-                            
-                            {dayTasks.length > 3 && (
-                              <div className="text-xs text-center font-medium">
-                                +{dayTasks.length - 3}
+                        >
+                          <div>{format(date, 'EEE')}</div>
+                          <div className="text-lg">{format(date, 'd')}</div>
+                          {dayTasks.length > 0 && (
+                            <Badge variant="secondary" className="text-xs mt-1">
+                              {dayTasks.length}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Week Tasks Overview */}
+                <div className="grid grid-cols-7 gap-2">
+                  {currentWeekDates.map(date => {
+                    const dayTasks = getTasksForDate(filteredTasks, date);
+                    const isCurrentDay = isToday(date);
+                    
+                    return (
+                      <div key={date.toISOString()} className={`
+                        min-h-[200px] p-2 rounded-lg border transition-all duration-200
+                        ${isCurrentDay ? 'bg-primary/5 border-primary/30' : 'bg-background border-border'}
+                      `}>
+                        <div className="space-y-1">
+                          {dayTasks.slice(0, 4).map((task) => (
+                            <div key={task.id} className={`
+                              p-1.5 rounded text-xs border-l-2 bg-background/80 cursor-pointer hover:bg-muted/50
+                              ${task.priority === 'high' ? 'border-l-red-500' : 
+                                task.priority === 'medium' ? 'border-l-yellow-500' : 'border-l-green-500'}
+                            `}
+                            onClick={() => {
+                              setSelectedDate(date);
+                              setViewMode('day');
+                            }}
+                            >
+                              <div className="font-medium truncate">{task.title}</div>
+                              <div className="flex items-center gap-1 mt-1">
+                                <Badge variant="outline" className="text-xs h-4 px-1">
+                                  {task.priority || 'medium'}
+                                </Badge>
+                                {task.status === 'completed' && (
+                                  <CheckCircle className="w-3 h-3 text-green-600" />
+                                )}
+                                {task.assigned_to === userProfile?.id && task.status === 'pending' && (
+                                  <Badge variant="secondary" className="text-xs h-4 px-1 bg-blue-100 text-blue-700">
+                                    Claimed
+                                  </Badge>
+                                )}
+                                {task.assigned_to === userProfile?.id && task.status === 'in-progress' && (
+                                  <Badge variant="secondary" className="text-xs h-4 px-1 bg-orange-100 text-orange-700">
+                                    Started
+                                  </Badge>
+                                )}
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          ))}
+                          {dayTasks.length > 4 && (
+                            <div className="text-xs text-muted-foreground text-center py-1">
+                              +{dayTasks.length - 4} more
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -513,39 +615,32 @@ export default function TasksTab({
         </CardContent>
       </Card>
 
-      {/* Tasks List */}
-      <div className="space-y-4">
-        {Object.entries(groupedTasks).map(([timeGroup, tasks]) => (
-          tasks.length > 0 && (
-            <Card key={timeGroup}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center justify-between">
-                  <span>{timeGroup}</span>
-                  <Badge variant="secondary" className="text-sm">
-                    {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  {tasks.map(task => (
-                    <TaskCard key={task.id} task={task} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )
-        ))}
-        
-        {selectedDateTasks.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-8 text-muted-foreground">
-              <CheckCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No tasks for {format(selectedDate, 'MMMM d, yyyy')}. Great job!</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Tasks List for Selected Date */}
+      {selectedDateTasks.length > 0 && (
+        <div className="space-y-4">
+          {Object.entries(groupedTasks).map(([timeGroup, tasks]) => (
+            tasks.length > 0 && (
+              <Card key={timeGroup}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <span>{timeGroup}</span>
+                    <Badge variant="secondary" className="text-sm">
+                      {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-3">
+                    {tasks.map(task => (
+                      <TaskCard key={task.id} task={task} />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          ))}
+        </div>
+      )}
     </div>
   );
 }

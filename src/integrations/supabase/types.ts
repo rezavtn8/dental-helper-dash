@@ -1468,6 +1468,10 @@ export type Database = {
           name: string
         }[]
       }
+      lookup_clinic_by_code_secure: {
+        Args: { p_code: string }
+        Returns: string
+      }
       lookup_clinic_for_join: {
         Args: { p_code: string }
         Returns: {

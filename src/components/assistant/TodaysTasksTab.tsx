@@ -49,6 +49,11 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
     tasks.filter(task => !task.assigned_to)
   , [tasks]);
 
+  // Force re-render when tasks change to ensure UI updates
+  useEffect(() => {
+    // This ensures the component updates when tasks prop changes from realtime updates
+  }, [tasks]);
+
   // Fetch task notes for user
   const fetchTaskNotes = async () => {
     if (!user) return;

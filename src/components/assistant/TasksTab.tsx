@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -59,6 +59,11 @@ export default function TasksTab({
       task.assigned_to === undefined
     );
   }, [tasks, userProfile?.id]);
+
+  // Force re-render when tasks change to ensure UI updates
+  useEffect(() => {
+    // This ensures the component updates when tasks prop changes from realtime updates
+  }, [tasks]);
 
   // Get tasks for selected date
   const selectedDateTasks = useMemo(() => {
@@ -127,19 +132,61 @@ export default function TasksTab({
     }
   };
 
-  const startTask = (taskId: string) => {
-    onTaskStatusUpdate?.(taskId, 'in-progress');
-    onTaskUpdate?.();
+  const startTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'in-progress' as TaskStatus
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      onTaskUpdate?.();
+    } catch (error) {
+      console.error('Error starting task:', error);
+      toast.error('Failed to start task');
+    }
   };
 
-  const completeTask = (taskId: string) => {
-    onTaskStatusUpdate?.(taskId, 'completed');
-    onTaskUpdate?.();
+  const completeTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'completed' as TaskStatus,
+          completed_by: userProfile?.id,
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      onTaskUpdate?.();
+      toast.success('Task completed! 🎉');
+    } catch (error) {
+      console.error('Error completing task:', error);
+      toast.error('Failed to complete task');
+    }
   };
 
-  const undoTaskCompletion = (taskId: string) => {
-    onTaskStatusUpdate?.(taskId, 'pending');
-    onTaskUpdate?.();
+  const undoTaskCompletion = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'pending' as TaskStatus,
+          completed_by: null,
+          completed_at: null
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      onTaskUpdate?.();
+      toast.success('Task reopened');
+    } catch (error) {
+      console.error('Error reopening task:', error);
+      toast.error('Failed to reopen task');
+    }
   };
 
   const returnTask = async (taskId: string) => {

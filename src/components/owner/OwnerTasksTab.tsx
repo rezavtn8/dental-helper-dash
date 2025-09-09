@@ -26,6 +26,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import CreateTaskDialog from './CreateTaskDialog';
 import EditTaskDialog from './EditTaskDialog';
 import { Task, Assistant } from '@/types/task';
+import { TaskStatus } from '@/lib/taskStatus';
+import { TaskActionButton } from '@/components/ui/task-action-button';
+import { useAuth } from '@/hooks/useAuth';
 
 interface OwnerTasksTabProps {
   clinicId: string;
@@ -42,6 +45,7 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const { userProfile } = useAuth();
 
   useEffect(() => {
     if (clinicId) {
@@ -210,6 +214,26 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
     } catch (error) {
       console.error('Error reassigning task:', error);
       toast.error('Failed to reassign task');
+    }
+  };
+
+  const handleTaskStatusUpdate = async (taskId: string, newStatus: TaskStatus) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: newStatus,
+          completed_at: newStatus === 'completed' ? new Date().toISOString() : null,
+          completed_by: newStatus === 'completed' ? userProfile?.id : null
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      toast.success('Task status updated');
+      fetchData();
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      toast.error('Failed to update task status');
     }
   };
 
@@ -394,12 +418,26 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2">
-                      <Badge variant={task.status === 'completed' ? 'outline' : task.status === 'in-progress' ? 'default' : 'secondary'} className="text-xs px-2 py-0.5 h-5 gap-1">
-                        {task.status === 'completed' && <CheckCircle className="w-3 h-3" />}
-                        {task.status === 'in-progress' && <AlertCircle className="w-3 h-3" />}
-                        {task.status === 'pending' && <Clock className="w-3 h-3" />}
-                        {task.status.replace('-', ' ')}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={task.status === 'completed' ? 'outline' : task.status === 'in-progress' ? 'default' : 'secondary'} className="text-xs px-2 py-0.5 h-5 gap-1">
+                          {task.status === 'completed' && <CheckCircle className="w-3 h-3" />}
+                          {task.status === 'in-progress' && <AlertCircle className="w-3 h-3" />}
+                          {task.status === 'pending' && <Clock className="w-3 h-3" />}
+                          {task.status.replace('-', ' ')}
+                        </Badge>
+                        <TaskActionButton
+                          status={task.status}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const nextStatus: TaskStatus = task.status === 'completed' ? 'pending' : 
+                                              task.status === 'pending' ? 'in-progress' : 
+                                              'completed';
+                            handleTaskStatusUpdate(task.id, nextStatus);
+                          }}
+                          size="sm"
+                          variant="ghost"
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className="px-3 py-2">
                       <Badge variant="outline" className="text-xs px-2 py-0.5 h-5 capitalize">

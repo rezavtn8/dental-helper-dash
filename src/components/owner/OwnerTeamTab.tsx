@@ -299,8 +299,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                     <div className="w-10 h-10 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
                       <User className="w-5 h-5 text-primary" />
                     </div>
-                    <div>
-                      <div className="font-medium">{request.user_name}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-ellipsis overflow-hidden" title={request.user_name}>{request.user_name || 'Unknown User'}</div>
                       <div className="text-sm text-muted-foreground flex items-center gap-2">
                         <Mail className="w-3 h-3" />
                         {request.user_email}
@@ -401,8 +401,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                         <div className="w-8 h-8 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
                           <User className="w-4 h-4 text-primary" />
                         </div>
-                        <div>
-                          <span className="font-medium">{member.name}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className="font-medium block text-ellipsis overflow-hidden" title={member.name}>{member.name || 'Unknown Member'}</span>
                           <div className="text-sm text-muted-foreground">{member.role}</div>
                         </div>
                       </div>

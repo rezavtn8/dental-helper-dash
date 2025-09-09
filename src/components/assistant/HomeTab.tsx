@@ -1,21 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Clock, AlertTriangle, Award, Calendar, TrendingUp, Users, Target, Sparkles, ChevronRight, Building } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle, Award, Calendar, TrendingUp, Users, Target, Sparkles, ChevronRight, Building, PlayCircle, RotateCcw, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { TaskStatus, isCompleted } from '@/lib/taskStatus';
+import { getPriorityStyles } from '@/lib/taskUtils';
+import { Task } from '@/types/task';
 import PatientCounter from './PatientCounter';
 
 interface HomeTabProps {
-  tasks: any[];
+  tasks: Task[];
   patientCount: number;
   onPatientCountUpdate: (count: number) => void;
   onTabChange?: (tab: string) => void;
 }
 
 export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onTabChange }: HomeTabProps) {
-  const { userProfile } = useAuth();
+  const { user, userProfile } = useAuth();
   const navigate = useNavigate();
 
   // Show connect to clinic message if no clinic access
@@ -43,6 +48,259 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
 
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
   const [hoveredAction, setHoveredAction] = useState<number | null>(null);
+
+  // Set current date to Tuesday, Sep 9, 2025 as requested
+  const currentDate = new Date(2025, 8, 9); // Month is 0-indexed, so 8 = September
+
+  // Filter today's tasks
+  const todaysTasks = useMemo(() => {
+    const today = currentDate.toISOString().split('T')[0];
+    return tasks.filter(task => {
+      // Show unassigned tasks or tasks assigned to current user
+      const isRelevant = !task.assigned_to || task.assigned_to === user?.id;
+      if (!isRelevant) return false;
+
+      // Check if task is due today
+      const dueDate = task['due-date'] || task.custom_due_date;
+      if (dueDate) {
+        const taskDate = new Date(dueDate).toISOString().split('T')[0];
+        return taskDate === today;
+      }
+      return false;
+    });
+  }, [tasks, user?.id, currentDate]);
+
+  // Task action handlers
+  const claimTask = async (taskId: string) => {
+    try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          assigned_to: user?.id,
+          claimed_by: user?.id
+        })
+        .eq('id', dbTaskId);
+
+      if (error) throw error;
+      toast.success('Task claimed successfully');
+    } catch (error) {
+      console.error('Error claiming task:', error);
+      toast.error('Failed to claim task');
+    }
+  };
+
+  const startTask = async (taskId: string) => {
+    try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: 'in-progress' as TaskStatus })
+        .eq('id', dbTaskId);
+
+      if (error) throw error;
+      toast.success('Task started');
+    } catch (error) {
+      console.error('Error starting task:', error);
+      toast.error('Failed to start task');
+    }
+  };
+
+  const unstartTask = async (taskId: string) => {
+    try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: 'pending' as TaskStatus })
+        .eq('id', dbTaskId);
+
+      if (error) throw error;
+      toast.success('Task unmarked as started');
+    } catch (error) {
+      console.error('Error unmarking task:', error);
+      toast.error('Failed to unmark task');
+    }
+  };
+
+  const completeTask = async (taskId: string) => {
+    try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'completed' as TaskStatus,
+          completed_at: new Date().toISOString(),
+          completed_by: user?.id
+        })
+        .eq('id', dbTaskId);
+
+      if (error) throw error;
+      toast.success('Task completed!');
+    } catch (error) {
+      console.error('Error completing task:', error);
+      toast.error('Failed to complete task');
+    }
+  };
+
+  const undoComplete = async (taskId: string, task: Task) => {
+    try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
+      // Determine previous status
+      const previousStatus = task.status === 'completed' ? 'in-progress' : 'pending';
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: previousStatus as TaskStatus,
+          completed_at: null,
+          completed_by: null
+        })
+        .eq('id', dbTaskId);
+
+      if (error) throw error;
+      toast.success('Task completion undone');
+    } catch (error) {
+      console.error('Error undoing task:', error);
+      toast.error('Failed to undo task');
+    }
+  };
+
+  const putBackTask = async (taskId: string) => {
+    try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          assigned_to: null,
+          claimed_by: null,
+          status: 'pending' as TaskStatus
+        })
+        .eq('id', dbTaskId);
+
+      if (error) throw error;
+      toast.success('Task put back');
+    } catch (error) {
+      console.error('Error putting back task:', error);
+      toast.error('Failed to put back task');
+    }
+  };
+
+  const renderTaskButtons = (task: Task) => {
+    const isAssignedToMe = task.assigned_to === user?.id;
+    const isUnassigned = !task.assigned_to;
+    const isClaimedByMe = task.claimed_by === user?.id;
+    const isCompleted = task.status === 'completed';
+    const isStarted = task.status === 'in-progress';
+
+    if (isCompleted) {
+      return (
+        <Button 
+          size="sm" 
+          variant="outline"
+          onClick={() => undoComplete(task.id, task)}
+          className="text-xs"
+        >
+          <RotateCcw className="w-3 h-3 mr-1" />
+          Undo
+        </Button>
+      );
+    }
+
+    if (isUnassigned) {
+      return (
+        <Button 
+          size="sm" 
+          onClick={() => claimTask(task.id)}
+          className="text-xs"
+        >
+          <Target className="w-3 h-3 mr-1" />
+          Claim
+        </Button>
+      );
+    }
+
+    if (isAssignedToMe) {
+      if (isStarted) {
+        return (
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="secondary"
+              disabled
+              className="text-xs"
+            >
+              <PlayCircle className="w-3 h-3 mr-1" />
+              Started
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => unstartTask(task.id)}
+              className="text-xs"
+            >
+              <ArrowLeft className="w-3 h-3 mr-1" />
+              Unstart
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={() => completeTask(task.id)}
+              className="text-xs"
+            >
+              <CheckCircle2 className="w-3 h-3 mr-1" />
+              Done
+            </Button>
+          </div>
+        );
+      } else {
+        return (
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => startTask(task.id)}
+              className="text-xs"
+            >
+              <PlayCircle className="w-3 h-3 mr-1" />
+              Start
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={() => completeTask(task.id)}
+              className="text-xs"
+            >
+              <CheckCircle2 className="w-3 h-3 mr-1" />
+              Done
+            </Button>
+            {isClaimedByMe && (
+              <Button 
+                size="sm" 
+                variant="destructive"
+                onClick={() => putBackTask(task.id)}
+                className="text-xs"
+              >
+                <ArrowLeft className="w-3 h-3 mr-1" />
+                Put Back
+              </Button>
+            )}
+          </div>
+        );
+      }
+    }
+
+    return null;
+  };
   
   const completedTasks = tasks.filter(task => task.status === 'completed').length;
   const pendingTasks = tasks.filter(task => task.status === 'pending').length;
@@ -204,40 +462,113 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
         })}
       </div>
 
-      {/* Recent Activity */}
+      {/* Today's Tasks */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Clock className="w-5 h-5 text-slate-600" />
-            <span>Recent Activity</span>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-5 h-5 text-slate-600" />
+              <span>Today's Tasks</span>
+              <Badge variant="secondary" className="ml-2">
+                {todaysTasks.length} tasks
+              </Badge>
+            </div>
+            {onTabChange && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onTabChange('tasks')}
+              >
+                View All
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
           </CardTitle>
           <CardDescription>
-            Your latest tasks and updates
+            Tasks scheduled for Tuesday, September 9, 2025
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {tasks.slice(0, 5).map((task, index) => (
-              <div key={task.id || index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    task.status === 'completed' ? 'bg-blue-500' : 
-                    task.status === 'in-progress' ? 'bg-blue-500' : 'bg-slate-400'
-                  }`} />
-                  <div>
-                    <p className="font-medium text-slate-900">{task.title}</p>
-                    <p className="text-sm text-slate-500">{task.category || 'General'}</p>
+            {todaysTasks.slice(0, 4).map((task) => {
+              const priorityStyles = getPriorityStyles(task.priority);
+              const isAssignedToMe = task.assigned_to === user?.id;
+              const isUnassigned = !task.assigned_to;
+              const isCompleted = task.status === 'completed';
+              const isStarted = task.status === 'in-progress';
+              
+              return (
+                <div key={task.id} className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          isCompleted ? 'bg-green-500' : 
+                          isStarted ? 'bg-blue-500' : 
+                          isUnassigned ? 'bg-gray-400' : 'bg-orange-400'
+                        }`} />
+                        <h4 className="font-medium text-slate-900 truncate">{task.title}</h4>
+                        <Badge variant="outline" className={`text-xs ${priorityStyles}`}>
+                          {task.priority}
+                        </Badge>
+                      </div>
+                      
+                      {task.description && (
+                        <p className="text-sm text-slate-600 mb-2 line-clamp-2">{task.description}</p>
+                      )}
+                      
+                      <div className="flex items-center gap-3 text-xs text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {task.category || 'General'}
+                        </span>
+                        {isCompleted && (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Done
+                          </Badge>
+                        )}
+                        {isStarted && !isCompleted && (
+                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                            <PlayCircle className="w-3 h-3 mr-1" />
+                            Started
+                          </Badge>
+                        )}
+                        {isUnassigned && (
+                          <Badge variant="outline" className="text-xs">
+                            Available
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex-shrink-0">
+                      {renderTaskButtons(task)}
+                    </div>
                   </div>
                 </div>
-                <Badge variant={task.status === 'completed' ? 'default' : 'secondary'}>
-                  {task.status === 'completed' ? 'Done' : 'Pending'}
-                </Badge>
-              </div>
-            ))}
-            {tasks.length === 0 && (
+              );
+            })}
+            
+            {todaysTasks.length === 0 && (
               <div className="text-center py-8 text-slate-500">
-                <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No recent activity</p>
+                <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p className="font-medium">No tasks for today</p>
+                <p className="text-sm">All caught up for Tuesday, September 9th!</p>
+              </div>
+            )}
+            
+            {todaysTasks.length > 4 && (
+              <div className="text-center pt-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => onTabChange && onTabChange('tasks')}
+                  className="text-xs"
+                >
+                  View {todaysTasks.length - 4} more tasks
+                  <ChevronRight className="w-3 h-3 ml-1" />
+                </Button>
               </div>
             )}
           </div>

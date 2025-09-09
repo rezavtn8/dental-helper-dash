@@ -121,12 +121,15 @@ export default function TasksTab({
 
   const claimTask = async (taskId: string) => {
     try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
       const { error } = await supabase.from('tasks')
         .update({ 
           assigned_to: userProfile?.id,
           claimed_by: userProfile?.id // Track who claimed it
         })
-        .eq('id', taskId);
+        .eq('id', dbTaskId);
 
       if (error) throw error;
       onTaskUpdate?.();
@@ -139,12 +142,15 @@ export default function TasksTab({
 
   const startTask = async (taskId: string) => {
     try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
       const { error } = await supabase
         .from('tasks')
         .update({ 
           status: 'in-progress' as TaskStatus
         })
-        .eq('id', taskId);
+        .eq('id', dbTaskId);
 
       if (error) throw error;
       onTaskUpdate?.();
@@ -156,6 +162,9 @@ export default function TasksTab({
 
   const completeTask = async (taskId: string) => {
     try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
       const { error } = await supabase
         .from('tasks')
         .update({ 
@@ -163,7 +172,7 @@ export default function TasksTab({
           completed_by: userProfile?.id,
           completed_at: new Date().toISOString()
         })
-        .eq('id', taskId);
+        .eq('id', dbTaskId);
 
       if (error) throw error;
       onTaskUpdate?.();
@@ -176,6 +185,9 @@ export default function TasksTab({
 
   const undoTaskCompletion = async (taskId: string) => {
     try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
       const { error } = await supabase
         .from('tasks')
         .update({ 
@@ -183,7 +195,7 @@ export default function TasksTab({
           completed_by: null,
           completed_at: null
         })
-        .eq('id', taskId);
+        .eq('id', dbTaskId);
 
       if (error) throw error;
       onTaskUpdate?.();
@@ -196,11 +208,14 @@ export default function TasksTab({
 
   const unstartTask = async (taskId: string) => {
     try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
       const { error } = await supabase.from('tasks')
         .update({ 
           status: 'pending' as TaskStatus
         })
-        .eq('id', taskId);
+        .eq('id', dbTaskId);
 
       if (error) throw error;
       onTaskUpdate?.();
@@ -213,6 +228,9 @@ export default function TasksTab({
 
   const returnTask = async (taskId: string) => {
     try {
+      // Handle recurring task instances - use parent ID for database operations
+      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      
       const { error } = await supabase.from('tasks')
         .update({ 
           assigned_to: null,

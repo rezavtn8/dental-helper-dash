@@ -330,52 +330,52 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
             </div>
           )}
           <div className="overflow-x-auto">
-            <Table className="text-xs">
+            <Table className="text-sm">
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-8 h-8 px-2 py-1">
+                  <TableHead className="w-10 h-10 px-3 py-2">
                     <span className="sr-only">Select</span>
                   </TableHead>
-                  <TableHead className="px-2 py-1 text-xs font-medium">Task</TableHead>
-                  <TableHead className="px-2 py-1 text-xs font-medium">Assigned To</TableHead>
-                  <TableHead className="px-2 py-1 text-xs font-medium">Priority</TableHead>
-                  <TableHead className="px-2 py-1 text-xs font-medium">Status</TableHead>
-                  <TableHead className="px-2 py-1 text-xs font-medium">Due Type</TableHead>
-                  <TableHead className="px-2 py-1 text-xs font-medium">Recurrence</TableHead>
-                  <TableHead className="px-2 py-1 text-xs font-medium text-right">Actions</TableHead>
+                  <TableHead className="px-3 py-2 text-sm font-medium">Task</TableHead>
+                  <TableHead className="px-3 py-2 text-sm font-medium">Assigned To</TableHead>
+                  <TableHead className="px-3 py-2 text-sm font-medium">Priority</TableHead>
+                  <TableHead className="px-3 py-2 text-sm font-medium">Status</TableHead>
+                  <TableHead className="px-3 py-2 text-sm font-medium">Due Type</TableHead>
+                  <TableHead className="px-3 py-2 text-sm font-medium">Recurrence</TableHead>
+                  <TableHead className="px-3 py-2 text-sm font-medium text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredTasks.map((task) => (
-                  <TableRow key={task.id} className={`h-8 ${selectedTasks.includes(task.id) ? 'bg-muted/50' : ''}`}>
-                    <TableCell className="px-2 py-1">
+                  <TableRow key={task.id} className={`h-10 ${selectedTasks.includes(task.id) ? 'bg-muted/50' : ''}`}>
+                    <TableCell className="px-3 py-2">
                       <Checkbox
                         checked={selectedTasks.includes(task.id)}
                         onCheckedChange={() => handleToggleSelect(task.id)}
-                        className="h-3 w-3"
+                        className="h-4 w-4"
                       />
                     </TableCell>
-                    <TableCell className="px-2 py-1">
+                    <TableCell className="px-3 py-2">
                       <div className="min-w-0">
-                        <div className="text-xs font-medium truncate">{task.title}</div>
+                        <div className="text-sm font-medium truncate">{task.title}</div>
                         {task.description && (
-                          <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                          <div className="text-xs text-muted-foreground truncate max-w-[250px]">
                             {task.description}
                           </div>
                         )}
                         {task.category && (
-                          <Badge variant="outline" className="text-xs px-1 py-0 h-4 mt-0.5">
+                          <Badge variant="outline" className="text-xs px-2 py-0.5 h-5 mt-1">
                             {task.category}
                           </Badge>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="px-2 py-1">
+                    <TableCell className="px-3 py-2">
                       <Select 
                         value={task.assigned_to || 'unassigned'} 
                         onValueChange={(value) => handleReassignTask(task.id, value)}
                       >
-                        <SelectTrigger className="w-32 h-6 text-xs px-2 py-0">
+                        <SelectTrigger className="w-36 h-7 text-sm px-2 py-1">
                           <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
@@ -388,34 +388,34 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="px-2 py-1">
-                      <span className={`text-xs font-medium capitalize ${getPriorityColor(task.priority)}`}>
+                    <TableCell className="px-3 py-2">
+                      <span className={`text-sm font-medium capitalize ${getPriorityColor(task.priority)}`}>
                         {task.priority}
                       </span>
                     </TableCell>
-                    <TableCell className="px-2 py-1">
-                      <Badge variant={task.status === 'completed' ? 'outline' : task.status === 'in-progress' ? 'default' : 'secondary'} className="text-xs px-1 py-0 h-4 gap-1">
-                        {task.status === 'completed' && <CheckCircle className="w-2 h-2" />}
-                        {task.status === 'in-progress' && <AlertCircle className="w-2 h-2" />}
-                        {task.status === 'pending' && <Clock className="w-2 h-2" />}
+                    <TableCell className="px-3 py-2">
+                      <Badge variant={task.status === 'completed' ? 'outline' : task.status === 'in-progress' ? 'default' : 'secondary'} className="text-xs px-2 py-0.5 h-5 gap-1">
+                        {task.status === 'completed' && <CheckCircle className="w-3 h-3" />}
+                        {task.status === 'in-progress' && <AlertCircle className="w-3 h-3" />}
+                        {task.status === 'pending' && <Clock className="w-3 h-3" />}
                         {task.status.replace('-', ' ')}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-2 py-1">
-                      <Badge variant="outline" className="text-xs px-1 py-0 h-4 capitalize">
+                    <TableCell className="px-3 py-2">
+                      <Badge variant="outline" className="text-xs px-2 py-0.5 h-5 capitalize">
                         {task['due-type']?.replace('-', ' ')}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-2 py-1">
-                      <Badge variant="secondary" className="text-xs px-1 py-0 h-4 capitalize">
+                    <TableCell className="px-3 py-2">
+                      <Badge variant="secondary" className="text-xs px-2 py-0.5 h-5 capitalize">
                         {task.recurrence === 'none' ? 'One-time' : task.recurrence}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-2 py-1 text-right">
+                    <TableCell className="px-3 py-2 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                            <MoreHorizontal className="w-3 h-3" />
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                            <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
                          <DropdownMenuContent align="end">
@@ -423,14 +423,14 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                             setEditTask(task);
                             setShowEditDialog(true);
                           }}>
-                            <Edit className="w-3 h-3 mr-2" />
+                            <Edit className="w-4 h-4 mr-2" />
                             Edit Task
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleDeleteTask(task.id)}
                             className="text-red-600"
                           >
-                            <Trash2 className="w-3 h-3 mr-2" />
+                            <Trash2 className="w-4 h-4 mr-2" />
                             Delete Task
                           </DropdownMenuItem>
                         </DropdownMenuContent>

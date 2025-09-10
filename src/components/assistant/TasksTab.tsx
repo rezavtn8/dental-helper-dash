@@ -20,47 +20,39 @@ import {
   subDays,
   isSameMonth
 } from 'date-fns';
-import { TaskCard } from './TaskCard';
+import { SimpleTaskCard } from './SimpleTaskCard';
 
 interface TasksTabProps {
   tasks: Task[];
   assistants: Assistant[];
   onTaskUpdate?: () => void;
-  onTaskClick?: (task: Task) => void;
 }
 
-export default function TasksTab({ 
-  tasks, 
-  assistants, 
-  onTaskUpdate, 
-  onTaskClick
-}: TasksTabProps) {
+export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabProps) {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Filter tasks to show only assigned to current user or unassigned
-  const filteredTasks = useMemo(() => {
+  // Simple task filtering - only show tasks assigned to me or unassigned
+  const myTasks = useMemo(() => {
     return tasks.filter(task => 
       task.assigned_to === userProfile?.id || 
-      task.assigned_to === null || 
-      task.assigned_to === undefined
+      !task.assigned_to
     );
-  }, [tasks, userProfile?.id]);
+  }, [tasks, userProfile?.id, refreshKey]);
 
-  // Get tasks for selected date - ensure fresh filtering
-  const selectedDateTasks = useMemo(() => {
-    console.log('🔍 Filtering tasks for date:', format(selectedDate, 'yyyy-MM-dd'), {
-      totalFiltered: filteredTasks.length,
-      selectedDate: selectedDate.toISOString()
-    });
-    const tasks = getTasksForDate(filteredTasks, selectedDate);
-    console.log('✅ Date filtered tasks:', tasks.length);
-    return tasks;
-  }, [filteredTasks, selectedDate]);
+  // Get tasks for selected date
+  const todayTasks = useMemo(() => {
+    return getTasksForDate(myTasks, selectedDate);
+  }, [myTasks, selectedDate]);
 
-  // Show connect to clinic message if no clinic access
+  const handleTaskUpdate = () => {
+    setRefreshKey(prev => prev + 1);
+    onTaskUpdate?.();
+  };
+
   if (!userProfile?.clinic_id) {
     return (
       <div className="p-6 max-w-2xl mx-auto">
@@ -83,18 +75,16 @@ export default function TasksTab({
     );
   }
 
-  // Show connect to clinic message if no clinic access
-
   return (
     <div className="space-y-4">
-      {/* Compact Header */}
+      {/* Header */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
-            <h2 className="text-lg font-semibold">Task Calendar</h2>
+            <h2 className="text-lg font-semibold">My Tasks</h2>
             <Badge variant="secondary">
-              {selectedDateTasks.length} task{selectedDateTasks.length !== 1 ? 's' : ''}
+              {todayTasks.length} task{todayTasks.length !== 1 ? 's' : ''}
             </Badge>
           </div>
           <div className="flex gap-1 p-1 bg-muted rounded-md">
@@ -163,17 +153,16 @@ export default function TasksTab({
         </div>
       </Card>
 
-
       {/* Tasks Display */}
       {viewMode === 'day' ? (
         <div className="space-y-3">
-          {selectedDateTasks.length > 0 ? (
-            selectedDateTasks.map((task, index) => (
-              <TaskCard 
-                key={`${task.id}-${index}`} 
+          {todayTasks.length > 0 ? (
+            todayTasks.map((task) => (
+              <SimpleTaskCard 
+                key={task.id}
                 task={task} 
                 assistants={assistants}
-                onTaskUpdate={onTaskUpdate}
+                onUpdate={handleTaskUpdate}
               />
             ))
           ) : (
@@ -195,7 +184,7 @@ export default function TasksTab({
             start: startOfWeek(selectedDate),
             end: endOfWeek(selectedDate)
           }).map((date) => {
-            const dayTasks = getTasksForDate(filteredTasks, date);
+            const dayTasks = getTasksForDate(myTasks, date);
             const isCurrentDate = isSameDay(date, selectedDate);
             const isCurrentMonth = isSameMonth(date, selectedDate);
             

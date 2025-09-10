@@ -421,12 +421,11 @@ const AssistantDashboard = () => {
         );
       case 'tasks':
         return (
-          <TasksTab 
-            tasks={tasks}
-            assistants={assistants}
-            onTaskUpdate={fetchTasks}
-            onTaskClick={handleTaskClick}
-          />
+            <TasksTab 
+              tasks={tasks}
+              assistants={assistants}
+              onTaskUpdate={fetchTasks}
+            />
         );
       case 'schedule':
         return <ScheduleTab />;

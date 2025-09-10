@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TaskStatus, isCompleted } from '@/lib/taskStatus';
-import { getPriorityStyles } from '@/lib/taskUtils';
+import { getPriorityStyles, getTasksForDate } from '@/lib/taskUtils';
 import { Task } from '@/types/task';
 import PatientCounter from './PatientCounter';
 
@@ -62,29 +62,13 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
       userId: user?.id
     });
     
-    const filtered = tasks.filter(task => {
-      // Show unassigned tasks or tasks assigned to current user
+    // Use the proper getTasksForDate function to get tasks for today
+    const tasksForToday = getTasksForDate(tasks, currentDate);
+    
+    // Filter to show only unassigned tasks or tasks assigned to current user
+    const filtered = tasksForToday.filter(task => {
       const isRelevant = !task.assigned_to || task.assigned_to === user?.id;
-      if (!isRelevant) return false;
-
-      // For recurring tasks, always show them (they should appear every day)
-      if (task.recurrence && task.recurrence !== 'none') {
-        return true;
-      }
-
-      // Check if task has a specific due date for today
-      const dueDate = task['due-date'] || task.custom_due_date;
-      if (dueDate) {
-        const taskDate = new Date(dueDate).toISOString().split('T')[0];
-        return taskDate === today;
-      }
-
-      // Show tasks with due-type but no specific date (daily tasks)
-      if (task['due-type'] && task['due-type'] !== 'none' && task['due-type'] !== 'custom') {
-        return true;
-      }
-
-      return false;
+      return isRelevant;
     });
     
     console.log('📅 Today\'s tasks filtered:', {

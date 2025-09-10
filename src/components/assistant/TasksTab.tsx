@@ -73,7 +73,9 @@ export default function TasksTab({
       filteredTasksCount: filteredTasks.length,
       tasksForDateCount: tasksForDate.length,
       recurring: tasksForDate.filter(t => t.recurrence && t.recurrence !== 'none').length,
-      withDueType: tasksForDate.filter(t => t['due-type'] && t['due-type'] !== 'none').length
+      instances: tasksForDate.filter(t => 'isRecurringInstance' in t && t.isRecurringInstance).length,
+      withDueType: tasksForDate.filter(t => t['due-type'] && t['due-type'] !== 'none').length,
+      withSpecificDates: tasksForDate.filter(t => t.custom_due_date || t['due-date']).length
     });
     return tasksForDate;
   }, [filteredTasks, selectedDate]);

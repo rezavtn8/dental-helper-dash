@@ -304,6 +304,20 @@ export default function TasksTab({
     const isOverdue = isRecurringInstance(task) && task.isOverdue;
     const wasClaimedByMe = task.claimed_by === userProfile?.id;
     
+    // Debug logging
+    console.log('🔧 Button Debug:', {
+      taskId: task.id,
+      title: task.title,
+      status: task.status,
+      assigned_to: task.assigned_to,
+      claimed_by: task.claimed_by,
+      userProfileId: userProfile?.id,
+      isAssignedToMe,
+      isUnassigned,
+      wasClaimedByMe,
+      shouldShowDone: isAssignedToMe && (task.status === 'pending' || task.status === 'in-progress')
+    });
+    
     return (
       <div className={`
         flex items-center justify-between p-3 border rounded-lg transition-all hover:shadow-sm
@@ -341,12 +355,14 @@ export default function TasksTab({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Show task status for debugging */}
-          <Badge variant="secondary" className="text-xs">
-            {task.status || 'no-status'}
-          </Badge>
+          {/* Debug info */}
+          <div className="text-xs bg-gray-100 px-2 py-1 rounded flex flex-col">
+            <div>Status: {task.status || 'none'}</div>
+            <div>Assigned: {task.assigned_to ? 'Yes' : 'No'}</div>
+            <div>IsMe: {isAssignedToMe ? 'Yes' : 'No'}</div>
+          </div>
           
-          {/* Unassigned Tasks - Show Claim button */}
+          {/* CLAIM BUTTON - For unassigned tasks */}
           {isUnassigned && task.status !== 'completed' && (
             <Button
               size="sm"
@@ -355,124 +371,113 @@ export default function TasksTab({
                 console.log('🎯 Claiming task:', task.id);
                 claimTask(task.id);
               }}
-              className="h-8 px-3 text-xs"
+              className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
               disabled={isProcessing !== null}
             >
               {isProcessing === task.id ? (
-                <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
+                <>
+                  <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
+                  Claiming...
+                </>
               ) : (
-                <Target className="w-3 h-3 mr-1" />
+                <>
+                  <Target className="w-3 h-3 mr-1" />
+                  Claim
+                </>
               )}
-              {isProcessing === task.id ? 'Claiming...' : 'Claim'}
             </Button>
           )}
 
-          {/* Assigned to Me - Show action buttons */}
+          {/* TASK BUTTONS - For my assigned tasks */}
           {isAssignedToMe && (
-            <>
+            <div className="flex gap-1">
+              {/* START button - only for pending tasks */}
               {task.status === 'pending' && (
-                <>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('▶️ Starting task:', task.id);
-                      startTask(task.id);
-                    }}
-                    className="h-8 px-3 text-xs"
-                    disabled={isProcessing !== null}
-                  >
-                    {isProcessing === task.id ? (
-                      <div className="w-3 h-3 animate-spin rounded-full border-2 border-primary border-t-transparent mr-1" />
-                    ) : null}
-                    {isProcessing === task.id ? 'Starting...' : 'Start'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('✅ Completing task:', task.id);
-                      completeTask(task.id);
-                    }}
-                    className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
-                    disabled={isProcessing !== null}
-                  >
-                    {isProcessing === task.id ? (
-                      <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
-                    ) : null}
-                    {isProcessing === task.id ? 'Completing...' : 'Done'}
-                  </Button>
-                  {wasClaimedByMe && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log('↩️ Returning task:', task.id);
-                        returnTask(task.id);
-                      }}
-                      className="h-8 px-3 text-xs"
-                      disabled={isProcessing !== null}
-                    >
-                      Return
-                    </Button>
-                  )}
-                </>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('▶️ Starting task:', task.id);
+                    startTask(task.id);
+                  }}
+                  className="h-8 px-2 text-xs"
+                  disabled={isProcessing !== null}
+                >
+                  {isProcessing === task.id ? 'Starting...' : 'Start'}
+                </Button>
               )}
-
+              
+              {/* DONE button - for pending AND in-progress */}
+              {(task.status === 'pending' || task.status === 'in-progress') && (
+                <Button
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('✅ Completing task:', task.id, 'Status:', task.status);
+                    completeTask(task.id);
+                  }}
+                  className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                  disabled={isProcessing !== null}
+                >
+                  {isProcessing === task.id ? 'Completing...' : 'Done'}
+                </Button>
+              )}
+              
+              {/* RESET button - only for in-progress */}
               {task.status === 'in-progress' && (
-                <>
-                  <Button
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('✅ Completing in-progress task:', task.id);
-                      completeTask(task.id);
-                    }}
-                    className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
-                    disabled={isProcessing !== null}
-                  >
-                    Done
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('🔄 Resetting task:', task.id);
-                      unstartTask(task.id);
-                    }}
-                    className="h-8 px-3 text-xs"
-                    disabled={isProcessing !== null}
-                  >
-                    Reset
-                  </Button>
-                </>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    unstartTask(task.id);
+                  }}
+                  className="h-8 px-2 text-xs"
+                  disabled={isProcessing !== null}
+                >
+                  Reset
+                </Button>
               )}
-
+              
+              {/* UNDO button - only for completed */}
               {task.status === 'completed' && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('↺ Undoing task completion:', task.id);
                     undoTaskCompletion(task.id);
                   }}
-                  className="h-8 px-3 text-xs"
+                  className="h-8 px-2 text-xs"
                   disabled={isProcessing !== null}
                 >
                   Undo
                 </Button>
               )}
-            </>
+              
+              {/* RETURN button - for pending claimed tasks */}
+              {task.status === 'pending' && wasClaimedByMe && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    returnTask(task.id);
+                  }}
+                  className="h-8 px-2 text-xs"
+                  disabled={isProcessing !== null}
+                >
+                  Return
+                </Button>
+              )}
+            </div>
           )}
           
-          {/* Show no buttons case for debugging */}
+          {/* OTHER ASSIGNMENT MESSAGE */}
           {!isUnassigned && !isAssignedToMe && (
             <Badge variant="outline" className="text-xs">
-              Assigned to other
+              Assigned to {getAssistantName(task.assigned_to)}
             </Badge>
           )}
         </div>

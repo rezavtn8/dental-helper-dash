@@ -67,7 +67,15 @@ export default function TasksTab({
 
   // Get tasks for selected date
   const selectedDateTasks = useMemo(() => {
-    return getTasksForDate(filteredTasks, selectedDate);
+    const tasksForDate = getTasksForDate(filteredTasks, selectedDate);
+    console.log('📋 TasksTab - Tasks for selected date:', {
+      selectedDate: selectedDate.toISOString().split('T')[0],
+      filteredTasksCount: filteredTasks.length,
+      tasksForDateCount: tasksForDate.length,
+      recurring: tasksForDate.filter(t => t.recurrence && t.recurrence !== 'none').length,
+      withDueType: tasksForDate.filter(t => t['due-type'] && t['due-type'] !== 'none').length
+    });
+    return tasksForDate;
   }, [filteredTasks, selectedDate]);
 
   // Get calendar dates for proper calendar view
@@ -295,6 +303,18 @@ export default function TasksTab({
     const isAssignedToOther = task.assigned_to && task.assigned_to !== userProfile?.id;
     const isOverdue = isRecurringInstance(task) && task.isOverdue;
     const wasClaimedByMe = task.claimed_by === userProfile?.id; // Track if user claimed vs owner assigned
+    
+    console.log('📋 TaskCard rendering:', {
+      taskId: task.id,
+      taskTitle: task.title,
+      isAssignedToMe,
+      isUnassigned,
+      isAssignedToOther,
+      status: task.status,
+      claimed_by: task.claimed_by,
+      assigned_to: task.assigned_to,
+      userProfileId: userProfile?.id
+    });
     
     return (
       <div

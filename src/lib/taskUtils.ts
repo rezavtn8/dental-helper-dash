@@ -782,13 +782,32 @@ export const getTasksForDate = (
   // Expand tasks with recurrence for the target date range
   const expandedTasks = expandTasksWithRecurrence(tasks, startOfTargetDate, endOfTargetDate);
   
-  // Filter tasks that match the target date
+  // Filter tasks that should show for the target date
   return expandedTasks.filter(task => {
-    const taskDate = task.custom_due_date 
-      ? startOfDay(new Date(task.custom_due_date))
-      : startOfDay(new Date(task.created_at));
-    
-    return taskDate.getTime() === startOfTargetDate.getTime();
+    // For recurring task instances, they already have the correct date
+    if (isRecurringInstance(task)) {
+      return true;
+    }
+
+    // For tasks with specific due dates, check if they match
+    if (task.custom_due_date || task['due-date']) {
+      const taskDate = task.custom_due_date 
+        ? startOfDay(new Date(task.custom_due_date))
+        : startOfDay(new Date(task['due-date']!));
+      return taskDate.getTime() === startOfTargetDate.getTime();
+    }
+
+    // For recurring tasks without specific dates, show them every day
+    if (task.recurrence && task.recurrence !== 'none') {
+      return true;
+    }
+
+    // For tasks with due-type but no specific date (daily tasks), show them
+    if (task['due-type'] && task['due-type'] !== 'none' && task['due-type'] !== 'custom') {
+      return true;
+    }
+
+    return false;
   });
 };
 

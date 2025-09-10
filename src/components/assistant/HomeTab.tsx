@@ -67,19 +67,32 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
       const isRelevant = !task.assigned_to || task.assigned_to === user?.id;
       if (!isRelevant) return false;
 
-      // Check if task is due today
+      // For recurring tasks, always show them (they should appear every day)
+      if (task.recurrence && task.recurrence !== 'none') {
+        return true;
+      }
+
+      // Check if task has a specific due date for today
       const dueDate = task['due-date'] || task.custom_due_date;
       if (dueDate) {
         const taskDate = new Date(dueDate).toISOString().split('T')[0];
         return taskDate === today;
       }
+
+      // Show tasks with due-type but no specific date (daily tasks)
+      if (task['due-type'] && task['due-type'] !== 'none' && task['due-type'] !== 'custom') {
+        return true;
+      }
+
       return false;
     });
     
     console.log('📅 Today\'s tasks filtered:', {
       filteredCount: filtered.length,
       assignedToMe: filtered.filter(t => t.assigned_to === user?.id).length,
-      unassigned: filtered.filter(t => !t.assigned_to).length
+      unassigned: filtered.filter(t => !t.assigned_to).length,
+      recurring: filtered.filter(t => t.recurrence && t.recurrence !== 'none').length,
+      withDueType: filtered.filter(t => t['due-type'] && t['due-type'] !== 'none').length
     });
     
     return filtered;

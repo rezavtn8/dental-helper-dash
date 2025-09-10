@@ -26,8 +26,10 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
   const { userProfile } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const isMyTask = task.assigned_to === userProfile?.id;
-  const isUnassigned = !task.assigned_to;
+  const isMyTask = task.assigned_to === userProfile?.id || task.claimed_by === userProfile?.id;
+  const isUnassigned = !task.assigned_to && !task.claimed_by;
+  const isAssigned = task.assigned_to === userProfile?.id && !task.claimed_by; // Assigned by owner
+  const isClaimed = task.claimed_by === userProfile?.id; // Claimed by assistant
   const isOverdue = isRecurringInstance(task) && task.isOverdue;
 
   const getAssistantName = (id: string | null) => {
@@ -151,10 +153,12 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
                 <CheckCircle2 className="w-3 h-3 mr-1" />
                 Complete
               </Button>
-              <Button size="sm" onClick={handleReturn} variant="outline" title="Return Task">
-                <ArrowLeft className="w-3 h-3 mr-1" />
-                Return
-              </Button>
+              {isClaimed && (
+                <Button size="sm" onClick={handleReturn} variant="outline" title="Return Task">
+                  <ArrowLeft className="w-3 h-3 mr-1" />
+                  Return
+                </Button>
+              )}
             </div>
           );
 
@@ -250,13 +254,25 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
             {getStatusText()}
           </Badge>
           
+          {isAssigned && (
+            <Badge variant="outline" className="text-xs h-4 px-1 bg-purple-100 text-purple-800 border-purple-200">
+              Assigned
+            </Badge>
+          )}
+          
+          {isClaimed && (
+            <Badge variant="outline" className="text-xs h-4 px-1 bg-blue-100 text-blue-800 border-blue-200">
+              Claimed
+            </Badge>
+          )}
+          
           {task['due-type'] && (
             <Badge variant="outline" className="text-xs h-4 px-1">
               {task['due-type']?.replace('-', ' ')}
             </Badge>
           )}
           
-          <span>Assigned: {getAssistantName(task.assigned_to)}</span>
+          <span>Assigned: {getAssistantName(task.assigned_to || task.claimed_by)}</span>
         </div>
       </div>
 

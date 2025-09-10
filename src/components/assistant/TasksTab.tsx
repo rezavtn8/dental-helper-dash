@@ -56,7 +56,7 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
     );
     
     const assigned = todayTasks.filter(task => 
-      task.assigned_to === userProfile?.id && task.status !== 'completed'
+      (task.assigned_to === userProfile?.id || task.claimed_by === userProfile?.id) && task.status !== 'completed'
     );
     
     // Include all completed tasks where user was involved

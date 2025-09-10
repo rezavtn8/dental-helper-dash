@@ -37,8 +37,8 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
 
-  // Organize tasks into three categories
-  const { unassignedTasks, assignedTasks, completedTasks } = useMemo(() => {
+  // Organize tasks into three clear categories
+  const { unassignedTasks, assignedClaimedTasks, completedTasks } = useMemo(() => {
     console.log('🔍 Categorizing tasks:', {
       totalTasks: tasks.length,
       selectedDate: selectedDate.toDateString(),
@@ -48,18 +48,20 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
     const todayTasks = getTasksForDate(tasks, selectedDate);
     console.log('📅 Tasks for selected date:', {
       todayTasksCount: todayTasks.length,
-      todayTasks: todayTasks.map(t => ({ id: t.id, title: t.title, status: t.status, assigned_to: t.assigned_to, completed_by: t.completed_by }))
+      todayTasks: todayTasks.map(t => ({ id: t.id, title: t.title, status: t.status, assigned_to: t.assigned_to, claimed_by: t.claimed_by, completed_by: t.completed_by }))
     });
     
+    // 1. Unassigned Tasks - no assignment and not completed
     const unassigned = todayTasks.filter(task => 
-      !task.assigned_to && task.status !== 'completed'
+      !task.assigned_to && !task.claimed_by && task.status !== 'completed'
     );
     
-    const assigned = todayTasks.filter(task => 
+    // 2. Assigned/Claimed Tasks - assigned to or claimed by user and not completed
+    const assignedClaimed = todayTasks.filter(task => 
       (task.assigned_to === userProfile?.id || task.claimed_by === userProfile?.id) && task.status !== 'completed'
     );
     
-    // Include all completed tasks where user was involved
+    // 3. Completed Tasks - completed and user was involved
     const completed = todayTasks.filter(task => 
       task.status === 'completed' && (
         task.assigned_to === userProfile?.id || 
@@ -70,19 +72,18 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
     
     console.log('📊 Task categories:', {
       unassigned: unassigned.length,
-      assigned: assigned.length,
-      completed: completed.length,
-      completedTasks: completed.map(t => ({ id: t.id, title: t.title, status: t.status, assigned_to: t.assigned_to, completed_by: t.completed_by }))
+      assignedClaimed: assignedClaimed.length,
+      completed: completed.length
     });
     
     return { 
       unassignedTasks: unassigned, 
-      assignedTasks: assigned, 
+      assignedClaimedTasks: assignedClaimed, 
       completedTasks: completed 
     };
   }, [tasks, selectedDate, userProfile?.id]);
 
-  const totalTasks = unassignedTasks.length + assignedTasks.length + completedTasks.length;
+  const totalTasks = unassignedTasks.length + assignedClaimedTasks.length + completedTasks.length;
 
   if (!userProfile?.clinic_id) {
     return (
@@ -226,18 +227,18 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
                 </Card>
               )}
 
-              {/* Assigned Tasks */}
-              {assignedTasks.length > 0 && (
+              {/* Assigned/Claimed Tasks */}
+              {assignedClaimedTasks.length > 0 && (
                 <Card className="p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <h3 className="font-semibold text-blue-800">My Tasks</h3>
+                    <h3 className="font-semibold text-blue-800">My Assigned & Claimed Tasks</h3>
                     <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
-                      {assignedTasks.length}
+                      {assignedClaimedTasks.length}
                     </Badge>
                   </div>
                   <div className="space-y-3">
-                    {assignedTasks.map((task) => (
+                    {assignedClaimedTasks.map((task) => (
                       <OptimizedTaskCard 
                         key={`${task.id}-${task.status}-${task.assigned_to}`}
                         task={task} 

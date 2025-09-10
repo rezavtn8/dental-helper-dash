@@ -39,10 +39,13 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
   const executeTask = async (action: string, updates: any, successMsg: string) => {
     setIsLoading(true);
     try {
+      // Extract base UUID from task ID (remove date suffix if present)
+      const baseTaskId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+      
       const { error } = await supabase
         .from('tasks')
         .update(updates)
-        .eq('id', task.id);
+        .eq('id', baseTaskId);
 
       if (error) throw error;
       

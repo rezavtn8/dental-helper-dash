@@ -113,11 +113,22 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
   };
 
   const handleReopen = () => {
-    executeTaskAction('reopen', {
+    // Restore previous assignment status when undoing completion
+    const updates: Partial<Task> = {
       status: 'pending',
       completed_by: null,
       completed_at: null
-    }, 'Task moved back to pending');
+    };
+    
+    // If task was originally claimed by user, restore claimed status
+    if (task.assigned_to === userProfile?.id && task.claimed_by === userProfile?.id) {
+      updates.status = 'in-progress';
+    } else if (task.assigned_to === userProfile?.id) {
+      // If it was originally assigned (not claimed), keep as assigned
+      updates.status = 'pending';
+    }
+    
+    executeTaskAction('reopen', updates, 'Task moved back to pending');
   };
 
   const renderActionButton = () => {

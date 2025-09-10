@@ -38,7 +38,7 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
         .from('tasks')
         .select('*')
         .eq('clinic_id', userProfile.clinic_id)
-        .or(`assigned_to.eq.${userProfile.id},assigned_to.is.null`)
+        .or(`assigned_to.eq.${userProfile.id},assigned_to.is.null,claimed_by.eq.${userProfile.id},completed_by.eq.${userProfile.id}`)
         .order('created_at', { ascending: false });
 
       if (error) {

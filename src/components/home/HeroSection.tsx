@@ -39,7 +39,7 @@ export function HeroSection() {
         <h1 className="text-[3rem] md:text-[3.5rem] lg:text-[4rem] font-semibold mb-6 leading-[3.5rem] md:leading-[4rem] lg:leading-[4.5rem] bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
           Dental teamwork,
           <br />
-          <span className="bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">simplified.</span>
+          <span className="font-handwritten bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">simplified.</span>
         </h1>
         
         {/* Subtext */}

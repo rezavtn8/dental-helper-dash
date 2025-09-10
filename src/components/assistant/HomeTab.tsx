@@ -254,9 +254,8 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
           <div className="flex gap-2">
             <Button 
               size="sm" 
-              variant="secondary"
               disabled
-              className="text-xs"
+              className="text-xs bg-gray-100 text-gray-600 cursor-not-allowed border border-gray-200"
             >
               <PlayCircle className="w-3 h-3 mr-1" />
               Started

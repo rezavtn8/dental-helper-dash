@@ -32,6 +32,9 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
   const isUnassigned = !task.assigned_to;
   const isOverdue = isRecurringInstance(task) && task.isOverdue;
 
+  // Force re-render when task data changes by using the task's status and assigned_to as keys
+  const taskKey = `${task.id}-${task.status}-${task.assigned_to}-${task.completed_at}`;
+
   const getAssistantName = (id: string | null) => {
     if (!id) return 'Unassigned';
     return assistants.find(a => a.id === id)?.name || 'Unknown';
@@ -204,7 +207,7 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
   };
 
   return (
-    <div className={`flex items-center justify-between p-3 border rounded-lg hover:shadow-sm transition-all ${getCardStyle()}`}>
+    <div key={taskKey} className={`flex items-center justify-between p-3 border rounded-lg hover:shadow-sm transition-all ${getCardStyle()}`}>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           {isOverdue && <AlertCircle className="w-4 h-4 text-red-500" />}
@@ -227,6 +230,7 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
             </Badge>
           )}
           <span>{getAssistantName(task.assigned_to)}</span>
+          <span className="text-xs">Status: {task.status}</span>
         </div>
       </div>
 

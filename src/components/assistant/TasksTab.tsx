@@ -169,7 +169,7 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
           {todayTasks.length > 0 ? (
             todayTasks.map((task) => (
               <SimpleTaskCard 
-                key={task.id}
+                key={`${task.id}-${task.status}-${task.assigned_to}`}
                 task={task} 
                 assistants={assistants}
               />

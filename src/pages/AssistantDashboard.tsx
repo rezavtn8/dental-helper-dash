@@ -19,12 +19,12 @@ import SettingsTab from '@/components/assistant/SettingsTab';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
-import { useTasks } from '@/hooks/useTasks';
+import { useOptimizedTasks } from '@/hooks/useOptimizedTasks';
 
 const AssistantDashboard = () => {
   const { session, user, userProfile } = useAuth();
   const navigate = useNavigate();
-  const { tasks, loading: tasksLoading, refetch: refetchTasks } = useTasks();
+  const { tasks, loading: tasksLoading, updateTask, refreshTasks } = useOptimizedTasks();
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [patientCount, setPatientCount] = useState(0);
@@ -90,24 +90,15 @@ const AssistantDashboard = () => {
   };
 
   const handleTaskStatusUpdate = async (taskId: string, newStatus: TaskStatus) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: newStatus,
-          completed_at: newStatus === 'completed' ? new Date().toISOString() : null,
-          completed_by: newStatus === 'completed' ? user?.id : null
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
-      // Refresh tasks using the centralized hook
-      await refetchTasks();
+    const updates = { 
+      status: newStatus,
+      completed_at: newStatus === 'completed' ? new Date().toISOString() : null,
+      completed_by: newStatus === 'completed' ? user?.id : null
+    };
+    
+    const success = await updateTask(taskId, updates);
+    if (success) {
       toast.success('Task updated successfully');
-    } catch (error) {
-      console.error('Error updating task:', error);
-      toast.error('Failed to update task');
     }
   };
 
@@ -356,8 +347,8 @@ const AssistantDashboard = () => {
             patientCount={patientCount}
             onPatientCountUpdate={setPatientCount}
             onTabChange={setActiveTab}
-            onTaskUpdate={refetchTasks}
-            onTaskStatusUpdate={handleTaskStatusUpdate}
+            onTaskUpdate={refreshTasks}
+            updateTask={updateTask}
           />
         );
       case 'tasks':
@@ -366,10 +357,8 @@ const AssistantDashboard = () => {
               assistants={assistants}
               tasks={tasks}
               loading={tasksLoading}
-              onRefetch={() => {
-                console.log('🔄 Manual refetch triggered from TasksTab');
-                return refetchTasks();
-              }}
+              onRefetch={refreshTasks}
+              updateTask={updateTask}
             />
         );
       case 'schedule':
@@ -395,8 +384,8 @@ const AssistantDashboard = () => {
             patientCount={patientCount}
             onPatientCountUpdate={setPatientCount}
             onTabChange={setActiveTab}
-            onTaskUpdate={refetchTasks}
-            onTaskStatusUpdate={handleTaskStatusUpdate}
+            onTaskUpdate={refreshTasks}
+            updateTask={updateTask}
           />
         );
     }

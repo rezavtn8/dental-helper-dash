@@ -13,34 +13,29 @@ import {
 } from 'lucide-react';
 import { Task, Assistant } from '@/types/task';
 import { useAuth } from '@/hooks/useAuth';
-import { useTasks } from '@/hooks/useTasks';
 import { toast } from 'sonner';
 import { getPriorityStyles, isRecurringInstance, RecurringTaskInstance } from '@/lib/taskUtils';
 
-interface SimpleTaskCardProps {
+interface OptimizedTaskCardProps {
   task: Task | RecurringTaskInstance;
   assistants: Assistant[];
-  onUpdate?: () => void;
+  onUpdateTask: (taskId: string, updates: Partial<Task>) => Promise<boolean>;
 }
 
-export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardProps) {
+export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedTaskCardProps) {
   const { userProfile } = useAuth();
-  const { updateTask } = useTasks();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const isMyTask = task.assigned_to === userProfile?.id;
   const isUnassigned = !task.assigned_to;
   const isOverdue = isRecurringInstance(task) && task.isOverdue;
 
-  // Force re-render when task data changes by using the task's status and assigned_to as keys
-  const taskKey = `${task.id}-${task.status}-${task.assigned_to}-${task.completed_at}`;
-
   const getAssistantName = (id: string | null) => {
     if (!id) return 'Unassigned';
     return assistants.find(a => a.id === id)?.name || 'Unknown';
   };
 
-  const executeTask = async (action: string, updates: any, successMsg: string) => {
+  const executeTaskAction = async (action: string, updates: any, successMsg: string) => {
     if (!userProfile?.id) {
       toast.error('User not authenticated');
       return;
@@ -49,32 +44,24 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
     setIsLoading(true);
     
     try {
-      console.log(`🔄 Executing task action: ${action}`, {
+      console.log(`⚡ Executing task action: ${action}`, {
         taskId: task.id,
-        isRecurring: isRecurringInstance(task),
         updates,
-        userProfile: userProfile.id,
-        currentAssignedTo: task.assigned_to,
-        currentStatus: task.status
+        userProfile: userProfile.id
       });
 
-      const success = await updateTask(task.id, updates);
+      const success = await onUpdateTask(task.id, updates);
       
       if (success) {
         console.log(`✅ Task ${action} successful:`, task.id);
         toast.success(successMsg);
-        
-        // Force a small delay then trigger onUpdate callback
-        setTimeout(() => {
-          onUpdate?.();
-        }, 1000);
       } else {
         console.error(`❌ Task ${action} failed:`, task.id);
         toast.error('Action failed. Please try again.');
       }
       
     } catch (error: any) {
-      console.error('❌ Task action failed:', {
+      console.error('❌ Task action error:', {
         action,
         taskId: task.id,
         error: error.message || error
@@ -87,20 +74,20 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
   };
 
   const handleClaim = () => {
-    executeTask('claim', {
+    executeTaskAction('claim', {
       assigned_to: userProfile?.id,
       claimed_by: userProfile?.id
     }, 'Task claimed!');
   };
 
   const handleStart = () => {
-    executeTask('start', {
+    executeTaskAction('start', {
       status: 'in-progress'
     }, 'Task started!');
   };
 
   const handleComplete = () => {
-    executeTask('complete', {
+    executeTaskAction('complete', {
       status: 'completed',
       completed_by: userProfile?.id,
       completed_at: new Date().toISOString()
@@ -108,13 +95,13 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
   };
 
   const handleReset = () => {
-    executeTask('reset', {
+    executeTaskAction('reset', {
       status: 'pending'
     }, 'Task reset to pending');
   };
 
   const handleReturn = () => {
-    executeTask('return', {
+    executeTaskAction('return', {
       assigned_to: null,
       claimed_by: null,
       status: 'pending'
@@ -122,7 +109,7 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
   };
 
   const handleReopen = () => {
-    executeTask('reopen', {
+    executeTaskAction('reopen', {
       status: 'pending',
       completed_by: null,
       completed_at: null
@@ -158,11 +145,11 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
                 <Play className="w-3 h-3 mr-1" />
                 Start
               </Button>
-              <Button size="sm" onClick={handleComplete} className="bg-primary hover:bg-primary/90" title="Complete Task">
+              <Button size="sm" onClick={handleComplete} className="bg-green-600 hover:bg-green-700" title="Complete Task">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
                 Complete
               </Button>
-              <Button size="sm" onClick={handleReturn} className="bg-primary hover:bg-primary/90" title="Return Task">
+              <Button size="sm" onClick={handleReturn} variant="outline" title="Return Task">
                 <ArrowLeft className="w-3 h-3 mr-1" />
                 Return
               </Button>
@@ -172,11 +159,11 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
         case 'in-progress':
           return (
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleComplete} className="bg-primary hover:bg-primary/90" title="Complete Task">
+              <Button size="sm" onClick={handleComplete} className="bg-green-600 hover:bg-green-700" title="Complete Task">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
                 Complete
               </Button>
-              <Button size="sm" onClick={handleReset} className="bg-primary hover:bg-primary/90" title="Reset to Pending">
+              <Button size="sm" onClick={handleReset} variant="outline" title="Reset to Pending">
                 <RotateCcw className="w-3 h-3 mr-1" />
                 Reset
               </Button>
@@ -185,7 +172,7 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
 
         case 'completed':
           return (
-            <Button size="sm" onClick={handleReopen} className="bg-primary hover:bg-primary/90" title="Reopen Task">
+            <Button size="sm" onClick={handleReopen} variant="outline" title="Reopen Task">
               <RotateCcw className="w-3 h-3 mr-1" />
               Reopen
             </Button>
@@ -206,15 +193,27 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
 
   const getCardStyle = () => {
     if (task.status === 'completed') return 'bg-green-50 border-green-200';
+    if (task.status === 'in-progress') return 'bg-blue-50 border-blue-200';
     if (isOverdue) return 'bg-red-50 border-red-200';
-    if (isUnassigned) return 'bg-blue-50 border-blue-200';
+    if (isUnassigned) return 'bg-orange-50 border-orange-200';
     return 'bg-gray-50 border-gray-200';
   };
 
+  const getStatusBadgeColor = () => {
+    switch (task.status) {
+      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
+      case 'in-progress': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'pending': return 'bg-orange-100 text-orange-800 border-orange-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   return (
-    <div key={taskKey} className={`flex items-center justify-between p-3 border rounded-lg hover:shadow-sm transition-all ${getCardStyle()}`}>
+    <div 
+      className={`flex items-center justify-between p-4 border rounded-lg hover:shadow-sm transition-all ${getCardStyle()}`}
+    >
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-2">
           {isOverdue && <AlertCircle className="w-4 h-4 text-red-500" />}
           <h4 className={`font-medium text-sm ${task.status === 'completed' ? 'line-through text-muted-foreground' : isOverdue ? 'text-red-700' : ''}`}>
             {task.title}
@@ -229,13 +228,18 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
               {task.priority}
             </Badge>
           )}
+          
+          <Badge variant="outline" className={`text-xs h-4 px-1 ${getStatusBadgeColor()}`}>
+            {task.status}
+          </Badge>
+          
           {task['due-type'] && (
             <Badge variant="outline" className="text-xs h-4 px-1">
               {task['due-type']?.replace('-', ' ')}
             </Badge>
           )}
-          <span>{getAssistantName(task.assigned_to)}</span>
-          <span className="text-xs">Status: {task.status}</span>
+          
+          <span>Assigned: {getAssistantName(task.assigned_to)}</span>
         </div>
       </div>
 

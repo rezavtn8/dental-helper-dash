@@ -21,16 +21,17 @@ import {
   subDays,
   isSameMonth
 } from 'date-fns';
-import { SimpleTaskCard } from './SimpleTaskCard';
+import { OptimizedTaskCard } from './OptimizedTaskCard';
 
 interface TasksTabProps {
   assistants: Assistant[];
   tasks: Task[];
   loading?: boolean;
   onRefetch?: () => void;
+  updateTask?: (taskId: string, updates: Partial<Task>) => Promise<boolean>;
 }
 
-export default function TasksTab({ assistants, tasks, loading = false, onRefetch }: TasksTabProps) {
+export default function TasksTab({ assistants, tasks, loading = false, onRefetch, updateTask }: TasksTabProps) {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -168,10 +169,11 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
         <div className="space-y-3">
           {todayTasks.length > 0 ? (
             todayTasks.map((task) => (
-              <SimpleTaskCard 
+              <OptimizedTaskCard 
                 key={`${task.id}-${task.status}-${task.assigned_to}`}
                 task={task} 
                 assistants={assistants}
+                onUpdateTask={updateTask!}
               />
             ))
           ) : (

@@ -21,7 +21,8 @@ import {
   ListChecks,
   Flag,
   Undo2,
-  ArrowUp
+  ArrowUp,
+  Play
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -484,12 +485,18 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate, updateTask }: Toda
                   </>
                 )}
 
-                {/* IN-PROGRESS state - Show Started label, Done, and Unstart */}
+                {/* IN-PROGRESS state - Show disabled Started button, Done, and Return */}
                 {task.status === 'in-progress' && (
                   <>
-                    <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800 px-2 h-6">
+                    <Button
+                      size="sm"
+                      disabled
+                      variant="secondary"
+                      className="h-6 px-2 bg-gray-100 text-gray-600 cursor-not-allowed text-xs"
+                    >
+                      <Play className="w-3 h-3 mr-1" />
                       Started
-                    </Badge>
+                    </Button>
                     <Button
                       size="sm"
                       onClick={(e) => {
@@ -500,39 +507,54 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate, updateTask }: Toda
                         }
                         markTaskDone(task.id);
                       }}
-                      className="h-6 px-2 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                      className="h-6 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
                       disabled={!isChecklistComplete}
                     >
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
                       Done
+                    </Button>
+                    {(wasClaimedByMe || isAssignedToMe) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          returnTask(task.id);
+                        }}
+                        className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
+                      >
+                        <ArrowLeft className="w-3 h-3 mr-1" />
+                        Return
+                      </Button>
+                    )}
+                  </>
+                )}
+
+                {/* COMPLETED state - Show disabled Completed button and Undo button */}
+                {isCompleted(task.status) && (
+                  <>
+                    <Button
+                      size="sm"
+                      disabled
+                      variant="secondary"
+                      className="h-6 px-2 bg-gray-100 text-gray-600 cursor-not-allowed text-xs"
+                    >
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                      Completed
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={(e) => {
                         e.stopPropagation();
-                        unstartTask(task.id);
+                        markTaskUndone(task.id);
                       }}
-                      className="h-6 px-2 border-gray-300 text-gray-600 hover:bg-gray-50 text-xs"
+                      className="h-6 px-2 border-orange-300 text-orange-600 hover:bg-orange-50 text-xs"
                     >
-                      Unstart
+                      <Undo2 className="w-3 h-3 mr-1" />
+                      Undo
                     </Button>
                   </>
-                )}
-
-                {/* COMPLETED state - Show only Undo button */}
-                {isCompleted(task.status) && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      markTaskUndone(task.id);
-                    }}
-                    className="h-6 px-2 border-orange-300 text-orange-600 hover:bg-orange-50 text-xs"
-                  >
-                    <Undo2 className="w-3 h-3 mr-1" />
-                    Undo
-                  </Button>
                 )}
               </>
             )}

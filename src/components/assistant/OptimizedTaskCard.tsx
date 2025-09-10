@@ -192,23 +192,37 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
         case 'in-progress':
           return (
             <div className="flex gap-2">
+              {/* Show disabled "Started" button */}
+              <Button size="sm" disabled variant="secondary" className="bg-gray-100 text-gray-600 cursor-not-allowed min-w-[70px]">
+                <Play className="w-3 h-3 mr-1" />
+                Started
+              </Button>
               <Button size="sm" onClick={handleComplete} className="bg-green-600 hover:bg-green-700" title="Complete Task">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
                 Complete
               </Button>
-              <Button size="sm" onClick={handleReset} variant="outline" title="Reset to Pending">
-                <RotateCcw className="w-3 h-3 mr-1" />
-                Reset
-              </Button>
+              {(isClaimed || isAssigned) && (
+                <Button size="sm" onClick={handleReturn} variant="outline" title="Return Task">
+                  <ArrowLeft className="w-3 h-3 mr-1" />
+                  Return
+                </Button>
+              )}
             </div>
           );
 
         case 'completed':
           return (
-            <Button size="sm" onClick={handleReopen} variant="outline" className="bg-green-50 hover:bg-green-100 text-green-800 border-green-200" title="Undo Completion">
-              <RotateCcw className="w-3 h-3 mr-1" />
-              Undo
-            </Button>
+            <div className="flex gap-2">
+              {/* Show disabled "Completed" button */}
+              <Button size="sm" disabled variant="secondary" className="bg-gray-100 text-gray-600 cursor-not-allowed min-w-[80px]">
+                <CheckCircle2 className="w-3 h-3 mr-1" />
+                Completed
+              </Button>
+              <Button size="sm" onClick={handleReopen} variant="outline" className="bg-green-50 hover:bg-green-100 text-green-800 border-green-200" title="Undo Completion">
+                <RotateCcw className="w-3 h-3 mr-1" />
+                Undo
+              </Button>
+            </div>
           );
 
         default:

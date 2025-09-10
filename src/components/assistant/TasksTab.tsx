@@ -5,8 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Building, Calendar, ChevronLeft, ChevronRight, CalendarDays, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Assistant } from '@/types/task';
-import { useTasks } from '@/hooks/useTasks';
+import { Assistant, Task } from '@/types/task';
+
 import { getTasksForDate } from '@/lib/taskUtils';
 import {
   format,
@@ -25,12 +25,14 @@ import { SimpleTaskCard } from './SimpleTaskCard';
 
 interface TasksTabProps {
   assistants: Assistant[];
+  tasks: Task[];
+  loading?: boolean;
+  onRefetch?: () => void;
 }
 
-export default function TasksTab({ assistants }: TasksTabProps) {
+export default function TasksTab({ assistants, tasks, loading = false, onRefetch }: TasksTabProps) {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
-  const { tasks, loading, refetch } = useTasks();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
 
@@ -88,7 +90,7 @@ export default function TasksTab({ assistants }: TasksTabProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={refetch}
+              onClick={onRefetch}
               disabled={loading}
               className="h-7 px-2"
             >

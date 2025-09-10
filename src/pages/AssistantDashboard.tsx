@@ -24,7 +24,7 @@ import { useTasks } from '@/hooks/useTasks';
 const AssistantDashboard = () => {
   const { session, user, userProfile } = useAuth();
   const navigate = useNavigate();
-  const { tasks, refetch: refetchTasks } = useTasks();
+  const { tasks, loading: tasksLoading, refetch: refetchTasks } = useTasks();
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [patientCount, setPatientCount] = useState(0);
@@ -364,6 +364,9 @@ const AssistantDashboard = () => {
         return (
             <TasksTab 
               assistants={assistants}
+              tasks={tasks}
+              loading={tasksLoading}
+              onRefetch={refetchTasks}
             />
         );
       case 'schedule':

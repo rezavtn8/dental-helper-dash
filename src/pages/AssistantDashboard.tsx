@@ -427,6 +427,7 @@ const AssistantDashboard = () => {
             onTaskUpdate={fetchTasks}
             onTaskClick={handleTaskClick}
             onTaskStatusUpdate={handleTaskStatusUpdate}
+            setTasks={setTasks}
           />
         );
       case 'schedule':

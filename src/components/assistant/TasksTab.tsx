@@ -35,6 +35,7 @@ interface TasksTabProps {
   onTaskClick?: (task: Task) => void;
   onTaskStatusUpdate?: (taskId: string, newStatus: TaskStatus) => void;
   onTaskReschedule?: (taskId: string, newDate: Date) => void;
+  setTasks?: (tasks: Task[]) => void;
 }
 
 export default function TasksTab({ 
@@ -43,7 +44,8 @@ export default function TasksTab({
   onTaskUpdate, 
   onTaskClick,
   onTaskStatusUpdate,
-  onTaskReschedule 
+  onTaskReschedule,
+  setTasks
 }: TasksTabProps) {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
@@ -97,9 +99,25 @@ export default function TasksTab({
     );
   }
 
+  const [loadingTasks, setLoadingTasks] = useState<Set<string>>(new Set());
+
   const claimTask = async (taskId: string) => {
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    // Add to loading state
+    setLoadingTasks(prev => new Set(prev).add(taskId));
+    
     try {
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      // Optimistic update - immediately update local state
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId ? {
+            ...task,
+            assigned_to: userProfile?.id || null,
+            claimed_by: userProfile?.id || null
+          } : task
+        ));
+      }
       
       const { error } = await supabase.from('tasks')
         .update({ 
@@ -109,17 +127,39 @@ export default function TasksTab({
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      
       onTaskUpdate?.();
       toast.success('Task claimed!');
     } catch (error) {
       console.error('Error claiming task:', error);
       toast.error('Failed to claim task');
+      
+      // Revert optimistic update on error
+      onTaskUpdate?.();
+    } finally {
+      setLoadingTasks(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(taskId);
+        return newSet;
+      });
     }
   };
 
   const startTask = async (taskId: string) => {
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    setLoadingTasks(prev => new Set(prev).add(taskId));
+    
     try {
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      // Optimistic update
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId ? {
+            ...task,
+            status: 'in-progress' as TaskStatus
+          } : task
+        ));
+      }
       
       const { error } = await supabase
         .from('tasks')
@@ -129,35 +169,66 @@ export default function TasksTab({
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      
       onTaskUpdate?.();
       onTaskStatusUpdate?.(dbTaskId, 'in-progress');
       toast.success('Task started!');
     } catch (error) {
       console.error('Error starting task:', error);
       toast.error('Failed to start task');
+      onTaskUpdate?.();
+    } finally {
+      setLoadingTasks(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(taskId);
+        return newSet;
+      });
     }
   };
 
   const completeTask = async (taskId: string) => {
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    setLoadingTasks(prev => new Set(prev).add(taskId));
+    
     try {
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+      // Optimistic update
+      const completedAt = new Date().toISOString();
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId ? {
+            ...task,
+            status: 'completed' as TaskStatus,
+            completed_by: userProfile?.id || null,
+            completed_at: completedAt
+          } : task
+        ));
+      }
       
       const { error } = await supabase
         .from('tasks')
         .update({ 
           status: 'completed' as TaskStatus,
           completed_by: userProfile?.id,
-          completed_at: new Date().toISOString()
+          completed_at: completedAt
         })
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      
       onTaskUpdate?.();
       onTaskStatusUpdate?.(dbTaskId, 'completed');
       toast.success('Task completed! 🎉');
     } catch (error) {
       console.error('Error completing task:', error);
       toast.error('Failed to complete task');
+      onTaskUpdate?.();
+    } finally {
+      setLoadingTasks(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(taskId);
+        return newSet;
+      });
     }
   };
 
@@ -303,9 +374,14 @@ export default function TasksTab({
                 claimTask(task.id);
               }}
               className="h-8 px-3 text-xs"
+              disabled={loadingTasks.has(task.id)}
             >
-              <Target className="w-3 h-3 mr-1" />
-              Claim
+              {loadingTasks.has(task.id) ? (
+                <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
+              ) : (
+                <Target className="w-3 h-3 mr-1" />
+              )}
+              {loadingTasks.has(task.id) ? 'Claiming...' : 'Claim'}
             </Button>
           )}
 
@@ -323,8 +399,12 @@ export default function TasksTab({
                       startTask(task.id);
                     }}
                     className="h-8 px-3 text-xs"
+                    disabled={loadingTasks.has(task.id)}
                   >
-                    Start
+                    {loadingTasks.has(task.id) ? (
+                      <div className="w-3 h-3 animate-spin rounded-full border-2 border-primary border-t-transparent mr-1" />
+                    ) : null}
+                    {loadingTasks.has(task.id) ? 'Starting...' : 'Start'}
                   </Button>
                   <Button
                     size="sm"
@@ -334,8 +414,12 @@ export default function TasksTab({
                       completeTask(task.id);
                     }}
                     className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
+                    disabled={loadingTasks.has(task.id)}
                   >
-                    Done
+                    {loadingTasks.has(task.id) ? (
+                      <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
+                    ) : null}
+                    {loadingTasks.has(task.id) ? 'Completing...' : 'Done'}
                   </Button>
                   {wasClaimedByMe && (
                     <Button

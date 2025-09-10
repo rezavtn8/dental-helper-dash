@@ -105,8 +105,9 @@ export function useTasks(): UseTasksReturn {
         updatedData: data[0]
       });
 
-      // The real-time subscription will handle UI updates
-      // No need for optimistic updates since we have real-time sync
+      // Immediately refetch all tasks to ensure UI is in sync
+      console.log('🔄 Refetching tasks after update');
+      await fetchTasks();
 
       return true;
     } catch (err: any) {
@@ -124,17 +125,16 @@ export function useTasks(): UseTasksReturn {
       toast.error(errorMsg);
       return false;
     }
-  }, [userProfile?.id]);
+  }, [userProfile?.id, fetchTasks]);
 
   // Set up real-time subscription
   useEffect(() => {
     if (!userProfile?.clinic_id) return;
 
-    const channelName = `tasks-changes-${userProfile.clinic_id}`;
-    console.log('🔔 Setting up real-time task subscription:', channelName);
+    console.log('🔔 Setting up real-time task subscription for clinic:', userProfile.clinic_id);
 
     const channel = supabase
-      .channel(channelName)
+      .channel(`tasks-clinic-${userProfile.clinic_id}`)
       .on(
         'postgres_changes',
         {
@@ -145,21 +145,20 @@ export function useTasks(): UseTasksReturn {
         },
         (payload) => {
           console.log('🔔 Real-time task update received:', payload.eventType, payload);
-          
-          // Force re-fetch tasks instead of trying to merge state
+          // Simply refetch all tasks when any change occurs
           console.log('🔄 Refetching tasks due to real-time update');
           fetchTasks();
         }
       )
       .subscribe((status) => {
-        console.log('📡 Subscription status:', status);
+        console.log('📡 Real-time subscription status:', status);
       });
 
     return () => {
-      console.log('🔕 Cleaning up real-time task subscription:', channelName);
+      console.log('🔕 Cleaning up real-time task subscription');
       supabase.removeChannel(channel);
     };
-  }, [userProfile?.clinic_id, userProfile?.id, fetchTasks]);
+  }, [userProfile?.clinic_id, fetchTasks]);
 
   // Fetch tasks on mount and when user profile changes
   useEffect(() => {

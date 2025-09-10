@@ -258,13 +258,115 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
         </div>
       )}
 
+      {/* Completed Tasks */}
+      {filteredTasks.filter(task => task.status === 'completed').length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <CheckCircle2 className="w-5 h-5 mr-2 text-green-600" />
+            Completed Tasks ({filteredTasks.filter(task => task.status === 'completed').length})
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {filteredTasks.filter(task => task.status === 'completed').map((task) => {
+              const assignedAssistant = findAssignedAssistant(task, assistants);
+              
+              return (
+                <Card key={task.id} className="hover:shadow-md transition-shadow bg-green-50 border-green-200">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-base font-semibold text-green-800 mb-1 line-through">
+                          {task.title}
+                        </CardTitle>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Badge className="text-xs bg-green-100 text-green-800">
+                            Completed
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {task.completed_at ? new Date(task.completed_at).toLocaleDateString() : 'Completed'}
+                          </Badge>
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => {
+                            setEditTask(task);
+                            setShowEditDialog(true);
+                          }}>
+                            Edit Task
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setReassignTask(task);
+                            setShowReassignDialog(true);
+                          }}>
+                            Reassign
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => {
+                              setDeleteTask(task);
+                              setShowDeleteDialog(true);
+                            }}
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0">
+                    {task.description && (
+                      <p className="text-sm text-green-700 mb-3 line-clamp-2">
+                        {task.description}
+                      </p>
+                    )}
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-green-700">
+                          Completed {task.completed_at ? `on ${new Date(task.completed_at).toLocaleDateString()}` : ''}
+                        </span>
+                      </div>
+                      
+                      {assignedAssistant ? (
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="w-6 h-6">
+                            <AvatarFallback className="bg-green-100 text-green-700 text-xs">
+                              {getUserInitials(assignedAssistant.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-green-700">
+                            {assignedAssistant.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center text-green-500">
+                          <User className="w-4 h-4 mr-1" />
+                          <span className="text-sm">Unassigned</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* All Tasks */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          All Tasks ({filteredTasks.length})
+          All Tasks ({filteredTasks.filter(task => task.status !== 'completed').length})
         </h3>
         
-        {filteredTasks.length === 0 ? (
+        {filteredTasks.filter(task => task.status !== 'completed').length === 0 ? (
           <Card className="text-center py-12">
             <CardContent>
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -287,7 +389,7 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {filteredTasks.map((task) => {
+            {filteredTasks.filter(task => task.status !== 'completed').map((task) => {
               const assignedAssistant = findAssignedAssistant(task, assistants);
               
               return (

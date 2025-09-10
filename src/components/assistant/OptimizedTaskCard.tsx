@@ -58,6 +58,12 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
       
       if (success) {
         console.log(`✅ Task ${action} successful:`, task.id);
+        
+        // Add extra logging for completion
+        if (action === 'complete') {
+          console.log('🎉 Task completion successful, task should now be in completed status');
+        }
+        
         toast.success(successMsg);
       } else {
         console.error(`❌ Task ${action} failed:`, task.id);
@@ -91,11 +97,21 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
   };
 
   const handleComplete = () => {
-    executeTaskAction('complete', {
-      status: 'completed',
+    const completionData = {
+      status: 'completed' as const,
       completed_by: userProfile?.id,
-      completed_at: new Date().toISOString()
-    }, 'Task completed! 🎉');
+      completed_at: new Date().toISOString(),
+      // Preserve generated_date for proper filtering
+      generated_date: task.generated_date || task.created_at
+    };
+    
+    console.log('🎯 Completing task with data:', {
+      taskId: task.id,
+      completionData,
+      originalTask: task
+    });
+    
+    executeTaskAction('complete', completionData, 'Task completed! 🎉');
   };
 
   const handleReset = () => {

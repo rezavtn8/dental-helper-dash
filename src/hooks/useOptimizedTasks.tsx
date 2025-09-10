@@ -86,16 +86,31 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
       return false;
     }
 
-    // OPTIMISTIC UPDATE: Update local state immediately
+    // OPTIMISTIC UPDATE: Update local state immediately with proper completion data
+    const optimisticUpdates = { ...updates };
+    
+    // For completion, ensure we have all required completion fields
+    if (updates.status === 'completed') {
+      optimisticUpdates.completed_by = updates.completed_by || userProfile.id;
+      optimisticUpdates.completed_at = updates.completed_at || new Date().toISOString();
+      optimisticUpdates.generated_date = originalTask.generated_date || originalTask.created_at;
+      console.log('✅ Task completion detected, adding completion metadata:', {
+        taskId: baseTaskId,
+        completed_by: optimisticUpdates.completed_by,
+        completed_at: optimisticUpdates.completed_at,
+        generated_date: optimisticUpdates.generated_date
+      });
+    }
+
     setTasks(currentTasks => 
       currentTasks.map(task => 
         task.id === baseTaskId 
-          ? { ...task, ...updates }
+          ? { ...task, ...optimisticUpdates }
           : task
       )
     );
 
-    console.log('⚡ Optimistic update applied:', { baseTaskId, updates });
+    console.log('⚡ Optimistic update applied:', { baseTaskId, optimisticUpdates });
 
     try {
       // Background database update
@@ -143,6 +158,12 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
             : task
         )
       );
+
+      // Force immediate refresh for completion actions to ensure sync
+      if (updates.status === 'completed') {
+        console.log('🔄 Forcing task refresh after completion');
+        setTimeout(() => fetchTasks(), 100);
+      }
 
       return true;
     } catch (err: any) {

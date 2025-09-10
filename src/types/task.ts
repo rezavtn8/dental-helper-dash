@@ -22,6 +22,8 @@ export interface Task {
   owner_notes?: string;
   checklist?: any;
   attachments?: any;
+  template_id?: string;
+  generated_date?: string; // Date when task was generated from template
 }
 
 export interface Assistant {

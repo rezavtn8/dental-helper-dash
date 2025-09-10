@@ -790,6 +790,12 @@ export const getTasksForDate = (
       return instanceDate.getTime() === startOfTargetDate.getTime();
     }
 
+    // For completed tasks, check generated_date first
+    if (task.status === 'completed' && task.generated_date) {
+      const generatedDate = startOfDay(new Date(task.generated_date));
+      return generatedDate.getTime() === startOfTargetDate.getTime();
+    }
+
     // For tasks with specific due dates, check if they match
     if (task.custom_due_date || task['due-date']) {
       const taskDate = task.custom_due_date 

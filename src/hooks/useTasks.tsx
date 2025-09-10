@@ -107,7 +107,10 @@ export function useTasks(): UseTasksReturn {
 
       // Immediately refetch all tasks to ensure UI is in sync
       console.log('🔄 Refetching tasks after update');
-      await fetchTasks();
+      setTimeout(async () => {
+        await fetchTasks();
+        console.log('✅ Tasks refetched after update');
+      }, 500); // Small delay to ensure database has been updated
 
       return true;
     } catch (err: any) {

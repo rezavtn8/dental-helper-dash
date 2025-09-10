@@ -366,7 +366,10 @@ const AssistantDashboard = () => {
               assistants={assistants}
               tasks={tasks}
               loading={tasksLoading}
-              onRefetch={refetchTasks}
+              onRefetch={() => {
+                console.log('🔄 Manual refetch triggered from TasksTab');
+                return refetchTasks();
+              }}
             />
         );
       case 'schedule':

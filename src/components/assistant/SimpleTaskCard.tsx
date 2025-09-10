@@ -13,18 +13,19 @@ import {
 } from 'lucide-react';
 import { Task, Assistant } from '@/types/task';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useTasks } from '@/hooks/useTasks';
 import { toast } from 'sonner';
 import { getPriorityStyles, isRecurringInstance, RecurringTaskInstance } from '@/lib/taskUtils';
 
 interface SimpleTaskCardProps {
   task: Task | RecurringTaskInstance;
   assistants: Assistant[];
-  onUpdate: () => void;
+  onUpdate?: () => void;
 }
 
 export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardProps) {
   const { userProfile } = useAuth();
+  const { updateTask } = useTasks();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const isMyTask = task.assigned_to === userProfile?.id;
@@ -45,7 +46,6 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
     setIsLoading(true);
     
     try {
-      // Log the action for debugging
       console.log(`🔄 Executing task action: ${action}`, {
         taskId: task.id,
         isRecurring: isRecurringInstance(task),
@@ -53,66 +53,22 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
         userProfile: userProfile.id
       });
 
-      // Extract base UUID from task ID (remove date suffix if present)
-      const baseTaskId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+      const success = await updateTask(task.id, updates);
       
-      // Validate that we have a proper UUID
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-      if (!uuidRegex.test(baseTaskId)) {
-        throw new Error(`Invalid task ID format: ${baseTaskId}`);
+      if (success) {
+        toast.success(successMsg);
+        // Call the optional onUpdate callback for any additional local updates
+        onUpdate?.();
       }
-
-      console.log(`📝 Updating task in database:`, {
-        baseTaskId,
-        updates,
-        action
-      });
-
-      const { data, error, count } = await supabase
-        .from('tasks')
-        .update(updates)
-        .eq('id', baseTaskId)
-        .select();
-
-      if (error) {
-        console.error('❌ Database update error:', error);
-        throw error;
-      }
-
-      if (!data || data.length === 0) {
-        console.error('❌ No task found with ID:', baseTaskId);
-        throw new Error(`Task not found in database: ${baseTaskId}`);
-      }
-
-      console.log(`✅ Task updated successfully:`, {
-        action,
-        taskId: baseTaskId,
-        updatedData: data[0]
-      });
-      
-      toast.success(successMsg);
-      
-      // Trigger refresh after a short delay to ensure UI updates
-      setTimeout(() => {
-        console.log('🔄 Triggering task list refresh...');
-        onUpdate();
-      }, 300);
       
     } catch (error: any) {
       console.error('❌ Task action failed:', {
         action,
         taskId: task.id,
-        error: error.message || error,
-        userProfile: userProfile.id
+        error: error.message || error
       });
       
-      const errorMsg = error.message?.includes('not found') 
-        ? 'Task not found. It may have been deleted or modified.'
-        : error.message?.includes('Invalid task ID')
-        ? 'Invalid task format. Please refresh the page.'
-        : 'Action failed. Please try again.';
-        
-      toast.error(errorMsg);
+      toast.error('Action failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

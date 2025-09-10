@@ -19,49 +19,17 @@ import SettingsTab from '@/components/assistant/SettingsTab';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
 import { TasksTabSkeleton } from '@/components/ui/dashboard-skeleton';
+import { useTasks } from '@/hooks/useTasks';
 
 const AssistantDashboard = () => {
   const { session, user, userProfile } = useAuth();
   const navigate = useNavigate();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, refetch: refetchTasks } = useTasks();
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [patientCount, setPatientCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
-
-  const fetchTasks = async () => {
-    if (!userProfile?.clinic_id || !user?.id) return;
-    
-    try {
-      console.log('📋 Fetching tasks for assistant:', {
-        userId: user.id,
-        clinicId: userProfile.clinic_id,
-        userRole: userProfile.role
-      });
-      
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('clinic_id', userProfile.clinic_id)
-        .or(`assigned_to.eq.${user.id},assigned_to.is.null`)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      console.log('📋 Tasks fetched successfully:', {
-        totalTasks: data?.length || 0,
-        assignedToMe: data?.filter(t => t.assigned_to === user.id).length || 0,
-        unassigned: data?.filter(t => !t.assigned_to).length || 0,
-        recurring: data?.filter(t => t.recurrence).length || 0
-      });
-      
-      setTasks((data || []) as Task[]);
-    } catch (error) {
-      console.error('❌ Error fetching tasks:', error);
-      toast.error('Failed to load tasks');
-    }
-  };
 
   const fetchTodayPatientCount = async () => {
     if (!userProfile?.clinic_id || !user?.id) return;
@@ -116,6 +84,11 @@ const AssistantDashboard = () => {
     }
   };
 
+  const handleTaskClick = (task: Task) => {
+    // Could open a task detail modal or navigate to task details
+    console.log('Task clicked:', task);
+  };
+
   const handleTaskStatusUpdate = async (taskId: string, newStatus: TaskStatus) => {
     try {
       const { error } = await supabase
@@ -129,8 +102,8 @@ const AssistantDashboard = () => {
 
       if (error) throw error;
       
-      // Refresh tasks
-      await fetchTasks();
+      // Refresh tasks using the centralized hook
+      await refetchTasks();
       toast.success('Task updated successfully');
     } catch (error) {
       console.error('Error updating task:', error);
@@ -138,15 +111,9 @@ const AssistantDashboard = () => {
     }
   };
 
-  const handleTaskClick = (task: Task) => {
-    // Could open a task detail modal or navigate to task details
-    console.log('Task clicked:', task);
-  };
-
   const fetchAllData = async () => {
     if (userProfile?.clinic_id) {
       await Promise.all([
-        fetchTasks(),
         fetchTodayPatientCount(),
         fetchClinic(),
         fetchAssistants()
@@ -160,32 +127,6 @@ const AssistantDashboard = () => {
       fetchAllData();
     }
   }, [session, user, userProfile]);
-
-  // Real-time task synchronization
-  useEffect(() => {
-    if (!userProfile?.clinic_id) return;
-
-    const channel = supabase
-      .channel('assistant-tasks-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'tasks',
-          filter: `clinic_id=eq.${userProfile.clinic_id}`
-        },
-        (payload) => {
-          console.log('Task change detected:', payload);
-          fetchTasks(); // Refresh task list
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userProfile?.clinic_id]);
 
   if (loading || !userProfile) {
     return (
@@ -415,16 +356,14 @@ const AssistantDashboard = () => {
             patientCount={patientCount}
             onPatientCountUpdate={setPatientCount}
             onTabChange={setActiveTab}
-            onTaskUpdate={fetchTasks}
+            onTaskUpdate={refetchTasks}
             onTaskStatusUpdate={handleTaskStatusUpdate}
           />
         );
       case 'tasks':
         return (
             <TasksTab 
-              tasks={tasks}
               assistants={assistants}
-              onTaskUpdate={fetchTasks}
             />
         );
       case 'schedule':
@@ -450,7 +389,7 @@ const AssistantDashboard = () => {
             patientCount={patientCount}
             onPatientCountUpdate={setPatientCount}
             onTabChange={setActiveTab}
-            onTaskUpdate={fetchTasks}
+            onTaskUpdate={refetchTasks}
             onTaskStatusUpdate={handleTaskStatusUpdate}
           />
         );

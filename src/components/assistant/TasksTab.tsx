@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building, Calendar, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+import { Building, Calendar, ChevronLeft, ChevronRight, CalendarDays, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Task, Assistant } from '@/types/task';
+import { Assistant } from '@/types/task';
+import { useTasks } from '@/hooks/useTasks';
 import { getTasksForDate } from '@/lib/taskUtils';
 import {
   format,
@@ -23,17 +24,15 @@ import {
 import { SimpleTaskCard } from './SimpleTaskCard';
 
 interface TasksTabProps {
-  tasks: Task[];
   assistants: Assistant[];
-  onTaskUpdate?: () => void;
 }
 
-export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabProps) {
+export default function TasksTab({ assistants }: TasksTabProps) {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
+  const { tasks, loading, refetch } = useTasks();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
-  const [refreshKey, setRefreshKey] = useState(0);
 
   // Simple task filtering - only show tasks assigned to me or unassigned
   const myTasks = useMemo(() => {
@@ -41,17 +40,12 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
       task.assigned_to === userProfile?.id || 
       !task.assigned_to
     );
-  }, [tasks, userProfile?.id, refreshKey]);
+  }, [tasks, userProfile?.id]);
 
   // Get tasks for selected date
   const todayTasks = useMemo(() => {
     return getTasksForDate(myTasks, selectedDate);
   }, [myTasks, selectedDate]);
-
-  const handleTaskUpdate = () => {
-    setRefreshKey(prev => prev + 1);
-    onTaskUpdate?.();
-  };
 
   if (!userProfile?.clinic_id) {
     return (
@@ -86,24 +80,38 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
             <Badge variant="secondary">
               {todayTasks.length} task{todayTasks.length !== 1 ? 's' : ''}
             </Badge>
+            {loading && (
+              <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
+            )}
           </div>
-          <div className="flex gap-1 p-1 bg-muted rounded-md">
+          <div className="flex items-center gap-2">
             <Button
-              variant={viewMode === 'day' ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
-              onClick={() => setViewMode('day')}
-              className="h-7 px-3"
+              onClick={refetch}
+              disabled={loading}
+              className="h-7 px-2"
             >
-              Day
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </Button>
-            <Button
-              variant={viewMode === 'week' ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode('week')}
-              className="h-7 px-3"
-            >
-              Week
-            </Button>
+            <div className="flex gap-1 p-1 bg-muted rounded-md">
+              <Button
+                variant={viewMode === 'day' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode('day')}
+                className="h-7 px-3"
+              >
+                Day
+              </Button>
+              <Button
+                variant={viewMode === 'week' ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode('week')}
+                className="h-7 px-3"
+              >
+                Week
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -162,7 +170,6 @@ export default function TasksTab({ tasks, assistants, onTaskUpdate }: TasksTabPr
                 key={task.id}
                 task={task} 
                 assistants={assistants}
-                onUpdate={handleTaskUpdate}
               />
             ))
           ) : (

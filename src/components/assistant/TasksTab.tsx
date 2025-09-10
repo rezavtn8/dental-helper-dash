@@ -49,9 +49,15 @@ export default function TasksTab({
     );
   }, [tasks, userProfile?.id]);
 
-  // Get tasks for selected date
+  // Get tasks for selected date - ensure fresh filtering
   const selectedDateTasks = useMemo(() => {
-    return getTasksForDate(filteredTasks, selectedDate);
+    console.log('🔍 Filtering tasks for date:', format(selectedDate, 'yyyy-MM-dd'), {
+      totalFiltered: filteredTasks.length,
+      selectedDate: selectedDate.toISOString()
+    });
+    const tasks = getTasksForDate(filteredTasks, selectedDate);
+    console.log('✅ Date filtered tasks:', tasks.length);
+    return tasks;
   }, [filteredTasks, selectedDate]);
 
   // Show connect to clinic message if no clinic access

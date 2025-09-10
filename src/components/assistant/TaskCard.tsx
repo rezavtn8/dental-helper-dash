@@ -1,8 +1,8 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { TaskActionButton } from '@/components/ui/task-action-button';
+import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { AlertCircle, Flag, Repeat } from 'lucide-react';
+import { AlertCircle, Flag, Repeat, Play, CheckCircle2, RotateCcw, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Task, Assistant } from '@/types/task';
 import { useAuth } from '@/hooks/useAuth';
 import { useTaskOperations } from '@/hooks/useTaskOperations';
@@ -29,124 +29,131 @@ export function TaskCard({ task, assistants, onTaskUpdate }: TaskCardProps) {
     return assistant?.name || 'Unknown';
   };
 
-  const handleOperation = async (operation: () => Promise<void>) => {
+  const handleAction = async (action: () => Promise<void>) => {
     try {
-      await operation();
-      onTaskUpdate?.();
+      await action();
+      // Delay refresh to ensure DB is updated
+      setTimeout(() => onTaskUpdate?.(), 200);
     } catch (error) {
-      // Error handling is done in the hook
+      console.error('Task action failed:', error);
     }
   };
 
-  const renderActionButtons = () => {
+  const renderButtons = () => {
     if (isLoading) {
-      return <LoadingSpinner size="sm" className="text-primary" />;
+      return <LoadingSpinner size="sm" />;
     }
 
-    // Unassigned tasks - show claim button
+    // Unassigned task - show claim button
     if (isUnassigned && task.status !== 'completed') {
       return (
-        <TaskActionButton
-          status={task.status}
-          action="pickup"
+        <Button
           size="sm"
-          showLabel={true}
           onClick={(e) => {
             e.stopPropagation();
-            handleOperation(() => taskOps.claimTask(task.id));
+            handleAction(() => taskOps.claimTask(task.id));
           }}
-        />
+          className="bg-primary hover:bg-primary/90"
+        >
+          <ArrowRight className="w-3 h-3 mr-1" />
+          Take Task
+        </Button>
       );
     }
 
-    // My assigned tasks - show appropriate buttons based on status
+    // My tasks - show action buttons
     if (isAssignedToMe) {
-      return (
-        <div className="flex gap-1">
-          {task.status === 'pending' && (
-            <>
-              <TaskActionButton
-                status="pending"
-                action="toggle"
-                size="sm"
-                showLabel={false}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOperation(() => taskOps.startTask(task.id));
-                }}
-              />
-              
-              <TaskActionButton
-                status="in-progress"
-                action="toggle"
-                size="sm"
-                showLabel={false}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOperation(() => taskOps.completeTask(task.id));
-                }}
-              />
-              
-              <TaskActionButton
-                status="pending"
-                action="return"
-                size="sm"
-                showLabel={false}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOperation(() => taskOps.returnTask(task.id));
-                }}
-              />
-            </>
-          )}
-          
-          {task.status === 'in-progress' && (
-            <>
-              <TaskActionButton
-                status="in-progress"
-                action="toggle"
-                size="sm"
-                showLabel={false}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOperation(() => taskOps.completeTask(task.id));
-                }}
-              />
-              
-              <TaskActionButton
-                status="in-progress"
-                action="undo"
-                size="sm"
-                showLabel={false}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOperation(() => taskOps.resetTask(task.id));
-                }}
-              />
-            </>
-          )}
-          
-          {task.status === 'completed' && (
-            <TaskActionButton
-              status="completed"
-              action="undo"
+      if (task.status === 'pending') {
+        return (
+          <div className="flex gap-1">
+            <Button
               size="sm"
-              showLabel={false}
+              variant="outline"
               onClick={(e) => {
                 e.stopPropagation();
-                handleOperation(() => taskOps.undoCompletion(task.id));
+                handleAction(() => taskOps.startTask(task.id));
               }}
-            />
-          )}
-        </div>
-      );
+              title="Start Task"
+            >
+              <Play className="w-3 h-3" />
+            </Button>
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAction(() => taskOps.completeTask(task.id));
+              }}
+              className="bg-green-600 hover:bg-green-700"
+              title="Complete Task"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAction(() => taskOps.returnTask(task.id));
+              }}
+              title="Return Task"
+            >
+              <ArrowLeft className="w-3 h-3" />
+            </Button>
+          </div>
+        );
+      }
+
+      if (task.status === 'in-progress') {
+        return (
+          <div className="flex gap-1">
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAction(() => taskOps.completeTask(task.id));
+              }}
+              className="bg-green-600 hover:bg-green-700"
+              title="Complete Task"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAction(() => taskOps.resetTask(task.id));
+              }}
+              title="Reset to Pending"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </Button>
+          </div>
+        );
+      }
+
+      if (task.status === 'completed') {
+        return (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAction(() => taskOps.undoCompletion(task.id));
+            }}
+            title="Reopen Task"
+          >
+            <RotateCcw className="w-3 h-3" />
+          </Button>
+        );
+      }
     }
 
-    // Tasks assigned to others - show assignee info
+    // Assigned to others
     if (!isUnassigned && !isAssignedToMe) {
       return (
         <Badge variant="outline" className="text-xs">
-          Assigned to {getAssistantName(task.assigned_to)}
+          {getAssistantName(task.assigned_to)}
         </Badge>
       );
     }
@@ -191,7 +198,7 @@ export function TaskCard({ task, assistants, onTaskUpdate }: TaskCardProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        {renderActionButtons()}
+        {renderButtons()}
       </div>
     </div>
   );

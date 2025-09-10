@@ -26,6 +26,17 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
   const { userProfile } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
 
+  // Debug logging for component renders and task props
+  console.log('🔄 OptimizedTaskCard render:', {
+    taskId: task.id,
+    title: task.title.substring(0, 30) + '...',
+    status: task.status,
+    assigned_to: task.assigned_to,
+    claimed_by: task.claimed_by,
+    userProfileId: userProfile?.id,
+    timestamp: new Date().toISOString()
+  });
+
   const isMyTask = task.assigned_to === userProfile?.id || task.claimed_by === userProfile?.id;
   const isUnassigned = !task.assigned_to && !task.claimed_by;
   const isAssigned = task.assigned_to === userProfile?.id && !task.claimed_by; // Assigned by owner
@@ -148,6 +159,19 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
   };
 
   const renderActionButton = () => {
+    console.log('🎯 Rendering action button for task:', {
+      taskId: task.id,
+      status: task.status,
+      assigned_to: task.assigned_to,
+      claimed_by: task.claimed_by,
+      userProfileId: userProfile?.id,
+      isMyTask,
+      isUnassigned,
+      isAssigned,
+      isClaimed,
+      isLoading
+    });
+
     if (isLoading) {
       return (
         <Button size="sm" disabled className="bg-primary hover:bg-primary/90 min-w-[90px]">

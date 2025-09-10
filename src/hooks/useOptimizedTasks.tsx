@@ -59,6 +59,12 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
 
   // Optimistic update function
   const updateTask = useCallback(async (taskId: string, updates: Partial<Task>): Promise<boolean> => {
+    console.log('🚀 updateTask called:', {
+      taskId,
+      updates,
+      timestamp: new Date().toISOString()
+    });
+
     if (!userProfile?.id) {
       console.error('❌ User not authenticated for task update');
       toast.error('User not authenticated');
@@ -110,7 +116,12 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
       )
     );
 
-    console.log('⚡ Optimistic update applied:', { baseTaskId, optimisticUpdates });
+    console.log('⚡ Optimistic update applied:', { 
+      baseTaskId, 
+      optimisticUpdates,
+      tasksBefore: tasks.length,
+      updatedTask: { ...originalTask, ...optimisticUpdates }
+    });
 
     try {
       // Background database update

@@ -105,22 +105,8 @@ export function useTasks(): UseTasksReturn {
         updatedData: data[0]
       });
 
-      // Update local state immediately for optimistic updates
-      console.log('🔄 Updating local state optimistically:', baseTaskId, data[0]);
-      setTasks(prevTasks => 
-        prevTasks.map(task => {
-          const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
-          if (taskBaseId === baseTaskId) {
-            console.log('✅ Found matching task for optimistic update:', task.id);
-            return { 
-              ...task, 
-              ...data[0],
-              id: task.id // Preserve the original ID format
-            };
-          }
-          return task;
-        })
-      );
+      // The real-time subscription will handle UI updates
+      // No need for optimistic updates since we have real-time sync
 
       return true;
     } catch (err: any) {
@@ -160,69 +146,20 @@ export function useTasks(): UseTasksReturn {
         (payload) => {
           console.log('🔔 Real-time task update received:', payload.eventType, payload);
           
-          switch (payload.eventType) {
-            case 'INSERT':
-              if (payload.new) {
-                setTasks(prevTasks => {
-                  const newTask = payload.new as Task;
-                  // Check if task is relevant to this user (assigned to them or unassigned)
-                  if (newTask.assigned_to === userProfile.id || !newTask.assigned_to) {
-                    const exists = prevTasks.some(t => t.id === newTask.id);
-                    if (!exists) {
-                      console.log('➕ Adding new task to local state:', newTask.id);
-                      return [...prevTasks, newTask];
-                    }
-                  }
-                  return prevTasks;
-                });
-              }
-              break;
-            case 'UPDATE':
-              if (payload.new) {
-                setTasks(prevTasks => {
-                  const updatedTask = payload.new as Task;
-                  console.log('🔄 Updating task in local state:', updatedTask.id, updatedTask);
-                  
-                  return prevTasks.map(task => {
-                    const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
-                    const updatedBaseId = updatedTask.id;
-                    
-                    if (taskBaseId === updatedBaseId) {
-                      console.log('✅ Found matching task, updating:', taskBaseId);
-                      // Preserve the recurring instance ID format if it exists
-                      return { 
-                        ...task, 
-                        ...updatedTask,
-                        id: task.id // Keep the original ID format (with date suffix if present)
-                      };
-                    }
-                    return task;
-                  });
-                });
-              }
-              break;
-            case 'DELETE':
-              if (payload.old) {
-                setTasks(prevTasks => {
-                  const deletedTask = payload.old as Task;
-                  return prevTasks.filter(task => {
-                    const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
-                    const deletedBaseId = deletedTask.id;
-                    return taskBaseId !== deletedBaseId;
-                  });
-                });
-              }
-              break;
-          }
+          // Force re-fetch tasks instead of trying to merge state
+          console.log('🔄 Refetching tasks due to real-time update');
+          fetchTasks();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Subscription status:', status);
+      });
 
     return () => {
       console.log('🔕 Cleaning up real-time task subscription:', channelName);
       supabase.removeChannel(channel);
     };
-  }, [userProfile?.clinic_id, userProfile?.id]);
+  }, [userProfile?.clinic_id, userProfile?.id, fetchTasks]);
 
   // Fetch tasks on mount and when user profile changes
   useEffect(() => {

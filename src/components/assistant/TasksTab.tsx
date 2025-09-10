@@ -47,7 +47,7 @@ export default function TasksTab({
 }: TasksTabProps) {
   const { userProfile } = useAuth();
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState(new Date(2025, 8, 9));
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
 
   // Filter tasks to show only assigned to current user or unassigned
@@ -415,14 +415,26 @@ export default function TasksTab({
 
         {/* Date Navigation */}
         <div className="flex items-center justify-between">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSelectedDate(viewMode === 'day' ? subDays(selectedDate, 1) : subWeeks(selectedDate, 1))}
-            className="h-8"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedDate(viewMode === 'day' ? subDays(selectedDate, 1) : subWeeks(selectedDate, 1))}
+              className="h-8"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedDate(new Date())}
+              className="h-8 px-3 text-xs"
+              disabled={isToday(selectedDate) && viewMode === 'day'}
+            >
+              Today
+            </Button>
+          </div>
           
           <div className="text-center">
             <h3 className="font-semibold">

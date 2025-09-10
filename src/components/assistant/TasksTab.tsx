@@ -238,9 +238,22 @@ export default function TasksTab({
     const isOverdue = isRecurringInstance(task) && task.isOverdue;
     const wasClaimedByMe = task.claimed_by === userProfile?.id;
     
+    // Debug logging
+    console.log('🔧 Task debug:', {
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      assigned_to: task.assigned_to,
+      claimed_by: task.claimed_by,
+      isAssignedToMe,
+      isUnassigned,
+      wasClaimedByMe,
+      userProfileId: userProfile?.id
+    });
+    
     return (
       <div className={`
-        flex items-center justify-between p-2 border rounded-md transition-all
+        flex items-center justify-between p-3 border rounded-lg transition-all hover:shadow-sm
         ${task.status === 'completed' ? 'bg-green-50 border-green-200' : 
           isOverdue ? 'bg-red-50 border-red-200' : 
           isUnassigned ? 'bg-blue-50 border-blue-200' :
@@ -274,16 +287,22 @@ export default function TasksTab({
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          {/* Show task status for debugging */}
+          <Badge variant="secondary" className="text-xs">
+            {task.status || 'no-status'}
+          </Badge>
+          
           {/* Unassigned Tasks - Show Claim button */}
           {isUnassigned && task.status !== 'completed' && (
             <Button
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                console.log('🎯 Claiming task:', task.id);
                 claimTask(task.id);
               }}
-              className="h-7 px-3 text-xs"
+              className="h-8 px-3 text-xs"
             >
               <Target className="w-3 h-3 mr-1" />
               Claim
@@ -300,9 +319,10 @@ export default function TasksTab({
                     variant="outline"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log('▶️ Starting task:', task.id);
                       startTask(task.id);
                     }}
-                    className="h-7 px-2 text-xs"
+                    className="h-8 px-3 text-xs"
                   >
                     Start
                   </Button>
@@ -310,9 +330,10 @@ export default function TasksTab({
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log('✅ Completing task:', task.id);
                       completeTask(task.id);
                     }}
-                    className="h-7 px-2 text-xs"
+                    className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
                   >
                     Done
                   </Button>
@@ -322,9 +343,10 @@ export default function TasksTab({
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
+                        console.log('↩️ Returning task:', task.id);
                         returnTask(task.id);
                       }}
-                      className="h-7 px-2 text-xs"
+                      className="h-8 px-3 text-xs"
                     >
                       Return
                     </Button>
@@ -334,16 +356,14 @@ export default function TasksTab({
 
               {task.status === 'in-progress' && (
                 <>
-                  <Badge variant="secondary" className="text-xs h-6 px-2">
-                    Started
-                  </Badge>
                   <Button
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log('✅ Completing in-progress task:', task.id);
                       completeTask(task.id);
                     }}
-                    className="h-7 px-2 text-xs"
+                    className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
                   >
                     Done
                   </Button>
@@ -352,9 +372,10 @@ export default function TasksTab({
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log('🔄 Resetting task:', task.id);
                       unstartTask(task.id);
                     }}
-                    className="h-7 px-2 text-xs"
+                    className="h-8 px-3 text-xs"
                   >
                     Reset
                   </Button>
@@ -367,14 +388,22 @@ export default function TasksTab({
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
+                    console.log('↺ Undoing task completion:', task.id);
                     undoTaskCompletion(task.id);
                   }}
-                  className="h-7 px-2 text-xs"
+                  className="h-8 px-3 text-xs"
                 >
                   Undo
                 </Button>
               )}
             </>
+          )}
+          
+          {/* Show no buttons case for debugging */}
+          {!isUnassigned && !isAssignedToMe && (
+            <Badge variant="outline" className="text-xs">
+              Assigned to other
+            </Badge>
           )}
         </div>
       </div>

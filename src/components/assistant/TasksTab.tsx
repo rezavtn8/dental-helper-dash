@@ -51,6 +51,7 @@ export default function TasksTab({
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
   // Filter tasks to show only assigned to current user or unassigned
   const filteredTasks = useMemo(() => {
@@ -99,26 +100,13 @@ export default function TasksTab({
     );
   }
 
-  const [loadingTasks, setLoadingTasks] = useState<Set<string>>(new Set());
-
   const claimTask = async (taskId: string) => {
-    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    if (isProcessing) return; // Prevent multiple simultaneous operations
     
-    // Add to loading state
-    setLoadingTasks(prev => new Set(prev).add(taskId));
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    setIsProcessing(taskId);
     
     try {
-      // Optimistic update - immediately update local state
-      if (setTasks) {
-        setTasks(tasks.map(task => 
-          task.id === dbTaskId ? {
-            ...task,
-            assigned_to: userProfile?.id || null,
-            claimed_by: userProfile?.id || null
-          } : task
-        ));
-      }
-      
       const { error } = await supabase.from('tasks')
         .update({ 
           assigned_to: userProfile?.id,
@@ -128,39 +116,28 @@ export default function TasksTab({
 
       if (error) throw error;
       
-      onTaskUpdate?.();
       toast.success('Task claimed!');
+      
+      // Wait a bit before allowing next operation and refresh
+      setTimeout(() => {
+        onTaskUpdate?.();
+        setIsProcessing(null);
+      }, 500);
+      
     } catch (error) {
       console.error('Error claiming task:', error);
       toast.error('Failed to claim task');
-      
-      // Revert optimistic update on error
-      onTaskUpdate?.();
-    } finally {
-      setLoadingTasks(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(taskId);
-        return newSet;
-      });
+      setIsProcessing(null);
     }
   };
 
   const startTask = async (taskId: string) => {
-    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    if (isProcessing) return;
     
-    setLoadingTasks(prev => new Set(prev).add(taskId));
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    setIsProcessing(taskId);
     
     try {
-      // Optimistic update
-      if (setTasks) {
-        setTasks(tasks.map(task => 
-          task.id === dbTaskId ? {
-            ...task,
-            status: 'in-progress' as TaskStatus
-          } : task
-        ));
-      }
-      
       const { error } = await supabase
         .from('tasks')
         .update({ 
@@ -170,40 +147,29 @@ export default function TasksTab({
 
       if (error) throw error;
       
-      onTaskUpdate?.();
-      onTaskStatusUpdate?.(dbTaskId, 'in-progress');
       toast.success('Task started!');
+      onTaskStatusUpdate?.(dbTaskId, 'in-progress');
+      
+      setTimeout(() => {
+        onTaskUpdate?.();
+        setIsProcessing(null);
+      }, 500);
+      
     } catch (error) {
       console.error('Error starting task:', error);
       toast.error('Failed to start task');
-      onTaskUpdate?.();
-    } finally {
-      setLoadingTasks(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(taskId);
-        return newSet;
-      });
+      setIsProcessing(null);
     }
   };
 
   const completeTask = async (taskId: string) => {
-    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    if (isProcessing) return;
     
-    setLoadingTasks(prev => new Set(prev).add(taskId));
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    setIsProcessing(taskId);
     
     try {
-      // Optimistic update
       const completedAt = new Date().toISOString();
-      if (setTasks) {
-        setTasks(tasks.map(task => 
-          task.id === dbTaskId ? {
-            ...task,
-            status: 'completed' as TaskStatus,
-            completed_by: userProfile?.id || null,
-            completed_at: completedAt
-          } : task
-        ));
-      }
       
       const { error } = await supabase
         .from('tasks')
@@ -216,26 +182,28 @@ export default function TasksTab({
 
       if (error) throw error;
       
-      onTaskUpdate?.();
-      onTaskStatusUpdate?.(dbTaskId, 'completed');
       toast.success('Task completed! 🎉');
+      onTaskStatusUpdate?.(dbTaskId, 'completed');
+      
+      setTimeout(() => {
+        onTaskUpdate?.();
+        setIsProcessing(null);
+      }, 500);
+      
     } catch (error) {
       console.error('Error completing task:', error);
       toast.error('Failed to complete task');
-      onTaskUpdate?.();
-    } finally {
-      setLoadingTasks(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(taskId);
-        return newSet;
-      });
+      setIsProcessing(null);
     }
   };
 
   const undoTaskCompletion = async (taskId: string) => {
+    if (isProcessing) return;
+    
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    setIsProcessing(taskId);
+    
     try {
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
       const { error } = await supabase
         .from('tasks')
         .update({ 
@@ -246,19 +214,29 @@ export default function TasksTab({
         .eq('id', dbTaskId);
 
       if (error) throw error;
-      onTaskUpdate?.();
-      onTaskStatusUpdate?.(dbTaskId, 'pending');
+      
       toast.success('Task reopened');
+      onTaskStatusUpdate?.(dbTaskId, 'pending');
+      
+      setTimeout(() => {
+        onTaskUpdate?.();
+        setIsProcessing(null);
+      }, 500);
+      
     } catch (error) {
       console.error('Error reopening task:', error);
       toast.error('Failed to reopen task');
+      setIsProcessing(null);
     }
   };
 
   const unstartTask = async (taskId: string) => {
+    if (isProcessing) return;
+    
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    setIsProcessing(taskId);
+    
     try {
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
       const { error } = await supabase.from('tasks')
         .update({ 
           status: 'pending' as TaskStatus
@@ -266,19 +244,29 @@ export default function TasksTab({
         .eq('id', dbTaskId);
 
       if (error) throw error;
-      onTaskUpdate?.();
-      onTaskStatusUpdate?.(dbTaskId, 'pending');
+      
       toast.success('Task reset to pending');
+      onTaskStatusUpdate?.(dbTaskId, 'pending');
+      
+      setTimeout(() => {
+        onTaskUpdate?.();
+        setIsProcessing(null);
+      }, 500);
+      
     } catch (error) {
       console.error('Error resetting task:', error);
       toast.error('Failed to reset task');
+      setIsProcessing(null);
     }
   };
 
   const returnTask = async (taskId: string) => {
+    if (isProcessing) return;
+    
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    setIsProcessing(taskId);
+    
     try {
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
       const { error } = await supabase.from('tasks')
         .update({ 
           assigned_to: null,
@@ -288,11 +276,18 @@ export default function TasksTab({
         .eq('id', dbTaskId);
 
       if (error) throw error;
-      onTaskUpdate?.();
+      
       toast.success('Task returned to available tasks');
+      
+      setTimeout(() => {
+        onTaskUpdate?.();
+        setIsProcessing(null);
+      }, 500);
+      
     } catch (error) {
       console.error('Error returning task:', error);
       toast.error('Failed to return task');
+      setIsProcessing(null);
     }
   };
 
@@ -308,19 +303,6 @@ export default function TasksTab({
     const isUnassigned = !task.assigned_to;
     const isOverdue = isRecurringInstance(task) && task.isOverdue;
     const wasClaimedByMe = task.claimed_by === userProfile?.id;
-    
-    // Debug logging
-    console.log('🔧 Task debug:', {
-      id: task.id,
-      title: task.title,
-      status: task.status,
-      assigned_to: task.assigned_to,
-      claimed_by: task.claimed_by,
-      isAssignedToMe,
-      isUnassigned,
-      wasClaimedByMe,
-      userProfileId: userProfile?.id
-    });
     
     return (
       <div className={`
@@ -374,14 +356,14 @@ export default function TasksTab({
                 claimTask(task.id);
               }}
               className="h-8 px-3 text-xs"
-              disabled={loadingTasks.has(task.id)}
+              disabled={isProcessing !== null}
             >
-              {loadingTasks.has(task.id) ? (
+              {isProcessing === task.id ? (
                 <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
               ) : (
                 <Target className="w-3 h-3 mr-1" />
               )}
-              {loadingTasks.has(task.id) ? 'Claiming...' : 'Claim'}
+              {isProcessing === task.id ? 'Claiming...' : 'Claim'}
             </Button>
           )}
 
@@ -399,12 +381,12 @@ export default function TasksTab({
                       startTask(task.id);
                     }}
                     className="h-8 px-3 text-xs"
-                    disabled={loadingTasks.has(task.id)}
+                    disabled={isProcessing !== null}
                   >
-                    {loadingTasks.has(task.id) ? (
+                    {isProcessing === task.id ? (
                       <div className="w-3 h-3 animate-spin rounded-full border-2 border-primary border-t-transparent mr-1" />
                     ) : null}
-                    {loadingTasks.has(task.id) ? 'Starting...' : 'Start'}
+                    {isProcessing === task.id ? 'Starting...' : 'Start'}
                   </Button>
                   <Button
                     size="sm"
@@ -414,12 +396,12 @@ export default function TasksTab({
                       completeTask(task.id);
                     }}
                     className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
-                    disabled={loadingTasks.has(task.id)}
+                    disabled={isProcessing !== null}
                   >
-                    {loadingTasks.has(task.id) ? (
+                    {isProcessing === task.id ? (
                       <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
                     ) : null}
-                    {loadingTasks.has(task.id) ? 'Completing...' : 'Done'}
+                    {isProcessing === task.id ? 'Completing...' : 'Done'}
                   </Button>
                   {wasClaimedByMe && (
                     <Button
@@ -431,6 +413,7 @@ export default function TasksTab({
                         returnTask(task.id);
                       }}
                       className="h-8 px-3 text-xs"
+                      disabled={isProcessing !== null}
                     >
                       Return
                     </Button>
@@ -448,6 +431,7 @@ export default function TasksTab({
                       completeTask(task.id);
                     }}
                     className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
+                    disabled={isProcessing !== null}
                   >
                     Done
                   </Button>
@@ -460,6 +444,7 @@ export default function TasksTab({
                       unstartTask(task.id);
                     }}
                     className="h-8 px-3 text-xs"
+                    disabled={isProcessing !== null}
                   >
                     Reset
                   </Button>
@@ -476,6 +461,7 @@ export default function TasksTab({
                     undoTaskCompletion(task.id);
                   }}
                   className="h-8 px-3 text-xs"
+                  disabled={isProcessing !== null}
                 >
                   Undo
                 </Button>
@@ -572,6 +558,16 @@ export default function TasksTab({
         </div>
       </Card>
 
+      {/* Processing indicator */}
+      {isProcessing && (
+        <Card className="p-2 border-orange-200 bg-orange-50">
+          <div className="flex items-center gap-2 text-orange-700">
+            <div className="w-4 h-4 animate-spin rounded-full border-2 border-orange-600 border-t-transparent" />
+            <span className="text-sm">Processing task action...</span>
+          </div>
+        </Card>
+      )}
+
       {/* Tasks Display */}
       {viewMode === 'day' ? (
         <div className="space-y-3">
@@ -582,76 +578,57 @@ export default function TasksTab({
           ) : (
             <Card className="p-8">
               <div className="text-center">
-                <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-muted-foreground mb-2">No tasks scheduled</h3>
+                <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-muted-foreground mb-2">No tasks for today</h3>
                 <p className="text-sm text-muted-foreground">
-                  {isToday(selectedDate) ? "You're all caught up for today!" : `No tasks on ${format(selectedDate, 'MMM d')}`}
+                  Enjoy your free time or check other dates for upcoming tasks.
                 </p>
               </div>
             </Card>
           )}
         </div>
       ) : (
-        <Card className="p-4">
-          <div className="grid grid-cols-7 gap-2">
-            {eachDayOfInterval({
-              start: startOfWeek(selectedDate),
-              end: endOfWeek(selectedDate)
-            }).map(date => {
-              const dayTasks = getTasksForDate(filteredTasks, date);
-              const isCurrentDay = isToday(date);
-              
-              return (
-                <div key={date.toISOString()} className="text-center">
-                  <div 
-                    className={`
-                      p-2 rounded-lg cursor-pointer transition-colors mb-2
-                      ${isCurrentDay ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'}
-                    `}
-                    onClick={() => {
-                      setSelectedDate(date);
-                      setViewMode('day');
-                    }}
-                  >
-                    <div className="text-xs font-medium">{format(date, 'EEE')}</div>
-                    <div className="text-lg font-semibold">{format(date, 'd')}</div>
-                    {dayTasks.length > 0 && (
-                      <Badge variant="secondary" className="text-xs mt-1">
-                        {dayTasks.length}
-                      </Badge>
-                    )}
+        // Week view
+        <div className="grid grid-cols-7 gap-2">
+          {eachDayOfInterval({
+            start: startOfWeek(selectedDate),
+            end: endOfWeek(selectedDate)
+          }).map((date) => {
+            const dayTasks = getTasksForDate(filteredTasks, date);
+            const isCurrentDate = isSameDay(date, selectedDate);
+            const isCurrentMonth = isSameMonth(date, selectedDate);
+            
+            return (
+              <Card 
+                key={date.toISOString()} 
+                className={`p-2 cursor-pointer transition-colors hover:shadow-md ${
+                  isCurrentDate ? 'ring-2 ring-primary' : ''
+                } ${!isCurrentMonth ? 'opacity-50' : ''}`}
+                onClick={() => setSelectedDate(date)}
+              >
+                <div className="text-center">
+                  <div className={`text-sm font-medium mb-1 ${
+                    isToday(date) ? 'text-primary font-semibold' : 
+                    isCurrentDate ? 'text-primary' : 'text-muted-foreground'
+                  }`}>
+                    {format(date, 'EEE')}
                   </div>
-                  <div className="space-y-1 min-h-[100px]">
-                    {dayTasks.slice(0, 3).map((task, index) => (
-                      <div 
-                        key={`${task.id}-${index}`}
-                        className={`
-                          p-1 rounded text-xs border-l-2 bg-background/80 cursor-pointer hover:bg-muted/50
-                          ${task.priority === 'high' ? 'border-l-red-500' : 
-                            task.priority === 'medium' ? 'border-l-yellow-500' : 'border-l-green-500'}
-                        `}
-                        onClick={() => {
-                          setSelectedDate(date);
-                          setViewMode('day');
-                        }}
-                      >
-                        <div className="font-medium truncate">{task.title}</div>
-                        {task.status === 'completed' && (
-                          <CheckCircle className="w-3 h-3 text-green-600 inline" />
-                        )}
-                      </div>
-                    ))}
-                    {dayTasks.length > 3 && (
-                      <div className="text-xs text-muted-foreground">
-                        +{dayTasks.length - 3} more
-                      </div>
-                    )}
+                  <div className={`text-lg font-semibold mb-2 ${
+                    isToday(date) ? 'bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mx-auto' :
+                    isCurrentDate ? 'text-primary' : ''
+                  }`}>
+                    {format(date, 'd')}
                   </div>
+                  {dayTasks.length > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {dayTasks.length}
+                    </Badge>
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        </Card>
+              </Card>
+            );
+          })}
+        </div>
       )}
     </div>
   );

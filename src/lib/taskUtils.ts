@@ -520,11 +520,30 @@ export const expandTasksWithRecurrence = (
   
   tasks.forEach(task => {
     if (task.recurrence && task.recurrence !== 'none') {
-      // Only generate instances if the task is not completed
-      // For recurring tasks, we consider them "active" until explicitly completed
+      // Generate instances for active tasks
       if (!isCompleted(task.status)) {
         const instances = generateRecurringInstances(task, startDate, endDate);
         expandedTasks.push(...instances);
+      } 
+      // For completed tasks, create a virtual instance for their completion date if it falls in range
+      else if (isCompleted(task.status) && task.completed_at) {
+        const completedDate = startOfDay(new Date(task.completed_at));
+        const rangeStart = startOfDay(startDate);
+        const rangeEnd = endOfDay(endDate);
+        
+        // If the completion date falls within our range, create a virtual instance
+        if (completedDate >= rangeStart && completedDate <= rangeEnd) {
+          const completedInstance: RecurringTaskInstance = {
+            ...task,
+            id: `${task.id}_${format(completedDate, 'yyyy-MM-dd')}`,
+            instanceDate: completedDate,
+            custom_due_date: completedDate.toISOString(),
+            isRecurringInstance: true,
+            parentTaskId: task.id,
+            isOverdue: false
+          };
+          expandedTasks.push(completedInstance);
+        }
       }
     }
   });
@@ -790,10 +809,21 @@ export const getTasksForDate = (
       return instanceDate.getTime() === startOfTargetDate.getTime();
     }
 
-    // For completed tasks, check generated_date first
-    if (task.status === 'completed' && task.generated_date) {
-      const generatedDate = startOfDay(new Date(task.generated_date));
-      return generatedDate.getTime() === startOfTargetDate.getTime();
+    // For completed tasks, check completion date or generated_date
+    if (task.status === 'completed') {
+      let taskCompletionDate;
+      
+      // Use completed_at first, then fall back to generated_date
+      if (task.completed_at) {
+        taskCompletionDate = startOfDay(new Date(task.completed_at));
+      } else if (task.generated_date) {
+        taskCompletionDate = startOfDay(new Date(task.generated_date));
+      } else {
+        // Last resort - use created date
+        taskCompletionDate = startOfDay(new Date(task.created_at));
+      }
+      
+      return taskCompletionDate.getTime() === startOfTargetDate.getTime();
     }
 
     // For tasks with specific due dates, check if they match

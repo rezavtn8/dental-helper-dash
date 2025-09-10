@@ -172,9 +172,9 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
 
         case 'completed':
           return (
-            <Button size="sm" onClick={handleReopen} variant="outline" title="Reopen Task">
+            <Button size="sm" onClick={handleReopen} variant="outline" className="bg-green-50 hover:bg-green-100 text-green-800 border-green-200" title="Undo Completion">
               <RotateCcw className="w-3 h-3 mr-1" />
-              Reopen
+              Undo
             </Button>
           );
 
@@ -192,11 +192,11 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
   };
 
   const getCardStyle = () => {
-    if (task.status === 'completed') return 'bg-green-50 border-green-200';
+    if (task.status === 'completed') return 'bg-green-50 border-green-200 opacity-80';
     if (task.status === 'in-progress') return 'bg-blue-50 border-blue-200';
     if (isOverdue) return 'bg-red-50 border-red-200';
     if (isUnassigned) return 'bg-orange-50 border-orange-200';
-    return 'bg-gray-50 border-gray-200';
+    return 'bg-white border-gray-200';
   };
 
   const getStatusBadgeColor = () => {
@@ -215,7 +215,13 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-2">
           {isOverdue && <AlertCircle className="w-4 h-4 text-red-500" />}
-          <h4 className={`font-medium text-sm ${task.status === 'completed' ? 'line-through text-muted-foreground' : isOverdue ? 'text-red-700' : ''}`}>
+          <h4 className={`font-medium text-sm ${
+            task.status === 'completed' 
+              ? 'line-through text-green-700' 
+              : isOverdue 
+                ? 'text-red-700' 
+                : ''
+          }`}>
             {task.title}
           </h4>
           {task.priority === 'high' && <Flag className="w-3 h-3 text-red-500" />}

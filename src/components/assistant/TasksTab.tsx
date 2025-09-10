@@ -37,18 +37,31 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
 
-  // Simple task filtering - only show tasks assigned to me or unassigned
-  const myTasks = useMemo(() => {
-    return tasks.filter(task => 
-      task.assigned_to === userProfile?.id || 
-      !task.assigned_to
+  // Organize tasks into three categories
+  const { unassignedTasks, assignedTasks, completedTasks } = useMemo(() => {
+    const todayTasks = getTasksForDate(tasks, selectedDate);
+    
+    const unassigned = todayTasks.filter(task => 
+      !task.assigned_to && task.status !== 'completed'
     );
-  }, [tasks, userProfile?.id]);
+    
+    const assigned = todayTasks.filter(task => 
+      task.assigned_to === userProfile?.id && task.status !== 'completed'
+    );
+    
+    const completed = todayTasks.filter(task => 
+      task.status === 'completed' && 
+      (task.assigned_to === userProfile?.id || task.completed_by === userProfile?.id)
+    );
+    
+    return { 
+      unassignedTasks: unassigned, 
+      assignedTasks: assigned, 
+      completedTasks: completed 
+    };
+  }, [tasks, selectedDate, userProfile?.id]);
 
-  // Get tasks for selected date
-  const todayTasks = useMemo(() => {
-    return getTasksForDate(myTasks, selectedDate);
-  }, [myTasks, selectedDate]);
+  const totalTasks = unassignedTasks.length + assignedTasks.length + completedTasks.length;
 
   if (!userProfile?.clinic_id) {
     return (
@@ -81,7 +94,7 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
             <Calendar className="w-5 h-5" />
             <h2 className="text-lg font-semibold">My Tasks</h2>
             <Badge variant="secondary">
-              {todayTasks.length} task{todayTasks.length !== 1 ? 's' : ''}
+              {totalTasks} task{totalTasks !== 1 ? 's' : ''}
             </Badge>
             {loading && (
               <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -166,16 +179,78 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
 
       {/* Tasks Display */}
       {viewMode === 'day' ? (
-        <div className="space-y-3">
-          {todayTasks.length > 0 ? (
-            todayTasks.map((task) => (
-              <OptimizedTaskCard 
-                key={`${task.id}-${task.status}-${task.assigned_to}`}
-                task={task} 
-                assistants={assistants}
-                onUpdateTask={updateTask!}
-              />
-            ))
+        <div className="space-y-6">
+          {totalTasks > 0 ? (
+            <>
+              {/* Unassigned Tasks */}
+              {unassignedTasks.length > 0 && (
+                <Card className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <h3 className="font-semibold text-orange-800">Unassigned Tasks</h3>
+                    <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200">
+                      {unassignedTasks.length}
+                    </Badge>
+                  </div>
+                  <div className="space-y-3">
+                    {unassignedTasks.map((task) => (
+                      <OptimizedTaskCard 
+                        key={`${task.id}-${task.status}-${task.assigned_to}`}
+                        task={task} 
+                        assistants={assistants}
+                        onUpdateTask={updateTask!}
+                      />
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {/* Assigned Tasks */}
+              {assignedTasks.length > 0 && (
+                <Card className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <h3 className="font-semibold text-blue-800">My Tasks</h3>
+                    <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                      {assignedTasks.length}
+                    </Badge>
+                  </div>
+                  <div className="space-y-3">
+                    {assignedTasks.map((task) => (
+                      <OptimizedTaskCard 
+                        key={`${task.id}-${task.status}-${task.assigned_to}`}
+                        task={task} 
+                        assistants={assistants}
+                        onUpdateTask={updateTask!}
+                      />
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {/* Completed Tasks */}
+              {completedTasks.length > 0 && (
+                <Card className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <h3 className="font-semibold text-green-800">Completed Tasks</h3>
+                    <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                      {completedTasks.length}
+                    </Badge>
+                  </div>
+                  <div className="space-y-3">
+                    {completedTasks.map((task) => (
+                      <OptimizedTaskCard 
+                        key={`${task.id}-${task.status}-${task.assigned_to}`}
+                        task={task} 
+                        assistants={assistants}
+                        onUpdateTask={updateTask!}
+                      />
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </>
           ) : (
             <Card className="p-8">
               <div className="text-center">
@@ -195,7 +270,9 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
             start: startOfWeek(selectedDate),
             end: endOfWeek(selectedDate)
           }).map((date) => {
-            const dayTasks = getTasksForDate(myTasks, date);
+            const dayTasks = getTasksForDate(tasks.filter(task => 
+              task.assigned_to === userProfile?.id || !task.assigned_to
+            ), date);
             const isCurrentDate = isSameDay(date, selectedDate);
             const isCurrentMonth = isSameMonth(date, selectedDate);
             

@@ -88,22 +88,21 @@ export function useTasks(): UseTasksReturn {
         .from('tasks')
         .update(updates)
         .eq('id', baseTaskId)
-        .select()
-        .single();
+        .select();
 
       if (error) {
         console.error('❌ Database update error:', error);
         throw error;
       }
 
-      if (!data) {
+      if (!data || data.length === 0) {
         console.error('❌ No task found with ID:', baseTaskId);
         throw new Error(`Task not found in database: ${baseTaskId}`);
       }
 
       console.log(`✅ Task updated successfully:`, {
         taskId: baseTaskId,
-        updatedData: data
+        updatedData: data[0]
       });
 
       // Update local state immediately for optimistic updates
@@ -111,7 +110,7 @@ export function useTasks(): UseTasksReturn {
         prevTasks.map(task => {
           const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
           if (taskBaseId === baseTaskId) {
-            return { ...task, ...data };
+            return { ...task, ...data[0] };
           }
           return task;
         })

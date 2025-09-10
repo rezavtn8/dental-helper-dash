@@ -50,15 +50,19 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
         taskId: task.id,
         isRecurring: isRecurringInstance(task),
         updates,
-        userProfile: userProfile.id
+        userProfile: userProfile.id,
+        currentAssignedTo: task.assigned_to
       });
 
       const success = await updateTask(task.id, updates);
       
       if (success) {
+        console.log(`✅ Task ${action} successful:`, task.id);
         toast.success(successMsg);
-        // Call the optional onUpdate callback for any additional local updates
         onUpdate?.();
+      } else {
+        console.error(`❌ Task ${action} failed:`, task.id);
+        toast.error('Action failed. Please try again.');
       }
       
     } catch (error: any) {

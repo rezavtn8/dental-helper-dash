@@ -106,11 +106,17 @@ export function useTasks(): UseTasksReturn {
       });
 
       // Update local state immediately for optimistic updates
+      console.log('🔄 Updating local state optimistically:', baseTaskId, data[0]);
       setTasks(prevTasks => 
         prevTasks.map(task => {
           const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
           if (taskBaseId === baseTaskId) {
-            return { ...task, ...data[0] };
+            console.log('✅ Found matching task for optimistic update:', task.id);
+            return { 
+              ...task, 
+              ...data[0],
+              id: task.id // Preserve the original ID format
+            };
           }
           return task;
         })
@@ -138,10 +144,11 @@ export function useTasks(): UseTasksReturn {
   useEffect(() => {
     if (!userProfile?.clinic_id) return;
 
-    console.log('🔔 Setting up real-time task subscription for clinic:', userProfile.clinic_id);
+    const channelName = `tasks-changes-${userProfile.clinic_id}`;
+    console.log('🔔 Setting up real-time task subscription:', channelName);
 
     const channel = supabase
-      .channel('tasks-changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -151,32 +158,60 @@ export function useTasks(): UseTasksReturn {
           filter: `clinic_id=eq.${userProfile.clinic_id}`
         },
         (payload) => {
-          console.log('🔔 Real-time task update received:', payload);
+          console.log('🔔 Real-time task update received:', payload.eventType, payload);
           
           switch (payload.eventType) {
             case 'INSERT':
-              setTasks(prevTasks => [...prevTasks, payload.new as Task]);
+              if (payload.new) {
+                setTasks(prevTasks => {
+                  const newTask = payload.new as Task;
+                  // Check if task is relevant to this user (assigned to them or unassigned)
+                  if (newTask.assigned_to === userProfile.id || !newTask.assigned_to) {
+                    const exists = prevTasks.some(t => t.id === newTask.id);
+                    if (!exists) {
+                      console.log('➕ Adding new task to local state:', newTask.id);
+                      return [...prevTasks, newTask];
+                    }
+                  }
+                  return prevTasks;
+                });
+              }
               break;
             case 'UPDATE':
-              setTasks(prevTasks => 
-                prevTasks.map(task => {
-                  const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
-                  const updatedBaseId = (payload.new as Task).id;
-                  if (taskBaseId === updatedBaseId) {
-                    return { ...task, ...(payload.new as Task) };
-                  }
-                  return task;
-                })
-              );
+              if (payload.new) {
+                setTasks(prevTasks => {
+                  const updatedTask = payload.new as Task;
+                  console.log('🔄 Updating task in local state:', updatedTask.id, updatedTask);
+                  
+                  return prevTasks.map(task => {
+                    const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+                    const updatedBaseId = updatedTask.id;
+                    
+                    if (taskBaseId === updatedBaseId) {
+                      console.log('✅ Found matching task, updating:', taskBaseId);
+                      // Preserve the recurring instance ID format if it exists
+                      return { 
+                        ...task, 
+                        ...updatedTask,
+                        id: task.id // Keep the original ID format (with date suffix if present)
+                      };
+                    }
+                    return task;
+                  });
+                });
+              }
               break;
             case 'DELETE':
-              setTasks(prevTasks => 
-                prevTasks.filter(task => {
-                  const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
-                  const deletedBaseId = (payload.old as Task).id;
-                  return taskBaseId !== deletedBaseId;
-                })
-              );
+              if (payload.old) {
+                setTasks(prevTasks => {
+                  const deletedTask = payload.old as Task;
+                  return prevTasks.filter(task => {
+                    const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+                    const deletedBaseId = deletedTask.id;
+                    return taskBaseId !== deletedBaseId;
+                  });
+                });
+              }
               break;
           }
         }
@@ -184,10 +219,10 @@ export function useTasks(): UseTasksReturn {
       .subscribe();
 
     return () => {
-      console.log('🔕 Cleaning up real-time task subscription');
+      console.log('🔕 Cleaning up real-time task subscription:', channelName);
       supabase.removeChannel(channel);
     };
-  }, [userProfile?.clinic_id]);
+  }, [userProfile?.clinic_id, userProfile?.id]);
 
   // Fetch tasks on mount and when user profile changes
   useEffect(() => {

@@ -47,7 +47,9 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
       console.log(`⚡ Executing task action: ${action}`, {
         taskId: task.id,
         updates,
-        userProfile: userProfile.id
+        userProfile: userProfile.id,
+        currentStatus: task.status,
+        currentAssignment: task.assigned_to
       });
 
       const success = await onUpdateTask(task.id, updates);
@@ -105,7 +107,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
       assigned_to: null,
       claimed_by: null,
       status: 'pending'
-    }, 'Task returned');
+    }, 'Task returned to unassigned');
   };
 
   const handleReopen = () => {
@@ -113,7 +115,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
       status: 'pending',
       completed_by: null,
       completed_at: null
-    }, 'Task reopened');
+    }, 'Task moved back to pending');
   };
 
   const renderActionButton = () => {

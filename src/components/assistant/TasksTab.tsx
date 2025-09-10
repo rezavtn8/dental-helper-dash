@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { TaskActionButton } from '@/components/ui/task-action-button';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Building, Calendar, ChevronLeft, ChevronRight, CheckCircle, Flag, CalendarDays, List, AlertCircle, Repeat, Clock, User, Target } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -381,121 +383,111 @@ export default function TasksTab({
         </div>
 
         <div className="flex items-center gap-2">
+          {isProcessingTask && (
+            <LoadingSpinner size="sm" className="text-primary" />
+          )}
+          
           {/* UNASSIGNED TASKS - Show Claim button */}
           {isUnassigned && task.status !== 'completed' && (
-            <Button
+            <TaskActionButton
+              status={task.status}
+              action="pickup"
               size="sm"
+              showLabel={true}
               onClick={(e) => {
                 e.stopPropagation();
                 claimTask(task.id);
               }}
-              className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
-              disabled={isProcessing !== null}
-            >
-              {isProcessingTask ? (
-                <>
-                  <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
-                  Claiming...
-                </>
-              ) : (
-                <>
-                  <Target className="w-3 h-3 mr-1" />
-                  Claim
-                </>
-              )}
-            </Button>
+              className={isProcessing !== null ? "opacity-50 pointer-events-none" : ""}
+            />
           )}
 
           {/* MY ASSIGNED TASKS - Show action buttons based on status */}
           {isAssignedToMe && (
             <div className="flex gap-1">
-              {/* PENDING TASKS: Start, Done, Return buttons */}
+              {/* PENDING TASKS: Start, Complete, Return buttons */}
               {task.status === 'pending' && (
                 <>
-                  <Button
+                  <TaskActionButton
+                    status={task.status}
+                    action="toggle"
                     size="sm"
-                    variant="outline"
+                    showLabel={false}
                     onClick={(e) => {
                       e.stopPropagation();
                       startTask(task.id);
                     }}
-                    className="h-8 px-2 text-xs"
-                    disabled={isProcessing !== null}
-                  >
-                    {isProcessingTask ? 'Starting...' : 'Start'}
-                  </Button>
+                    className={isProcessing !== null ? "opacity-50 pointer-events-none" : ""}
+                  />
                   
-                  <Button
+                  <TaskActionButton
+                    status="in-progress"
+                    action="toggle"
                     size="sm"
+                    showLabel={false}
                     onClick={(e) => {
                       e.stopPropagation();
                       completeTask(task.id);
                     }}
-                    className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
-                    disabled={isProcessing !== null}
-                  >
-                    {isProcessingTask ? 'Completing...' : 'Done'}
-                  </Button>
+                    className={isProcessing !== null ? "opacity-50 pointer-events-none" : ""}
+                  />
                   
-                  <Button
-                    variant="ghost"
+                  <TaskActionButton
+                    status={task.status}
+                    action="return"
                     size="sm"
+                    showLabel={false}
                     onClick={(e) => {
                       e.stopPropagation();
                       returnTask(task.id);
                     }}
-                    className="h-8 px-2 text-xs"
-                    disabled={isProcessing !== null}
-                  >
-                    {isProcessingTask ? 'Returning...' : 'Return'}
-                  </Button>
+                    className={isProcessing !== null ? "opacity-50 pointer-events-none" : ""}
+                  />
                 </>
               )}
               
-              {/* IN-PROGRESS TASKS: Done, Reset buttons */}
+              {/* IN-PROGRESS TASKS: Complete, Reset buttons */}
               {task.status === 'in-progress' && (
                 <>
-                  <Button
+                  <TaskActionButton
+                    status={task.status}
+                    action="toggle"
                     size="sm"
+                    showLabel={false}
                     onClick={(e) => {
                       e.stopPropagation();
                       completeTask(task.id);
                     }}
-                    className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
-                    disabled={isProcessing !== null}
-                  >
-                    {isProcessingTask ? 'Completing...' : 'Done'}
-                  </Button>
+                    className={isProcessing !== null ? "opacity-50 pointer-events-none" : ""}
+                  />
                   
-                  <Button
-                    variant="outline"
+                  <TaskActionButton
+                    status={task.status}
+                    action="undo"
                     size="sm"
+                    showLabel={false}
                     onClick={(e) => {
                       e.stopPropagation();
                       unstartTask(task.id);
                     }}
-                    className="h-8 px-2 text-xs"
-                    disabled={isProcessing !== null}
-                  >
-                    {isProcessingTask ? 'Resetting...' : 'Reset'}
-                  </Button>
+                    className={isProcessing !== null ? "opacity-50 pointer-events-none" : ""}
+                  />
                 </>
               )}
               
               {/* COMPLETED TASKS: Undo button */}
               {task.status === 'completed' && (
-                <Button
-                  variant="outline"
+                <TaskActionButton
+                  status={task.status}
+                  action="undo"
                   size="sm"
+                  showLabel={false}
                   onClick={(e) => {
                     e.stopPropagation();
                     undoTaskCompletion(task.id);
                   }}
-                  className="h-8 px-2 text-xs"
-                  disabled={isProcessing !== null}
-                >
-                  {isProcessingTask ? 'Undoing...' : 'Undo'}
-                </Button>
+                  className={isProcessing !== null ? "opacity-50 pointer-events-none" : ""}
+                />
               )}
             </div>
           )}

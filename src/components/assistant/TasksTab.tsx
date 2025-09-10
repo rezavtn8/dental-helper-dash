@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -102,7 +102,7 @@ export default function TasksTab({
     );
   }
 
-  const claimTask = async (taskId: string) => {
+  const claimTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
@@ -128,7 +128,7 @@ export default function TasksTab({
       if (error) throw error;
       
       toast.success('Task claimed!');
-      onTaskUpdate?.();
+      // Remove onTaskUpdate call to prevent render loop
       
     } catch (error) {
       console.error('Error claiming task:', error);
@@ -145,9 +145,9 @@ export default function TasksTab({
     } finally {
       setIsProcessing(null);
     }
-  };
+  }, [isProcessing, setTasks, tasks, userProfile?.id]);
 
-  const startTask = async (taskId: string) => {
+  const startTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
@@ -172,7 +172,6 @@ export default function TasksTab({
       
       toast.success('Task started!');
       onTaskStatusUpdate?.(dbTaskId, 'in-progress');
-      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error starting task:', error);
@@ -180,9 +179,9 @@ export default function TasksTab({
     } finally {
       setIsProcessing(null);
     }
-  };
+  }, [isProcessing, setTasks, tasks, onTaskStatusUpdate]);
 
-  const completeTask = async (taskId: string) => {
+  const completeTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
@@ -218,7 +217,6 @@ export default function TasksTab({
       
       toast.success('Task completed! 🎉');
       onTaskStatusUpdate?.(dbTaskId, 'completed');
-      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error completing task:', error);
@@ -226,9 +224,9 @@ export default function TasksTab({
     } finally {
       setIsProcessing(null);
     }
-  };
+  }, [isProcessing, setTasks, tasks, userProfile?.id, onTaskStatusUpdate]);
 
-  const undoTaskCompletion = async (taskId: string) => {
+  const undoTaskCompletion = useCallback(async (taskId: string) => {
     if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
@@ -250,7 +248,6 @@ export default function TasksTab({
       onTaskStatusUpdate?.(dbTaskId, 'pending');
       
       setTimeout(() => {
-        onTaskUpdate?.();
         setIsProcessing(null);
       }, 500);
       
@@ -259,9 +256,9 @@ export default function TasksTab({
       toast.error('Failed to reopen task');
       setIsProcessing(null);
     }
-  };
+  }, [isProcessing, onTaskStatusUpdate]);
 
-  const unstartTask = async (taskId: string) => {
+  const unstartTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
@@ -280,7 +277,6 @@ export default function TasksTab({
       onTaskStatusUpdate?.(dbTaskId, 'pending');
       
       setTimeout(() => {
-        onTaskUpdate?.();
         setIsProcessing(null);
       }, 500);
       
@@ -289,9 +285,9 @@ export default function TasksTab({
       toast.error('Failed to reset task');
       setIsProcessing(null);
     }
-  };
+  }, [isProcessing, onTaskStatusUpdate]);
 
-  const returnTask = async (taskId: string) => {
+  const returnTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
@@ -323,7 +319,6 @@ export default function TasksTab({
       if (error) throw error;
       
       toast.success('Task returned');
-      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error returning task:', error);
@@ -331,7 +326,7 @@ export default function TasksTab({
     } finally {
       setIsProcessing(null);
     }
-  };
+  }, [isProcessing, setTasks, tasks]);
 
   const getAssistantName = (assignedTo: string | null) => {
     if (!assignedTo) return 'Unassigned';

@@ -101,10 +101,19 @@ export default function TasksTab({
   }
 
   const claimTask = async (taskId: string) => {
-    if (isProcessing) return; // Prevent multiple simultaneous operations
+    if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
     setIsProcessing(taskId);
+    
+    // Optimistic update - update local state immediately
+    if (setTasks) {
+      setTasks(tasks.map(task => 
+        task.id === dbTaskId 
+          ? { ...task, assigned_to: userProfile?.id, claimed_by: userProfile?.id }
+          : task
+      ));
+    }
     
     try {
       const { error } = await supabase.from('tasks')
@@ -117,16 +126,21 @@ export default function TasksTab({
       if (error) throw error;
       
       toast.success('Task claimed!');
-      
-      // Wait a bit before allowing next operation and refresh
-      setTimeout(() => {
-        onTaskUpdate?.();
-        setIsProcessing(null);
-      }, 500);
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error claiming task:', error);
       toast.error('Failed to claim task');
+      
+      // Rollback optimistic update on error
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId 
+            ? { ...task, assigned_to: null, claimed_by: null }
+            : task
+        ));
+      }
+    } finally {
       setIsProcessing(null);
     }
   };
@@ -137,27 +151,31 @@ export default function TasksTab({
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
     setIsProcessing(taskId);
     
+    // Optimistic update
+    if (setTasks) {
+      setTasks(tasks.map(task => 
+        task.id === dbTaskId 
+          ? { ...task, status: 'in-progress' as TaskStatus }
+          : task
+      ));
+    }
+    
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ 
-          status: 'in-progress' as TaskStatus
-        })
+        .update({ status: 'in-progress' as TaskStatus })
         .eq('id', dbTaskId);
 
       if (error) throw error;
       
       toast.success('Task started!');
       onTaskStatusUpdate?.(dbTaskId, 'in-progress');
-      
-      setTimeout(() => {
-        onTaskUpdate?.();
-        setIsProcessing(null);
-      }, 500);
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error starting task:', error);
       toast.error('Failed to start task');
+    } finally {
       setIsProcessing(null);
     }
   };
@@ -168,9 +186,23 @@ export default function TasksTab({
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
     setIsProcessing(taskId);
     
+    const completedAt = new Date().toISOString();
+    
+    // Optimistic update
+    if (setTasks) {
+      setTasks(tasks.map(task => 
+        task.id === dbTaskId 
+          ? { 
+              ...task, 
+              status: 'completed' as TaskStatus,
+              completed_by: userProfile?.id,
+              completed_at: completedAt
+            }
+          : task
+      ));
+    }
+    
     try {
-      const completedAt = new Date().toISOString();
-      
       const { error } = await supabase
         .from('tasks')
         .update({ 
@@ -184,15 +216,12 @@ export default function TasksTab({
       
       toast.success('Task completed! 🎉');
       onTaskStatusUpdate?.(dbTaskId, 'completed');
-      
-      setTimeout(() => {
-        onTaskUpdate?.();
-        setIsProcessing(null);
-      }, 500);
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error completing task:', error);
       toast.error('Failed to complete task');
+    } finally {
       setIsProcessing(null);
     }
   };
@@ -266,6 +295,20 @@ export default function TasksTab({
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
     setIsProcessing(taskId);
     
+    // Optimistic update
+    if (setTasks) {
+      setTasks(tasks.map(task => 
+        task.id === dbTaskId 
+          ? { 
+              ...task, 
+              assigned_to: null,
+              claimed_by: null,
+              status: 'pending' as TaskStatus
+            }
+          : task
+      ));
+    }
+    
     try {
       const { error } = await supabase.from('tasks')
         .update({ 
@@ -277,16 +320,13 @@ export default function TasksTab({
 
       if (error) throw error;
       
-      toast.success('Task returned to available tasks');
-      
-      setTimeout(() => {
-        onTaskUpdate?.();
-        setIsProcessing(null);
-      }, 500);
+      toast.success('Task returned');
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error returning task:', error);
       toast.error('Failed to return task');
+    } finally {
       setIsProcessing(null);
     }
   };
@@ -297,26 +337,12 @@ export default function TasksTab({
     return assistant?.name || 'Unknown';
   };
 
-  // Compact Task Card Component
+  // Task Card Component with Fixed Button Logic
   const TaskCard = ({ task }: { task: Task | RecurringTaskInstance }) => {
     const isAssignedToMe = task.assigned_to === userProfile?.id;
     const isUnassigned = !task.assigned_to;
     const isOverdue = isRecurringInstance(task) && task.isOverdue;
-    const wasClaimedByMe = task.claimed_by === userProfile?.id;
-    
-    // Debug logging
-    console.log('🔧 Button Debug:', {
-      taskId: task.id,
-      title: task.title,
-      status: task.status,
-      assigned_to: task.assigned_to,
-      claimed_by: task.claimed_by,
-      userProfileId: userProfile?.id,
-      isAssignedToMe,
-      isUnassigned,
-      wasClaimedByMe,
-      shouldShowDone: isAssignedToMe && (task.status === 'pending' || task.status === 'in-progress')
-    });
+    const isProcessingTask = isProcessing === task.id;
     
     return (
       <div className={`
@@ -355,26 +381,18 @@ export default function TasksTab({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Debug info */}
-          <div className="text-xs bg-gray-100 px-2 py-1 rounded flex flex-col">
-            <div>Status: {task.status || 'none'}</div>
-            <div>Assigned: {task.assigned_to ? 'Yes' : 'No'}</div>
-            <div>IsMe: {isAssignedToMe ? 'Yes' : 'No'}</div>
-          </div>
-          
-          {/* CLAIM BUTTON - For unassigned tasks */}
+          {/* UNASSIGNED TASKS - Show Claim button */}
           {isUnassigned && task.status !== 'completed' && (
             <Button
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                console.log('🎯 Claiming task:', task.id);
                 claimTask(task.id);
               }}
               className="h-8 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white"
               disabled={isProcessing !== null}
             >
-              {isProcessing === task.id ? (
+              {isProcessingTask ? (
                 <>
                   <div className="w-3 h-3 animate-spin rounded-full border-2 border-white border-t-transparent mr-1" />
                   Claiming...
@@ -388,59 +406,83 @@ export default function TasksTab({
             </Button>
           )}
 
-          {/* TASK BUTTONS - For my assigned tasks */}
+          {/* MY ASSIGNED TASKS - Show action buttons based on status */}
           {isAssignedToMe && (
             <div className="flex gap-1">
-              {/* START button - only for pending tasks */}
+              {/* PENDING TASKS: Start, Done, Return buttons */}
               {task.status === 'pending' && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('▶️ Starting task:', task.id);
-                    startTask(task.id);
-                  }}
-                  className="h-8 px-2 text-xs"
-                  disabled={isProcessing !== null}
-                >
-                  {isProcessing === task.id ? 'Starting...' : 'Start'}
-                </Button>
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startTask(task.id);
+                    }}
+                    className="h-8 px-2 text-xs"
+                    disabled={isProcessing !== null}
+                  >
+                    {isProcessingTask ? 'Starting...' : 'Start'}
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      completeTask(task.id);
+                    }}
+                    className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                    disabled={isProcessing !== null}
+                  >
+                    {isProcessingTask ? 'Completing...' : 'Done'}
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      returnTask(task.id);
+                    }}
+                    className="h-8 px-2 text-xs"
+                    disabled={isProcessing !== null}
+                  >
+                    {isProcessingTask ? 'Returning...' : 'Return'}
+                  </Button>
+                </>
               )}
               
-              {/* DONE button - for pending AND in-progress */}
-              {(task.status === 'pending' || task.status === 'in-progress') && (
-                <Button
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('✅ Completing task:', task.id, 'Status:', task.status);
-                    completeTask(task.id);
-                  }}
-                  className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
-                  disabled={isProcessing !== null}
-                >
-                  {isProcessing === task.id ? 'Completing...' : 'Done'}
-                </Button>
-              )}
-              
-              {/* RESET button - only for in-progress */}
+              {/* IN-PROGRESS TASKS: Done, Reset buttons */}
               {task.status === 'in-progress' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    unstartTask(task.id);
-                  }}
-                  className="h-8 px-2 text-xs"
-                  disabled={isProcessing !== null}
-                >
-                  Reset
-                </Button>
+                <>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      completeTask(task.id);
+                    }}
+                    className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                    disabled={isProcessing !== null}
+                  >
+                    {isProcessingTask ? 'Completing...' : 'Done'}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      unstartTask(task.id);
+                    }}
+                    className="h-8 px-2 text-xs"
+                    disabled={isProcessing !== null}
+                  >
+                    {isProcessingTask ? 'Resetting...' : 'Reset'}
+                  </Button>
+                </>
               )}
               
-              {/* UNDO button - only for completed */}
+              {/* COMPLETED TASKS: Undo button */}
               {task.status === 'completed' && (
                 <Button
                   variant="outline"
@@ -452,29 +494,13 @@ export default function TasksTab({
                   className="h-8 px-2 text-xs"
                   disabled={isProcessing !== null}
                 >
-                  Undo
-                </Button>
-              )}
-              
-              {/* RETURN button - for pending claimed tasks */}
-              {task.status === 'pending' && wasClaimedByMe && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    returnTask(task.id);
-                  }}
-                  className="h-8 px-2 text-xs"
-                  disabled={isProcessing !== null}
-                >
-                  Return
+                  {isProcessingTask ? 'Undoing...' : 'Undo'}
                 </Button>
               )}
             </div>
           )}
           
-          {/* OTHER ASSIGNMENT MESSAGE */}
+          {/* TASKS ASSIGNED TO OTHERS - Show assignee info */}
           {!isUnassigned && !isAssignedToMe && (
             <Badge variant="outline" className="text-xs">
               Assigned to {getAssistantName(task.assigned_to)}

@@ -48,19 +48,25 @@ export default function Home() {
       <HeroSection />
 
       {/* Feature Cards Section */}
-      
+      <section id="features">
+        <FeatureCards />
+      </section>
 
       {/* Metrics Strip */}
       <MetricsStrip />
 
       {/* App Preview Section */}
-      <AppPreview />
+      <section id="how-it-works">
+        <AppPreview />
+      </section>
 
       {/* Education Section */}
       <EducationSection />
 
       {/* Testimonials Section */}
-      <TestimonialsSection />
+      <section id="testimonials">
+        <TestimonialsSection />
+      </section>
 
       {/* Pricing CTA Section */}
       <section id="pricing">

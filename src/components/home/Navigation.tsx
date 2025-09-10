@@ -8,25 +8,49 @@ export function Navigation() {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
+      
+      // Update active section based on scroll position
+      const sections = ['features', 'how-it-works', 'testimonials', 'pricing'];
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
     };
+    
     window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navItems = [
-    { name: 'Product', href: '#features' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'Docs', href: '#' },
-    { name: 'Contact', href: '#' }
+    { name: 'Features', href: '#features' },
+    { name: 'How It Works', href: '#how-it-works' },
+    { name: 'Testimonials', href: '#testimonials' },
+    { name: 'Pricing', href: '#pricing' }
   ];
 
   const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setIsMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  const isActive = (href: string) => {
+    const sectionId = href.replace('#', '');
+    return activeSection === sectionId;
   };
 
   return (
@@ -48,16 +72,22 @@ export function Navigation() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))}
-                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-sm px-2 py-1"
-              >
-                {item.name}
-              </button>
-            ))}
+          <div className="hidden md:flex items-center">
+            <div className="flex items-center bg-muted/50 rounded-full p-1 mr-6">
+              {navItems.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))}
+                  className={`relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${
+                    isActive(item.href)
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                  }`}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
             <div className="flex items-center space-x-3">
               <Button 
                 variant="ghost"
@@ -69,7 +99,7 @@ export function Navigation() {
               <Button 
                 onClick={() => navigate('/auth')}
                 variant="default"
-                className="rounded-full h-9 px-6 font-medium"
+                className="rounded-full h-9 px-6 font-medium bg-primary hover:bg-primary/90"
               >
                 Start Free Trial
               </Button>
@@ -91,15 +121,19 @@ export function Navigation() {
           <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-lg">
             <div className="container mx-auto py-4">
               <div className="space-y-3">
-                {navItems.map((item) => (
-                  <button
-                    key={item.name}
-                    onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))}
-                    className="block w-full text-left py-3 px-4 text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted/50 transition-colors duration-200 rounded-lg"
-                  >
-                    {item.name}
-                  </button>
-                ))}
+                 {navItems.map((item) => (
+                   <button
+                     key={item.name}
+                     onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))}
+                     className={`block w-full text-left py-3 px-4 text-base font-medium transition-colors duration-200 rounded-lg ${
+                       isActive(item.href)
+                         ? 'bg-primary/10 text-primary border border-primary/20'
+                         : 'text-foreground/70 hover:text-foreground hover:bg-muted/50'
+                     }`}
+                   >
+                     {item.name}
+                   </button>
+                 ))}
                 <div className="pt-3 space-y-3">
                   <Button 
                     variant="ghost"

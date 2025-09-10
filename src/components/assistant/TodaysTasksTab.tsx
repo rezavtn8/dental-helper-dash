@@ -30,9 +30,10 @@ import { useAuth } from '@/hooks/useAuth';
 interface TodaysTasksTabProps {
   tasks: Task[];
   onTaskUpdate: () => void;
+  updateTask?: (taskId: string, updates: Partial<Task>) => Promise<boolean>;
 }
 
-export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabProps) {
+export default function TodaysTasksTab({ tasks, onTaskUpdate, updateTask }: TodaysTasksTabProps) {
   const { user } = useAuth();
   const [taskNotes, setTaskNotes] = useState<Record<string, any>>({});
   const [noteTask, setNoteTask] = useState<Task | null>(null);
@@ -90,110 +91,62 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
   );
 
   const claimTask = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          assigned_to: user?.id,
-          claimed_by: user?.id // Track who claimed it
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    const success = await updateTask(taskId, {
+      assigned_to: user?.id,
+      claimed_by: user?.id
+    });
+    
+    if (success) {
       toast.success('Task claimed!', {
         description: 'The task has been assigned to you.'
       });
-      
       onTaskUpdate();
-    } catch (error) {
-      console.error('Error claiming task:', error);
-      toast.error('Failed to claim task');
     }
   };
 
   const startTask = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: 'in-progress' as TaskStatus
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    const success = await updateTask(taskId, {
+      status: 'in-progress' as TaskStatus
+    });
+    
+    if (success) {
       toast.success('Task started!');
-      
       onTaskUpdate();
-    } catch (error) {
-      console.error('Error starting task:', error);
-      toast.error('Failed to start task');
     }
   };
 
   const markTaskDone = async (taskId: string) => {
-    try {
-      // Get the task details first to check for recurrence
-      const { data: taskData, error: fetchError } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('id', taskId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      // Mark the current task as completed
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: 'completed' as TaskStatus,
-          completed_by: user?.id,
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      // Handle recurring tasks - create a new instance if task has recurrence
-      if (taskData.recurrence && taskData.recurrence !== 'none') {
-        const newTaskData = {
-          title: taskData.title,
-          description: taskData.description,
-          priority: taskData.priority,
-          'due-type': taskData['due-type'],
-          category: taskData.category,
-          recurrence: taskData.recurrence,
-          owner_notes: taskData.owner_notes,
-          clinic_id: taskData.clinic_id,
-          created_by: taskData.created_by,
-          assigned_to: null, // Reset assignment for new recurring task
-          status: 'pending' as TaskStatus,
-          custom_due_date: taskData.custom_due_date ? calculateNextDueDate(taskData.custom_due_date, taskData.recurrence) : null,
-          checklist: taskData.checklist && Array.isArray(taskData.checklist) 
-            ? taskData.checklist.map((item: any) => ({ ...item, completed: false })) 
-            : null
-        };
-
-        const { error: createError } = await supabase
-          .from('tasks')
-          .insert([newTaskData]);
-
-        if (createError) {
-          console.error('Error creating recurring task:', createError);
-        } else {
-          toast.success('Recurring task created for next cycle');
-        }
-      }
-      
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    // Get the task to check for recurrence
+    const task = tasks.find(t => t.id === taskId || t.id === taskId.split('_')[0]);
+    
+    const success = await updateTask(taskId, {
+      status: 'completed' as TaskStatus,
+      completed_by: user?.id,
+      completed_at: new Date().toISOString(),
+      generated_date: task?.generated_date || task?.created_at
+    });
+    
+    if (success) {
+      console.log('🎉 Task completion successful, task moved to completed section');
       toast.success('Task completed! 🎉', {
         description: 'Great job! Keep up the excellent work.'
       });
-      
       onTaskUpdate();
-    } catch (error) {
-      console.error('Error marking task done:', error);
-      toast.error('Failed to complete task');
     }
   };
 
@@ -229,66 +182,54 @@ export default function TodaysTasksTab({ tasks, onTaskUpdate }: TodaysTasksTabPr
   };
 
   const markTaskUndone = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: 'pending' as TaskStatus,
-          completed_by: null,
-          completed_at: null
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    const success = await updateTask(taskId, {
+      status: 'pending' as TaskStatus,
+      completed_by: null,
+      completed_at: null
+    });
+    
+    if (success) {
       toast.success('Task reopened');
-      
       onTaskUpdate();
-    } catch (error) {
-      console.error('Error reopening task:', error);
-      toast.error('Failed to reopen task');
     }
   };
 
   const unstartTask = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: 'pending' as TaskStatus
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    const success = await updateTask(taskId, {
+      status: 'pending' as TaskStatus
+    });
+    
+    if (success) {
       toast.success('Task reset to pending');
-      
       onTaskUpdate();
-    } catch (error) {
-      console.error('Error resetting task:', error);
-      toast.error('Failed to reset task');
     }
   };
 
   const returnTask = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: 'pending' as TaskStatus,
-          assigned_to: null,
-          claimed_by: null
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    const success = await updateTask(taskId, {
+      status: 'pending' as TaskStatus,
+      assigned_to: null,
+      claimed_by: null
+    });
+    
+    if (success) {
       toast.success('Task returned to available tasks');
-      
       onTaskUpdate();
-    } catch (error) {
-      console.error('Error returning task:', error);
-      toast.error('Failed to return task');
     }
   };
 

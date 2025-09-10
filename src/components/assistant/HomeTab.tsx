@@ -84,136 +84,133 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
 
   // Task action handlers
   const claimTask = async (taskId: string) => {
-    try {
-      console.log('🎯 Claiming task:', taskId);
-      // Handle recurring task instances - use parent ID for database operations
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          assigned_to: user?.id,
-          claimed_by: user?.id // Track that this user claimed the task
-        })
-        .eq('id', dbTaskId);
-
-      if (error) throw error;
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    console.log('🎯 Claiming task:', taskId);
+    // Handle recurring task instances - use parent ID for database operations
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    const success = await updateTask(dbTaskId, {
+      assigned_to: user?.id,
+      claimed_by: user?.id
+    });
+    
+    if (success) {
       console.log('✅ Task claimed successfully:', dbTaskId);
       onTaskUpdate?.();
       toast.success('Task claimed successfully');
-    } catch (error) {
-      console.error('❌ Error claiming task:', error);
-      toast.error('Failed to claim task');
     }
   };
 
   const startTask = async (taskId: string) => {
-    try {
-      // Handle recurring task instances - use parent ID for database operations
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
-      const { error } = await supabase
-        .from('tasks')
-        .update({ status: 'in-progress' as TaskStatus })
-        .eq('id', dbTaskId);
-
-      if (error) throw error;
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    // Handle recurring task instances - use parent ID for database operations
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    const success = await updateTask(dbTaskId, {
+      status: 'in-progress' as TaskStatus
+    });
+    
+    if (success) {
       onTaskUpdate?.();
       toast.success('Task started');
-    } catch (error) {
-      console.error('Error starting task:', error);
-      toast.error('Failed to start task');
     }
   };
 
   const unstartTask = async (taskId: string) => {
-    try {
-      // Handle recurring task instances - use parent ID for database operations
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
-      const { error } = await supabase
-        .from('tasks')
-        .update({ status: 'pending' as TaskStatus })
-        .eq('id', dbTaskId);
-
-      if (error) throw error;
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    // Handle recurring task instances - use parent ID for database operations
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    const success = await updateTask(dbTaskId, {
+      status: 'pending' as TaskStatus
+    });
+    
+    if (success) {
       onTaskUpdate?.();
       toast.success('Task unmarked as started');
-    } catch (error) {
-      console.error('Error unmarking task:', error);
-      toast.error('Failed to unmark task');
     }
   };
 
   const completeTask = async (taskId: string) => {
-    try {
-      // Handle recurring task instances - use parent ID for database operations
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: 'completed' as TaskStatus,
-          completed_at: new Date().toISOString(),
-          completed_by: user?.id
-        })
-        .eq('id', dbTaskId);
-
-      if (error) throw error;
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    // Handle recurring task instances - use parent ID for database operations
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    // Get the task to preserve generated_date
+    const task = tasks.find(t => t.id === dbTaskId || t.id === taskId);
+    
+    const success = await updateTask(dbTaskId, {
+      status: 'completed' as TaskStatus,
+      completed_at: new Date().toISOString(),
+      completed_by: user?.id,
+      generated_date: task?.generated_date || task?.created_at
+    });
+    
+    if (success) {
+      console.log('🎉 Task completion successful from HomeTab');
       onTaskUpdate?.();
       toast.success('Task completed!');
-    } catch (error) {
-      console.error('Error completing task:', error);
-      toast.error('Failed to complete task');
     }
   };
 
   const undoComplete = async (taskId: string, task: Task) => {
-    try {
-      // Handle recurring task instances - use parent ID for database operations
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
-      // Determine previous status
-      const previousStatus = task.status === 'completed' ? 'in-progress' : 'pending';
-      
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: previousStatus as TaskStatus,
-          completed_at: null,
-          completed_by: null
-        })
-        .eq('id', dbTaskId);
-
-      if (error) throw error;
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    // Handle recurring task instances - use parent ID for database operations
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    // Determine previous status
+    const previousStatus = task.status === 'completed' ? 'in-progress' : 'pending';
+    
+    const success = await updateTask(dbTaskId, {
+      status: previousStatus as TaskStatus,
+      completed_at: null,
+      completed_by: null
+    });
+    
+    if (success) {
       onTaskUpdate?.();
       toast.success('Task completion undone');
-    } catch (error) {
-      console.error('Error undoing task:', error);
-      toast.error('Failed to undo task');
     }
   };
 
   const putBackTask = async (taskId: string) => {
-    try {
-      // Handle recurring task instances - use parent ID for database operations
-      const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
-      
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          assigned_to: null,
-          claimed_by: null,
-          status: 'pending' as TaskStatus
-        })
-        .eq('id', dbTaskId);
-
-      if (error) throw error;
+    if (!updateTask) {
+      toast.error('Task update function not available');
+      return;
+    }
+    
+    // Handle recurring task instances - use parent ID for database operations
+    const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
+    
+    const success = await updateTask(dbTaskId, {
+      assigned_to: null,
+      claimed_by: null,
+      status: 'pending' as TaskStatus
+    });
+    
+    if (success) {
       onTaskUpdate?.();
       toast.success('Task put back');
-    } catch (error) {
-      console.error('Error putting back task:', error);
-      toast.error('Failed to put back task');
     }
   };
 

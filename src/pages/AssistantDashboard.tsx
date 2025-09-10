@@ -415,6 +415,8 @@ const AssistantDashboard = () => {
             patientCount={patientCount}
             onPatientCountUpdate={setPatientCount}
             onTabChange={setActiveTab}
+            onTaskUpdate={fetchTasks}
+            onTaskStatusUpdate={handleTaskStatusUpdate}
           />
         );
       case 'tasks':
@@ -450,6 +452,8 @@ const AssistantDashboard = () => {
             patientCount={patientCount}
             onPatientCountUpdate={setPatientCount}
             onTabChange={setActiveTab}
+            onTaskUpdate={fetchTasks}
+            onTaskStatusUpdate={handleTaskStatusUpdate}
           />
         );
     }

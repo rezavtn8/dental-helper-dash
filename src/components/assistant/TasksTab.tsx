@@ -154,6 +154,8 @@ export default function TasksTab({
 
       if (error) throw error;
       onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, 'in-progress');
+      toast.success('Task started!');
     } catch (error) {
       console.error('Error starting task:', error);
       toast.error('Failed to start task');
@@ -176,6 +178,7 @@ export default function TasksTab({
 
       if (error) throw error;
       onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, 'completed');
       toast.success('Task completed! 🎉');
     } catch (error) {
       console.error('Error completing task:', error);
@@ -199,6 +202,7 @@ export default function TasksTab({
 
       if (error) throw error;
       onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, 'pending');
       toast.success('Task reopened');
     } catch (error) {
       console.error('Error reopening task:', error);
@@ -219,6 +223,7 @@ export default function TasksTab({
 
       if (error) throw error;
       onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, 'pending');
       toast.success('Task reset to pending');
     } catch (error) {
       console.error('Error resetting task:', error);
@@ -237,7 +242,7 @@ export default function TasksTab({
           claimed_by: null,
           status: 'pending' as TaskStatus
         })
-        .eq('id', taskId);
+        .eq('id', dbTaskId);
 
       if (error) throw error;
       onTaskUpdate?.();

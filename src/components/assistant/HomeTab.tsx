@@ -17,9 +17,11 @@ interface HomeTabProps {
   patientCount: number;
   onPatientCountUpdate: (count: number) => void;
   onTabChange?: (tab: string) => void;
+  onTaskUpdate?: () => void;
+  onTaskStatusUpdate?: (taskId: string, newStatus: TaskStatus) => void;
 }
 
-export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onTabChange }: HomeTabProps) {
+export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onTabChange, onTaskUpdate, onTaskStatusUpdate }: HomeTabProps) {
   const { user, userProfile } = useAuth();
   const navigate = useNavigate();
 
@@ -100,6 +102,7 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
 
       if (error) throw error;
       console.log('✅ Task claimed successfully:', dbTaskId);
+      onTaskUpdate?.();
       toast.success('Task claimed successfully');
     } catch (error) {
       console.error('❌ Error claiming task:', error);
@@ -118,6 +121,8 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, 'in-progress');
       toast.success('Task started');
     } catch (error) {
       console.error('Error starting task:', error);
@@ -136,6 +141,8 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, 'pending');
       toast.success('Task unmarked as started');
     } catch (error) {
       console.error('Error unmarking task:', error);
@@ -158,6 +165,8 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, 'completed');
       toast.success('Task completed!');
     } catch (error) {
       console.error('Error completing task:', error);
@@ -183,6 +192,8 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, previousStatus);
       toast.success('Task completion undone');
     } catch (error) {
       console.error('Error undoing task:', error);
@@ -205,6 +216,8 @@ export default function HomeTab({ tasks, patientCount, onPatientCountUpdate, onT
         .eq('id', dbTaskId);
 
       if (error) throw error;
+      onTaskUpdate?.();
+      onTaskStatusUpdate?.(dbTaskId, 'pending');
       toast.success('Task put back');
     } catch (error) {
       console.error('Error putting back task:', error);

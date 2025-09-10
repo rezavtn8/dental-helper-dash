@@ -339,7 +339,6 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                   <TableHead className="px-3 py-2 text-sm font-medium">Task</TableHead>
                   <TableHead className="px-3 py-2 text-sm font-medium">Assigned To</TableHead>
                   <TableHead className="px-3 py-2 text-sm font-medium">Priority</TableHead>
-                  <TableHead className="px-3 py-2 text-sm font-medium">Status</TableHead>
                   <TableHead className="px-3 py-2 text-sm font-medium">Due Type</TableHead>
                   <TableHead className="px-3 py-2 text-sm font-medium">Recurrence</TableHead>
                   <TableHead className="px-3 py-2 text-sm font-medium text-right">Actions</TableHead>
@@ -392,14 +391,6 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
                       <span className={`text-sm font-medium capitalize ${getPriorityColor(task.priority)}`}>
                         {task.priority}
                       </span>
-                    </TableCell>
-                    <TableCell className="px-3 py-2">
-                      <Badge variant={task.status === 'completed' ? 'outline' : task.status === 'in-progress' ? 'default' : 'secondary'} className="text-xs px-2 py-0.5 h-5 gap-1">
-                        {task.status === 'completed' && <CheckCircle className="w-3 h-3" />}
-                        {task.status === 'in-progress' && <AlertCircle className="w-3 h-3" />}
-                        {task.status === 'pending' && <Clock className="w-3 h-3" />}
-                        {task.status.replace('-', ' ')}
-                      </Badge>
                     </TableCell>
                     <TableCell className="px-3 py-2">
                       <Badge variant="outline" className="text-xs px-2 py-0.5 h-5 capitalize">

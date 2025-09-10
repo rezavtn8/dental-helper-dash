@@ -108,15 +108,6 @@ export default function TasksTab({
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
     setIsProcessing(taskId);
     
-    // Optimistic update - update local state immediately
-    if (setTasks) {
-      setTasks(tasks.map(task => 
-        task.id === dbTaskId 
-          ? { ...task, assigned_to: userProfile?.id, claimed_by: userProfile?.id }
-          : task
-      ));
-    }
-    
     try {
       const { error } = await supabase.from('tasks')
         .update({ 
@@ -127,40 +118,31 @@ export default function TasksTab({
 
       if (error) throw error;
       
+      // Update local state after successful database operation
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId 
+            ? { ...task, assigned_to: userProfile?.id, claimed_by: userProfile?.id }
+            : task
+        ));
+      }
+      
       toast.success('Task claimed!');
-      // Remove onTaskUpdate call to prevent render loop
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error claiming task:', error);
       toast.error('Failed to claim task');
-      
-      // Rollback optimistic update on error
-      if (setTasks) {
-        setTasks(tasks.map(task => 
-          task.id === dbTaskId 
-            ? { ...task, assigned_to: null, claimed_by: null }
-            : task
-        ));
-      }
     } finally {
       setIsProcessing(null);
     }
-  }, [isProcessing, setTasks, tasks, userProfile?.id]);
+  }, [isProcessing, setTasks, tasks, userProfile?.id, onTaskUpdate]);
 
   const startTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
     setIsProcessing(taskId);
-    
-    // Optimistic update
-    if (setTasks) {
-      setTasks(tasks.map(task => 
-        task.id === dbTaskId 
-          ? { ...task, status: 'in-progress' as TaskStatus }
-          : task
-      ));
-    }
     
     try {
       const { error } = await supabase
@@ -170,8 +152,18 @@ export default function TasksTab({
 
       if (error) throw error;
       
+      // Update local state after successful database operation
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId 
+            ? { ...task, status: 'in-progress' as TaskStatus }
+            : task
+        ));
+      }
+      
       toast.success('Task started!');
       onTaskStatusUpdate?.(dbTaskId, 'in-progress');
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error starting task:', error);
@@ -179,7 +171,7 @@ export default function TasksTab({
     } finally {
       setIsProcessing(null);
     }
-  }, [isProcessing, setTasks, tasks, onTaskStatusUpdate]);
+  }, [isProcessing, setTasks, tasks, onTaskStatusUpdate, onTaskUpdate]);
 
   const completeTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
@@ -188,20 +180,6 @@ export default function TasksTab({
     setIsProcessing(taskId);
     
     const completedAt = new Date().toISOString();
-    
-    // Optimistic update
-    if (setTasks) {
-      setTasks(tasks.map(task => 
-        task.id === dbTaskId 
-          ? { 
-              ...task, 
-              status: 'completed' as TaskStatus,
-              completed_by: userProfile?.id,
-              completed_at: completedAt
-            }
-          : task
-      ));
-    }
     
     try {
       const { error } = await supabase
@@ -215,8 +193,23 @@ export default function TasksTab({
 
       if (error) throw error;
       
+      // Update local state after successful database operation
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId 
+            ? { 
+                ...task, 
+                status: 'completed' as TaskStatus,
+                completed_by: userProfile?.id,
+                completed_at: completedAt
+              }
+            : task
+        ));
+      }
+      
       toast.success('Task completed! 🎉');
       onTaskStatusUpdate?.(dbTaskId, 'completed');
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error completing task:', error);
@@ -224,7 +217,7 @@ export default function TasksTab({
     } finally {
       setIsProcessing(null);
     }
-  }, [isProcessing, setTasks, tasks, userProfile?.id, onTaskStatusUpdate]);
+  }, [isProcessing, setTasks, tasks, userProfile?.id, onTaskStatusUpdate, onTaskUpdate]);
 
   const undoTaskCompletion = useCallback(async (taskId: string) => {
     if (isProcessing) return;
@@ -244,19 +237,31 @@ export default function TasksTab({
 
       if (error) throw error;
       
+      // Update local state after successful database operation
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId 
+            ? { 
+                ...task,
+                status: 'pending' as TaskStatus,
+                completed_by: null,
+                completed_at: null
+              }
+            : task
+        ));
+      }
+      
       toast.success('Task reopened');
       onTaskStatusUpdate?.(dbTaskId, 'pending');
-      
-      setTimeout(() => {
-        setIsProcessing(null);
-      }, 500);
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error reopening task:', error);
       toast.error('Failed to reopen task');
+    } finally {
       setIsProcessing(null);
     }
-  }, [isProcessing, onTaskStatusUpdate]);
+  }, [isProcessing, setTasks, tasks, onTaskStatusUpdate, onTaskUpdate]);
 
   const unstartTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
@@ -273,39 +278,32 @@ export default function TasksTab({
 
       if (error) throw error;
       
+      // Update local state after successful database operation
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId 
+            ? { ...task, status: 'pending' as TaskStatus }
+            : task
+        ));
+      }
+      
       toast.success('Task reset to pending');
       onTaskStatusUpdate?.(dbTaskId, 'pending');
-      
-      setTimeout(() => {
-        setIsProcessing(null);
-      }, 500);
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error resetting task:', error);
       toast.error('Failed to reset task');
+    } finally {
       setIsProcessing(null);
     }
-  }, [isProcessing, onTaskStatusUpdate]);
+  }, [isProcessing, setTasks, tasks, onTaskStatusUpdate, onTaskUpdate]);
 
   const returnTask = useCallback(async (taskId: string) => {
     if (isProcessing) return;
     
     const dbTaskId = taskId.includes('_') ? taskId.split('_')[0] : taskId;
     setIsProcessing(taskId);
-    
-    // Optimistic update
-    if (setTasks) {
-      setTasks(tasks.map(task => 
-        task.id === dbTaskId 
-          ? { 
-              ...task, 
-              assigned_to: null,
-              claimed_by: null,
-              status: 'pending' as TaskStatus
-            }
-          : task
-      ));
-    }
     
     try {
       const { error } = await supabase.from('tasks')
@@ -318,7 +316,22 @@ export default function TasksTab({
 
       if (error) throw error;
       
+      // Update local state after successful database operation
+      if (setTasks) {
+        setTasks(tasks.map(task => 
+          task.id === dbTaskId 
+            ? { 
+                ...task, 
+                assigned_to: null,
+                claimed_by: null,
+                status: 'pending' as TaskStatus
+              }
+            : task
+        ));
+      }
+      
       toast.success('Task returned');
+      onTaskUpdate?.();
       
     } catch (error) {
       console.error('Error returning task:', error);
@@ -326,7 +339,7 @@ export default function TasksTab({
     } finally {
       setIsProcessing(null);
     }
-  }, [isProcessing, setTasks, tasks]);
+  }, [isProcessing, setTasks, tasks, onTaskUpdate]);
 
   const getAssistantName = (assignedTo: string | null) => {
     if (!assignedTo) return 'Unassigned';

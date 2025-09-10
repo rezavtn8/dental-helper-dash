@@ -102,7 +102,7 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
   const renderActionButton = () => {
     if (isLoading) {
       return (
-        <Button size="sm" disabled>
+        <Button size="sm" disabled className="bg-primary hover:bg-primary/90 min-w-[90px]">
           Working...
         </Button>
       );
@@ -111,7 +111,7 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
     // Unassigned tasks - show claim button
     if (isUnassigned && task.status !== 'completed') {
       return (
-        <Button size="sm" onClick={handleClaim} className="bg-primary hover:bg-primary/90">
+        <Button size="sm" onClick={handleClaim} className="bg-primary hover:bg-primary/90 min-w-[90px]">
           <ArrowRight className="w-3 h-3 mr-1" />
           Take Task
         </Button>
@@ -123,35 +123,41 @@ export function SimpleTaskCard({ task, assistants, onUpdate }: SimpleTaskCardPro
       switch (task.status) {
         case 'pending':
           return (
-            <div className="flex gap-1">
-              <Button size="sm" onClick={handleStart} variant="outline" title="Start Task">
-                <Play className="w-3 h-3" />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleStart} className="bg-primary hover:bg-primary/90" title="Start Task">
+                <Play className="w-3 h-3 mr-1" />
+                Start
               </Button>
-              <Button size="sm" onClick={handleComplete} className="bg-green-600 hover:bg-green-700" title="Complete Task">
-                <CheckCircle2 className="w-3 h-3" />
+              <Button size="sm" onClick={handleComplete} className="bg-primary hover:bg-primary/90" title="Complete Task">
+                <CheckCircle2 className="w-3 h-3 mr-1" />
+                Complete
               </Button>
-              <Button size="sm" onClick={handleReturn} variant="outline" title="Return Task">
-                <ArrowLeft className="w-3 h-3" />
+              <Button size="sm" onClick={handleReturn} className="bg-primary hover:bg-primary/90" title="Return Task">
+                <ArrowLeft className="w-3 h-3 mr-1" />
+                Return
               </Button>
             </div>
           );
 
         case 'in-progress':
           return (
-            <div className="flex gap-1">
-              <Button size="sm" onClick={handleComplete} className="bg-green-600 hover:bg-green-700" title="Complete Task">
-                <CheckCircle2 className="w-3 h-3" />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleComplete} className="bg-primary hover:bg-primary/90" title="Complete Task">
+                <CheckCircle2 className="w-3 h-3 mr-1" />
+                Complete
               </Button>
-              <Button size="sm" onClick={handleReset} variant="outline" title="Reset to Pending">
-                <RotateCcw className="w-3 h-3" />
+              <Button size="sm" onClick={handleReset} className="bg-primary hover:bg-primary/90" title="Reset to Pending">
+                <RotateCcw className="w-3 h-3 mr-1" />
+                Reset
               </Button>
             </div>
           );
 
         case 'completed':
           return (
-            <Button size="sm" onClick={handleReopen} variant="outline" title="Reopen Task">
-              <RotateCcw className="w-3 h-3" />
+            <Button size="sm" onClick={handleReopen} className="bg-primary hover:bg-primary/90" title="Reopen Task">
+              <RotateCcw className="w-3 h-3 mr-1" />
+              Reopen
             </Button>
           );
 

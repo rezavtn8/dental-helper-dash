@@ -193,7 +193,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
           return (
             <div className="flex gap-2">
               {/* Show disabled "Started" button instead of Start */}
-              <Button size="sm" disabled className="bg-gray-100 text-gray-600 cursor-not-allowed border border-gray-200 min-w-[80px]">
+              <Button size="sm" disabled className="bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-300 min-w-[80px] hover:bg-gray-200">
                 <Play className="w-3 h-3 mr-1" />
                 Started
               </Button>

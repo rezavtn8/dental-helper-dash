@@ -60,6 +60,7 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
   // Optimistic update function
   const updateTask = useCallback(async (taskId: string, updates: Partial<Task>): Promise<boolean> => {
     if (!userProfile?.id) {
+      console.error('❌ User not authenticated for task update');
       toast.error('User not authenticated');
       return false;
     }
@@ -70,7 +71,18 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(baseTaskId)) {
+      console.error('❌ Invalid UUID format:', baseTaskId);
       toast.error('Invalid task ID format');
+      return false;
+    }
+
+    console.log('🚀 Starting optimistic update:', { baseTaskId, updates });
+
+    // Find the current task to store original state for rollback
+    const originalTask = tasks.find(task => task.id === baseTaskId);
+    if (!originalTask) {
+      console.error('❌ Original task not found for rollback:', baseTaskId);
+      toast.error('Task not found');
       return false;
     }
 
@@ -98,18 +110,30 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
       if (error) {
         console.error('❌ Database update failed:', error);
         // ROLLBACK: Revert optimistic update on failure
-        await fetchTasks();
+        setTasks(currentTasks => 
+          currentTasks.map(task => 
+            task.id === baseTaskId 
+              ? originalTask
+              : task
+          )
+        );
         throw error;
       }
 
       if (!data || data.length === 0) {
-        console.error('❌ No task found:', baseTaskId);
+        console.error('❌ No task found in database:', baseTaskId);
         // ROLLBACK: Revert optimistic update
-        await fetchTasks();
-        throw new Error('Task not found');
+        setTasks(currentTasks => 
+          currentTasks.map(task => 
+            task.id === baseTaskId 
+              ? originalTask
+              : task
+          )
+        );
+        throw new Error('Task not found in database');
       }
 
-      console.log('✅ Database update successful:', baseTaskId);
+      console.log('✅ Database update successful:', { baseTaskId, updatedData: data[0] });
       
       // Update local state with actual database response
       setTasks(currentTasks => 
@@ -122,16 +146,22 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
 
       return true;
     } catch (err: any) {
-      console.error('❌ Task update failed:', err);
+      console.error('❌ Task update failed:', {
+        taskId: baseTaskId,
+        error: err.message || err,
+        updates
+      });
       
       const errorMsg = err.message?.includes('not found') 
         ? 'Task not found. Refreshing task list.'
-        : 'Update failed. Please try again.';
+        : err.message?.includes('permission') 
+        ? 'Permission denied. You may not have access to update this task.'
+        : `Update failed: ${err.message || 'Unknown error'}`;
         
       toast.error(errorMsg);
       return false;
     }
-  }, [userProfile?.id, fetchTasks]);
+  }, [userProfile?.id, tasks]);
 
   const refreshTasks = useCallback(async () => {
     console.log('🔄 Manual refresh requested');

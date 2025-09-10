@@ -39,7 +39,17 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
 
   // Organize tasks into three categories
   const { unassignedTasks, assignedTasks, completedTasks } = useMemo(() => {
+    console.log('🔍 Categorizing tasks:', {
+      totalTasks: tasks.length,
+      selectedDate: selectedDate.toDateString(),
+      userProfileId: userProfile?.id
+    });
+    
     const todayTasks = getTasksForDate(tasks, selectedDate);
+    console.log('📅 Tasks for selected date:', {
+      todayTasksCount: todayTasks.length,
+      todayTasks: todayTasks.map(t => ({ id: t.id, title: t.title, status: t.status, assigned_to: t.assigned_to, completed_by: t.completed_by }))
+    });
     
     const unassigned = todayTasks.filter(task => 
       !task.assigned_to && task.status !== 'completed'
@@ -49,10 +59,17 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
       task.assigned_to === userProfile?.id && task.status !== 'completed'
     );
     
+    // Include all completed tasks where user was involved
     const completed = todayTasks.filter(task => 
-      task.status === 'completed' && 
-      (task.assigned_to === userProfile?.id || task.completed_by === userProfile?.id)
+      task.status === 'completed'
     );
+    
+    console.log('📊 Task categories:', {
+      unassigned: unassigned.length,
+      assigned: assigned.length,
+      completed: completed.length,
+      completedTasks: completed.map(t => ({ id: t.id, title: t.title, status: t.status, assigned_to: t.assigned_to, completed_by: t.completed_by }))
+    });
     
     return { 
       unassignedTasks: unassigned, 

@@ -59,7 +59,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
         toast.success(successMsg);
       } else {
         console.error(`❌ Task ${action} failed:`, task.id);
-        toast.error('Action failed. Please try again.');
+        toast.error(`Failed to ${action} task. Please try again.`);
       }
       
     } catch (error: any) {
@@ -69,7 +69,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
         error: error.message || error
       });
       
-      toast.error('Action failed. Please try again.');
+      toast.error(`Failed to ${action} task: ${error.message || 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
@@ -210,6 +210,15 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
     }
   };
 
+  const getStatusText = () => {
+    switch (task.status) {
+      case 'completed': return 'Completed';
+      case 'in-progress': return 'Started';
+      case 'pending': return 'Pending';
+      default: return task.status;
+    }
+  };
+
   return (
     <div 
       className={`flex items-center justify-between p-4 border rounded-lg hover:shadow-sm transition-all ${getCardStyle()}`}
@@ -238,7 +247,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
           )}
           
           <Badge variant="outline" className={`text-xs h-4 px-1 ${getStatusBadgeColor()}`}>
-            {task.status}
+            {getStatusText()}
           </Badge>
           
           {task['due-type'] && (

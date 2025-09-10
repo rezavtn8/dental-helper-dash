@@ -95,6 +95,13 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
     // OPTIMISTIC UPDATE: Update local state immediately with proper completion data
     const optimisticUpdates = { ...updates };
     
+    console.log('⚡ Applying optimistic update:', {
+      baseTaskId,
+      updates: optimisticUpdates,
+      oldStatus: originalTask.status,
+      newStatus: optimisticUpdates.status
+    });
+    
     // For completion, ensure we have all required completion fields
     if (updates.status === 'completed') {
       optimisticUpdates.completed_by = updates.completed_by || userProfile.id;
@@ -108,13 +115,21 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
       });
     }
 
-    setTasks(currentTasks => 
-      currentTasks.map(task => 
+    setTasks(currentTasks => {
+      const updatedTasks = currentTasks.map(task => 
         task.id === baseTaskId 
           ? { ...task, ...optimisticUpdates }
           : task
-      )
-    );
+      );
+      
+      console.log('🔄 Task state updated optimistically:', {
+        baseTaskId,
+        taskFound: updatedTasks.find(t => t.id === baseTaskId)?.status,
+        totalTasks: updatedTasks.length
+      });
+      
+      return updatedTasks;
+    });
 
     console.log('⚡ Optimistic update applied:', { 
       baseTaskId, 

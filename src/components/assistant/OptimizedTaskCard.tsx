@@ -102,6 +102,12 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
   };
 
   const handleStart = () => {
+    console.log('🚀 Starting task:', {
+      taskId: task.id,
+      currentStatus: task.status,
+      willUpdateTo: 'in-progress'
+    });
+    
     executeTaskAction('start', {
       status: 'in-progress'
     }, 'Task started!');
@@ -194,11 +200,18 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
     if (isMyTask) {
       switch (task.status) {
         case 'pending':
+          console.log('🎯 Rendering pending buttons for task:', task.id);
           return (
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleStart} className="bg-primary hover:bg-primary/90" title="Start Task">
+              <Button 
+                size="sm" 
+                onClick={handleStart} 
+                className="bg-primary hover:bg-primary/90" 
+                title="Start Task"
+                disabled={isLoading}
+              >
                 <Play className="w-3 h-3 mr-1" />
-                Start
+                {isLoading ? 'Starting...' : 'Start'}
               </Button>
               <Button size="sm" onClick={handleComplete} className="bg-green-600 hover:bg-green-700" title="Complete Task">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -214,10 +227,16 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
           );
 
         case 'in-progress':
+          console.log('🎯 Rendering in-progress buttons for task:', task.id);
           return (
             <div className="flex gap-2">
-              {/* Show disabled "Started" button instead of Start */}
-              <Button size="sm" disabled className="bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-300 min-w-[80px] hover:bg-gray-200">
+              {/* Show disabled "Started" button - this should be greyish and unclickable */}
+              <Button 
+                size="sm" 
+                disabled 
+                className="bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-300 min-w-[80px] hover:bg-gray-200"
+                title="Task has been started"
+              >
                 <Play className="w-3 h-3 mr-1" />
                 Started
               </Button>

@@ -25,6 +25,7 @@ interface OptimizedTaskCardProps {
 export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedTaskCardProps) {
   const { userProfile } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [actionInProgress, setActionInProgress] = React.useState<string | null>(null);
 
   // Debug logging for component renders and task props
   console.log('🔄 OptimizedTaskCard render:', {
@@ -54,6 +55,12 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
       return;
     }
 
+    // Prevent multiple simultaneous actions on the same task
+    if (actionInProgress === action) {
+      console.warn(`🚫 Action ${action} already in progress for task:`, task.id);
+      return;
+    }
+
     console.log(`⚡ Starting ${action} for task:`, {
       taskId: task.id,
       isRecurringInstance: task.id.includes('_'),
@@ -61,6 +68,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
     });
 
     setIsLoading(true);
+    setActionInProgress(action);
     
     try {
       console.log(`⚡ Executing task action: ${action}`, {
@@ -98,6 +106,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
     } finally {
       console.log(`🏁 Task ${action} finished, resetting loading state`);
       setIsLoading(false);
+      setActionInProgress(null);
     }
   };
 

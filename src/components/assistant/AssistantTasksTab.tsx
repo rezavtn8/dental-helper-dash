@@ -75,42 +75,96 @@ export default function AssistantTasksTab() {
     );
   }
 
-  // Categorize tasks for selected date - completely rewritten to avoid duplicates
+  // Advanced task categorization with comprehensive deduplication
   const categorizedTasks = useMemo(() => {
-    const today = selectedDate.toISOString().split('T')[0];
+    console.log('📊 Starting task categorization:', {
+      totalTasks: tasks.length,
+      selectedDate: selectedDate.toDateString(),
+      userId: userProfile?.id
+    });
+    
     const dayTasks = getTasksForDate(tasks, selectedDate);
+    console.log('📅 Tasks for selected date:', {
+      selectedDate: selectedDate.toDateString(),
+      tasksFound: dayTasks.length,
+      taskIds: dayTasks.map(t => ({ id: t.id, title: t.title?.substring(0, 20) + '...' }))
+    });
     
-    // Create three separate arrays for clean categorization
-    const unassigned: Task[] = [];
-    const assignedClaimed: Task[] = [];
-    const completed: Task[] = [];
+    // Use Maps for absolute deduplication based on base task ID
+    const unassignedMap = new Map<string, Task>();
+    const assignedClaimedMap = new Map<string, Task>();
+    const completedMap = new Map<string, Task>();
     
-    // Single pass through tasks with clear logic
     dayTasks.forEach(task => {
+      // Extract base task ID (remove recurring instance suffixes)
+      const baseTaskId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+      
+      console.log('🔍 Processing task:', {
+        taskId: task.id,
+        baseTaskId,
+        title: task.title?.substring(0, 20) + '...',
+        status: task.status,
+        assigned_to: task.assigned_to,
+        claimed_by: task.claimed_by,
+        completed_by: task.completed_by
+      });
+      
       if (task.status === 'completed') {
         // Only show completed tasks the user was involved with
         if (task.assigned_to === userProfile?.id || 
             task.claimed_by === userProfile?.id || 
             task.completed_by === userProfile?.id) {
-          completed.push(task);
+          
+          // Avoid duplicates - use the most recent version
+          const existing = completedMap.get(baseTaskId);
+          if (!existing || 
+              new Date(task.completed_at || task.updated_at || task.created_at) > 
+              new Date(existing.completed_at || existing.updated_at || existing.created_at)) {
+            completedMap.set(baseTaskId, task);
+            console.log('✅ Added to completed:', { baseTaskId, taskId: task.id });
+          }
         }
       } else {
         // For non-completed tasks
         if (!task.assigned_to && !task.claimed_by) {
-          unassigned.push(task);
+          // Unassigned task
+          const existing = unassignedMap.get(baseTaskId);
+          if (!existing || 
+              new Date(task.updated_at || task.created_at) > 
+              new Date(existing.updated_at || existing.created_at)) {
+            unassignedMap.set(baseTaskId, task);
+            console.log('📝 Added to unassigned:', { baseTaskId, taskId: task.id });
+          }
         } else if (task.assigned_to === userProfile?.id || task.claimed_by === userProfile?.id) {
-          assignedClaimed.push(task);
+          // Task assigned to or claimed by current user
+          const existing = assignedClaimedMap.get(baseTaskId);
+          if (!existing || 
+              new Date(task.updated_at || task.created_at) > 
+              new Date(existing.updated_at || existing.created_at)) {
+            assignedClaimedMap.set(baseTaskId, task);
+            console.log('👤 Added to assigned/claimed:', { baseTaskId, taskId: task.id });
+          }
         }
         // Tasks assigned to others are not shown
       }
     });
     
-    return {
-      unassigned,
-      assignedClaimed,  
-      completed,
-      total: unassigned.length + assignedClaimed.length + completed.length
+    const result = {
+      unassigned: Array.from(unassignedMap.values()),
+      assignedClaimed: Array.from(assignedClaimedMap.values()),
+      completed: Array.from(completedMap.values()),
+      total: unassignedMap.size + assignedClaimedMap.size + completedMap.size
     };
+    
+    console.log('📊 Categorization completed:', {
+      unassigned: result.unassigned.length,
+      assignedClaimed: result.assignedClaimed.length,
+      completed: result.completed.length,
+      total: result.total,
+      originalDayTasks: dayTasks.length
+    });
+    
+    return result;
   }, [tasks, selectedDate, userProfile?.id]);
 
   const navigateDate = (direction: 'prev' | 'next') => {
@@ -220,7 +274,7 @@ export default function AssistantTasksTab() {
             <div className="space-y-3">
               {categorizedTasks.unassigned.map((task) => (
                 <OptimizedTaskCard
-                  key={`unassigned-${task.id}`}
+                  key={`unassigned-${task.id}-${selectedDate.toISOString().split('T')[0]}`}
                   task={task}
                   assistants={assistants}
                   onUpdateTask={updateTask}
@@ -254,7 +308,7 @@ export default function AssistantTasksTab() {
             <div className="space-y-3">
               {categorizedTasks.assignedClaimed.map((task) => (
                 <OptimizedTaskCard
-                  key={`assigned-${task.id}`}
+                  key={`assigned-${task.id}-${selectedDate.toISOString().split('T')[0]}`}
                   task={task}
                   assistants={assistants}
                   onUpdateTask={updateTask}
@@ -288,7 +342,7 @@ export default function AssistantTasksTab() {
             <div className="space-y-3">
               {categorizedTasks.completed.map((task) => (
                 <OptimizedTaskCard
-                  key={`completed-${task.id}`}
+                  key={`completed-${task.id}-${selectedDate.toISOString().split('T')[0]}`}
                   task={task}
                   assistants={assistants}
                   onUpdateTask={updateTask}

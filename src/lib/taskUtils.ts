@@ -510,20 +510,39 @@ const generateStandardRecurrence = (
 
 /**
  * Expand a list of tasks to include recurring instances within a date range
+ * Now with proper deduplication to prevent showing both original and instances
  */
 export const expandTasksWithRecurrence = (
   tasks: Task[], 
   startDate: Date, 
   endDate: Date
 ): (Task | RecurringTaskInstance)[] => {
-  const expandedTasks: (Task | RecurringTaskInstance)[] = [...tasks];
+  const expandedTasks: (Task | RecurringTaskInstance)[] = [];
+  const processedTaskIds = new Set<string>();
   
   tasks.forEach(task => {
     if (task.recurrence && task.recurrence !== 'none') {
-      // Generate instances for active tasks
+      // For recurring tasks, generate instances instead of showing the original (for non-completed)
       if (!isCompleted(task.status)) {
         const instances = generateRecurringInstances(task, startDate, endDate);
-        expandedTasks.push(...instances);
+        
+        if (instances.length > 0) {
+          // Only add instances, not the original task
+          expandedTasks.push(...instances);
+          processedTaskIds.add(task.id);
+          console.log('🔄 Generated recurring instances:', {
+            taskId: task.id,
+            title: task.title?.substring(0, 30) + '...',
+            instanceCount: instances.length,
+            dateRange: `${startDate.toDateString()} to ${endDate.toDateString()}`
+          });
+        } else {
+          // No instances in range, show the original task
+          if (!processedTaskIds.has(task.id)) {
+            expandedTasks.push(task);
+            processedTaskIds.add(task.id);
+          }
+        }
       } 
       // For completed tasks, create a virtual instance for their completion date if it falls in range
       else if (isCompleted(task.status) && task.completed_at) {
@@ -531,21 +550,25 @@ export const expandTasksWithRecurrence = (
         const rangeStart = startOfDay(startDate);
         const rangeEnd = endOfDay(endDate);
         
-        // If the completion date falls within our range, create a virtual instance
-        if (completedDate >= rangeStart && completedDate <= rangeEnd) {
-          const completedInstance: RecurringTaskInstance = {
-            ...task,
-            id: `${task.id}_${format(completedDate, 'yyyy-MM-dd')}`,
-            instanceDate: completedDate,
-            custom_due_date: completedDate.toISOString(),
-            isRecurringInstance: true,
-            parentTaskId: task.id,
-            isOverdue: false
-          };
-          expandedTasks.push(completedInstance);
+        // If the completion date falls within our range, add the completed task
+        if (completedDate >= rangeStart && completedDate <= rangeEnd && !processedTaskIds.has(task.id)) {
+          expandedTasks.push(task);
+          processedTaskIds.add(task.id);
         }
       }
+    } else {
+      // Non-recurring tasks - show as-is if not already processed
+      if (!processedTaskIds.has(task.id)) {
+        expandedTasks.push(task);
+        processedTaskIds.add(task.id);
+      }
     }
+  });
+
+  console.log('📋 Task expansion completed:', {
+    originalTasks: tasks.length,
+    expandedTasks: expandedTasks.length,
+    recurringTasksProcessed: Array.from(processedTaskIds).length
   });
 
   return expandedTasks;

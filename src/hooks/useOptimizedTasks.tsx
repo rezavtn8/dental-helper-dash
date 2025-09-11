@@ -34,6 +34,7 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
         clinicId: userProfile.clinic_id
       });
 
+      // Simplified, cleaner query to prevent over-fetching
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
@@ -48,18 +49,37 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
 
     console.log('✅ Tasks fetched successfully:', data?.length || 0);
     
-    // Completely rewritten deduplication - simple and effective
-    const taskMap = new Map();
+    // Advanced deduplication with comprehensive logging
+    const taskMap = new Map<string, Task>();
+    const duplicateTracker = new Map<string, number>();
+    
     (data || []).forEach(task => {
-      taskMap.set(task.id, task);
+      // Track if we've seen this task ID before
+      if (taskMap.has(task.id)) {
+        duplicateTracker.set(task.id, (duplicateTracker.get(task.id) || 0) + 1);
+        console.warn('🔄 Duplicate task detected in database:', {
+          taskId: task.id,
+          title: task.title,
+          count: duplicateTracker.get(task.id)! + 1
+        });
+      }
+      
+      // Always keep the latest version based on updated_at or created_at
+      const existing = taskMap.get(task.id);
+      if (!existing || 
+          new Date(task.updated_at || task.created_at) > new Date(existing.updated_at || existing.created_at)) {
+        taskMap.set(task.id, task);
+      }
     });
+    
     const uniqueTasks = Array.from(taskMap.values());
     
     if (uniqueTasks.length !== (data?.length || 0)) {
-      console.warn('⚠️ Database returned duplicate tasks:', {
+      console.warn('🧹 Database deduplication completed:', {
         original: data?.length || 0,
         unique: uniqueTasks.length,
-        duplicatesRemoved: (data?.length || 0) - uniqueTasks.length
+        duplicatesRemoved: (data?.length || 0) - uniqueTasks.length,
+        duplicateTaskIds: Array.from(duplicateTracker.keys())
       });
     }
     

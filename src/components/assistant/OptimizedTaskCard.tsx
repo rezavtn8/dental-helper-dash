@@ -54,6 +54,12 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
       return;
     }
 
+    console.log(`⚡ Starting ${action} for task:`, {
+      taskId: task.id,
+      isRecurringInstance: task.id.includes('_'),
+      baseTaskId: task.id.includes('_') ? task.id.split('_')[0] : task.id
+    });
+
     setIsLoading(true);
     
     try {
@@ -90,6 +96,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
       
       toast.error(`Failed to ${action} task: ${error.message || 'Unknown error'}`);
     } finally {
+      console.log(`🏁 Task ${action} finished, resetting loading state`);
       setIsLoading(false);
     }
   };

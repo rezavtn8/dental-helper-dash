@@ -85,12 +85,24 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
     console.log('🚀 Starting optimistic update:', { baseTaskId, updates });
 
     // Find the current task to store original state for rollback
-    const originalTask = tasks.find(task => task.id === baseTaskId);
+    const originalTask = tasks.find(task => {
+      // Handle both regular UUIDs and recurring task IDs with date suffix
+      const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+      return taskBaseId === baseTaskId;
+    });
+    
     if (!originalTask) {
-      console.error('❌ Original task not found for rollback:', baseTaskId);
+      console.error('❌ Original task not found for rollback:', { baseTaskId, taskId, availableTaskIds: tasks.map(t => t.id) });
       toast.error('Task not found');
       return false;
     }
+
+    console.log('📝 Found original task for update:', {
+      originalTaskId: originalTask.id,
+      baseTaskId,
+      taskId,
+      status: originalTask.status
+    });
 
     // OPTIMISTIC UPDATE: Update local state immediately with proper completion data
     const optimisticUpdates = { ...updates };
@@ -116,15 +128,19 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
     }
 
     setTasks(currentTasks => {
-      const updatedTasks = currentTasks.map(task => 
-        task.id === baseTaskId 
-          ? { ...task, ...optimisticUpdates }
-          : task
-      );
+      const updatedTasks = currentTasks.map(task => {
+        // Handle both regular UUIDs and recurring task IDs with date suffix
+        const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+        return taskBaseId === baseTaskId ? { ...task, ...optimisticUpdates } : task;
+      });
       
       console.log('🔄 Task state updated optimistically:', {
         baseTaskId,
-        taskFound: updatedTasks.find(t => t.id === baseTaskId)?.status,
+        taskId,
+        taskFound: updatedTasks.find(t => {
+          const tBaseId = t.id.includes('_') ? t.id.split('_')[0] : t.id;
+          return tBaseId === baseTaskId;
+        })?.status,
         totalTasks: updatedTasks.length
       });
       
@@ -152,11 +168,10 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
         console.error('❌ Database update failed:', error);
         // ROLLBACK: Revert optimistic update on failure
         setTasks(currentTasks => 
-          currentTasks.map(task => 
-            task.id === baseTaskId 
-              ? originalTask
-              : task
-          )
+          currentTasks.map(task => {
+            const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+            return taskBaseId === baseTaskId ? originalTask : task;
+          })
         );
         throw error;
       }
@@ -165,11 +180,10 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
         console.error('❌ No task found in database:', baseTaskId);
         // ROLLBACK: Revert optimistic update
         setTasks(currentTasks => 
-          currentTasks.map(task => 
-            task.id === baseTaskId 
-              ? originalTask
-              : task
-          )
+          currentTasks.map(task => {
+            const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+            return taskBaseId === baseTaskId ? originalTask : task;
+          })
         );
         throw new Error('Task not found in database');
       }
@@ -178,11 +192,10 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
       
       // Update local state with actual database response
       setTasks(currentTasks => 
-        currentTasks.map(task => 
-          task.id === baseTaskId 
-            ? { ...task, ...data[0] }
-            : task
-        )
+        currentTasks.map(task => {
+          const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
+          return taskBaseId === baseTaskId ? { ...task, ...data[0] } : task;
+        })
       );
 
       // Force immediate refresh for completion actions to ensure sync

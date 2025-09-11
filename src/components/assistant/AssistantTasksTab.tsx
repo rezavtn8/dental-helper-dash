@@ -21,6 +21,8 @@ import { Task } from '@/types/task';
 import { getTasksForDate } from '@/lib/taskUtils';
 import { useOptimizedTasks } from '@/hooks/useOptimizedTasks';
 import { OptimizedTaskCard } from './OptimizedTaskCard';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
 
 export default function AssistantTasksTab() {
   const { user, userProfile } = useAuth();
@@ -28,6 +30,30 @@ export default function AssistantTasksTab() {
   const { tasks, loading, updateTask, refreshTasks } = useOptimizedTasks();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
+  const [assistants, setAssistants] = useState<any[]>([]);
+
+  // Fetch assistants for proper name display
+  useEffect(() => {
+    const fetchAssistants = async () => {
+      if (!userProfile?.clinic_id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('id, name, email, role, is_active')
+          .eq('clinic_id', userProfile.clinic_id)
+          .eq('is_active', true)
+          .order('name');
+
+        if (error) throw error;
+        setAssistants(data || []);
+      } catch (error) {
+        console.error('Error fetching assistants:', error);
+      }
+    };
+
+    fetchAssistants();
+  }, [userProfile?.clinic_id]);
 
   // Show connect to clinic message if no clinic access
   if (!userProfile?.clinic_id) {
@@ -194,9 +220,9 @@ export default function AssistantTasksTab() {
             <div className="space-y-3">
               {categorizedTasks.unassigned.map((task) => (
                 <OptimizedTaskCard
-                  key={task.id}
+                  key={`unassigned-${task.id}`}
                   task={task}
-                  assistants={[]}
+                  assistants={assistants}
                   onUpdateTask={updateTask}
                 />
               ))}
@@ -228,9 +254,9 @@ export default function AssistantTasksTab() {
             <div className="space-y-3">
               {categorizedTasks.assignedClaimed.map((task) => (
                 <OptimizedTaskCard
-                  key={task.id}
+                  key={`assigned-${task.id}`}
                   task={task}
-                  assistants={[]}
+                  assistants={assistants}
                   onUpdateTask={updateTask}
                 />
               ))}
@@ -262,9 +288,9 @@ export default function AssistantTasksTab() {
             <div className="space-y-3">
               {categorizedTasks.completed.map((task) => (
                 <OptimizedTaskCard
-                  key={task.id}
+                  key={`completed-${task.id}`}
                   task={task}
-                  assistants={[]}
+                  assistants={assistants}
                   onUpdateTask={updateTask}
                 />
               ))}

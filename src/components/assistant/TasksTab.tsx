@@ -240,7 +240,7 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
                   <div className="space-y-3">
                     {unassignedTasks.map((task) => (
                       <OptimizedTaskCard 
-                        key={`${task.id}-${task.status}-${task.assigned_to}`}
+                        key={task.id}
                         task={task} 
                         assistants={assistants}
                         onUpdateTask={updateTask!}
@@ -263,7 +263,7 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
                   <div className="space-y-3">
                     {assignedClaimedTasks.map((task) => (
                       <OptimizedTaskCard 
-                        key={`${task.id}-${task.status}-${task.assigned_to}`}
+                        key={task.id}
                         task={task} 
                         assistants={assistants}
                         onUpdateTask={updateTask!}
@@ -286,7 +286,7 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
                   <div className="space-y-3">
                     {completedTasks.map((task) => (
                       <OptimizedTaskCard 
-                        key={`${task.id}-${task.status}-${task.assigned_to}`}
+                        key={task.id}
                         task={task} 
                         assistants={assistants}
                         onUpdateTask={updateTask!}

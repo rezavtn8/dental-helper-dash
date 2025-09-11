@@ -363,7 +363,7 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
             </Badge>
           )}
           
-          <span>Assigned: {getAssistantName(task.assigned_to || task.claimed_by)}</span>
+          <span>{task.claimed_by ? 'Claimed' : 'Assigned'}: {getAssistantName(task.assigned_to || task.claimed_by)}</span>
         </div>
       </div>
 

@@ -47,7 +47,21 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
       }
 
       console.log('✅ Tasks fetched successfully:', data?.length || 0);
-      setTasks(data || []);
+      
+      // Deduplicate at the data source level in case database returns duplicates
+      const uniqueTasks = data ? data.filter((task, index, self) => 
+        index === self.findIndex(t => t.id === task.id)
+      ) : [];
+      
+      if (uniqueTasks.length !== (data?.length || 0)) {
+        console.warn('⚠️ Database returned duplicate tasks:', {
+          original: data?.length || 0,
+          unique: uniqueTasks.length,
+          duplicatesRemoved: (data?.length || 0) - uniqueTasks.length
+        });
+      }
+      
+      setTasks(uniqueTasks);
     } catch (err: any) {
       console.error('❌ Failed to fetch tasks:', err);
       setError(err.message || 'Failed to fetch tasks');

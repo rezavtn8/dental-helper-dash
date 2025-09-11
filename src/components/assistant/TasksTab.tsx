@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Building, Calendar, ChevronLeft, ChevronRight, CalendarDays, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -177,12 +179,33 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
           </div>
           
           <div className="text-center">
-            <h3 className="font-semibold">
-              {viewMode === 'day' 
-                ? format(selectedDate, 'EEEE, MMM d, yyyy')
-                : `${format(startOfWeek(selectedDate), 'MMM d')} - ${format(endOfWeek(selectedDate), 'MMM d, yyyy')}`
-              }
-            </h3>
+            <div className="flex items-center justify-center gap-2">
+              <h3 className="font-semibold">
+                {viewMode === 'day' 
+                  ? format(selectedDate, 'EEEE, MMM d, yyyy')
+                  : `${format(startOfWeek(selectedDate), 'MMM d')} - ${format(endOfWeek(selectedDate), 'MMM d, yyyy')}`
+                }
+              </h3>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Calendar className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setSelectedDate(date);
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
             {isToday(selectedDate) && viewMode === 'day' && (
               <Badge className="mt-1 bg-primary text-primary-foreground text-xs">Today</Badge>
             )}

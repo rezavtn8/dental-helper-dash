@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 import AuthWidget from '@/components/auth/AuthWidget';
 import ClinicSetupForm from '@/components/ClinicSetupForm';
-import { AnimatedLogo } from '@/components/ui/animated-logo';
+import { StaticLogo } from '@/components/ui/static-logo';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ export default function Auth() {
       <div className="relative z-10 w-full py-6 px-4 lg:px-8">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center space-x-3">
-            <AnimatedLogo size={32} animated={false} className="text-accent" />
+            <StaticLogo size={32} className="text-accent" />
             <span className="text-xl font-display font-bold text-accent">
               DentaLeague
             </span>
@@ -71,8 +71,8 @@ export default function Auth() {
           <div className="text-center mb-12 space-y-6">
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-accent/20 rounded-full blur-3xl scale-150"></div>
-              <div className="relative w-32 h-32 mx-auto mb-6 rounded-3xl glass-card flex items-center justify-center glow-effect">
-                <AnimatedLogo size={64} animated={true} className="text-accent" />
+              <div className="flex items-center justify-center mb-6">
+                <StaticLogo size={64} className="text-accent" />
               </div>
             </div>
             

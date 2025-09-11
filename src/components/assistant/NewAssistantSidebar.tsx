@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { getUserInitials } from '@/lib/taskUtils';
 import { useNavigate } from 'react-router-dom';
-import { AnimatedLogo } from '@/components/ui/animated-logo';
+import { StaticLogo } from '@/components/ui/static-logo';
 import {
   Sidebar,
   SidebarContent,
@@ -84,12 +84,12 @@ export default function NewAssistantSidebar({
           >
             {open && !isCollapsed ? (
               <>
-                <AnimatedLogo size={72} animated={false} className="text-primary" />
+                <StaticLogo size={72} className="text-primary" />
                 <span className="font-semibold text-base text-foreground">DentaLeague</span>
               </>
             ) : (
               <div className="mx-auto">
-                <AnimatedLogo size={72} animated={false} className="text-primary" />
+                <StaticLogo size={72} className="text-primary" />
               </div>
             )}
           </Button>

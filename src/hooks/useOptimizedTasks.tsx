@@ -190,7 +190,7 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
 
       console.log('✅ Database update successful:', { baseTaskId, updatedData: data[0] });
       
-      // Update local state with actual database response
+      // Update local state with actual database response (final sync)
       setTasks(currentTasks => 
         currentTasks.map(task => {
           const taskBaseId = task.id.includes('_') ? task.id.split('_')[0] : task.id;
@@ -198,12 +198,7 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
         })
       );
 
-      // Force immediate refresh for completion actions to ensure sync
-      if (updates.status === 'completed') {
-        console.log('🔄 Forcing task refresh after completion');
-        setTimeout(() => fetchTasks(), 100);
-      }
-
+      console.log('🎉 Task update completed successfully:', { baseTaskId, finalStatus: data[0].status });
       return true;
     } catch (err: any) {
       console.error('❌ Task update failed:', {

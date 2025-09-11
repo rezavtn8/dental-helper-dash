@@ -39,7 +39,7 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
 
-  // Organize tasks into three clear categories
+  // Organize tasks into three mutually exclusive categories
   const { unassignedTasks, assignedClaimedTasks, completedTasks } = useMemo(() => {
     console.log('🔍 Categorizing tasks:', {
       totalTasks: tasks.length,
@@ -53,29 +53,61 @@ export default function TasksTab({ assistants, tasks, loading = false, onRefetch
       todayTasks: todayTasks.map(t => ({ id: t.id, title: t.title, status: t.status, assigned_to: t.assigned_to, claimed_by: t.claimed_by, completed_by: t.completed_by }))
     });
     
-    // 1. Unassigned Tasks - no assignment and not completed
-    const unassigned = todayTasks.filter(task => 
-      !task.assigned_to && !task.claimed_by && task.status !== 'completed'
-    );
+    // Create a Map to ensure each task appears only once
+    const taskMap = new Map();
     
-    // 2. Assigned/Claimed Tasks - assigned to or claimed by user and not completed
-    const assignedClaimed = todayTasks.filter(task => 
-      (task.assigned_to === userProfile?.id || task.claimed_by === userProfile?.id) && task.status !== 'completed'
-    );
+    // Process each task exactly once and categorize
+    todayTasks.forEach(task => {
+      if (taskMap.has(task.id)) {
+        console.warn('⚠️ Duplicate task detected:', task.id, task.title);
+        return; // Skip duplicates
+      }
+      
+      taskMap.set(task.id, task);
+      
+      // Categorize based on status first, then assignment
+      if (task.status === 'completed') {
+        // Only show completed tasks that the current user was involved with
+        if (task.assigned_to === userProfile?.id || 
+            task.claimed_by === userProfile?.id || 
+            task.completed_by === userProfile?.id) {
+          taskMap.set(`completed_${task.id}`, { ...task, category: 'completed' });
+        }
+      } else {
+        // For non-completed tasks, check assignment
+        if (!task.assigned_to && !task.claimed_by) {
+          taskMap.set(`unassigned_${task.id}`, { ...task, category: 'unassigned' });
+        } else if (task.assigned_to === userProfile?.id || task.claimed_by === userProfile?.id) {
+          taskMap.set(`assigned_${task.id}`, { ...task, category: 'assigned' });
+        }
+        // Tasks assigned to others are not shown
+      }
+    });
     
-    // 3. Completed Tasks - completed and user was involved
-    const completed = todayTasks.filter(task => 
-      task.status === 'completed' && (
-        task.assigned_to === userProfile?.id || 
-        task.claimed_by === userProfile?.id || 
-        task.completed_by === userProfile?.id
-      )
-    );
+    // Extract categorized tasks from map
+    const categorizedTasks = Array.from(taskMap.values());
     
-    console.log('📊 Task categories:', {
+    const unassigned = categorizedTasks.filter(t => t.category === 'unassigned').map(t => {
+      const { category, ...task } = t;
+      return task;
+    });
+    
+    const assignedClaimed = categorizedTasks.filter(t => t.category === 'assigned').map(t => {
+      const { category, ...task } = t;
+      return task;
+    });
+    
+    const completed = categorizedTasks.filter(t => t.category === 'completed').map(t => {
+      const { category, ...task } = t;
+      return task;
+    });
+    
+    console.log('📊 Task categories (deduplicated):', {
       unassigned: unassigned.length,
       assignedClaimed: assignedClaimed.length,
-      completed: completed.length
+      completed: completed.length,
+      totalProcessed: todayTasks.length,
+      totalCategorized: unassigned.length + assignedClaimed.length + completed.length
     });
     
     return { 

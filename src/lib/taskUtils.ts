@@ -292,7 +292,7 @@ const generateEOWInstances = (
       instanceDate.setDate(instanceDate.getDate() + dayOfWeek);
       
       if (instanceDate >= startDate && instanceDate <= endDate) {
-        const isOverdue = isEOWOverdue(instanceDate, new Date());
+      const isOverdue = isEOWOverdue(instanceDate, new Date());
         const instance: RecurringTaskInstance = {
           ...task,
           id: `${task.id}_eow_${instanceDate.toISOString().split('T')[0]}`,
@@ -301,9 +301,11 @@ const generateEOWInstances = (
           instanceDate: new Date(instanceDate),
           originalDueDate: taskBaseDate,
           custom_due_date: instanceDate.toISOString(),
-          status: 'pending' as TaskStatus,
-          completed_at: undefined,
-          completed_by: undefined,
+          status: task.status || 'pending' as TaskStatus,
+          assigned_to: task.assigned_to,
+          claimed_by: task.claimed_by,
+          completed_at: task.completed_at,
+          completed_by: task.completed_by,
           isOverdue,
           overdueReason: isOverdue ? getOverdueReason({ ...task, recurrence: 'eow' }) : undefined
         };
@@ -375,9 +377,11 @@ const createMidMInstance = (
     instanceDate: new Date(instanceDate),
     originalDueDate: taskBaseDate,
     custom_due_date: instanceDate.toISOString(),
-    status: 'pending' as TaskStatus,
-    completed_at: undefined,
-    completed_by: undefined,
+    status: task.status || 'pending' as TaskStatus,
+    assigned_to: task.assigned_to,
+    claimed_by: task.claimed_by,
+    completed_at: task.completed_at,
+    completed_by: task.completed_by,
     isOverdue,
     overdueReason: isOverdue ? getOverdueReason({ ...task, recurrence: 'midm' }) : undefined
   };
@@ -438,9 +442,11 @@ const createEOMInstance = (
     instanceDate: new Date(instanceDate),
     originalDueDate: taskBaseDate,
     custom_due_date: instanceDate.toISOString(),
-    status: 'pending' as TaskStatus,
-    completed_at: undefined,
-    completed_by: undefined,
+    status: task.status || 'pending' as TaskStatus,
+    assigned_to: task.assigned_to,
+    claimed_by: task.claimed_by,
+    completed_at: task.completed_at,
+    completed_by: task.completed_by,
     isOverdue,
     overdueReason: isOverdue ? getOverdueReason({ ...task, recurrence: 'eom' }) : undefined
   };
@@ -470,9 +476,11 @@ const generateStandardRecurrence = (
         instanceDate: new Date(currentDate),
         originalDueDate: taskBaseDate,
         custom_due_date: currentDate.toISOString(),
-        status: 'pending' as TaskStatus,
-        completed_at: undefined,
-        completed_by: undefined
+        status: task.status || 'pending' as TaskStatus,
+        assigned_to: task.assigned_to,
+        claimed_by: task.claimed_by,
+        completed_at: task.completed_at,
+        completed_by: task.completed_by
       };
       instances.push(instance);
     }
@@ -826,35 +834,38 @@ export const getTasksForDate = (
   
   // Filter tasks that should show for the target date
   return expandedTasks.filter(task => {
-    // For recurring task instances, check if they match the target date
+    // For recurring task instances, check if they match the target date  
     if (isRecurringInstance(task)) {
-      const instanceDate = startOfDay(new Date(task.custom_due_date!));
-      return instanceDate.getTime() === startOfTargetDate.getTime();
+      const instanceDateStr = task.custom_due_date!.split('T')[0];
+      const targetDateStr = format(targetDate, 'yyyy-MM-dd');
+      return instanceDateStr === targetDateStr;
     }
 
-    // For completed tasks, check completion date or generated_date
+    // For completed tasks, check completion date or generated_date using string comparison
     if (task.status === 'completed') {
-      let taskCompletionDate;
+      let taskCompletionDateStr;
+      const targetDateStr = format(targetDate, 'yyyy-MM-dd');
       
-      // Use completed_at first, then fall back to generated_date
+      // Use completed_at first, then fall back to generated_date  
       if (task.completed_at) {
-        taskCompletionDate = startOfDay(new Date(task.completed_at));
+        taskCompletionDateStr = task.completed_at.split('T')[0];
       } else if (task.generated_date) {
-        taskCompletionDate = startOfDay(new Date(task.generated_date));
+        taskCompletionDateStr = task.generated_date.split('T')[0];
       } else {
         // Last resort - use created date
-        taskCompletionDate = startOfDay(new Date(task.created_at));
+        taskCompletionDateStr = task.created_at.split('T')[0];
       }
       
-      return taskCompletionDate.getTime() === startOfTargetDate.getTime();
+      return taskCompletionDateStr === targetDateStr;
     }
 
-    // For tasks with specific due dates, check if they match
+    // For tasks with specific due dates, check if they match using string comparison
     if (task.custom_due_date || task['due-date']) {
-      const taskDate = task.custom_due_date 
-        ? startOfDay(new Date(task.custom_due_date))
-        : startOfDay(new Date(task['due-date']!));
-      return taskDate.getTime() === startOfTargetDate.getTime();
+      const taskDateStr = task.custom_due_date 
+        ? task.custom_due_date.split('T')[0]
+        : task['due-date']!.split('T')[0];
+      const targetDateStr = format(targetDate, 'yyyy-MM-dd');
+      return taskDateStr === targetDateStr;
     }
 
     // For non-recurring tasks with due-type but no specific date

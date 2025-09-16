@@ -46,7 +46,9 @@ export function OptimizedTaskCard({ task, assistants, onUpdateTask }: OptimizedT
 
   const getAssistantName = (id: string | null) => {
     if (!id) return 'Unassigned';
-    return assistants.find(a => a.id === id)?.name || 'Unknown';
+    if (id === userProfile?.id) return 'You';
+    const assistant = assistants.find(a => a.id === id);
+    return assistant?.name || assistant?.email || 'Unknown';
   };
 
   const executeTaskAction = async (action: string, updates: any, successMsg: string) => {

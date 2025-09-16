@@ -46,16 +46,18 @@ export default function AssistantHomeTab() {
   // Set current date 
   const currentDate = new Date();
 
-  // Filter today's tasks - simplified logic to avoid duplicates
+  // Filter today's tasks - include claimed tasks and show proper assignment logic
   const todaysTasks = useMemo(() => {
-    const today = currentDate.toISOString().split('T')[0];
-    
     // Get tasks for today
     const tasksForToday = getTasksForDate(tasks, currentDate);
     
-    // Filter to show only unassigned tasks or tasks assigned to current user
+    // Filter to show unassigned tasks, tasks assigned to me, or tasks claimed by me
     const filtered = tasksForToday.filter(task => {
-      return !task.assigned_to || task.assigned_to === user?.id;
+      const isUnassigned = !task.assigned_to && !task.claimed_by;
+      const isAssignedToMe = task.assigned_to === user?.id;
+      const isClaimedByMe = task.claimed_by === user?.id;
+      
+      return isUnassigned || isAssignedToMe || isClaimedByMe;
     });
     
     return filtered;
@@ -107,9 +109,25 @@ export default function AssistantHomeTab() {
     }
   };
 
+  // Undo task completion
+  const undoTask = async (taskId: string) => {
+    if (!updateTask) return;
+    
+    const success = await updateTask(taskId, {
+      status: 'pending' as TaskStatus,
+      completed_at: null,
+      completed_by: null
+    });
+    
+    if (success) {
+      refreshTasks();
+      toast.success('Task moved back to pending');
+    }
+  };
+
   const renderTaskButtons = (task: Task) => {
-    const isAssignedToMe = task.assigned_to === user?.id;
-    const isUnassigned = !task.assigned_to;
+    const isAssignedToMe = task.assigned_to === user?.id || task.claimed_by === user?.id;
+    const isUnassigned = !task.assigned_to && !task.claimed_by;
     const isCompleted = task.status === 'completed';
     const isStarted = task.status === 'in-progress';
 
@@ -118,7 +136,7 @@ export default function AssistantHomeTab() {
         <Button 
           size="sm" 
           variant="outline"
-          onClick={() => {/* undo logic */}}
+          onClick={() => undoTask(task.id)}
           className="text-xs"
         >
           <RotateCcw className="w-3 h-3 mr-1" />
@@ -144,6 +162,15 @@ export default function AssistantHomeTab() {
       if (isStarted) {
         return (
           <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              disabled
+              variant="secondary"
+              className="text-xs cursor-not-allowed"
+            >
+              <PlayCircle className="w-3 h-3 mr-1" />
+              Started
+            </Button>
             <Button 
               size="sm" 
               onClick={() => completeTask(task.id)}

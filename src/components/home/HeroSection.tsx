@@ -2,16 +2,14 @@ import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { ArrowRight, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
 export function HeroSection() {
   const navigate = useNavigate();
-  
   const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById(id)?.scrollIntoView({
+      behavior: 'smooth'
+    });
   };
-
-  return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-background via-surface to-background py-20 lg:py-32">
+  return <section className="relative overflow-hidden bg-gradient-to-br from-background via-surface to-background py-20 lg:py-32">
       {/* Floating shapes background */}
       <div className="floating-shapes">
         <div className="floating-shape"></div>
@@ -35,7 +33,7 @@ export function HeroSection() {
           <AnimatedLogo size={120} />
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold text-foreground">DentaLeague</h2>
-            <p className="text-sm text-muted-foreground uppercase tracking-wider">dental teamwork, simplified</p>
+            
           </div>
         </div>
         
@@ -53,26 +51,15 @@ export function HeroSection() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-          <Button 
-            onClick={() => navigate('/auth')}
-            variant="gradient"
-            size="lg" 
-            className="text-base font-medium px-8 py-3 h-auto"
-          >
+          <Button onClick={() => navigate('/auth')} variant="gradient" size="lg" className="text-base font-medium px-8 py-3 h-auto">
             Start Free Trial
             <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
-          <Button 
-            onClick={() => scrollToSection('features')}
-            variant="gradient-outline"
-            size="lg" 
-            className="text-base font-medium px-8 py-3 h-auto"
-          >
+          <Button onClick={() => scrollToSection('features')} variant="gradient-outline" size="lg" className="text-base font-medium px-8 py-3 h-auto">
             Watch Demo
             <Play className="w-4 h-4 ml-1" />
           </Button>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 }

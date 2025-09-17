@@ -3,17 +3,15 @@ import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
 export function Navigation() {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
-      
+
       // Update active section based on scroll position
       const sections = ['features', 'how-it-works', 'testimonials', 'pricing'];
       for (const sectionId of sections) {
@@ -27,137 +25,92 @@ export function Navigation() {
         }
       }
     };
-    
     window.addEventListener('scroll', handleScroll);
     handleScroll(); // Initial check
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const navItems = [
-    { name: 'Features', href: '#features' },
-    { name: 'How It Works', href: '#how-it-works' },
-    { name: 'Testimonials', href: '#testimonials' },
-    { name: 'Pricing', href: '#pricing' }
-  ];
-
+  const navItems = [{
+    name: 'Features',
+    href: '#features'
+  }, {
+    name: 'How It Works',
+    href: '#how-it-works'
+  }, {
+    name: 'Testimonials',
+    href: '#testimonials'
+  }, {
+    name: 'Pricing',
+    href: '#pricing'
+  }];
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
       setIsMobileMenuOpen(false);
     }
   };
-
   const isActive = (href: string) => {
     const sectionId = href.replace('#', '');
     return activeSection === sectionId;
   };
-
-  return (
-    <nav 
-      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
-        isScrolled 
-          ? 'bg-background/80 backdrop-blur-md border-b border-border/50' 
-          : 'bg-transparent'
-      }`}
-    >
+  return <nav className={`sticky top-0 z-50 w-full transition-all duration-200 ${isScrolled ? 'bg-background/80 backdrop-blur-md border-b border-border/50' : 'bg-transparent'}`}>
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-3">
             <AnimatedLogo size={28} animated={false} className="text-primary" />
             <div className="flex flex-col">
-              <span className="text-lg font-semibold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">
+              <span className="font-display text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                 DentaLeague
               </span>
-              <span className="text-xs text-muted-foreground uppercase tracking-wide">dental teamwork, simplified</span>
+              
             </div>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center">
-            <div className="flex items-center bg-muted/50 rounded-full p-1 mr-6">
-              {navItems.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))}
-                  className={`relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${
-                    isActive(item.href)
-                      ? 'bg-background text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
-                  }`}
-                >
+            <div className="flex items-center bg-slate-50/80 backdrop-blur-sm rounded-full p-1.5 mr-6 border border-slate-200/60">
+              {navItems.map(item => <button key={item.name} onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))} className={`relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 whitespace-nowrap ${isActive(item.href) ? 'bg-white text-slate-900 shadow-lg shadow-slate-200/50 border border-slate-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'}`}>
                   {item.name}
-                </button>
-              ))}
+                </button>)}
             </div>
             <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost"
-                onClick={() => navigate('/auth')}
-                className="text-sm font-medium"
-              >
+              <Button variant="ghost" onClick={() => navigate('/auth')} className="text-sm font-semibold text-slate-600 hover:text-slate-900">
                 Sign In
               </Button>
-              <Button 
-                onClick={() => navigate('/auth')}
-                variant="default"
-                className="rounded-full h-9 px-6 font-medium bg-primary hover:bg-primary/90"
-              >
+              <Button onClick={() => navigate('/auth')} variant="gradient" size="default" className="rounded-full h-10 px-6 font-display font-semibold shadow-lg">
                 Start Free Trial
               </Button>
             </div>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-            aria-label="Toggle menu"
-          >
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors" aria-label="Toggle menu">
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-lg">
-            <div className="container mx-auto py-4">
+        {isMobileMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-xl rounded-b-2xl">
+            <div className="container mx-auto py-6">
               <div className="space-y-3">
-                 {navItems.map((item) => (
-                   <button
-                     key={item.name}
-                     onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))}
-                     className={`block w-full text-left py-3 px-4 text-base font-medium transition-colors duration-200 rounded-lg ${
-                       isActive(item.href)
-                         ? 'bg-primary/10 text-primary border border-primary/20'
-                         : 'text-foreground/70 hover:text-foreground hover:bg-muted/50'
-                     }`}
-                   >
+                 {navItems.map(item => <button key={item.name} onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))} className={`block w-full text-left py-3 px-4 text-base font-semibold transition-colors duration-200 rounded-xl ${isActive(item.href) ? 'bg-blue-50 text-blue-700 border border-blue-200/60' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-50'}`}>
                      {item.name}
-                   </button>
-                 ))}
-                <div className="pt-3 space-y-3">
-                  <Button 
-                    variant="ghost"
-                    onClick={() => navigate('/auth')}
-                    className="w-full text-base font-medium"
-                  >
+                   </button>)}
+                <div className="pt-4 space-y-3">
+                  <Button variant="ghost" onClick={() => navigate('/auth')} className="w-full text-base font-semibold text-slate-600">
                     Sign In
                   </Button>
-                  <Button 
-                    onClick={() => navigate('/auth')}
-                    variant="default"
-                    className="w-full rounded-full h-11 text-base font-medium"
-                  >
+                  <Button onClick={() => navigate('/auth')} variant="gradient" size="lg" className="w-full rounded-xl h-12 text-base font-display font-semibold">
                     Start Free Trial
                   </Button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
-    </nav>
-  );
+    </nav>;
 }

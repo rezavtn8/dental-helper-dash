@@ -52,9 +52,7 @@ export function PricingCTA() {
   return <section className="container mx-auto py-20">
       {/* Header */}
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold text-foreground mb-4">
-          Simple Three-Tier Pricing
-        </h2>
+        <h2 className="text-4xl font-bold text-foreground mb-4">Three-Tier Pricing</h2>
         <p className="text-lg text-muted-foreground mb-8">
           Choose the plan that grows with your clinic
         </p>

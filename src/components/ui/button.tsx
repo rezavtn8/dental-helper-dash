@@ -5,11 +5,11 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -18,13 +18,16 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        gradient: "gradient-button text-white font-medium shadow-lg",
-        "gradient-outline": "border-2 border-accent/20 bg-background/80 backdrop-blur-sm text-accent hover:bg-accent/10 hover:border-accent/40 glow-effect",
+        gradient: "bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transform hover:-translate-y-0.5",
+        "gradient-outline": "border-2 border-blue-200/60 bg-white/80 backdrop-blur-sm text-blue-700 font-semibold hover:bg-blue-50/80 hover:border-blue-300/80 hover:shadow-lg transform hover:-translate-y-0.5",
+        premium: "bg-gradient-to-r from-slate-900 to-slate-800 text-white font-semibold shadow-2xl hover:shadow-3xl hover:from-slate-800 hover:to-slate-700 border border-slate-700/50 transform hover:-translate-y-1",
+        luxury: "bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-xl hover:shadow-2xl hover:from-amber-600 hover:to-orange-600 transform hover:-translate-y-0.5 border border-amber-400/50",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        sm: "h-9 rounded-lg px-3 text-xs",
+        lg: "h-12 rounded-xl px-8 text-base",
+        xl: "h-14 rounded-2xl px-10 text-lg font-semibold",
         icon: "h-10 w-10",
       },
     },

@@ -9,55 +9,47 @@ export function HeroSection() {
       behavior: 'smooth'
     });
   };
-  return <section className="relative overflow-hidden bg-gradient-to-br from-background via-surface to-background py-20 lg:py-32">
-      {/* Floating shapes background */}
-      <div className="floating-shapes">
-        <div className="floating-shape"></div>
-        <div className="floating-shape"></div>
-        <div className="floating-shape"></div>
-        <div className="floating-shape"></div>
-      </div>
-      
-      {/* Enhanced animated background pattern */}
+  return <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-50/80 py-24 lg:py-32">
+      {/* Modern geometric background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(217_91%_85%_/_0.15),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(217_91%_75%_/_0.15),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(217_91%_90%_/_0.1),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_49%,hsl(217_91%_90%_/_0.05)_50%,transparent_51%)] bg-[length:30px_30px] animate-pulse" />
-        <div className="absolute inset-0 bg-[linear-gradient(-45deg,transparent_49%,hsl(217_91%_85%_/_0.03)_50%,transparent_51%)] bg-[length:40px_40px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(215_15%_95%),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(210_20%_92%),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_49%,hsl(215_10%_96%)_50%,transparent_51%)] bg-[length:40px_40px]" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-slate-400/5 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto text-center relative z-10">
         {/* Large Animated Logo */}
         <div className="mb-8 flex flex-col items-center space-y-4">
           <AnimatedLogo size={180} />
-          <div className="text-center space-y-2">
-            <h2 className="text-6xl font-bold text-foreground">DentaLeague</h2>
-            
-          </div>
+            <div className="text-center space-y-2">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-slate-900">DentaLeague</h2>
+              <p className="text-sm text-slate-500 uppercase tracking-widest font-medium">dental teamwork, simplified</p>
+            </div>
         </div>
         
         {/* Headline */}
-        <h1 className="text-[1.5rem] md:text-[1.75rem] lg:text-[2rem] font-semibold mb-6 leading-[1.75rem] md:leading-[2rem] lg:leading-[2.25rem] bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+        <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.1] tracking-tight bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent">
           Dental teamwork,
           <br />
-          <span className="font-handwritten bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">simplified.</span>
+          <span className="font-serif italic bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">simplified.</span>
         </h1>
         
         {/* Subtext */}
-        <p className="text-[1rem] text-muted-foreground mb-8 max-w-2xl mx-auto leading-[1.5rem]">
+        <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
           Structured daily tasks, gentle reminders, and clear tools that support assistants and owners alike.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-          <Button onClick={() => navigate('/auth')} variant="gradient" size="lg" className="text-base font-medium px-8 py-3 h-auto">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
+          <Button onClick={() => navigate('/auth')} variant="gradient" size="xl" className="font-display shadow-2xl">
             Start Free Trial
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <ArrowRight className="w-5 h-5 ml-1" />
           </Button>
-          <Button onClick={() => scrollToSection('features')} variant="gradient-outline" size="lg" className="text-base font-medium px-8 py-3 h-auto">
+          <Button onClick={() => scrollToSection('features')} variant="gradient-outline" size="xl" className="font-display">
             Watch Demo
-            <Play className="w-4 h-4 ml-1" />
+            <Play className="w-5 h-5 ml-1" />
           </Button>
         </div>
       </div>

@@ -69,17 +69,25 @@ All colors MUST be HSL.
 
     --radius: 1rem;
     
-    /* Typography Scale */
-    --text-h1: 3rem;      /* 48px */
-    --text-h1-lh: 3.5rem; /* 56px line height */
-    --text-h2: 1.75rem;   /* 28px */
-    --text-h2-lh: 2.25rem; /* 36px line height */
-    --text-h3: 1.375rem;  /* 22px */
-    --text-h3-lh: 1.875rem; /* 30px line height */
-    --text-body: 1rem;    /* 16px */
-    --text-body-lh: 1.5rem; /* 24px line height */
-    --text-caption: 0.8125rem; /* 13px */
-    --text-caption-lh: 1.125rem; /* 18px line height */
+    /* Enhanced Typography Scale */
+    --text-hero: 4.5rem;      /* 72px */
+    --text-hero-lh: 4.75rem;  /* 76px line height */
+    --text-h1: 3.75rem;       /* 60px */
+    --text-h1-lh: 4rem;       /* 64px line height */
+    --text-h2: 2.25rem;       /* 36px */
+    --text-h2-lh: 2.5rem;     /* 40px line height */
+    --text-h3: 1.875rem;      /* 30px */
+    --text-h3-lh: 2.25rem;    /* 36px line height */
+    --text-h4: 1.5rem;        /* 24px */
+    --text-h4-lh: 2rem;       /* 32px line height */
+    --text-body-lg: 1.125rem; /* 18px */
+    --text-body-lg-lh: 1.75rem; /* 28px line height */
+    --text-body: 1rem;        /* 16px */
+    --text-body-lh: 1.5rem;   /* 24px line height */
+    --text-body-sm: 0.875rem; /* 14px */
+    --text-body-sm-lh: 1.25rem; /* 20px line height */
+    --text-caption: 0.75rem;  /* 12px */
+    --text-caption-lh: 1rem;  /* 16px line height */
 
     --sidebar-background: 0 0% 98%;
 

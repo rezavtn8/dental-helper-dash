@@ -3,11 +3,16 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 
-// Import clean minimal components
-import { CleanNavigation } from '@/components/home/CleanNavigation';
-import { CleanHero } from '@/components/home/CleanHero';
-import { CleanFeatures } from '@/components/home/CleanFeatures';
-import { CleanFooter } from '@/components/home/CleanFooter';
+// Import new components
+import { Navigation } from '@/components/home/Navigation';
+import { HeroSection } from '@/components/home/HeroSection';
+import { FeatureCards } from '@/components/home/FeatureCards';
+import { MetricsStrip } from '@/components/home/MetricsStrip';
+import { EducationSection } from '@/components/home/EducationSection';
+import { TestimonialsSection } from '@/components/home/TestimonialsSection';
+import { PricingCTA } from '@/components/home/PricingCTA';
+import { AppPreview } from '@/components/home/AppPreview';
+import { Footer } from '@/components/home/Footer';
 export default function Home() {
   const navigate = useNavigate();
   const {
@@ -26,29 +31,50 @@ export default function Home() {
       }
     }
   }, [user, userProfile, navigate, loading]);
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
+      
       {/* Loading State */}
-      {loading && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+      {loading && <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto mb-4" />
             <p className="text-muted-foreground">Loading...</p>
           </div>
-        </div>
-      )}
+        </div>}
 
-      {/* Clean Navigation */}
-      <CleanNavigation />
+      {/* Navigation */}
+      <Navigation />
 
       {/* Hero Section */}
-      <CleanHero />
+      <HeroSection />
 
-      {/* Features Section */}
-      <CleanFeatures />
+      {/* Feature Cards Section */}
+      <section id="features">
+        <FeatureCards />
+      </section>
+
+      {/* Metrics Strip */}
+      <MetricsStrip />
+
+      {/* App Preview Section */}
+      <section id="how-it-works">
+        <AppPreview />
+      </section>
+
+      {/* Education Section */}
+      <EducationSection />
+
+      {/* Testimonials Section */}
+      <section id="testimonials">
+        <TestimonialsSection />
+      </section>
+
+      {/* Pricing CTA Section */}
+      <section id="pricing">
+        <PricingCTA />
+      </section>
+
 
       {/* Footer */}
-      <CleanFooter />
-    </div>
-  );
+      <Footer />
+    </div>;
 }

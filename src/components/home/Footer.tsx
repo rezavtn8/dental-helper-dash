@@ -37,31 +37,29 @@ export function Footer() {
       href: "#"
     }]
   }];
-  return <footer className="bg-slate-50/50 border-t border-slate-200/60">
-      <div className="container mx-auto py-16">
+  return <footer className="bg-muted/30 border-t border-border">
+      <div className="container mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
-              <AnimatedLogo size={28} animated={false} className="text-blue-600" />
-              <div className="flex flex-col">
-                <span className="font-display text-lg font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                  DentaLeague
-                </span>
-                <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">dental teamwork, simplified</span>
-              </div>
+              <AnimatedLogo size={24} animated={false} className="text-primary" />
+              <span className="text-base font-semibold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">
+                DentaLeague
+              </span>
             </div>
-            <div className="space-y-2 text-sm text-slate-600 leading-relaxed">
-              <p>Modern dental practice management made simple and efficient.</p>
+            <div className="space-y-2 text-xs text-muted-foreground leading-[1.125rem]">
+              
+              
             </div>
           </div>
 
           {/* Footer Links */}
-          {footerSections.map(section => <div key={section.title} className="space-y-4">
-              <h4 className="font-display text-sm font-bold text-slate-900">
+          {footerSections.map(section => <div key={section.title} className="space-y-3">
+              <h4 className="text-sm font-semibold text-foreground">
                 {section.title}
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {section.links.map(link => <li key={link.name}>
                     <button onClick={() => {
                 if (link.href.startsWith('#')) {
@@ -69,7 +67,7 @@ export function Footer() {
                     behavior: 'smooth'
                   });
                 }
-              }} className="text-sm text-slate-600 hover:text-slate-900 transition-colors duration-200 font-medium">
+              }} className="text-xs text-muted-foreground hover:text-foreground transition-colors duration-200 leading-[1.125rem]">
                       {link.name}
                     </button>
                   </li>)}
@@ -78,8 +76,8 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-slate-200 mt-12 pt-8 text-center">
-          <p className="text-sm text-slate-500 font-medium">
+        <div className="border-t border-border mt-8 pt-8 text-center">
+          <p className="text-xs text-muted-foreground leading-[1.125rem]">
             © {new Date().getFullYear()} DentaLeague. All rights reserved.
           </p>
         </div>

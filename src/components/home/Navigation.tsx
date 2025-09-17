@@ -67,24 +67,24 @@ export function Navigation() {
           <div className="flex items-center space-x-3">
             <AnimatedLogo size={28} animated={false} className="text-primary" />
             <div className="flex flex-col">
-              <span className="font-display text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              <span className="text-lg font-semibold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">
                 DentaLeague
               </span>
-              <span className="text-xs text-slate-500 uppercase tracking-widest font-medium">dental teamwork, simplified</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">dental teamwork, simplified</span>
             </div>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center">
-            <div className="flex items-center bg-slate-50/80 backdrop-blur-sm rounded-full p-1.5 mr-6 border border-slate-200/60">
+            <div className="flex items-center bg-muted/50 rounded-full p-1 mr-6">
               {navItems.map((item) => (
                 <button
                   key={item.name}
                   onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))}
-                  className={`relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 whitespace-nowrap ${
+                  className={`relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 whitespace-nowrap ${
                     isActive(item.href)
-                      ? 'bg-white text-slate-900 shadow-lg shadow-slate-200/50 border border-slate-200/60' 
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
                   }`}
                 >
                   {item.name}
@@ -95,15 +95,14 @@ export function Navigation() {
               <Button 
                 variant="ghost"
                 onClick={() => navigate('/auth')}
-                className="text-sm font-semibold text-slate-600 hover:text-slate-900"
+                className="text-sm font-medium"
               >
                 Sign In
               </Button>
               <Button 
                 onClick={() => navigate('/auth')}
-                variant="minimal"
-                size="default"
-                className="rounded-full h-10 px-6 font-display font-semibold"
+                variant="default"
+                className="rounded-full h-9 px-6 font-medium bg-primary hover:bg-primary/90"
               >
                 Start Free Trial
               </Button>
@@ -122,35 +121,34 @@ export function Navigation() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-xl rounded-b-2xl">
-            <div className="container mx-auto py-6">
+          <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-lg">
+            <div className="container mx-auto py-4">
               <div className="space-y-3">
                  {navItems.map((item) => (
                    <button
                      key={item.name}
                      onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))}
-                     className={`block w-full text-left py-3 px-4 text-base font-semibold transition-colors duration-200 rounded-xl ${
+                     className={`block w-full text-left py-3 px-4 text-base font-medium transition-colors duration-200 rounded-lg ${
                        isActive(item.href)
-                         ? 'bg-blue-50 text-blue-700 border border-blue-200/60'
-                         : 'text-slate-700 hover:text-slate-900 hover:bg-slate-50'
+                         ? 'bg-primary/10 text-primary border border-primary/20'
+                         : 'text-foreground/70 hover:text-foreground hover:bg-muted/50'
                      }`}
                    >
                      {item.name}
                    </button>
                  ))}
-                <div className="pt-4 space-y-3">
+                <div className="pt-3 space-y-3">
                   <Button 
                     variant="ghost"
                     onClick={() => navigate('/auth')}
-                    className="w-full text-base font-semibold text-slate-600"
+                    className="w-full text-base font-medium"
                   >
                     Sign In
                   </Button>
                   <Button 
                     onClick={() => navigate('/auth')}
-                    variant="minimal"
-                    size="lg"
-                    className="w-full rounded-xl h-12 text-base font-display font-semibold"
+                    variant="default"
+                    className="w-full rounded-full h-11 text-base font-medium"
                   >
                     Start Free Trial
                   </Button>

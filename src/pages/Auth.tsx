@@ -49,7 +49,7 @@ export default function Auth() {
           <div className="flex items-center space-x-3">
             <StaticLogo size={32} className="text-accent" />
             <div className="flex flex-col">
-              <span className="text-xl font-display font-bold text-accent">
+              <span className="text-2xl font-display font-bold text-accent">
                 DentaLeague
               </span>
               <span className="text-xs text-muted-foreground uppercase tracking-wide">dental teamwork, simplified</span>
@@ -77,7 +77,7 @@ export default function Auth() {
               <div className="flex flex-col items-center space-y-3 mb-6">
                 <StaticLogo size={64} className="text-accent" />
                 <div className="text-center space-y-1">
-                  <h3 className="text-2xl font-bold text-foreground">DentaLeague</h3>
+                  <h3 className="text-4xl font-bold text-foreground">DentaLeague</h3>
                   <p className="text-sm text-muted-foreground uppercase tracking-wider">dental teamwork, simplified</p>
                 </div>
               </div>

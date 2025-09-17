@@ -32,7 +32,7 @@ export function HeroSection() {
         <div className="mb-8 flex flex-col items-center space-y-4">
           <AnimatedLogo size={120} />
           <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-foreground">DentaLeague</h2>
+            <h2 className="text-6xl font-bold text-foreground">DentaLeague</h2>
             
           </div>
         </div>

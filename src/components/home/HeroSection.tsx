@@ -35,38 +35,38 @@ export function HeroSection() {
           <AnimatedLogo size={120} />
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold text-foreground">DentaLeague</h2>
-            <p className="text-sm text-muted-foreground uppercase tracking-wider">dental teamwork, simplified</p>
+            <p className="text-sm text-muted-foreground uppercase tracking-wider">Onboard. Train. Manage. All in One Place.</p>
           </div>
         </div>
         
         {/* Headline */}
         <h1 className="text-[3rem] md:text-[3.5rem] lg:text-[4rem] font-semibold mb-6 leading-[3.5rem] md:leading-[4rem] lg:leading-[4.5rem] bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-          Dental teamwork,
+          Onboard. Train. Manage.
           <br />
-          <span className="font-handwritten bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">simplified.</span>
+          <span className="font-handwritten bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">All in One Place.</span>
         </h1>
         
         {/* Subtext */}
-        <p className="text-[1rem] text-muted-foreground mb-8 max-w-2xl mx-auto leading-[1.5rem]">
-          Structured daily tasks, gentle reminders, and clear tools that support assistants and owners alike.
+        <p className="text-[1rem] text-muted-foreground mb-8 max-w-3xl mx-auto leading-[1.5rem]">
+          Whether it's a new assistant, front desk hire, or floating staff, Dentaleague makes sure they know exactly what to do — from day 1 to day 100.
         </p>
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
           <Button 
             onClick={() => navigate('/auth')}
-            variant="gradient"
+            variant="clean"
             size="lg" 
-            className="text-base font-medium px-8 py-3 h-auto"
+            className="text-base font-semibold px-10 py-4 h-auto"
           >
-            Start Free Trial
+            Launch Your Clinic Hub
             <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
           <Button 
             onClick={() => scrollToSection('features')}
-            variant="gradient-outline"
+            variant="clean-outline"
             size="lg" 
-            className="text-base font-medium px-8 py-3 h-auto"
+            className="text-base font-medium px-10 py-4 h-auto"
           >
             Watch Demo
             <Play className="w-4 h-4 ml-1" />

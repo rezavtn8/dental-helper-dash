@@ -31,8 +31,12 @@ export function HeroSection() {
 
       <div className="container mx-auto text-center relative z-10">
         {/* Large Animated Logo */}
-        <div className="mb-8">
+        <div className="mb-8 flex flex-col items-center space-y-4">
           <AnimatedLogo size={120} />
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-bold text-foreground">DentaLeague</h2>
+            <p className="text-sm text-muted-foreground uppercase tracking-wider">dental teamwork, simplified</p>
+          </div>
         </div>
         
         {/* Headline */}

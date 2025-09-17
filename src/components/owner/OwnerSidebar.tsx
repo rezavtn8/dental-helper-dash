@@ -91,13 +91,16 @@ export default function OwnerSidebar({
             aria-label="DentaLeague home"
           >
             {open && !isCollapsed ? (
-              <>
-                <StaticLogo size={72} className="text-primary" />
-                <span className="font-semibold text-base text-foreground">DentaLeague</span>
-              </>
+              <div className="flex items-start space-x-3">
+                <StaticLogo size={48} className="text-primary flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="font-semibold text-base text-foreground">DentaLeague</span>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wide">dental teamwork, simplified</span>
+                </div>
+              </div>
             ) : (
               <div className="mx-auto">
-                <StaticLogo size={72} className="text-primary" />
+                <StaticLogo size={48} className="text-primary" />
               </div>
             )}
           </Button>

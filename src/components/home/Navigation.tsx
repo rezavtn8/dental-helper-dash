@@ -66,9 +66,12 @@ export function Navigation() {
           {/* Logo */}
           <div className="flex items-center space-x-3">
             <AnimatedLogo size={28} animated={false} className="text-primary" />
-            <span className="text-lg font-semibold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">
-              DentaLeague
-            </span>
+            <div className="flex flex-col">
+              <span className="text-lg font-semibold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">
+                DentaLeague
+              </span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">dental teamwork, simplified</span>
+            </div>
           </div>
 
           {/* Desktop Navigation */}

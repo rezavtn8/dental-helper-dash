@@ -48,9 +48,12 @@ export default function Auth() {
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center space-x-3">
             <StaticLogo size={32} className="text-accent" />
-            <span className="text-xl font-display font-bold text-accent">
-              DentaLeague
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl font-display font-bold text-accent">
+                DentaLeague
+              </span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">dental teamwork, simplified</span>
+            </div>
           </div>
           <Button 
             variant="ghost" 
@@ -71,8 +74,12 @@ export default function Auth() {
           <div className="text-center mb-12 space-y-6">
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-accent/20 rounded-full blur-3xl scale-150"></div>
-              <div className="flex items-center justify-center mb-6">
+              <div className="flex flex-col items-center space-y-3 mb-6">
                 <StaticLogo size={64} className="text-accent" />
+                <div className="text-center space-y-1">
+                  <h3 className="text-2xl font-bold text-foreground">DentaLeague</h3>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wider">dental teamwork, simplified</p>
+                </div>
               </div>
             </div>
             

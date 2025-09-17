@@ -251,10 +251,26 @@ export const generateRecurringInstances = (
     return [];
   }
 
-  const instances: RecurringTaskInstance[] = [];
-  const taskBaseDate = task.custom_due_date 
-    ? new Date(task.custom_due_date)
-    : new Date(task.created_at);
+  // Use custom_due_date if available, otherwise use generated_date, then created_at
+  let taskBaseDate: Date;
+  if (task.custom_due_date) {
+    taskBaseDate = new Date(task.custom_due_date);
+  } else if (task.generated_date) {
+    taskBaseDate = new Date(task.generated_date);
+  } else {
+    taskBaseDate = new Date(task.created_at);
+  }
+
+  console.log('🔧 Generating recurring instances:', {
+    taskId: task.id,
+    title: task.title?.substring(0, 30),
+    recurrence: task.recurrence,
+    custom_due_date: task.custom_due_date,
+    generated_date: task.generated_date,
+    created_at: task.created_at.split('T')[0],
+    calculatedBaseDate: taskBaseDate.toDateString(),
+    requestedRange: `${startDate.toDateString()} to ${endDate.toDateString()}`
+  });
 
   // Handle special recurring patterns
   switch (task.recurrence.toLowerCase()) {
@@ -462,9 +478,20 @@ const generateStandardRecurrence = (
   taskBaseDate: Date
 ): RecurringTaskInstance[] => {
   const instances: RecurringTaskInstance[] = [];
-  let currentDate = new Date(taskBaseDate);
+  
+  // For standard recurrence, start from the task's base date or the requested start date, whichever is later
+  let currentDate = new Date(Math.max(taskBaseDate.getTime(), startDate.getTime()));
   let instanceCount = 0;
   const maxInstances = 365;
+
+  console.log('🔄 Generating standard recurrence:', {
+    taskId: task.id,
+    recurrence: task.recurrence,
+    taskBaseDate: taskBaseDate.toDateString(),
+    startDate: startDate.toDateString(),
+    endDate: endDate.toDateString(),
+    startingFrom: currentDate.toDateString()
+  });
 
   while (currentDate <= endDate && instanceCount < maxInstances) {
     if (currentDate >= startDate) {
@@ -483,12 +510,18 @@ const generateStandardRecurrence = (
         completed_by: task.completed_by
       };
       instances.push(instance);
+      
+      console.log('✅ Created recurring instance:', {
+        instanceId: instance.id,
+        instanceDate: currentDate.toDateString(),
+        custom_due_date: instance.custom_due_date.split('T')[0]
+      });
     }
     
     instanceCount++;
 
     // Calculate next occurrence based on recurrence pattern
-    switch (task.recurrence.toLowerCase()) {
+    switch (task.recurrence?.toLowerCase()) {
       case 'daily':
         currentDate = addDays(currentDate, 1);
         break;
@@ -499,19 +532,28 @@ const generateStandardRecurrence = (
         currentDate = addDays(currentDate, 14);
         break;
       case 'monthly':
-        currentDate = addDays(currentDate, 30);
+        currentDate = addMonths(currentDate, 1);
         break;
       case 'quarterly':
-        currentDate = addDays(currentDate, 90);
+        currentDate = addMonths(currentDate, 3);
         break;
       case 'yearly':
-        currentDate = addDays(currentDate, 365);
+        currentDate = addMonths(currentDate, 12);
         break;
       default:
         // Unknown recurrence pattern, break the loop
+        console.warn('Unknown recurrence pattern:', task.recurrence);
         break;
     }
   }
+
+  console.log('🎯 Standard recurrence generation complete:', {
+    taskId: task.id,
+    instancesGenerated: instances.length,
+    dateRange: instances.length > 0 ? 
+      `${instances[0].instanceDate.toDateString()} to ${instances[instances.length - 1].instanceDate.toDateString()}` :
+      'None'
+  });
 
   return instances;
 };
@@ -909,6 +951,21 @@ export const getTasksForDate = (
       console.log('📊 Daily task without date check:', {
         taskId: task.id,
         recurrence: task.recurrence,
+        status: task.status,
+        isNotCompleted
+      });
+      return isNotCompleted;
+    }
+
+    // For recurring tasks without specific dates but with "anytime" due-type
+    if (task.recurrence && task.recurrence !== 'none' && !task.custom_due_date && !task['due-date'] && 
+        task['due-type'] === 'anytime') {
+      // These should appear when their recurrence schedule indicates
+      const isNotCompleted = !isCompleted(task.status);
+      console.log('🔄 Recurring anytime task check:', {
+        taskId: task.id,
+        recurrence: task.recurrence,
+        dueType: task['due-type'],
         status: task.status,
         isNotCompleted
       });

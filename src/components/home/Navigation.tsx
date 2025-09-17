@@ -101,9 +101,9 @@ export function Navigation() {
               </Button>
               <Button 
                 onClick={() => navigate('/auth')}
-                variant="gradient"
+                variant="minimal"
                 size="default"
-                className="rounded-full h-10 px-6 font-display font-semibold shadow-lg"
+                className="rounded-full h-10 px-6 font-display font-semibold"
               >
                 Start Free Trial
               </Button>
@@ -148,7 +148,7 @@ export function Navigation() {
                   </Button>
                   <Button 
                     onClick={() => navigate('/auth')}
-                    variant="gradient"
+                    variant="minimal"
                     size="lg"
                     className="w-full rounded-xl h-12 text-base font-display font-semibold"
                   >

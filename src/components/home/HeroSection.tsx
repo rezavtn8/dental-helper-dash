@@ -43,11 +43,11 @@ export function HeroSection() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
-          <Button onClick={() => navigate('/auth')} variant="gradient" size="xl" className="font-display shadow-2xl">
+          <Button onClick={() => navigate('/auth')} variant="minimal" size="xl" className="font-display">
             Start Free Trial
             <ArrowRight className="w-5 h-5 ml-1" />
           </Button>
-          <Button onClick={() => scrollToSection('features')} variant="gradient-outline" size="xl" className="font-display">
+          <Button onClick={() => scrollToSection('features')} variant="outline" size="xl" className="font-display">
             Watch Demo
             <Play className="w-5 h-5 ml-1" />
           </Button>

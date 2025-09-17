@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -18,10 +18,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        gradient: "bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transform hover:-translate-y-0.5",
-        "gradient-outline": "border-2 border-blue-200/60 bg-white/80 backdrop-blur-sm text-blue-700 font-semibold hover:bg-blue-50/80 hover:border-blue-300/80 hover:shadow-lg transform hover:-translate-y-0.5",
-        premium: "bg-gradient-to-r from-slate-900 to-slate-800 text-white font-semibold shadow-2xl hover:shadow-3xl hover:from-slate-800 hover:to-slate-700 border border-slate-700/50 transform hover:-translate-y-1",
-        luxury: "bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-xl hover:shadow-2xl hover:from-amber-600 hover:to-orange-600 transform hover:-translate-y-0.5 border border-amber-400/50",
+        minimal: "border border-foreground bg-background text-foreground hover:bg-foreground hover:text-background transition-colors duration-200",
       },
       size: {
         default: "h-10 px-4 py-2",

@@ -3,16 +3,11 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 
-// Import redesigned components
-import { ModernNavigation } from '@/components/home/ModernNavigation';
-import { ImmersiveHero } from '@/components/home/ImmersiveHero';
-import { BentoFeatures } from '@/components/home/BentoFeatures';
-import { MetricsStrip } from '@/components/home/MetricsStrip';
-import { TheFlow } from '@/components/home/TheFlow';
-import { RealImpact } from '@/components/home/RealImpact';
-import { TestimonialsSection } from '@/components/home/TestimonialsSection';
-import { ChooseYourJourney } from '@/components/home/ChooseYourJourney';
-import { ModernFooter } from '@/components/home/ModernFooter';
+// Import clean minimal components
+import { CleanNavigation } from '@/components/home/CleanNavigation';
+import { CleanHero } from '@/components/home/CleanHero';
+import { CleanFeatures } from '@/components/home/CleanFeatures';
+import { CleanFooter } from '@/components/home/CleanFooter';
 export default function Home() {
   const navigate = useNavigate();
   const {
@@ -31,53 +26,29 @@ export default function Home() {
       }
     }
   }, [user, userProfile, navigate, loading]);
-  return <div className="min-h-screen bg-background">
-      
+  return (
+    <div className="min-h-screen bg-background">
       {/* Loading State */}
-      {loading && <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+      {loading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto mb-4" />
             <p className="text-muted-foreground">Loading...</p>
           </div>
-        </div>}
+        </div>
+      )}
 
-      {/* Modern Navigation */}
-      <ModernNavigation />
+      {/* Clean Navigation */}
+      <CleanNavigation />
 
-      {/* Immersive Hero Section */}
-      <section id="hero">
-        <ImmersiveHero />
-      </section>
+      {/* Hero Section */}
+      <CleanHero />
 
-      {/* Bento Grid Features Section */}
-      <section id="features">
-        <BentoFeatures />
-      </section>
+      {/* Features Section */}
+      <CleanFeatures />
 
-      {/* Metrics Strip */}
-      <MetricsStrip />
-
-      {/* The Flow Section */}
-      <section id="how-it-works">
-        <TheFlow />
-      </section>
-
-      {/* Real Impact Section */}
-      <section id="impact">
-        <RealImpact />
-      </section>
-
-      {/* Testimonials Section */}
-      <section id="testimonials">
-        <TestimonialsSection />
-      </section>
-
-      {/* Choose Your Journey Pricing */}
-      <section id="pricing">
-        <ChooseYourJourney />
-      </section>
-
-      {/* Modern Footer */}
-      <ModernFooter />
-    </div>;
+      {/* Footer */}
+      <CleanFooter />
+    </div>
+  );
 }

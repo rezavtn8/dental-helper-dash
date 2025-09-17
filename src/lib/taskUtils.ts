@@ -828,23 +828,44 @@ export const getTasksForDate = (
 ): (Task | RecurringTaskInstance)[] => {
   const startOfTargetDate = startOfDay(targetDate);
   const endOfTargetDate = endOfDay(targetDate);
+  const targetDateStr = format(targetDate, 'yyyy-MM-dd');
   
   // Expand tasks with recurrence for just this specific date (not range)
   const expandedTasks = expandTasksWithRecurrence(tasks, startOfTargetDate, endOfTargetDate);
   
+  console.log('🗓️ getTasksForDate DEBUG:', {
+    targetDate: targetDateStr,
+    dayOfWeek: targetDate.getDay(), // 0=Sunday, 6=Saturday
+    isWeekend: targetDate.getDay() === 0 || targetDate.getDay() === 6,
+    expandedTasksCount: expandedTasks.length,
+    expandedTasksPreview: expandedTasks.slice(0, 3).map(t => ({
+      id: t.id,
+      title: t.title?.substring(0, 20),
+      isRecurring: isRecurringInstance(t),
+      custom_due_date: t.custom_due_date?.split('T')[0],
+      status: t.status,
+      recurrence: t.recurrence
+    }))
+  });
+  
   // Filter tasks that should show for the target date
-  return expandedTasks.filter(task => {
+  const filteredTasks = expandedTasks.filter(task => {
     // For recurring task instances, check if they match the target date  
     if (isRecurringInstance(task)) {
       const instanceDateStr = task.custom_due_date!.split('T')[0];
-      const targetDateStr = format(targetDate, 'yyyy-MM-dd');
-      return instanceDateStr === targetDateStr;
+      const matches = instanceDateStr === targetDateStr;
+      console.log('🔄 Recurring instance check:', {
+        taskId: task.id,
+        instanceDate: instanceDateStr,
+        targetDate: targetDateStr,
+        matches
+      });
+      return matches;
     }
 
     // For completed tasks, check completion date or generated_date using string comparison
     if (task.status === 'completed') {
       let taskCompletionDateStr;
-      const targetDateStr = format(targetDate, 'yyyy-MM-dd');
       
       // Use completed_at first, then fall back to generated_date  
       if (task.completed_at) {
@@ -856,7 +877,14 @@ export const getTasksForDate = (
         taskCompletionDateStr = task.created_at.split('T')[0];
       }
       
-      return taskCompletionDateStr === targetDateStr;
+      const matches = taskCompletionDateStr === targetDateStr;
+      console.log('✅ Completed task check:', {
+        taskId: task.id,
+        completionDate: taskCompletionDateStr,
+        targetDate: targetDateStr,
+        matches
+      });
+      return matches;
     }
 
     // For tasks with specific due dates, check if they match using string comparison
@@ -864,20 +892,70 @@ export const getTasksForDate = (
       const taskDateStr = task.custom_due_date 
         ? task.custom_due_date.split('T')[0]
         : task['due-date']!.split('T')[0];
-      const targetDateStr = format(targetDate, 'yyyy-MM-dd');
-      return taskDateStr === targetDateStr;
+      const matches = taskDateStr === targetDateStr;
+      console.log('📅 Due date task check:', {
+        taskId: task.id,
+        dueDate: taskDateStr,
+        targetDate: targetDateStr,
+        matches
+      });
+      return matches;
+    }
+
+    // For daily tasks without specific dates, check if they have recurring instances
+    if (task.recurrence === 'daily' && !task.custom_due_date && !task['due-date']) {
+      // Daily tasks should show every day unless completed
+      const isNotCompleted = !isCompleted(task.status);
+      console.log('📊 Daily task without date check:', {
+        taskId: task.id,
+        recurrence: task.recurrence,
+        status: task.status,
+        isNotCompleted
+      });
+      return isNotCompleted;
     }
 
     // For non-recurring tasks with due-type but no specific date
     // Only show if they were created on or before the target date
     if (task['due-type'] && task['due-type'] !== 'none' && task['due-type'] !== 'custom' && 
         (!task.recurrence || task.recurrence === 'none')) {
-      const createdDate = startOfDay(new Date(task.created_at));
-      return createdDate.getTime() <= startOfTargetDate.getTime();
+      const createdDateStr = task.created_at.split('T')[0];
+      const matches = createdDateStr <= targetDateStr;
+      console.log('📝 Non-recurring due-type task check:', {
+        taskId: task.id,
+        createdDate: createdDateStr,
+        targetDate: targetDateStr,
+        dueType: task['due-type'],
+        matches
+      });
+      return matches;
     }
 
+    console.log('❌ Task filtered out:', {
+      taskId: task.id,
+      title: task.title?.substring(0, 20),
+      status: task.status,
+      recurrence: task.recurrence,
+      custom_due_date: task.custom_due_date,
+      'due-date': task['due-date'],
+      'due-type': task['due-type']
+    });
     return false;
   });
+
+  console.log('🎯 getTasksForDate result:', {
+    targetDate: targetDateStr,
+    totalExpanded: expandedTasks.length,
+    filteredCount: filteredTasks.length,
+    filteredTasks: filteredTasks.map(t => ({
+      id: t.id,
+      title: t.title?.substring(0, 20),
+      status: t.status,
+      isRecurring: isRecurringInstance(t)
+    }))
+  });
+
+  return filteredTasks;
 };
 
 /**
@@ -902,7 +980,7 @@ export const canUserModifyTask = (task: Task, userId?: string, userRole?: string
   
   // Assistants can only modify tasks assigned to them
   if (userRole === 'assistant') {
-    return task.assigned_to === userId;
+    return task.assigned_to === userId || task.claimed_by === userId;
   }
   
   return false;

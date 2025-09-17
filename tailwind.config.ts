@@ -22,12 +22,11 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
-				'sans': ['Inter', 'system-ui', 'sans-serif'],
-				'display': ['Bricolage Grotesque', 'Inter', 'system-ui', 'sans-serif'],
-				'serif': ['Playfair Display', 'Georgia', 'serif'],
-				'handwritten': ['Playfair Display', 'serif'],
-			},
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Outfit", "system-ui", "sans-serif"],
+        mono: ["Space Grotesk", "ui-monospace", "monospace"],
+      },
 			fontSize: {
 				'xs': ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.025em' }],
 				'sm': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.025em' }],

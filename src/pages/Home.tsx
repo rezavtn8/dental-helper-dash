@@ -3,16 +3,16 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 
-// Import new components
-import { Navigation } from '@/components/home/Navigation';
-import { HeroSection } from '@/components/home/HeroSection';
-import { FeatureCards } from '@/components/home/FeatureCards';
+// Import redesigned components
+import { ModernNavigation } from '@/components/home/ModernNavigation';
+import { ImmersiveHero } from '@/components/home/ImmersiveHero';
+import { BentoFeatures } from '@/components/home/BentoFeatures';
 import { MetricsStrip } from '@/components/home/MetricsStrip';
-import { EducationSection } from '@/components/home/EducationSection';
+import { TheFlow } from '@/components/home/TheFlow';
+import { RealImpact } from '@/components/home/RealImpact';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
-import { PricingCTA } from '@/components/home/PricingCTA';
-import { AppPreview } from '@/components/home/AppPreview';
-import { Footer } from '@/components/home/Footer';
+import { ChooseYourJourney } from '@/components/home/ChooseYourJourney';
+import { ModernFooter } from '@/components/home/ModernFooter';
 export default function Home() {
   const navigate = useNavigate();
   const {
@@ -41,40 +41,43 @@ export default function Home() {
           </div>
         </div>}
 
-      {/* Navigation */}
-      <Navigation />
+      {/* Modern Navigation */}
+      <ModernNavigation />
 
-      {/* Hero Section */}
-      <HeroSection />
+      {/* Immersive Hero Section */}
+      <section id="hero">
+        <ImmersiveHero />
+      </section>
 
-      {/* Feature Cards Section */}
+      {/* Bento Grid Features Section */}
       <section id="features">
-        <FeatureCards />
+        <BentoFeatures />
       </section>
 
       {/* Metrics Strip */}
       <MetricsStrip />
 
-      {/* App Preview Section */}
+      {/* The Flow Section */}
       <section id="how-it-works">
-        <AppPreview />
+        <TheFlow />
       </section>
 
-      {/* Education Section */}
-      <EducationSection />
+      {/* Real Impact Section */}
+      <section id="impact">
+        <RealImpact />
+      </section>
 
       {/* Testimonials Section */}
       <section id="testimonials">
         <TestimonialsSection />
       </section>
 
-      {/* Pricing CTA Section */}
+      {/* Choose Your Journey Pricing */}
       <section id="pricing">
-        <PricingCTA />
+        <ChooseYourJourney />
       </section>
 
-
-      {/* Footer */}
-      <Footer />
+      {/* Modern Footer */}
+      <ModernFooter />
     </div>;
 }

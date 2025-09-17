@@ -6,11 +6,7 @@ import { useEffect } from 'react';
 // Import new components
 import { Navigation } from '@/components/home/Navigation';
 import { HeroSection } from '@/components/home/HeroSection';
-import { FeatureCards } from '@/components/home/FeatureCards';
 import { ThreeRoles } from '@/components/home/ThreeRoles';
-import { MetricsStrip } from '@/components/home/MetricsStrip';
-import { EducationSection } from '@/components/home/EducationSection';
-import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { PricingCTA } from '@/components/home/PricingCTA';
 import { AppPreview } from '@/components/home/AppPreview';
 import { Footer } from '@/components/home/Footer';
@@ -48,28 +44,12 @@ export default function Home() {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Feature Cards Section */}
-      <section id="features">
-        <FeatureCards />
-      </section>
-
       {/* Three Roles Section */}
       <ThreeRoles />
-
-      {/* Metrics Strip */}
-      <MetricsStrip />
 
       {/* App Preview Section */}
       <section id="how-it-works">
         <AppPreview />
-      </section>
-
-      {/* Education Section */}
-      <EducationSection />
-
-      {/* Testimonials Section */}
-      <section id="testimonials">
-        <TestimonialsSection />
       </section>
 
       {/* Pricing CTA Section */}

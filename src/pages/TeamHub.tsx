@@ -72,28 +72,40 @@ export default function TeamHub() {
       // Store selected clinic 
       localStorage.setItem('selected_clinic_id', selectedClinic);
       
-      // Get the user's roles for this clinic to determine where to navigate
-      try {
-        const { data: userRoles } = await supabase
-          .from('user_roles') 
-          .select('role')
-          .eq('user_id', user?.id)
-          .eq('clinic_id', selectedClinic)
-          .eq('is_active', true);
+        // Get the user's roles for this clinic to determine navigation options
+        try {
+          const { data: userRoles } = await supabase
+            .from('user_roles') 
+            .select('role')
+            .eq('user_id', user?.id)
+            .eq('clinic_id', selectedClinic)
+            .eq('is_active', true);
 
-        const selectedMembership = memberships.find(m => m.clinic_id === selectedClinic);
-        const primaryRole = selectedMembership?.role;
-        const additionalRoles = userRoles?.map(r => r.role) || [];
-        
-        // Navigate based on primary role
-        if (primaryRole === 'owner') {
-          navigate('/owner');
-        } else if (primaryRole === 'front_desk' || additionalRoles.includes('front_desk')) {
-          navigate('/front-desk');
-        } else {
-          navigate('/assistant');
-        }
-      } catch (error) {
+          const selectedMembership = memberships.find(m => m.clinic_id === selectedClinic);
+          const primaryRole = selectedMembership?.role;
+          const additionalRoles = userRoles?.map(r => r.role) || [];
+          const allRoles = [primaryRole, ...additionalRoles].filter(Boolean);
+          
+          // Check for preferred role from role switcher
+          const preferredRole = localStorage.getItem('preferred_role');
+          let targetRole = primaryRole;
+          
+          if (preferredRole && allRoles.includes(preferredRole)) {
+            targetRole = preferredRole;
+          } else if (allRoles.length > 1 && allRoles.includes('front_desk')) {
+            // If user has multiple roles and one is front_desk, prefer it if no preference set
+            targetRole = primaryRole;
+          }
+          
+          // Navigate based on target role
+          if (targetRole === 'owner') {
+            navigate('/owner');
+          } else if (targetRole === 'front_desk') {
+            navigate('/front-desk');
+          } else {
+            navigate('/assistant');
+          }
+        } catch (error) {
         console.error('Error checking user roles:', error);
         // Default to assistant dashboard
         navigate('/assistant');

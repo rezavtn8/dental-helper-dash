@@ -14,6 +14,7 @@ import { getUserInitials } from '@/lib/taskUtils';
 import NewAssistantSidebar from '@/components/assistant/NewAssistantSidebar';
 import AssistantDashboardTabs from '@/components/assistant/AssistantDashboardTabs';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
+import { RoleSwitcher } from '@/components/ui/role-switcher';
 
 const AssistantDashboard = () => {
   const { session, user, userProfile, signOut } = useAuth();
@@ -143,9 +144,12 @@ const AssistantDashboard = () => {
                           {userProfile?.name || 'Assistant'}
                         </p>
                         <div className="flex items-center gap-1">
-                          <Badge variant="secondary" className="bg-blue-50 text-blue-600 text-xs border-blue-100 h-4 px-1.5">
-                            Assistant
-                          </Badge>
+                          <RoleSwitcher 
+                            currentRole="assistant"
+                            availableRoles={userProfile?.roles || ['assistant']}
+                            userProfile={userProfile}
+                            variant="dropdown"
+                          />
                         </div>
                       </div>
                       <ChevronDown className="w-3 h-3 text-muted-foreground" />

@@ -15,6 +15,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { RoleSwitcher } from '@/components/ui/role-switcher';
 
 export function FrontDeskSidebar() {
   const { userProfile, signOut } = useAuth();
@@ -105,20 +106,13 @@ export function FrontDeskSidebar() {
                   {userProfile?.name || 'Front Desk User'}
                 </p>
                 <div className="flex items-center space-x-1 mt-1">
-                  <Badge variant="secondary" className="text-xs">
-                    Front Desk
-                  </Badge>
-                  {canSwitchRoles && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRoleSwitch}
-                      className="h-6 px-2 text-xs"
-                    >
-                      <RotateCcw className="h-3 w-3 mr-1" />
-                      Switch
-                    </Button>
-                  )}
+                  <RoleSwitcher 
+                    currentRole="front_desk"
+                    availableRoles={userProfile?.roles || ['front_desk']}
+                    userProfile={userProfile}
+                    variant="inline"
+                    className="flex-wrap"
+                  />
                 </div>
               </div>
             </div>

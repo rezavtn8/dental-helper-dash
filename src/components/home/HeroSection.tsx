@@ -40,7 +40,7 @@ export function HeroSection() {
         </div>
         
         {/* Headline */}
-        <h1 className="text-[3rem] md:text-[3.5rem] lg:text-[4rem] font-semibold mb-6 leading-[3.5rem] md:leading-[4rem] lg:leading-[4.5rem] bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+        <h1 className="text-[2.4rem] md:text-[2.8rem] lg:text-[3.2rem] font-semibold mb-6 leading-[2.8rem] md:leading-[3.2rem] lg:leading-[3.6rem] bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
           Onboard. Train. Manage.
           <br />
           <span className="font-handwritten bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">All in One Place.</span>

@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 interface ClinicRequiredRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'owner' | 'assistant' | 'admin';
+  requiredRole?: 'owner' | 'assistant' | 'front_desk' | 'admin';
 }
 
 export const ClinicRequiredRoute: React.FC<ClinicRequiredRouteProps> = ({ 
@@ -26,8 +26,13 @@ export const ClinicRequiredRoute: React.FC<ClinicRequiredRouteProps> = ({
 
   // Allow exploration even without clinic - components will handle the no-clinic state
   // Check role if specified and user has a clinic
-  if (requiredRole && userProfile?.clinic_id && userProfile.role !== requiredRole) {
-    return <Navigate to="/hub" replace />;
+  if (requiredRole && userProfile?.clinic_id) {
+    const hasRequiredRole = userProfile.role === requiredRole || 
+      userProfile.roles?.includes(requiredRole);
+    
+    if (!hasRequiredRole) {
+      return <Navigate to="/hub" replace />;
+    }
   }
 
   return <>{children}</>;

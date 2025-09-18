@@ -20,6 +20,8 @@ export default function Auth() {
         navigate('/owner');
       } else if (userProfile.role === 'assistant') {
         navigate('/assistant');
+      } else if (userProfile.role === 'front_desk') {
+        navigate('/front-desk');
       }
     }
   }, [user, userProfile, navigate, loading]);
@@ -106,7 +108,7 @@ export default function Auth() {
                 <ClinicSetupForm userProfile={userProfile} />
               ) : (
                 <Tabs defaultValue="owner" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-8 bg-surface-muted/50 p-2 h-14 rounded-2xl backdrop-blur-sm">
+                  <TabsList className="grid w-full grid-cols-3 mb-8 bg-surface-muted/50 p-2 h-14 rounded-2xl backdrop-blur-sm">
                     <TabsTrigger 
                       value="owner" 
                       className="flex items-center space-x-2 py-3 text-sm font-medium rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-lg transition-all duration-200"
@@ -120,6 +122,13 @@ export default function Auth() {
                     >
                       <UserCheck className="w-5 h-5" />
                       <span>Assistant</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="front_desk" 
+                      className="flex items-center space-x-2 py-3 text-sm font-medium rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-lg transition-all duration-200"
+                    >
+                      <UserCheck className="w-5 h-5" />
+                      <span>Front Desk</span>
                     </TabsTrigger>
                   </TabsList>
                   
@@ -147,6 +156,19 @@ export default function Auth() {
                       </div>
                     </div>
                     <AuthWidget role="assistant" />
+                  </TabsContent>
+
+                  <TabsContent value="front_desk" className="space-y-6 mt-0">
+                    <div className="text-center space-y-4">
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg glass-card">
+                        <UserCheck className="w-8 h-8 text-accent" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-display font-semibold text-foreground">Front Desk</h3>
+                        <p className="text-muted-foreground">Manage reception tasks and patient scheduling efficiently</p>
+                      </div>
+                    </div>
+                    <AuthWidget role="front_desk" />
                   </TabsContent>
                 </Tabs>
               )}

@@ -12,7 +12,7 @@ import { sanitizeText, sanitizeEmail } from '@/utils/sanitize';
 import { useAuthError } from '@/hooks/useAuthError';
 
 interface AuthWidgetProps {
-  role: 'owner' | 'assistant';
+  role: 'owner' | 'assistant' | 'front_desk';
 }
 
 export default function AuthWidget({ role }: AuthWidgetProps) {
@@ -234,7 +234,7 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Create {isOwner ? 'Owner' : 'Assistant'} Account
+              Create {role === 'owner' ? 'Owner' : role === 'assistant' ? 'Assistant' : 'Front Desk'} Account
             </Button>
           </form>
 
@@ -262,7 +262,7 @@ export default function AuthWidget({ role }: AuthWidgetProps) {
         </TabsContent>
       </Tabs>
 
-      {role === 'assistant' && (
+      {(role === 'assistant' || role === 'front_desk') && (
         <div className="p-4 bg-muted/50 rounded-lg border">
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center space-x-2">

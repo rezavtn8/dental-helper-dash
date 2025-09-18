@@ -25,6 +25,17 @@ export default function Home() {
         navigate('/owner');
       } else if (userProfile.role === 'assistant') {
         navigate('/assistant');
+      } else if (userProfile.role === 'front_desk') {
+        navigate('/front-desk');
+      } else if (userProfile.roles?.length) {
+        // Multi-role user - redirect to primary role
+        if (userProfile.roles.includes('owner')) {
+          navigate('/owner');
+        } else if (userProfile.roles.includes('assistant')) {
+          navigate('/assistant');
+        } else if (userProfile.roles.includes('front_desk')) {
+          navigate('/front-desk');
+        }
       }
     }
   }, [user, userProfile, navigate, loading]);

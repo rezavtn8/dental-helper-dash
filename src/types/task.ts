@@ -24,6 +24,7 @@ export interface Task {
   attachments?: any;
   template_id?: string;
   generated_date?: string; // Date when task was generated from template
+  target_role?: string; // Role targeting for front desk vs assistant
 }
 
 export interface Assistant {

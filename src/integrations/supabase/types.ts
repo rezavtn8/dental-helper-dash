@@ -857,6 +857,7 @@ export type Database = {
           source_type: string | null
           specialty: string | null
           start_date: string | null
+          target_role: string | null
           tasks_count: number | null
           title: string
           updated_at: string
@@ -881,6 +882,7 @@ export type Database = {
           source_type?: string | null
           specialty?: string | null
           start_date?: string | null
+          target_role?: string | null
           tasks_count?: number | null
           title: string
           updated_at?: string
@@ -905,6 +907,7 @@ export type Database = {
           source_type?: string | null
           specialty?: string | null
           start_date?: string | null
+          target_role?: string | null
           tasks_count?: number | null
           title?: string
           updated_at?: string
@@ -933,6 +936,7 @@ export type Database = {
           priority: string | null
           recurrence: string | null
           status: Database["public"]["Enums"]["task_status"]
+          target_role: string | null
           template_id: string | null
           title: string | null
           updated_at: string | null
@@ -958,6 +962,7 @@ export type Database = {
           priority?: string | null
           recurrence?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          target_role?: string | null
           template_id?: string | null
           title?: string | null
           updated_at?: string | null
@@ -983,6 +988,7 @@ export type Database = {
           priority?: string | null
           recurrence?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          target_role?: string | null
           template_id?: string | null
           title?: string | null
           updated_at?: string | null
@@ -996,6 +1002,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_roles: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          role: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_sessions: {
         Row: {
@@ -1439,6 +1475,13 @@ export type Database = {
           role: string
         }[]
       }
+      get_user_roles: {
+        Args: { user_id_param?: string }
+        Returns: {
+          clinic_id: string
+          role: string
+        }[]
+      }
       initialize_federal_holidays: {
         Args: { p_clinic_id: string }
         Returns: undefined
@@ -1534,6 +1577,10 @@ export type Database = {
           request_id: string
           success: boolean
         }[]
+      }
+      user_has_role: {
+        Args: { check_role: string; user_id_param?: string }
+        Returns: boolean
       }
       validate_clinic_code: {
         Args: { code_input: string }

@@ -11,11 +11,12 @@ import { ClinicRequiredRoute } from "@/components/routes/ClinicRequiredRoute";
 import { errorLogger } from "@/lib/errorLogger";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
-import AssistantDashboard from "./pages/AssistantDashboard";
-import AssistantHub from "./pages/AssistantHub";
-import OwnerDashboard from "./pages/OwnerDashboard";
-import JoinClinic from "./pages/JoinClinic";
-import NotFound from "./pages/NotFound";
+import AssistantHub from './pages/AssistantHub';
+import JoinClinic from './pages/JoinClinic';
+import AssistantDashboard from './pages/AssistantDashboard';
+import FrontDeskDashboard from './pages/FrontDeskDashboard';
+import OwnerDashboard from './pages/OwnerDashboard';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,8 +70,27 @@ const AppRoutes = () => (
       <Route path="/auth" element={<Auth />} />
       <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
       <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
-      <Route path="/assistant" element={<ProtectedRoute><AssistantDashboard /></ProtectedRoute>} />
-      <Route path="/owner" element={<ProtectedRoute><OwnerDashboard /></ProtectedRoute>} />
+      <Route path="/assistant" element={
+        <ProtectedRoute>
+          <ClinicRequiredRoute requiredRole="assistant">
+            <AssistantDashboard />
+          </ClinicRequiredRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/front-desk" element={
+        <ProtectedRoute>
+          <ClinicRequiredRoute requiredRole="front_desk">
+            <FrontDeskDashboard />
+          </ClinicRequiredRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/owner" element={
+        <ProtectedRoute>
+          <ClinicRequiredRoute requiredRole="owner">
+            <OwnerDashboard />
+          </ClinicRequiredRoute>
+        </ProtectedRoute>
+      } />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>

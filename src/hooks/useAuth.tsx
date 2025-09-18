@@ -8,6 +8,7 @@ interface UserProfile {
   name: string;
   email: string;
   role: string;
+  roles?: string[]; // Support for multiple roles
   clinic_id: string | null;
   is_active: boolean;
 }
@@ -102,7 +103,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await createUserProfile(userId);
       } else {
         console.log('Profile found, setting user profile');
-        setUserProfile(data);
+        
+        // Fetch multiple roles if they exist
+        const { data: rolesData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .eq('is_active', true);
+
+        const roles = rolesData?.map(r => r.role) || [];
+        if (data.role && !roles.includes(data.role)) {
+          roles.push(data.role);
+        }
+
+        setUserProfile({ ...data, roles });
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -224,7 +238,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, name: string, role: 'owner' | 'assistant' = 'assistant'): Promise<{ error?: string }> => {
+  const signUp = async (email: string, password: string, name: string, role: 'owner' | 'assistant' | 'front_desk' = 'assistant'): Promise<{ error?: string }> => {
     try {
       console.log('Attempting sign up for:', email, 'with role:', role);
       

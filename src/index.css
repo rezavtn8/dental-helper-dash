@@ -68,9 +68,9 @@ All colors MUST be HSL.
     --gradient-button-hover: linear-gradient(135deg, hsl(215 19% 44%) 0%, hsl(215 28% 32%) 100%);
 
     /* Vibrant pricing gradients */
-    --gradient-starter: linear-gradient(135deg, hsl(220 14% 40%) 0%, hsl(220 14% 30%) 100%);
-    --gradient-pro: linear-gradient(135deg, hsl(188 78% 41%) 0%, hsl(188 78% 31%) 100%);
-    --gradient-unlimited: linear-gradient(135deg, hsl(270 91% 65%) 0%, hsl(270 91% 55%) 100%);
+    --gradient-starter: linear-gradient(135deg, hsl(220 14% 50%) 0%, hsl(220 14% 40%) 100%);
+    --gradient-pro: linear-gradient(135deg, hsl(200 20% 50%) 0%, hsl(200 20% 40%) 100%);
+    --gradient-unlimited: linear-gradient(135deg, hsl(250 20% 50%) 0%, hsl(250 20% 40%) 100%);
 
     --radius: 1rem;
     

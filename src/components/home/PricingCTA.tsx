@@ -83,12 +83,12 @@ export function PricingCTA() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid md:grid-cols-3 gap-8 mb-16">
+      <div className="grid md:grid-cols-3 gap-6 mb-12">
         {plans.map((plan, index) => {
         const IconComponent = plan.icon;
         return <div key={plan.name} className={cn(
-              "relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl group cursor-pointer",
-              plan.popular ? "scale-105 shadow-xl" : ""
+              "relative overflow-hidden rounded-xl transition-all duration-300 hover:scale-102 hover:shadow-lg group cursor-pointer",
+              plan.popular ? "scale-102 shadow-md" : ""
             )}
             style={{ background: plan.bgStyle }}
           >
@@ -96,80 +96,80 @@ export function PricingCTA() {
               <div className="absolute inset-0 overflow-hidden">
                 {/* Large Circle */}
                 <div 
-                  className="absolute w-32 h-32 rounded-full opacity-20 transition-all duration-700 group-hover:animate-[pricing-float_4s_ease-in-out_infinite]"
+                  className="absolute w-24 h-24 rounded-full opacity-10 transition-all duration-700 group-hover:animate-[pricing-float_4s_ease-in-out_infinite]"
                   style={{ 
-                    background: 'rgba(255,255,255,0.1)',
-                    top: '-20px',
-                    right: '-20px'
+                    background: 'rgba(255,255,255,0.15)',
+                    top: '-15px',
+                    right: '-15px'
                   }}
                 />
                 {/* Triangle Shape */}
                 <div 
-                  className="absolute w-24 h-24 opacity-15 transition-all duration-700 group-hover:animate-[pricing-pulse_3s_ease-in-out_infinite]"
+                  className="absolute w-16 h-16 opacity-8 transition-all duration-700 group-hover:animate-[pricing-pulse_3s_ease-in-out_infinite]"
                   style={{ 
-                    background: 'rgba(255,255,255,0.1)',
+                    background: 'rgba(255,255,255,0.12)',
                     clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-                    bottom: '20px',
-                    left: '-10px'
+                    bottom: '15px',
+                    left: '-8px'
                   }}
                 />
                 {/* Medium Circle */}
                 <div 
-                  className="absolute w-20 h-20 rounded-full opacity-25 transition-all duration-700 group-hover:animate-[pricing-float_5s_ease-in-out_infinite_reverse]"
+                  className="absolute w-14 h-14 rounded-full opacity-12 transition-all duration-700 group-hover:animate-[pricing-float_5s_ease-in-out_infinite_reverse]"
                   style={{ 
-                    background: 'rgba(255,255,255,0.1)',
-                    bottom: '60px',
-                    right: '30px'
+                    background: 'rgba(255,255,255,0.18)',
+                    bottom: '40px',
+                    right: '20px'
                   }}
                 />
               </div>
 
-              {plan.popular && <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                  <Badge className="bg-white text-gray-900 px-4 py-1 flex items-center gap-1 shadow-lg">
+              {plan.popular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                  <Badge className="bg-white text-gray-700 px-3 py-1 flex items-center gap-1 shadow-md text-xs">
                     <Star className="w-3 h-3" />
                     Most Popular
                   </Badge>
                 </div>}
               
-              <div className="relative z-10 p-8">
-                <div className="text-center mb-6">
-                  <div className="flex justify-center mb-4">
-                    <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                      <IconComponent className="w-6 h-6 text-white" />
+              <div className="relative z-10 p-6">
+                <div className="text-center mb-5">
+                  <div className="flex justify-center mb-3">
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                      <IconComponent className="w-5 h-5 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">{plan.name}</h3>
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold text-white">${plan.price}</span>
-                    <span className="text-white/80">/month</span>
-                    {isAnnual && <div className="text-sm text-white/70 mt-1">
+                  <h3 className="text-xl font-bold text-white mb-3">{plan.name}</h3>
+                  <div className="mb-3">
+                    <span className="text-3xl font-bold text-white">${plan.price}</span>
+                    <span className="text-white/80 text-sm">/month</span>
+                    {isAnnual && <div className="text-xs text-white/70 mt-1">
                         ${plan.price * 12}/year
                       </div>}
                   </div>
-                  <p className="font-medium text-white/90 mb-2">
+                  <p className="text-sm font-medium text-white/90 mb-2">
                     {plan.assistants}
                   </p>
-                  {plan.addOnPrice > 0 && <p className="text-sm text-white/70">
+                  {plan.addOnPrice > 0 && <p className="text-xs text-white/70">
                       Add assistants: +${plan.addOnPrice}/each
                     </p>}
                 </div>
                 
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-white/90">{feature}</span>
+                <ul className="space-y-2 mb-6">
+                  {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-white flex-shrink-0 mt-0.5" />
+                      <span className="text-xs text-white/90">{feature}</span>
                     </li>)}
                 </ul>
                 
                 <Button 
                   className={cn(
-                    "w-full bg-white text-gray-900 hover:bg-white/90 border-0 font-semibold py-3 transition-all duration-300",
-                    "hover:shadow-lg hover:transform hover:scale-105"
+                    "w-full bg-white text-gray-800 hover:bg-white/95 border-0 font-medium py-2 text-sm transition-all duration-300",
+                    "hover:shadow-md"
                   )}
                   onClick={() => navigate('/auth')}
                 >
                   Start {plan.name} Plan
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <ArrowRight className="w-3 h-3 ml-2" />
                 </Button>
               </div>
             </div>;

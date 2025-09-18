@@ -48,7 +48,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     'due-type': 'EoD',
     category: '',
     assigned_to: 'unassigned',
-    recurrence: 'none'
+    recurrence: 'none',
+    target_role: 'assistant' as const
   });
 
   // Set custom due date when initialDate is provided
@@ -72,7 +73,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       priority: newTask.priority,
       'due-type': newTask['due-type'],
       recurrence: newTask.recurrence,
-      assigned_to: newTask.assigned_to
+      assigned_to: newTask.assigned_to,
+      target_role: newTask.target_role
     };
     
     // Validate required fields after sanitization
@@ -107,7 +109,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         'due-type': 'EoD',
         category: '',
         assigned_to: 'unassigned',
-        recurrence: 'none'
+        recurrence: 'none',
+        target_role: 'assistant'
       });
       setChecklist([]);
       
@@ -160,6 +163,20 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label>Target Role</Label>
+              <Select value={newTask.target_role} onValueChange={(value: any) => setNewTask({ ...newTask, target_role: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="assistant">Assistant</SelectItem>
+                  <SelectItem value="front_desk">Front Desk</SelectItem>
+                  <SelectItem value="shared">Shared (Both)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label>Priority</Label>
               <Select value={newTask.priority} onValueChange={(value: any) => setNewTask({ ...newTask, priority: value })}>
                 <SelectTrigger>
@@ -172,6 +189,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
           <div className="space-y-2">
             <Label>Due Time</Label>
@@ -187,7 +205,6 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectItem value="EoM">End of Month</SelectItem>
               </SelectContent>
             </Select>
-          </div>
           </div>
 
           <div className="space-y-2">

@@ -11,7 +11,7 @@ import { ClinicRequiredRoute } from "@/components/routes/ClinicRequiredRoute";
 import { errorLogger } from "@/lib/errorLogger";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
-import AssistantHub from './pages/AssistantHub';
+import TeamHub from './pages/TeamHub';
 import JoinClinic from './pages/JoinClinic';
 import AssistantDashboard from './pages/AssistantDashboard';
 import FrontDeskDashboard from './pages/FrontDeskDashboard';
@@ -68,7 +68,7 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/auth" element={<Auth />} />
-      <Route path="/hub" element={<ProtectedRoute><AssistantHub /></ProtectedRoute>} />
+      <Route path="/hub" element={<ProtectedRoute><TeamHub /></ProtectedRoute>} />
       <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
       <Route path="/assistant" element={
         <ProtectedRoute>

@@ -23,7 +23,7 @@ interface ClinicMembership {
   };
 }
 
-export default function AssistantHub() {
+export default function TeamHub() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [memberships, setMemberships] = useState<ClinicMembership[]>([]);
@@ -67,11 +67,37 @@ export default function AssistantHub() {
     }
   };
 
-  const handleEnterClinic = () => {
+  const handleEnterClinic = async () => {
     if (selectedClinic) {
-      // Store selected clinic and navigate to assistant dashboard
+      // Store selected clinic 
       localStorage.setItem('selected_clinic_id', selectedClinic);
-      navigate('/assistant');
+      
+      // Get the user's roles for this clinic to determine where to navigate
+      try {
+        const { data: userRoles } = await supabase
+          .from('user_roles') 
+          .select('role')
+          .eq('user_id', user?.id)
+          .eq('clinic_id', selectedClinic)
+          .eq('is_active', true);
+
+        const selectedMembership = memberships.find(m => m.clinic_id === selectedClinic);
+        const primaryRole = selectedMembership?.role;
+        const additionalRoles = userRoles?.map(r => r.role) || [];
+        
+        // Navigate based on primary role
+        if (primaryRole === 'owner') {
+          navigate('/owner');
+        } else if (primaryRole === 'front_desk' || additionalRoles.includes('front_desk')) {
+          navigate('/front-desk');
+        } else {
+          navigate('/assistant');
+        }
+      } catch (error) {
+        console.error('Error checking user roles:', error);
+        // Default to assistant dashboard
+        navigate('/assistant');
+      }
     }
   };
 
@@ -104,7 +130,7 @@ export default function AssistantHub() {
           <div className="flex items-center space-x-3">
             <AnimatedLogo size={28} animated={false} className="text-primary" />
             <div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">Assistant Hub</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">Team Hub</span>
               <p className="text-sm text-muted-foreground">Welcome back, {user?.email}</p>
             </div>
           </div>
@@ -126,7 +152,7 @@ export default function AssistantHub() {
                 </div>
                 <CardTitle className="text-2xl">No Clinic Access</CardTitle>
                 <CardDescription className="text-base">
-                  You're not currently a member of any dental clinics. Join a clinic to access your daily task dashboard and start supporting your team.
+                  You're not currently a member of any dental clinics. Join a clinic to access your dashboard and start supporting your team.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center space-y-6">
@@ -188,7 +214,7 @@ export default function AssistantHub() {
                   <span>Your Clinics</span>
                 </CardTitle>
                 <CardDescription>
-                  Select a clinic to access your daily task dashboard and patient tracking
+                  Select a clinic to access your dashboard and workspace
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">

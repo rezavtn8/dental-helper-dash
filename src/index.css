@@ -67,6 +67,11 @@ All colors MUST be HSL.
     --gradient-button: linear-gradient(135deg, hsl(215 22% 49%) 0%, hsl(215 25% 38%) 100%);
     --gradient-button-hover: linear-gradient(135deg, hsl(215 19% 44%) 0%, hsl(215 28% 32%) 100%);
 
+    /* Vibrant pricing gradients */
+    --gradient-starter: linear-gradient(135deg, hsl(220 14% 40%) 0%, hsl(220 14% 30%) 100%);
+    --gradient-pro: linear-gradient(135deg, hsl(188 78% 41%) 0%, hsl(188 78% 31%) 100%);
+    --gradient-unlimited: linear-gradient(135deg, hsl(270 91% 65%) 0%, hsl(270 91% 55%) 100%);
+
     --radius: 1rem;
     
     /* Typography Scale */
@@ -268,5 +273,31 @@ All colors MUST be HSL.
   }
   66% {
     transform: translateY(-10px) rotate(240deg);
+  }
+}
+
+@keyframes pricing-float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-15px) translateX(5px) rotate(90deg) scale(1.05);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-5px) rotate(180deg) scale(0.95);
+  }
+  75% {
+    transform: translateY(-20px) translateX(3px) rotate(270deg) scale(1.02);
+  }
+}
+
+@keyframes pricing-pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+    opacity: 0.9;
   }
 }

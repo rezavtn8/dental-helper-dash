@@ -22,16 +22,21 @@ import {
   User,
   Clock,
   UserX,
-  UserCheck
+  UserCheck,
+  Settings
 } from 'lucide-react';
+import RoleManagementDialog from './RoleManagementDialog';
 
 interface TeamMember {
   id: string;
   name: string;
+  email: string;
   role: string;
+  roles?: string[];
   is_active: boolean;
   created_at: string;
   last_login?: string;
+  clinic_id?: string;
 }
 
 interface JoinRequest {
@@ -59,6 +64,10 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     open: false,
     member: null
   });
+  const [roleDialog, setRoleDialog] = useState<{ open: boolean; member: TeamMember | null }>({
+    open: false,
+    member: null
+  });
 
   useEffect(() => {
     if (clinicId) {
@@ -70,11 +79,37 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     try {
       setLoading(true);
 
-      // Use secure function for team member access (no bulk email exposure)
-      const { data: membersData, error: membersError } = await supabase.rpc('get_team_members_safe');
+      // Fetch team members directly with email included
+      const { data: membersData, error: membersError } = await supabase
+        .from('users')
+        .select('id, name, email, role, is_active, created_at, last_login')
+        .eq('clinic_id', clinicId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
       if (membersError) throw membersError;
-      setTeamMembers(membersData || []);
+      
+      // Fetch user roles for each member
+      const memberIds = membersData?.map(m => m.id) || [];
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', memberIds)
+        .eq('is_active', true);
+
+      // Combine members with their additional roles
+      const membersWithRoles = (membersData || []).map(member => {
+        const additionalRoles = userRoles?.filter(ur => ur.user_id === member.id).map(ur => ur.role) || [];
+        const allRoles = member.role ? [member.role, ...additionalRoles.filter(r => r !== member.role)] : additionalRoles;
+        
+        return {
+          ...member,
+          roles: allRoles,
+          clinic_id: clinicId
+        };
+      });
+      
+      setTeamMembers(membersWithRoles);
 
       // Fetch pending join requests
       const { data: requestsData, error: requestsError } = await supabase
@@ -243,7 +278,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     const variants = {
       owner: { variant: 'default' as const, color: 'bg-blue-600' },
       admin: { variant: 'secondary' as const, color: 'bg-purple-600' },
-      assistant: { variant: 'outline' as const, color: 'bg-blue-600' }
+      assistant: { variant: 'outline' as const, color: 'bg-blue-600' },
+      front_desk: { variant: 'secondary' as const, color: 'bg-green-600' }
     };
     
     return variants[role as keyof typeof variants] || variants.assistant;
@@ -390,10 +426,26 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                   <TableHead>Status</TableHead>
                   <TableHead>Joined On</TableHead>
                   <TableHead>Last Login</TableHead>
-                     <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {filteredMembers.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8">
+                      <div className="flex flex-col items-center">
+                        <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                        <h3 className="text-lg font-semibold mb-2">No Team Members Found</h3>
+                        <p className="text-muted-foreground">
+                          {searchTerm || statusFilter !== 'all' 
+                            ? 'Try adjusting your filters or search term.'
+                            : 'Share your clinic code with assistants to have them join your team.'
+                          }
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
                 {filteredMembers.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell>
@@ -408,12 +460,22 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge 
-                        variant={getRoleBadge(member.role).variant}
-                        className="capitalize"
-                      >
-                        {member.role}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1">
+                        {(member.roles || [member.role]).filter(Boolean).map(role => (
+                          <Badge 
+                            key={role}
+                            variant={getRoleBadge(role).variant}
+                            className="capitalize text-xs"
+                          >
+                            {role === 'front_desk' ? 'Front Desk' : role}
+                          </Badge>
+                        ))}
+                        {(member.roles || []).length > 1 && (
+                          <Badge variant="secondary" className="text-xs bg-yellow-50 text-yellow-700">
+                            Multi-role
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant={member.is_active ? 'default' : 'secondary'}>
@@ -435,7 +497,15 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       {member.role !== 'owner' && (
-                        <div className="flex items-center gap-2 justify-end">
+                        <div className="flex items-center gap-1 justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setRoleDialog({ open: true, member })}
+                            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                          >
+                            <Settings className="w-4 h-4" />
+                          </Button>
                           {member.is_active ? (
                             <>
                               <Button
@@ -468,15 +538,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                               >
                                 <UserCheck className="w-4 h-4" />
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setRemoveDialog({ open: true, member })}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                title="Remove member from clinic permanently"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
                             </>
                           )}
                         </div>
@@ -487,40 +548,22 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
               </TableBody>
             </Table>
           </div>
-          
-          {filteredMembers.length === 0 && (
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">No Team Members Found</h3>
-              <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== 'all' 
-                  ? 'Try adjusting your filters or search term.'
-                  : 'Share your clinic code with assistants to have them join your team.'
-                }
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
 
       {/* Remove Member Dialog */}
       <Dialog open={removeDialog.open} onOpenChange={(open) => {
-        if (!open) {
-          setRemoveDialog({ open: false, member: null });
-        }
+        if (!open) setRemoveDialog({ open: false, member: null });
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
-              Remove Team Member
-            </DialogTitle>
+            <DialogTitle>Remove Team Member</DialogTitle>
             <DialogDescription>
-              Are you sure you want to permanently remove <strong>{removeDialog.member?.name}</strong> from your team?
-              This will revoke their access and remove them from your clinic entirely. To temporarily disable access, use the deactivate option instead.
+              Are you sure you want to remove {removeDialog.member?.name} from your clinic? 
+              This will deactivate their account and remove their clinic access.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="flex gap-2">
             <Button
               variant="outline"
               onClick={() => setRemoveDialog({ open: false, member: null })}
@@ -531,12 +574,21 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
               onClick={handleRemoveMember}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
               Remove Member
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Role Management Dialog */}
+      <RoleManagementDialog
+        open={roleDialog.open}
+        onOpenChange={(open) => {
+          if (!open) setRoleDialog({ open: false, member: null });
+        }}
+        member={roleDialog.member}
+        onUpdate={fetchData}
+      />
     </div>
   );
 }

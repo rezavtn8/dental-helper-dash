@@ -149,7 +149,7 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
       </Card>
 
       {/* Team Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card className="shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center space-x-3">
@@ -188,9 +188,41 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">
-                  {assistants.filter(a => a.role === 'admin').length}
+                  {assistants.filter(a => (a.roles || [a.role]).includes('admin')).length}
                 </p>
                 <p className="text-sm text-gray-600">Admin Members</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <User className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">
+                  {assistants.filter(a => (a.roles || [a.role]).includes('front_desk')).length}
+                </p>
+                <p className="text-sm text-gray-600">Front Desk</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Settings className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">
+                  {assistants.filter(a => (a.roles || []).length > 1).length}
+                </p>
+                <p className="text-sm text-gray-600">Multi-Role</p>
               </div>
             </div>
           </CardContent>
@@ -274,40 +306,50 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
                           </div>
                         </div>
                       </div>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setRoleDialog({ open: true, assistant })}>
-                            <Settings className="mr-2 h-4 w-4" />
-                            Manage Roles
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleActive(assistant)}>
-                            {assistant.is_active ? (
-                              <>
-                                <UserMinus className="mr-2 h-4 w-4" />
-                                Deactivate
-                              </>
-                            ) : (
-                              <>
-                                <UserPlus className="mr-2 h-4 w-4" />
-                                Activate
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setDeleteDialog({ open: true, assistant })}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    {/* Action Buttons */}
+                    <div className="pt-2 border-t border-gray-100">
+                      <div className="flex items-center justify-between">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setRoleDialog({ open: true, assistant })}
+                          className="flex-1 mr-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 transition-colors"
+                        >
+                          <Settings className="w-4 h-4 mr-1" />
+                          Manage Roles
+                        </Button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="px-2 hover:bg-gray-50">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleToggleActive(assistant)}>
+                              {assistant.is_active ? (
+                                <>
+                                  <UserMinus className="mr-2 h-4 w-4" />
+                                  Deactivate
+                                </>
+                              ) : (
+                                <>
+                                  <UserPlus className="mr-2 h-4 w-4" />
+                                  Activate
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setDeleteDialog({ open: true, assistant })}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
                     </div>
                   </CardHeader>
                   
@@ -326,7 +368,7 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
                     
                     {/* Task Stats */}
                     <div className="pt-2 border-t border-gray-100">
-                      <div className="flex justify-between items-center text-sm">
+                      <div className="flex justify-between items-center text-sm mb-2">
                         <span className="text-gray-600">Active Tasks:</span>
                         <Badge variant="outline" className="text-xs">
                           {activeTasks} / {assignedTasks.length}
@@ -336,7 +378,7 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
                     
                     {/* Last Login */}
                     {assistant.last_login && (
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 mb-3">
                         Last login: {formatDate(assistant.last_login)}
                       </div>
                     )}
@@ -379,7 +421,10 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
           onOpenChange={(open) => {
             if (!open) setRoleDialog({ open: false, assistant: null });
           }}
-          member={roleDialog.assistant}
+          member={roleDialog.assistant ? {
+            ...roleDialog.assistant,
+            is_active: roleDialog.assistant.is_active ?? true
+          } : null}
           onUpdate={onTeamUpdate}
         />
       </div>

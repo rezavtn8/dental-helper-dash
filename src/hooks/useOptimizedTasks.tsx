@@ -48,6 +48,7 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
       }
 
     console.log('✅ Tasks fetched successfully:', data?.length || 0);
+    console.log('📊 User roles for filtering:', userProfile?.roles || [userProfile?.role]);
     
     // Advanced deduplication with comprehensive logging
     const taskMap = new Map<string, Task>();
@@ -83,7 +84,38 @@ export function useOptimizedTasks(): OptimizedTasksReturn {
       });
     }
     
-    setTasks(uniqueTasks);
+    // Filter tasks based on user roles and assignment
+    const filteredTasks = uniqueTasks.filter(task => {
+      const userRoles = userProfile?.roles || (userProfile?.role ? [userProfile.role] : []);
+      const isOwner = userRoles.includes('owner');
+      const isAssistant = userRoles.includes('assistant');
+      const isFrontDesk = userRoles.includes('front_desk');
+      
+      // Owners can see all tasks
+      if (isOwner) return true;
+      
+      // Multi-role users can see tasks for any of their roles
+      if (task.target_role) {
+        const canSeeTask = 
+          (isAssistant && ['assistant', 'shared'].includes(task.target_role)) ||
+          (isFrontDesk && ['front_desk', 'shared'].includes(task.target_role));
+        
+        if (canSeeTask) {
+          return task.assigned_to === userProfile.id || task.assigned_to === null;
+        }
+      }
+      
+      // For tasks without target_role (legacy), use old logic
+      if (!task.target_role) {
+        if (isAssistant || isFrontDesk) {
+          return task.assigned_to === userProfile.id || task.assigned_to === null;
+        }
+      }
+      
+      return false;
+    });
+    
+    setTasks(filteredTasks);
     } catch (err: any) {
       console.error('❌ Failed to fetch tasks:', err);
       setError(err.message || 'Failed to fetch tasks');

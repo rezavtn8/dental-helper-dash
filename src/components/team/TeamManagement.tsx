@@ -28,8 +28,12 @@ import {
   Clock, 
   CheckCircle,
   AlertCircle,
-  Copy
+  Copy,
+  Settings,
+  UserCheck,
+  Shield
 } from 'lucide-react';
+import RoleManagementDialog from '@/components/owner/RoleManagementDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
@@ -39,6 +43,7 @@ interface TeamMember {
   name: string;
   email: string;
   role: string;
+  roles?: string[];
   status: string;
   type: 'user' | 'invitation';
   created_at: string;
@@ -46,18 +51,26 @@ interface TeamMember {
   last_login?: string;
   resend_count?: number;
   email_status?: string;
+  clinic_id?: string;
+  is_active?: boolean;
 }
 
 export function TeamManagement() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [roleDialog, setRoleDialog] = useState<{ open: boolean; member: TeamMember | null }>({
+    open: false,
+    member: null
+  });
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
     pending: 0,
     admins: 0,
-    assistants: 0
+    assistants: 0,
+    frontDesk: 0,
+    multiRole: 0
   });
   
   const { userProfile } = useAuth();
@@ -74,15 +87,24 @@ export function TeamManagement() {
     try {
       setLoading(true);
 
-      // Fetch active team members
+      // Fetch active team members with their roles
       const { data: users, error: usersError } = await supabase
         .from('users')
-        .select('id, name, email, role, created_at, last_login, is_active')
+        .select('id, name, email, role, created_at, last_login, is_active, clinic_id')
         .eq('clinic_id', userProfile.clinic_id)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (usersError) throw usersError;
+
+      // Fetch user roles for each user
+      const userIds = users?.map(u => u.id) || [];
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds)
+        .eq('is_active', true);
+
 
       // Fetch pending invitations
       const { data: invitations, error: invitationsError } = await supabase
@@ -97,16 +119,24 @@ export function TeamManagement() {
 
       // Combine and format data
       const combinedData: TeamMember[] = [
-        ...(users || []).map(user => ({
-          id: user.id,
-          name: user.name || 'Unknown',
-          email: user.email || '',
-          role: user.role || 'assistant',
-          status: 'active',
-          type: 'user' as const,
-          created_at: user.created_at,
-          last_login: user.last_login
-        })),
+        ...(users || []).map(user => {
+          const userRolesList = userRoles?.filter(ur => ur.user_id === user.id).map(ur => ur.role) || [];
+          const allRoles = user.role ? [user.role, ...userRolesList.filter(r => r !== user.role)] : userRolesList;
+          
+          return {
+            id: user.id,
+            name: user.name || 'Unknown',
+            email: user.email || '',
+            role: user.role || 'assistant',
+            roles: allRoles,
+            status: 'active',
+            type: 'user' as const,
+            created_at: user.created_at,
+            last_login: user.last_login,
+            clinic_id: user.clinic_id,
+            is_active: user.is_active || true
+          };
+        }),
         ...(invitations || []).map(invite => ({
           id: invite.id,
           name: invite.email.split('@')[0],
@@ -126,15 +156,19 @@ export function TeamManagement() {
       // Calculate stats
       const activeUsers = users?.length || 0;
       const pendingInvites = invitations?.length || 0;
-      const admins = combinedData.filter(m => m.role === 'admin').length;
-      const assistants = combinedData.filter(m => m.role === 'assistant').length;
+      const admins = combinedData.filter(m => (m.roles || [m.role]).includes('admin')).length;
+      const assistants = combinedData.filter(m => (m.roles || [m.role]).includes('assistant')).length;
+      const frontDesk = combinedData.filter(m => (m.roles || [m.role]).includes('front_desk')).length;
+      const multiRole = combinedData.filter(m => (m.roles || []).length > 1).length;
 
       setStats({
         total: activeUsers + pendingInvites,
         active: activeUsers,
         pending: pendingInvites,
         admins,
-        assistants
+        assistants,
+        frontDesk,
+        multiRole
       });
 
     } catch (error) {
@@ -243,7 +277,7 @@ export function TeamManagement() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -283,6 +317,7 @@ export function TeamManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
+              <UserCheck className="h-4 w-4 text-blue-600" />
               <div>
                 <p className="text-xs text-muted-foreground">Assistants</p>
                 <p className="text-lg font-semibold">{stats.assistants}</p>
@@ -294,9 +329,34 @@ export function TeamManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
+              <Shield className="h-4 w-4 text-purple-600" />
               <div>
                 <p className="text-xs text-muted-foreground">Admins</p>
                 <p className="text-lg font-semibold">{stats.admins}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Users className="h-4 w-4 text-green-600" />
+              <div>
+                <p className="text-xs text-muted-foreground">Front Desk</p>
+                <p className="text-lg font-semibold">{stats.frontDesk}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Settings className="h-4 w-4 text-orange-600" />
+              <div>
+                <p className="text-xs text-muted-foreground">Multi-Role</p>
+                <p className="text-lg font-semibold">{stats.multiRole}</p>
               </div>
             </div>
           </CardContent>
@@ -359,9 +419,18 @@ export function TeamManagement() {
                         {member.email}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="capitalize">
-                          {member.role}
-                        </Badge>
+                        <div className="flex flex-wrap gap-1">
+                          {(member.roles || [member.role]).filter(Boolean).map(role => (
+                            <Badge key={role} variant="outline" className="capitalize text-xs">
+                              {role.replace('_', ' ')}
+                            </Badge>
+                          ))}
+                          {(member.roles || []).length > 1 && (
+                            <Badge variant="secondary" className="text-xs bg-yellow-50 text-yellow-700">
+                              Multi-role
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(member)}
@@ -380,36 +449,47 @@ export function TeamManagement() {
                         )}
                       </TableCell>
                       <TableCell>
-                        {member.type === 'invitation' && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => copyInvitationLink(member)}>
-                                <Copy className="h-4 w-4 mr-2" />
-                                Copy Link
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleResendInvitation(member.id, member.email)}>
-                                <Mail className="h-4 w-4 mr-2" />
-                                Resend Email
-                                {member.resend_count && member.resend_count > 0 && (
-                                  <span className="ml-1 text-xs">({member.resend_count})</span>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                onClick={() => handleCancelInvitation(member.id)}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Cancel
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {member.type === 'user' && (
+                              <>
+                                <DropdownMenuItem onClick={() => setRoleDialog({ open: true, member })}>
+                                  <Settings className="h-4 w-4 mr-2" />
+                                  Manage Roles
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                              </>
+                            )}
+                            {member.type === 'invitation' && (
+                              <>
+                                <DropdownMenuItem onClick={() => copyInvitationLink(member)}>
+                                  <Copy className="h-4 w-4 mr-2" />
+                                  Copy Link
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleResendInvitation(member.id, member.email)}>
+                                  <Mail className="h-4 w-4 mr-2" />
+                                  Resend Email
+                                  {member.resend_count && member.resend_count > 0 && (
+                                    <span className="ml-1 text-xs">({member.resend_count})</span>
+                                  )}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => handleCancelInvitation(member.id)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Cancel
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))
@@ -419,6 +499,16 @@ export function TeamManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Role Management Dialog */}
+      <RoleManagementDialog
+        open={roleDialog.open}
+        onOpenChange={(open) => {
+          if (!open) setRoleDialog({ open: false, member: null });
+        }}
+        member={roleDialog.member}
+        onUpdate={fetchTeamData}
+      />
     </div>
   );
 }

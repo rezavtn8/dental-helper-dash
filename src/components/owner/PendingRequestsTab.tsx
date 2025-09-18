@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Clock, CheckCircle, XCircle, User, Mail, Calendar } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, User, Mail, Calendar, UserPlus } from 'lucide-react';
+import JoinRequestApprovalDialog from './JoinRequestApprovalDialog';
 
 interface JoinRequest {
   id: string;
@@ -29,6 +30,10 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
   const [loading, setLoading] = useState(true);
   const [processingRequest, setProcessingRequest] = useState<string | null>(null);
   const [denyDialog, setDenyDialog] = useState<{ open: boolean; request: JoinRequest | null }>({
+    open: false,
+    request: null
+  });
+  const [approveDialog, setApproveDialog] = useState<{ open: boolean; request: JoinRequest | null }>({
     open: false,
     request: null
   });
@@ -87,30 +92,8 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
     }
   };
 
-  const handleApprove = async (request: JoinRequest) => {
-    setProcessingRequest(request.id);
-    
-    try {
-      const { data, error } = await supabase.rpc('process_join_request', {
-        p_request_id: request.id,
-        p_action: 'approve'
-      });
-
-      if (error) throw error;
-
-      const result = data[0];
-      if (result.success) {
-        toast.success(`${request.user_name} has been approved and added to your clinic`);
-        fetchRequests();
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error: any) {
-      console.error('Error approving request:', error);
-      toast.error('Failed to approve request');
-    } finally {
-      setProcessingRequest(null);
-    }
+  const handleApprove = (request: JoinRequest) => {
+    setApproveDialog({ open: true, request });
   };
 
   const handleDeny = async () => {
@@ -223,14 +206,8 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
                             disabled={processingRequest === request.id}
                             className="bg-green-600 hover:bg-green-700 text-white"
                           >
-                            {processingRequest === request.id ? (
-                              <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                            ) : (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Approve
-                              </>
-                            )}
+                            <UserPlus className="w-4 h-4 mr-1" />
+                            Approve & Assign Roles
                           </Button>
                           <Button
                             size="sm"
@@ -305,6 +282,16 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Approve Request Dialog */}
+      <JoinRequestApprovalDialog
+        open={approveDialog.open}
+        onOpenChange={(open) => {
+          if (!open) setApproveDialog({ open: false, request: null });
+        }}
+        request={approveDialog.request}
+        onUpdate={fetchRequests}
+      />
     </div>
   );
 }

@@ -16,8 +16,10 @@ import {
   Mail,
   Calendar,
   UserMinus,
-  Trash2
+  Trash2,
+  Settings
 } from 'lucide-react';
+import RoleManagementDialog from './RoleManagementDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -26,9 +28,11 @@ interface Assistant {
   name: string;
   email: string;
   role: string;
+  roles?: string[];
   is_active: boolean;
   created_at: string;
   last_login?: string;
+  clinic_id?: string;
 }
 
 interface TeamTabProps {
@@ -57,6 +61,10 @@ const formatDate = (dateString: string) => {
 export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; assistant: Assistant | null }>({
+    open: false,
+    assistant: null
+  });
+  const [roleDialog, setRoleDialog] = useState<{ open: boolean; assistant: Assistant | null }>({
     open: false,
     assistant: null
   });
@@ -238,16 +246,26 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
                         
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900">{assistant.name}</h3>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge 
-                              variant={assistant.role === 'admin' ? 'default' : 'secondary'}
-                              className={assistant.role === 'admin' 
-                                ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white' 
-                                : 'bg-gray-100 text-gray-700'
-                              }
-                            >
-                              {assistant.role === 'admin' ? 'Admin' : 'Assistant'}
-                            </Badge>
+                          <div className="flex flex-wrap items-center gap-2 mt-1">
+                            {(assistant.roles || [assistant.role]).filter(Boolean).map(role => (
+                              <Badge 
+                                key={role}
+                                variant={role === 'admin' ? 'default' : 'secondary'}
+                                className={role === 'admin' 
+                                  ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white' 
+                                  : role === 'front_desk'
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-gray-100 text-gray-700'
+                                }
+                              >
+                                {role === 'front_desk' ? 'Front Desk' : role.charAt(0).toUpperCase() + role.slice(1)}
+                              </Badge>
+                            ))}
+                            {(assistant.roles || []).length > 1 && (
+                              <Badge variant="secondary" className="text-xs bg-yellow-50 text-yellow-700">
+                                Multi-role
+                              </Badge>
+                            )}
                             {!assistant.is_active && (
                               <Badge variant="destructive" className="text-xs">
                                 Inactive
@@ -264,6 +282,10 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setRoleDialog({ open: true, assistant })}>
+                            <Settings className="mr-2 h-4 w-4" />
+                            Manage Roles
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleToggleActive(assistant)}>
                             {assistant.is_active ? (
                               <>
@@ -348,8 +370,18 @@ export default function TeamTab({ assistants, tasks, onTeamUpdate }: TeamTabProp
               Delete Member
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-}
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Role Management Dialog */}
+        <RoleManagementDialog
+          open={roleDialog.open}
+          onOpenChange={(open) => {
+            if (!open) setRoleDialog({ open: false, assistant: null });
+          }}
+          member={roleDialog.assistant}
+          onUpdate={onTeamUpdate}
+        />
+      </div>
+    );
+  }

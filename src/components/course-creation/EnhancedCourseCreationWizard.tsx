@@ -727,10 +727,10 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[95vh] p-0 overflow-hidden bg-gradient-to-br from-background via-background to-muted/20 border-0 shadow-2xl">
+      <DialogContent className="max-w-7xl h-[95vh] p-0 overflow-hidden bg-gradient-to-br from-background via-background to-muted/20 border-0 shadow-2xl">
         <div className="flex flex-col h-full">
           {/* Enhanced Progress Header */}
-          <div className="px-8 py-6 border-b bg-gradient-to-r from-learning-quiz/10 via-primary/5 to-learning-quiz/10 backdrop-blur-sm">
+          <div className="px-8 py-6 border-b bg-gradient-to-r from-learning-quiz/10 via-primary/5 to-learning-quiz/10 backdrop-blur-sm flex-shrink-0">
             <div className="flex items-center justify-between mb-6">
               <div className="space-y-1">
                 <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-learning-quiz via-primary to-learning-quiz bg-clip-text text-transparent animate-fade-in">
@@ -818,9 +818,9 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
             </div>
           </div>
 
-          {/* Enhanced Content Area */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="px-8 py-8">
+          {/* Enhanced Content Area - Fixed Height */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="px-8 py-8 h-full">
               <div className="max-w-6xl mx-auto">
                 <div className="animate-fade-in">
                   {renderStepContent()}
@@ -829,8 +829,8 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
             </div>
           </div>
 
-          {/* Enhanced Navigation */}
-          <div className="px-8 py-6 border-t bg-gradient-to-r from-muted/30 via-background to-muted/30 backdrop-blur-sm">
+          {/* Enhanced Navigation - Always Visible */}
+          <div className="px-8 py-6 border-t bg-gradient-to-r from-muted/30 via-background to-muted/30 backdrop-blur-sm flex-shrink-0 sticky bottom-0 z-50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {currentStep > 0 && (
@@ -838,7 +838,8 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                     variant="outline"
                     onClick={handlePrevious}
                     disabled={loading}
-                    className="hover-scale transition-all duration-200 border-2"
+                    className="hover-scale transition-all duration-200 border-2 bg-background hover:bg-muted"
+                    size="lg"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Previous
@@ -858,6 +859,7 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                   onClick={onClose}
                   disabled={loading}
                   className="hover:bg-destructive/10 hover:text-destructive"
+                  size="lg"
                 >
                   Cancel
                 </Button>
@@ -866,7 +868,8 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                   <Button
                     onClick={handleNext}
                     disabled={loading}
-                    className="bg-gradient-to-r from-learning-quiz to-primary hover:from-learning-quiz/90 hover:to-primary/90 hover-scale shadow-lg transition-all duration-200 border-0 px-8"
+                    className="bg-gradient-to-r from-learning-quiz to-primary hover:from-learning-quiz/90 hover:to-primary/90 hover-scale shadow-lg transition-all duration-200 border-0 px-8 text-white font-semibold"
+                    size="lg"
                   >
                     Next Step
                     <ArrowRight className="h-4 w-4 ml-2" />
@@ -876,6 +879,7 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                     onClick={handleCreateCourse}
                     disabled={loading}
                     className="bg-gradient-to-r from-green-500 via-green-600 to-green-500 hover:from-green-600 hover:via-green-700 hover:to-green-600 hover-scale shadow-lg transition-all duration-200 text-white font-semibold px-8 border-0"
+                    size="lg"
                   >
                     {loading ? (
                       <>

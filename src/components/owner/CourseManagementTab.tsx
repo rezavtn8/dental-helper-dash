@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, BookOpen, Users, Award, Upload } from 'lucide-react';
 import { CourseCreationWizard } from '@/components/course-creation/CourseCreationWizard';
+import { EnhancedCourseCreationWizard } from '@/components/course-creation/EnhancedCourseCreationWizard';
 import { BulkImportDialog } from '@/components/course-creation/BulkImportDialog';
 import { CourseCatalog } from '@/components/learning/CourseCatalog';
 import { useLearning } from '@/hooks/useLearning';
@@ -86,8 +87,8 @@ export const CourseManagementTab: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Course Creation Wizard */}
-      <CourseCreationWizard
+      {/* Enhanced Course Creation Wizard */}
+      <EnhancedCourseCreationWizard
         isOpen={showCreationWizard}
         onClose={() => setShowCreationWizard(false)}
         onCourseCreated={handleCourseCreated}

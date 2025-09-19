@@ -36,6 +36,7 @@ import {
   UserPlus,
   ScrollText,
   Bot,
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -51,6 +52,7 @@ const navigationItems = [
   { id: 'task-calendar', label: 'Task Calendar', icon: Calendar },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare },
   { id: 'templates', label: 'Templates', icon: FileText },
+  { id: 'courses', label: 'Learning Courses', icon: BookOpen },
   { id: 'team', label: 'Team', icon: Users },
   { id: 'schedule', label: 'Team Schedule', icon: CalendarDays },
   { id: 'log', label: 'Logs', icon: ScrollText },

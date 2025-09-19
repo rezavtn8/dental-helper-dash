@@ -15,7 +15,7 @@ import { CourseTemplate } from '@/hooks/useCourseCreation';
 interface TemplateSelectorProps {
   templates: CourseTemplate[];
   selectedTemplate: CourseTemplate | null;
-  onTemplateSelect: (template: CourseTemplate) => void;
+  onTemplateSelect: (template: CourseTemplate | null) => void;
   onSkip: () => void;
 }
 
@@ -75,7 +75,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-dashed border-2 ${
             selectedTemplate === null ? 'ring-2 ring-primary bg-primary/5' : 'hover:border-primary/50'
           }`}
-          onClick={() => onTemplateSelect(null as any)}
+          onClick={() => onTemplateSelect(null)}
         >
           <CardContent className="p-6 text-center space-y-4">
             <div className="mx-auto w-16 h-16 bg-gradient-to-r from-muted to-muted-dark rounded-full flex items-center justify-center">
@@ -97,7 +97,8 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
         {templates.map((template) => {
           const CategoryIcon = getCategoryIcon(template.category);
           const isSelected = selectedTemplate?.id === template.id;
-          const totalDuration = template.template_data.modules.reduce((sum, mod) => sum + mod.duration, 0);
+          const totalDuration = template.template_data?.modules?.reduce((sum, mod) => sum + (mod.duration || 0), 0) || 0;
+          const moduleCount = template.template_data?.modules?.length || 0;
           
           return (
             <Card 
@@ -136,21 +137,21 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
                   <Badge variant="outline">{template.category}</Badge>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">Includes:</div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <BookOpen className="h-3 w-3" />
-                      <span>{template.template_data.modules.length} modules</span>
-                    </div>
-                    {template.template_data.quiz && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Award className="h-3 w-3" />
-                        <span>Assessment quiz</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                 <div className="space-y-2">
+                   <div className="text-sm font-medium">Includes:</div>
+                   <div className="space-y-1">
+                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                       <BookOpen className="h-3 w-3" />
+                       <span>{moduleCount} modules</span>
+                     </div>
+                     {template.template_data?.quiz && (
+                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                         <Award className="h-3 w-3" />
+                         <span>Assessment quiz</span>
+                       </div>
+                     )}
+                   </div>
+                 </div>
 
                 {isSelected && (
                   <div className="pt-2">

@@ -269,17 +269,22 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
     }
   };
 
-  const handleTemplateSelect = (template: CourseTemplate) => {
+  const handleTemplateSelect = (template: CourseTemplate | null) => {
+    if (!template) {
+      setSelectedTemplate(null);
+      return;
+    }
+
     setSelectedTemplate(template);
     setCourseData(prev => ({
       ...prev,
-      category: template.category,
-      difficulty_level: template.difficulty_level,
-      estimated_duration: template.template_data.modules?.reduce((sum: number, mod: any) => sum + (mod.duration || 15), 0) || 60
+      category: template.category || prev.category,
+      difficulty_level: template.difficulty_level || prev.difficulty_level,
+      estimated_duration: template.template_data?.modules?.reduce((sum: number, mod: any) => sum + (mod.duration || 15), 0) || prev.estimated_duration || 60
     }));
     
     // Pre-populate modules from template
-    if (template.template_data.modules) {
+    if (template.template_data?.modules) {
       const templateModules = template.template_data.modules.map((mod: any, index: number) => ({
         title: mod.title || `Module ${index + 1}`,
         content: `This is the ${mod.title?.toLowerCase() || 'module'} content. Please customize this content for your course.`,
@@ -290,7 +295,7 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
     }
 
     // Pre-populate quiz if template has one
-    if (template.template_data.quiz) {
+    if (template.template_data?.quiz) {
       const quizTemplate = template.template_data.quiz;
       setQuiz({
         title: `${template.name} Assessment`,

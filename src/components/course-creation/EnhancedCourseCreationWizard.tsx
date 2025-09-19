@@ -10,11 +10,15 @@ import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useCourseCreation } from '@/hooks/useCourseCreation';
+import { useAutoSave } from '@/hooks/useAutoSave';
+import { useUndoRedo } from '@/hooks/useUndoRedo';
 import { TemplateSelector } from './TemplateSelector';
 import { ModuleBuilder } from './ModuleBuilder';
 import { QuizBuilder } from './QuizBuilder';
 import { CoursePreview } from './CoursePreview';
 import { MediaUpload } from './MediaUpload';
+import { DraggableModuleList } from './DraggableModuleList';
+import { BulkOperationsToolbar } from './BulkOperationsToolbar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { 
   BookOpen, 
@@ -40,7 +44,8 @@ import {
   Clock,
   Target,
   Award,
-  TrendingUp
+  TrendingUp,
+  Plus
 } from 'lucide-react';
 
 interface CourseFormData {
@@ -100,22 +105,48 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
   const [isDirty, setIsDirty] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedModules, setSelectedModules] = useState<number[]>([]);
+  const [isEditingModule, setIsEditingModule] = useState<number | null>(null);
 
-  // Form data
-  const [courseData, setCourseData] = useState<CourseFormData>({
-    title: '',
-    description: '',
-    category: '',
-    difficulty_level: 'beginner',
-    estimated_duration: 60,
-    course_type: 'course',
-    is_published: false,
-    prerequisites: []
-  });
+  // Enhanced state management with undo/redo
+  interface WizardState {
+    courseData: CourseFormData;
+    modules: ModuleFormData[];
+    quiz: QuizFormData | null;
+    selectedTemplate: any;
+  }
 
-  const [modules, setModules] = useState<ModuleFormData[]>([]);
-  const [quiz, setQuiz] = useState<QuizFormData | null>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const initialState: WizardState = {
+    courseData: {
+      title: '',
+      description: '',
+      category: '',
+      difficulty_level: 'beginner',
+      estimated_duration: 60,
+      course_type: 'course',
+      is_published: false,
+      prerequisites: []
+    },
+    modules: [],
+    quiz: null,
+    selectedTemplate: null
+  };
+
+  const {
+    state: wizardState,
+    updateState,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    resetHistory
+  } = useUndoRedo(initialState);
+
+  // Extract individual states for easier access
+  const courseData = wizardState.courseData;
+  const modules = wizardState.modules;
+  const quiz = wizardState.quiz;
+  const selectedTemplate = wizardState.selectedTemplate;
 
   const {
     loading: hookLoading,
@@ -129,12 +160,42 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
     importFromTemplate
   } = useCourseCreation();
 
+  // Auto-save functionality
+  const { forceSave } = useAutoSave(wizardState, {
+    delay: 3000,
+    enabled: isDirty && isOpen,
+    onSave: async (data: WizardState) => {
+      try {
+        // Save to localStorage as backup
+        localStorage.setItem('course-wizard-autosave', JSON.stringify(data));
+        return true;
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+        return false;
+      }
+    }
+  });
+
   useEffect(() => {
     if (isOpen) {
       fetchTemplates();
       fetchCategories();
+      
+      // Try to restore from auto-save
+      try {
+        const saved = localStorage.getItem('course-wizard-autosave');
+        if (saved) {
+          const savedData = JSON.parse(saved);
+          if (savedData.courseData?.title || savedData.modules?.length > 0) {
+            updateState(savedData, false);
+            toast.success('Restored previous work from auto-save');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to restore auto-save:', error);
+      }
     }
-  }, [isOpen, fetchTemplates, fetchCategories]);
+  }, [isOpen, fetchTemplates, fetchCategories, updateState]);
 
   const steps = [
     {
@@ -227,36 +288,61 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
     setValidationErrors([]);
   };
 
+  // Enhanced state update helpers
+  const updateCourseData = (newData: Partial<CourseFormData>) => {
+    updateState({
+      ...wizardState,
+      courseData: { ...courseData, ...newData }
+    });
+    setIsDirty(true);
+  };
+
+  const updateModules = (newModules: ModuleFormData[]) => {
+    updateState({
+      ...wizardState,
+      modules: newModules
+    });
+    setIsDirty(true);
+  };
+
+  const updateQuiz = (newQuiz: QuizFormData | null) => {
+    updateState({
+      ...wizardState,
+      quiz: newQuiz
+    });
+    setIsDirty(true);
+  };
+
   const handleTemplateSelect = (template: any) => {
     if (!template) {
-      setSelectedTemplate(null);
+      updateState({
+        ...wizardState,
+        selectedTemplate: null
+      });
       return;
     }
 
-    setSelectedTemplate(template);
-    setCourseData(prev => ({
-      ...prev,
-      category: template.category || prev.category,
-      difficulty_level: template.difficulty_level || prev.difficulty_level,
-      estimated_duration: template.template_data?.modules?.reduce((sum: number, mod: any) => sum + (mod.duration || 15), 0) || prev.estimated_duration || 60
-    }));
+    const newCourseData = {
+      ...courseData,
+      category: template.category || courseData.category,
+      difficulty_level: template.difficulty_level || courseData.difficulty_level,
+      estimated_duration: template.template_data?.modules?.reduce((sum: number, mod: any) => sum + (mod.duration || 15), 0) || courseData.estimated_duration || 60
+    };
     
     // Pre-populate modules from template
-    if (template.template_data?.modules) {
-      const templateModules = template.template_data.modules.map((mod: any, index: number) => ({
-        title: mod.title || `Module ${index + 1}`,
-        content: `This is the ${mod.title?.toLowerCase() || 'module'} content. Please customize this content for your course.`,
-        module_type: mod.type || 'text',
-        duration: mod.duration || 15,
-        media_assets: [] as string[]
-      }));
-      setModules(templateModules);
-    }
+    const templateModules = template.template_data?.modules?.map((mod: any, index: number) => ({
+      title: mod.title || `Module ${index + 1}`,
+      content: `This is the ${mod.title?.toLowerCase() || 'module'} content. Please customize this content for your course.`,
+      module_type: mod.type || 'text',
+      duration: mod.duration || 15,
+      media_assets: [] as string[]
+    })) || [];
 
     // Pre-populate quiz if template has one
+    let newQuiz: QuizFormData | null = null;
     if (template.template_data?.quiz) {
       const quizTemplate = template.template_data.quiz;
-      setQuiz({
+      newQuiz = {
         title: `${template.name} Assessment`,
         description: 'Test your knowledge of the course material',
         time_limit: quizTemplate.time_limit || 30,
@@ -279,9 +365,15 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
               correct_answer: 0,
               explanation: 'This is a sample explanation - please customize'
             }]
-      });
+      };
     }
 
+    updateState({
+      courseData: newCourseData,
+      modules: templateModules,
+      quiz: newQuiz,
+      selectedTemplate: template
+    });
     setIsDirty(true);
   };
 
@@ -397,18 +489,15 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div>
-                      <Label htmlFor="title" className="text-base font-semibold">Course Title *</Label>
-                      <Input
-                        id="title"
-                        value={courseData.title}
-                        onChange={(e) => {
-                          setCourseData(prev => ({ ...prev, title: e.target.value }));
-                          setIsDirty(true);
-                        }}
-                        placeholder="Enter an engaging course title..."
-                        className={`mt-2 text-lg h-12 ${getErrorsForField('title').length > 0 ? 'border-destructive' : ''}`}
-                      />
+                     <div>
+                       <Label htmlFor="title" className="text-base font-semibold">Course Title *</Label>
+                       <Input
+                         id="title"
+                         value={courseData.title}
+                         onChange={(e) => updateCourseData({ title: e.target.value })}
+                         placeholder="Enter an engaging course title..."
+                         className={`mt-2 text-lg h-12 ${getErrorsForField('title').length > 0 ? 'border-destructive' : ''}`}
+                       />
                       {getErrorsForField('title').map((error, i) => (
                         <p key={i} className="text-sm text-destructive mt-1 flex items-center gap-1">
                           <Target className="h-3 w-3" />
@@ -417,18 +506,15 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                       ))}
                     </div>
 
-                    <div>
-                      <Label htmlFor="description" className="text-base font-semibold">Course Description *</Label>
-                      <Textarea
-                        id="description"
-                        value={courseData.description}
-                        onChange={(e) => {
-                          setCourseData(prev => ({ ...prev, description: e.target.value }));
-                          setIsDirty(true);
-                        }}
-                        placeholder="Describe what students will learn in this course..."
-                        className={`mt-2 min-h-[120px] ${getErrorsForField('description').length > 0 ? 'border-destructive' : ''}`}
-                      />
+                     <div>
+                       <Label htmlFor="description" className="text-base font-semibold">Course Description *</Label>
+                       <Textarea
+                         id="description"
+                         value={courseData.description}
+                         onChange={(e) => updateCourseData({ description: e.target.value })}
+                         placeholder="Describe what students will learn in this course..."
+                         className={`mt-2 min-h-[120px] ${getErrorsForField('description').length > 0 ? 'border-destructive' : ''}`}
+                       />
                       {getErrorsForField('description').map((error, i) => (
                         <p key={i} className="text-sm text-destructive mt-1 flex items-center gap-1">
                           <Target className="h-3 w-3" />
@@ -440,13 +526,10 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="category" className="text-base font-semibold">Category *</Label>
-                        <Select
-                          value={courseData.category}
-                          onValueChange={(value) => {
-                            setCourseData(prev => ({ ...prev, category: value }));
-                            setIsDirty(true);
-                          }}
-                        >
+                         <Select
+                           value={courseData.category}
+                           onValueChange={(value) => updateCourseData({ category: value })}
+                         >
                           <SelectTrigger className={`mt-2 h-12 ${getErrorsForField('category').length > 0 ? 'border-destructive' : ''}`}>
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
@@ -468,13 +551,10 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
 
                       <div>
                         <Label htmlFor="difficulty" className="text-base font-semibold">Difficulty Level</Label>
-                        <Select
-                          value={courseData.difficulty_level}
-                          onValueChange={(value) => {
-                            setCourseData(prev => ({ ...prev, difficulty_level: value }));
-                            setIsDirty(true);
-                          }}
-                        >
+                         <Select
+                           value={courseData.difficulty_level}
+                           onValueChange={(value) => updateCourseData({ difficulty_level: value })}
+                         >
                           <SelectTrigger className="mt-2 h-12">
                             <SelectValue />
                           </SelectTrigger>
@@ -520,10 +600,7 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                             id="duration"
                             type="number"
                             value={courseData.estimated_duration}
-                            onChange={(e) => {
-                              setCourseData(prev => ({ ...prev, estimated_duration: parseInt(e.target.value) || 0 }));
-                              setIsDirty(true);
-                            }}
+                             onChange={(e) => updateCourseData({ estimated_duration: parseInt(e.target.value) || 0 })}
                             placeholder="60"
                             className="pl-10 h-12"
                           />
@@ -534,10 +611,7 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                         <Label htmlFor="course_type" className="text-base font-semibold">Course Type</Label>
                         <Select
                           value={courseData.course_type}
-                          onValueChange={(value) => {
-                            setCourseData(prev => ({ ...prev, course_type: value }));
-                            setIsDirty(true);
-                          }}
+                           onValueChange={(value) => updateCourseData({ course_type: value })}
                         >
                           <SelectTrigger className="mt-2 h-12">
                             <SelectValue />
@@ -584,11 +658,10 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                       multiple={false}
                       acceptedTypes={["image/*"]}
                       maxSize={5 * 1024 * 1024} // 5MB
-                      onFileUploaded={(file) => {
-                        const thumbnailUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/course-thumbnails/${file.filename}`;
-                        setCourseData(prev => ({ ...prev, thumbnail_url: thumbnailUrl }));
-                        setIsDirty(true);
-                      }}
+                       onFileUploaded={(file) => {
+                         const thumbnailUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/course-thumbnails/${file.filename}`;
+                         updateCourseData({ thumbnail_url: thumbnailUrl });
+                       }}
                       showPreview={true}
                       className="w-full"
                     />
@@ -632,7 +705,7 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
 
       case 2:
         return (
-          <div className="animate-fade-in space-y-8">
+          <div className="animate-fade-in space-y-6">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-16 h-16 bg-gradient-to-r from-learning-quiz to-primary rounded-xl flex items-center justify-center shadow-lg">
                 <FileText className="h-8 w-8 text-white" />
@@ -645,13 +718,109 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
               </div>
             </div>
 
-            <ModuleBuilder
-              modules={modules}
-              onModulesChange={(updatedModules) => {
-                setModules(updatedModules);
-                setIsDirty(true);
+            {/* Bulk Operations Toolbar */}
+            <BulkOperationsToolbar
+              selectedItems={selectedModules}
+              totalItems={modules.length}
+              onBulkDelete={(indices) => {
+                const newModules = modules.filter((_, index) => !indices.includes(index));
+                updateModules(newModules);
+                setSelectedModules([]);
+                toast.success(`Deleted ${indices.length} module(s)`);
               }}
+              onBulkDuplicate={(indices) => {
+                const duplicatedModules = indices.map(index => ({
+                  ...modules[index],
+                  title: `${modules[index].title} (Copy)`
+                }));
+                updateModules([...modules, ...duplicatedModules]);
+                setSelectedModules([]);
+                toast.success(`Duplicated ${indices.length} module(s)`);
+              }}
+              onImportFromText={(text) => {
+                const lines = text.split('\n').filter(line => line.trim());
+                const newModules = lines.map((line, index) => ({
+                  title: line.trim() || `Module ${modules.length + index + 1}`,
+                  content: `Content for ${line.trim()}`,
+                  module_type: 'text',
+                  duration: 15,
+                  media_assets: [] as string[]
+                }));
+                updateModules([...modules, ...newModules]);
+                toast.success(`Imported ${newModules.length} module(s)`);
+              }}
+              onExportToText={() => {
+                return modules.map(module => module.title).join('\n');
+              }}
+              onUndo={undo}
+              onRedo={redo}
+              canUndo={canUndo}
+              canRedo={canRedo}
+              onSelectAll={() => setSelectedModules(modules.map((_, index) => index))}
+              onClearSelection={() => setSelectedModules([])}
             />
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Module List */}
+              <div className="lg:col-span-3">
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-background to-muted/20">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-primary" />
+                      Course Modules ({modules.length})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DraggableModuleList
+                      modules={modules}
+                      onReorder={updateModules}
+                      onEdit={(index) => {
+                        // Scroll to module builder or show inline editor
+                        const moduleElement = document.getElementById(`module-${index}`);
+                        if (moduleElement) {
+                          moduleElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                      onDelete={(index) => {
+                        const newModules = modules.filter((_, i) => i !== index);
+                        updateModules(newModules);
+                        toast.success('Module deleted');
+                      }}
+                      onDuplicate={(index) => {
+                        const duplicated = {
+                          ...modules[index],
+                          title: `${modules[index].title} (Copy)`
+                        };
+                        updateModules([...modules, duplicated]);
+                        toast.success('Module duplicated');
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Module Builder */}
+              <div className="lg:col-span-1">
+                <ModuleBuilder
+                  modules={modules}
+                  onModulesChange={updateModules}
+                />
+              </div>
+            </div>
+
+            {getErrorsForField('modules').length > 0 && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-destructive">
+                  <Target className="h-4 w-4" />
+                  <span className="font-medium">Module Validation Errors</span>
+                </div>
+                <div className="mt-2 space-y-1">
+                  {getErrorsForField('modules').map((error, i) => (
+                    <p key={i} className="text-sm text-destructive">{error.message}</p>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -672,18 +841,17 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
 
             <QuizBuilder
               quiz={quiz}
-              onQuizChange={(updatedQuiz) => {
-                if (updatedQuiz) {
-                  setQuiz({
-                    ...updatedQuiz,
-                    time_limit: updatedQuiz.time_limit || 30,
-                    attempts_allowed: updatedQuiz.attempts_allowed || 3
-                  });
-                } else {
-                  setQuiz(null);
-                }
-                setIsDirty(true);
-              }}
+               onQuizChange={(updatedQuiz) => {
+                 if (updatedQuiz) {
+                   updateQuiz({
+                     ...updatedQuiz,
+                     time_limit: updatedQuiz.time_limit || 30,
+                     attempts_allowed: updatedQuiz.attempts_allowed || 3
+                   });
+                 } else {
+                   updateQuiz(null);
+                 }
+               }}
             />
           </div>
         );

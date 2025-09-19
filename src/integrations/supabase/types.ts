@@ -509,6 +509,254 @@ export type Database = {
           },
         ]
       }
+      learning_achievements: {
+        Row: {
+          achievement_type: string
+          badge_icon: string | null
+          created_at: string
+          description: string | null
+          earned_at: string
+          id: string
+          points_awarded: number | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          achievement_type: string
+          badge_icon?: string | null
+          created_at?: string
+          description?: string | null
+          earned_at?: string
+          id?: string
+          points_awarded?: number | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          achievement_type?: string
+          badge_icon?: string | null
+          created_at?: string
+          description?: string | null
+          earned_at?: string
+          id?: string
+          points_awarded?: number | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      learning_courses: {
+        Row: {
+          category: string
+          clinic_id: string | null
+          course_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          difficulty_level: string
+          estimated_duration: number | null
+          id: string
+          is_active: boolean
+          prerequisites: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          clinic_id?: string | null
+          course_type?: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          difficulty_level?: string
+          estimated_duration?: number | null
+          id?: string
+          is_active?: boolean
+          prerequisites?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          clinic_id?: string | null
+          course_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          difficulty_level?: string
+          estimated_duration?: number | null
+          id?: string
+          is_active?: boolean
+          prerequisites?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      learning_modules: {
+        Row: {
+          content: string | null
+          course_id: string
+          created_at: string
+          duration: number | null
+          id: string
+          module_order: number
+          module_type: string
+          resources: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          course_id: string
+          created_at?: string
+          duration?: number | null
+          id?: string
+          module_order: number
+          module_type?: string
+          resources?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          course_id?: string
+          created_at?: string
+          duration?: number | null
+          id?: string
+          module_order?: number
+          module_type?: string
+          resources?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "learning_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_progress: {
+        Row: {
+          completed_at: string | null
+          completion_percentage: number
+          course_id: string
+          created_at: string
+          id: string
+          last_accessed_at: string | null
+          module_id: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_percentage?: number
+          course_id: string
+          created_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          module_id?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completion_percentage?: number
+          course_id?: string
+          created_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          module_id?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "learning_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "learning_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_quizzes: {
+        Row: {
+          attempts_allowed: number | null
+          course_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          module_id: string | null
+          passing_score: number
+          questions: Json
+          time_limit: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attempts_allowed?: number | null
+          course_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_id?: string | null
+          passing_score?: number
+          questions: Json
+          time_limit?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attempts_allowed?: number | null
+          course_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_id?: string | null
+          passing_score?: number
+          questions?: Json
+          time_limit?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_quizzes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "learning_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_quizzes_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "learning_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       milestones: {
         Row: {
           achieved_at: string
@@ -669,6 +917,53 @@ export type Database = {
           patient_count?: number | null
         }
         Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          answers: Json
+          completed_at: string
+          created_at: string
+          id: string
+          passed: boolean
+          quiz_id: string
+          score: number
+          started_at: string
+          time_taken: number | null
+          user_id: string
+        }
+        Insert: {
+          answers: Json
+          completed_at: string
+          created_at?: string
+          id?: string
+          passed: boolean
+          quiz_id: string
+          score: number
+          started_at: string
+          time_taken?: number | null
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          created_at?: string
+          id?: string
+          passed?: boolean
+          quiz_id?: string
+          score?: number
+          started_at?: string
+          time_taken?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "learning_quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rate_limits: {
         Row: {

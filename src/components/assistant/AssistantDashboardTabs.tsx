@@ -15,6 +15,7 @@ import AssistantTasksTab from './AssistantTasksTab';
 import AssistantScheduleTab from './AssistantScheduleTab';
 import AssistantStatsTab from './AssistantStatsTab';
 import AssistantLearningTab from './AssistantLearningTab';
+import { LearningHub } from '../learning/LearningHub';
 import AssistantCertificationsTab from './AssistantCertificationsTab';
 import AssistantFeedbackTab from './AssistantFeedbackTab';
 import AssistantSettingsTab from './AssistantSettingsTab';
@@ -84,7 +85,7 @@ export default function AssistantDashboardTabs({
       </TabsContent>
 
       <TabsContent value="learning">
-        <AssistantLearningTab />
+        <LearningHub />
       </TabsContent>
 
       <TabsContent value="certifications">

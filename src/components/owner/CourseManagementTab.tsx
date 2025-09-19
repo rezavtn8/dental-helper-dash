@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, BookOpen, Users, Award } from 'lucide-react';
+import { Plus, BookOpen, Users, Award, Upload } from 'lucide-react';
 import { CourseCreationWizard } from '@/components/course-creation/CourseCreationWizard';
+import { BulkImportDialog } from '@/components/course-creation/BulkImportDialog';
 import { CourseCatalog } from '@/components/learning/CourseCatalog';
 import { useLearning } from '@/hooks/useLearning';
 
 export const CourseManagementTab: React.FC = () => {
   const [showCreationWizard, setShowCreationWizard] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const { courses, getProgressStats } = useLearning();
   const stats = getProgressStats();
 
@@ -29,13 +31,22 @@ export const CourseManagementTab: React.FC = () => {
             Create and manage learning courses for your team
           </p>
         </div>
-        <Button 
-          onClick={() => setShowCreationWizard(true)}
-          className="bg-gradient-to-r from-learning-quiz to-purple-500 hover:from-learning-quiz/90 hover:to-purple-500/90 text-white border-0 shadow-lg"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Create Course
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowBulkImport(true)}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Bulk Import
+          </Button>
+          <Button 
+            onClick={() => setShowCreationWizard(true)}
+            className="bg-gradient-to-r from-learning-quiz to-purple-500 hover:from-learning-quiz/90 hover:to-purple-500/90 text-white border-0 shadow-lg"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Course
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -80,6 +91,16 @@ export const CourseManagementTab: React.FC = () => {
         isOpen={showCreationWizard}
         onClose={() => setShowCreationWizard(false)}
         onCourseCreated={handleCourseCreated}
+      />
+
+      {/* Bulk Import Dialog */}
+      <BulkImportDialog
+        isOpen={showBulkImport}
+        onClose={() => setShowBulkImport(false)}
+        onSuccess={() => {
+          console.log('Bulk import completed');
+          window.location.reload();
+        }}
       />
     </div>
   );

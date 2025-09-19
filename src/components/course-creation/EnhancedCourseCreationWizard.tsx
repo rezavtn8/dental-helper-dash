@@ -248,7 +248,7 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
         content: `This is the ${mod.title?.toLowerCase() || 'module'} content. Please customize this content for your course.`,
         module_type: mod.type || 'text',
         duration: mod.duration || 15,
-        media_assets: []
+        media_assets: [] as string[]
       }));
       setModules(templateModules);
     }
@@ -262,21 +262,23 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
         time_limit: quizTemplate.time_limit || 30,
         passing_score: quizTemplate.passing_score || 70,
         attempts_allowed: quizTemplate.attempts_allowed || 3,
-        questions: quizTemplate.questions?.map((q: any, index: number) => ({
-          id: index + 1,
-          question: q.question || 'Sample question - please customize',
-          type: q.type || 'multiple_choice',
-          options: q.options || ['Option A', 'Option B', 'Option C', 'Option D'],
-          correct_answer: q.correct_answer || 0,
-          explanation: q.explanation || 'This is a sample explanation - please customize'
-        })) || [{
-          id: 1,
-          question: 'Sample question - please customize this',
-          type: 'multiple_choice' as const,
-          options: ['Option A', 'Option B', 'Option C', 'Option D'],
-          correct_answer: 0,
-          explanation: 'This is a sample explanation - please customize'
-        }]
+        questions: Array.isArray(quizTemplate.questions) 
+          ? quizTemplate.questions.map((q: any, index: number) => ({
+              id: index + 1,
+              question: q.question || 'Sample question - please customize',
+              type: q.type || 'multiple_choice',
+              options: q.options || ['Option A', 'Option B', 'Option C', 'Option D'],
+              correct_answer: q.correct_answer || 0,
+              explanation: q.explanation || 'This is a sample explanation - please customize'
+            }))
+          : [{
+              id: 1,
+              question: 'Sample question - please customize this',
+              type: 'multiple_choice' as const,
+              options: ['Option A', 'Option B', 'Option C', 'Option D'],
+              correct_answer: 0,
+              explanation: 'This is a sample explanation - please customize'
+            }]
       });
     }
 
@@ -580,7 +582,7 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                     <MediaUpload
                       bucket="course-thumbnails"
                       multiple={false}
-                      acceptedTypes="image/*"
+                      acceptedTypes={["image/*"]}
                       maxSize={5 * 1024 * 1024} // 5MB
                       onFileUploaded={(file) => {
                         const thumbnailUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/course-thumbnails/${file.filename}`;

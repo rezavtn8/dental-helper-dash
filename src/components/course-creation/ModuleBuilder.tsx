@@ -70,7 +70,8 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
       title: `Module ${modules.length + 1}`,
       content: '',
       module_type: 'text',
-      duration: 15
+      duration: 15,
+      media_assets: [] as string[]
     };
     onModulesChange([...modules, newModule]);
     setEditingIndex(modules.length);
@@ -308,7 +309,7 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
               <MediaUpload
                 bucket="learning-content"
                 multiple={true}
-                acceptedTypes="video/*"
+                acceptedTypes={["video/*"]}
                 maxSize={100 * 1024 * 1024} // 100MB
                 onFileUploaded={(file) => {
                   const mediaUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/learning-content/${file.filename}`;
@@ -335,7 +336,7 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
               <MediaUpload
                 bucket="learning-content"
                 multiple={true}
-                acceptedTypes="image/*"
+                acceptedTypes={["image/*"]}
                 maxSize={10 * 1024 * 1024} // 10MB
                 onFileUploaded={(file) => {
                   const mediaUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/learning-content/${file.filename}`;

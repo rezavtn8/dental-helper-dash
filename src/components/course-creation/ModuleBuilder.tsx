@@ -17,7 +17,10 @@ import {
   Edit3,
   Save,
   X,
-  Upload
+  Upload,
+  Eye,
+  ImageIcon,
+  Zap
 } from 'lucide-react';
 import { MediaUpload } from './MediaUpload';
 
@@ -283,54 +286,147 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
                        </div>
                      </div>
                      
-                     {/* Media Upload Section */}
-                     <div>
-                       <Label>Module Media (Optional)</Label>
-                       <div className="mt-2">
-                         <MediaUpload
-                           bucket="learning-content"
-                           multiple={true}
-                           onFileUploaded={(file) => {
-                             const mediaUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/learning-content/${file.filename}`;
-                             setEditingModule(prev => ({
-                               ...prev,
-                               media_assets: [...(prev?.media_assets || []), mediaUrl]
-                             }));
-                           }}
-                           className="max-w-2xl"
-                         />
-                         {editingModule.media_assets && editingModule.media_assets.length > 0 && (
-                           <div className="mt-2">
-                             <p className="text-sm text-muted-foreground mb-2">
-                               Uploaded media ({editingModule.media_assets.length} files)
-                             </p>
-                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                               {editingModule.media_assets.map((url, mediaIndex) => (
-                                 <div key={mediaIndex} className="relative group">
-                                   <img
-                                     src={url}
-                                     alt={`Module media ${mediaIndex + 1}`}
-                                     className="w-full h-20 object-cover rounded border"
-                                   />
-                                   <button
-                                     type="button"
-                                     onClick={() => {
-                                       setEditingModule(prev => ({
-                                         ...prev,
-                                         media_assets: prev?.media_assets?.filter((_, i) => i !== mediaIndex) || []
-                                       }));
-                                     }}
-                                     className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                                   >
-                                     <X className="h-3 w-3" />
-                                   </button>
-                                 </div>
-                               ))}
-                             </div>
-                           </div>
-                         )}
-                       </div>
-                     </div>
+      /* Media Upload Section */
+      <div>
+        <Label className="text-base font-semibold flex items-center gap-2">
+          <Upload className="h-4 w-4" /> 
+          Module Media
+        </Label>
+        <p className="text-sm text-muted-foreground mb-3">
+          Add images, videos, or documents to enhance your module content
+        </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Video Upload */}
+          <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Video className="h-4 w-4 text-purple-500" />
+                Videos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MediaUpload
+                bucket="learning-content"
+                multiple={true}
+                acceptedTypes="video/*"
+                maxSize={100 * 1024 * 1024} // 100MB
+                onFileUploaded={(file) => {
+                  const mediaUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/learning-content/${file.filename}`;
+                  setEditingModule(prev => ({
+                    ...prev,
+                    media_assets: [...(prev?.media_assets || []), mediaUrl]
+                  }));
+                }}
+                className="w-full"
+                showPreview={false}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Image Upload */}
+          <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-green-500" />
+                Images
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MediaUpload
+                bucket="learning-content"
+                multiple={true}
+                acceptedTypes="image/*"
+                maxSize={10 * 1024 * 1024} // 10MB
+                onFileUploaded={(file) => {
+                  const mediaUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/learning-content/${file.filename}`;
+                  setEditingModule(prev => ({
+                    ...prev,
+                    media_assets: [...(prev?.media_assets || []), mediaUrl]
+                  }));
+                }}
+                className="w-full"
+                showPreview={false}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Media Preview Grid */}
+        {editingModule.media_assets && editingModule.media_assets.length > 0 && (
+          <div className="mt-6">
+            <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              Uploaded Media ({editingModule.media_assets.length} files)
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {editingModule.media_assets.map((url, mediaIndex) => {
+                const isVideo = url.includes('.mp4') || url.includes('.webm') || url.includes('.mov');
+                
+                return (
+                  <div key={mediaIndex} className="relative group border rounded-lg overflow-hidden bg-muted">
+                    {isVideo ? (
+                      <div className="aspect-video bg-black/10 flex items-center justify-center">
+                        <Video className="h-8 w-8 text-muted-foreground" />
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-white hover:bg-white/20"
+                            onClick={() => window.open(url, '_blank')}
+                          >
+                            View
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="aspect-video relative">
+                        <img
+                          src={url}
+                          alt={`Module media ${mediaIndex + 1}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-white hover:bg-white/20"
+                            onClick={() => window.open(url, '_blank')}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Remove Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingModule(prev => ({
+                          ...prev,
+                          media_assets: prev?.media_assets?.filter((_, i) => i !== mediaIndex) || []
+                        }));
+                      }}
+                      className="absolute -top-2 -right-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                    
+                    {/* Media Type Badge */}
+                    <Badge 
+                      variant="secondary" 
+                      className="absolute bottom-2 left-2 text-xs"
+                    >
+                      {isVideo ? 'Video' : 'Image'}
+                    </Badge>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
                     
                     <div className="flex items-center gap-2 pt-4 border-t">
                       <Button onClick={saveModule} size="sm">

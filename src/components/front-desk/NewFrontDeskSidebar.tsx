@@ -24,12 +24,10 @@ import {
   Calendar, 
   BarChart3, 
   Settings, 
-  LogOut, 
-  Building2, 
-  ChevronDown,
-  Users,
   Phone,
-  MessageSquare
+  MessageSquare,
+  BookOpen,
+  Users
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RoleSwitcher } from '@/components/ui/role-switcher';
@@ -46,6 +44,7 @@ const navigationItems = [
   { id: 'tasks', label: 'My Tasks', icon: CheckSquare },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
   { id: 'stats', label: 'My Stats', icon: BarChart3 },
+  { id: 'learning', label: 'Learning', icon: BookOpen },
   { id: 'calls', label: 'Phone Calls', icon: Phone },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'settings', label: 'Settings', icon: Settings },

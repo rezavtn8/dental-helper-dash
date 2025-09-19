@@ -80,14 +80,35 @@ export const useLearning = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch courses
+  // Fetch courses - for staff, only show assigned courses
   const fetchCourses = async () => {
     try {
-      const { data, error } = await supabase
-        .from('learning_courses')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      if (!user?.id) return;
+      
+      // Get user profile to check role
+      const { data: userProfile } = await supabase
+        .from('users')
+        .select('role, clinic_id')
+        .eq('id', user.id)
+        .single();
+
+      let query;
+      
+      if (userProfile?.role === 'owner') {
+        // Owners can see all platform courses (system courses without clinic_id)
+        query = supabase
+          .from('learning_courses')
+          .select('*')
+          .eq('is_active', true)
+          .is('clinic_id', null); // Only platform/system courses
+      } else {
+        // Staff only see assigned courses - placeholder for now since assignment table isn't ready
+        // For now, show no courses for staff until assignment functionality is implemented
+        setCourses([]);
+        return;
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
       setCourses(data || []);
@@ -209,7 +230,9 @@ export const useLearning = () => {
       setLoading(false);
     };
 
-    initData();
+    if (user?.id) {
+      initData();
+    }
   }, [user?.id]);
 
   return {

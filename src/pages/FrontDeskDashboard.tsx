@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { getUserInitials } from '@/lib/taskUtils';
 import NewFrontDeskSidebar from '@/components/front-desk/NewFrontDeskSidebar';
 import { FrontDeskDashboardTabs } from '@/components/front-desk/FrontDeskDashboardTabs';
+import { LearningHub } from '@/components/learning/LearningHub';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
 import { RoleSwitcher } from '@/components/ui/role-switcher';
 
@@ -183,7 +184,13 @@ const FrontDeskDashboard = () => {
 
           {/* Main Content */}
           <main className="flex-1 container mx-auto px-4 py-6">
-            <FrontDeskDashboardTabs />
+            {activeTab === 'learning' ? (
+              <div className="h-full">
+                <LearningHub />
+              </div>
+            ) : (
+              <FrontDeskDashboardTabs />
+            )}
           </main>
         </div>
       </div>

@@ -31,11 +31,12 @@ import {
   Award,
   Users
 } from 'lucide-react';
-import { useCourseCreation, CourseTemplate, CourseCategory } from '@/hooks/useCourseCreation';
+import { useCourseCreation, CourseTemplate, CourseCategory, MediaAsset } from '@/hooks/useCourseCreation';
 import { ModuleBuilder } from './ModuleBuilder';
 import { QuizBuilder } from './QuizBuilder';
 import { CoursePreview } from './CoursePreview';
 import { TemplateSelector } from './TemplateSelector';
+import { MediaUpload } from './MediaUpload';
 import { useToast } from '@/hooks/use-toast';
 
 interface EnhancedCourseCreationWizardProps {
@@ -61,6 +62,7 @@ interface ModuleFormData {
   module_type: string;
   duration: number;
   resources?: any;
+  media_assets?: string[]; // Array of media URLs
 }
 
 interface QuizFormData {
@@ -111,8 +113,11 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
     loading,
     templates,
     categories,
+    mediaAssets,
     fetchTemplates,
     fetchCategories,
+    fetchMediaAssets,
+    uploadMedia,
     createCourse,
     createModule,
     createQuiz,
@@ -474,30 +479,30 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                     </Select>
                   </div>
 
-                  <div>
-                    <Label htmlFor="type">Course Type</Label>
-                    <Select
-                      value={courseData.course_type}
-                      onValueChange={(value) => {
-                        setCourseData(prev => ({ ...prev, course_type: value }));
-                        setIsDirty(true);
-                      }}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="course">
-                          <div className="flex items-center gap-2">
-                            <BookOpen className="h-4 w-4" />
-                            Course
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="certification">
-                          <div className="flex items-center gap-2">
-                            <Award className="h-4 w-4" />
-                            Certification
-                          </div>
+                     <div>
+                       <Label htmlFor="type">Course Type</Label>
+                       <Select
+                         value={courseData.course_type}
+                         onValueChange={(value) => {
+                           setCourseData(prev => ({ ...prev, course_type: value }));
+                           setIsDirty(true);
+                         }}
+                       >
+                         <SelectTrigger className="mt-1">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="course">
+                             <div className="flex items-center gap-2">
+                               <BookOpen className="h-4 w-4" />
+                               Course
+                             </div>
+                           </SelectItem>
+                           <SelectItem value="certification">
+                             <div className="flex items-center gap-2">
+                               <Award className="h-4 w-4" />
+                               Certification
+                             </div>
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -530,27 +535,70 @@ export const EnhancedCourseCreationWizard: React.FC<EnhancedCourseCreationWizard
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="duration">Estimated Duration (minutes)</Label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="duration"
-                      type="number"
-                      value={courseData.estimated_duration}
-                      onChange={(e) => {
-                        setCourseData(prev => ({ ...prev, estimated_duration: parseInt(e.target.value) || 0 }));
-                        setIsDirty(true);
-                      }}
-                      placeholder="60"
-                      className={getErrorsForField('estimated_duration').length > 0 ? 'border-destructive' : ''}
-                    />
-                    <span className="text-sm text-muted-foreground">minutes</span>
-                  </div>
-                  {getErrorsForField('estimated_duration').map((error, i) => (
-                    <p key={i} className="text-sm text-destructive mt-1">{error.message}</p>
-                  ))}
-                </div>
+                 <div>
+                   <Label htmlFor="duration">Estimated Duration (minutes)</Label>
+                   <div className="flex items-center gap-2 mt-1">
+                     <Clock className="h-4 w-4 text-muted-foreground" />
+                     <Input
+                       id="duration"
+                       type="number"
+                       value={courseData.estimated_duration}
+                       onChange={(e) => {
+                         setCourseData(prev => ({ ...prev, estimated_duration: parseInt(e.target.value) || 0 }));
+                         setIsDirty(true);
+                       }}
+                       placeholder="60"
+                       className={getErrorsForField('estimated_duration').length > 0 ? 'border-destructive' : ''}
+                     />
+                     <span className="text-sm text-muted-foreground">minutes</span>
+                   </div>
+                   {getErrorsForField('estimated_duration').map((error, i) => (
+                     <p key={i} className="text-sm text-destructive mt-1">{error.message}</p>
+                   ))}
+                 </div>
+
+                 {/* Course Thumbnail Upload */}
+                 <div>
+                   <Label>Course Thumbnail (Optional)</Label>
+                   <div className="mt-2">
+                     <MediaUpload
+                       bucket="course-thumbnails"
+                       acceptedTypes={['image/*']}
+                       maxSize={10}
+                       multiple={false}
+                       onFileUploaded={(file) => {
+                         const thumbnailUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/course-thumbnails/${file.filename}`;
+                         setCourseData(prev => ({ 
+                           ...prev, 
+                           thumbnail_url: thumbnailUrl
+                         }));
+                         setIsDirty(true);
+                       }}
+                       className="max-w-md"
+                     />
+                   </div>
+                 </div>
+
+                 {/* Course Thumbnail Upload */}
+                 <div>
+                   <Label>Course Thumbnail (Optional)</Label>
+                   <div className="mt-2">
+                     <MediaUpload
+                       bucket="course-thumbnails"
+                       acceptedTypes={['image/*']}
+                       maxSize={10}
+                       multiple={false}
+                       onFileUploaded={(file) => {
+                         setCourseData(prev => ({ 
+                           ...prev, 
+                           thumbnail_url: file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/course-thumbnails/${file.filename}`
+                         }));
+                         setIsDirty(true);
+                       }}
+                       className="max-w-md"
+                     />
+                   </div>
+                 </div>
 
                 {/* Preview Card */}
                 <Card className="bg-gradient-to-r from-muted/50 to-muted-light/30 border-dashed">

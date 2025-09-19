@@ -16,8 +16,10 @@ import {
   Clock,
   Edit3,
   Save,
-  X
+  X,
+  Upload
 } from 'lucide-react';
+import { MediaUpload } from './MediaUpload';
 
 interface ModuleData {
   title: string;
@@ -25,6 +27,7 @@ interface ModuleData {
   module_type: string;
   duration: number;
   resources?: any;
+  media_assets?: string[]; // Array of media asset URLs
 }
 
 interface ModuleBuilderProps {
@@ -266,19 +269,68 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
                       />
                     </div>
                     
-                    <div>
-                      <Label htmlFor={`content-${index}`}>Module Content</Label>
-                      <Textarea
-                        id={`content-${index}`}
-                        value={editingModule.content}
-                        onChange={(e) => setEditingModule({ ...editingModule, content: e.target.value })}
-                        placeholder="Enter the module content. You can use markdown formatting..."
-                        className="mt-1 min-h-[200px]"
-                      />
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Tip: You can use Markdown formatting for rich text content
-                      </div>
-                    </div>
+                     <div>
+                       <Label htmlFor={`content-${index}`}>Module Content</Label>
+                       <Textarea
+                         id={`content-${index}`}
+                         value={editingModule.content}
+                         onChange={(e) => setEditingModule({ ...editingModule, content: e.target.value })}
+                         placeholder="Enter the module content. You can use markdown formatting..."
+                         className="mt-1 min-h-[200px]"
+                       />
+                       <div className="text-xs text-muted-foreground mt-1">
+                         Tip: You can use Markdown formatting for rich text content
+                       </div>
+                     </div>
+                     
+                     {/* Media Upload Section */}
+                     <div>
+                       <Label>Module Media (Optional)</Label>
+                       <div className="mt-2">
+                         <MediaUpload
+                           bucket="learning-content"
+                           multiple={true}
+                           onFileUploaded={(file) => {
+                             const mediaUrl = file.url || `https://jnbdhtlmdxtanwlubyis.supabase.co/storage/v1/object/public/learning-content/${file.filename}`;
+                             setEditingModule(prev => ({
+                               ...prev,
+                               media_assets: [...(prev?.media_assets || []), mediaUrl]
+                             }));
+                           }}
+                           className="max-w-2xl"
+                         />
+                         {editingModule.media_assets && editingModule.media_assets.length > 0 && (
+                           <div className="mt-2">
+                             <p className="text-sm text-muted-foreground mb-2">
+                               Uploaded media ({editingModule.media_assets.length} files)
+                             </p>
+                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                               {editingModule.media_assets.map((url, mediaIndex) => (
+                                 <div key={mediaIndex} className="relative group">
+                                   <img
+                                     src={url}
+                                     alt={`Module media ${mediaIndex + 1}`}
+                                     className="w-full h-20 object-cover rounded border"
+                                   />
+                                   <button
+                                     type="button"
+                                     onClick={() => {
+                                       setEditingModule(prev => ({
+                                         ...prev,
+                                         media_assets: prev?.media_assets?.filter((_, i) => i !== mediaIndex) || []
+                                       }));
+                                     }}
+                                     className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                   >
+                                     <X className="h-3 w-3" />
+                                   </button>
+                                 </div>
+                               ))}
+                             </div>
+                           </div>
+                         )}
+                       </div>
+                     </div>
                     
                     <div className="flex items-center gap-2 pt-4 border-t">
                       <Button onClick={saveModule} size="sm">

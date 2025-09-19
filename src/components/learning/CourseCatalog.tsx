@@ -27,11 +27,22 @@ export const CourseCatalog: React.FC<CourseCatalogProps> = ({ onCourseSelect }) 
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'beginner': return 'bg-success text-success-foreground';
-      case 'intermediate': return 'bg-warning text-warning-foreground';
-      case 'advanced': return 'bg-destructive text-destructive-foreground';
+      case 'beginner': return 'bg-learning-beginner text-white';
+      case 'intermediate': return 'bg-learning-intermediate text-white';
+      case 'advanced': return 'bg-learning-advanced text-white';
       default: return 'bg-secondary text-secondary-foreground';
     }
+  };
+
+  const getCategoryGradient = (category: string) => {
+    const gradients = {
+      'General': 'from-blue-500 to-blue-600',
+      'Medical': 'from-learning-success to-emerald-600',
+      'Technology': 'from-learning-quiz to-purple-600',
+      'Certification': 'from-learning-achievement to-orange-600',
+      'Skills': 'from-pink-500 to-pink-600'
+    };
+    return gradients[category as keyof typeof gradients] || 'from-blue-500 to-blue-600';
   };
 
   const getCourseTypeIcon = (type: string) => {
@@ -95,47 +106,88 @@ export const CourseCatalog: React.FC<CourseCatalogProps> = ({ onCourseSelect }) 
           const completionPercentage = progress?.completion_percentage || 0;
 
           return (
-            <Card key={course.id} className="group hover:shadow-lg transition-all duration-300 cursor-pointer">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    {getCourseTypeIcon(course.course_type)}
-                    <span className="capitalize">{course.course_type}</span>
+            <Card 
+              key={course.id} 
+              className="group relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-0"
+              style={{
+                background: `linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--surface-subtle)) 100%)`,
+              }}
+            >
+              {/* Category Gradient Strip */}
+              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${getCategoryGradient(course.category)}`} />
+              
+              {/* Completion Status Indicator */}
+              {isCompleted && (
+                <div className="absolute top-3 right-3 z-10">
+                  <div className="w-6 h-6 bg-learning-success rounded-full flex items-center justify-center animate-learning-bounce">
+                    <CheckCircle className="h-4 w-4 text-white" />
                   </div>
-                  <Badge className={getDifficultyColor(course.difficulty_level)}>
+                </div>
+              )}
+              <CardHeader className="pb-4 pt-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className={`p-1.5 rounded-lg bg-gradient-to-r ${getCategoryGradient(course.category)}`}>
+                      {getCourseTypeIcon(course.course_type)}
+                    </div>
+                    <span className="capitalize font-medium">{course.course_type}</span>
+                  </div>
+                  <Badge className={`${getDifficultyColor(course.difficulty_level)} shadow-sm font-medium`}>
                     {course.difficulty_level}
                   </Badge>
                 </div>
-                <CardTitle className="group-hover:text-primary transition-colors">
+                <CardTitle className="group-hover:bg-gradient-to-r group-hover:from-learning-quiz group-hover:to-primary group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 text-lg font-bold">
                   {course.title}
                 </CardTitle>
-                <CardDescription className="line-clamp-2">
+                <CardDescription className="line-clamp-2 text-sm leading-relaxed">
                   {course.description}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>{course.estimated_duration} min</span>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="p-1 rounded bg-primary/10">
+                      <Clock className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <span className="font-medium">{course.estimated_duration} min</span>
                   </div>
-                  <Badge variant="outline">{course.category}</Badge>
+                  <Badge 
+                    variant="outline" 
+                    className={`bg-gradient-to-r ${getCategoryGradient(course.category)} text-white border-0 shadow-sm`}
+                  >
+                    {course.category}
+                  </Badge>
                 </div>
 
                 {progress && (
-                  <div className="space-y-2">
+                  <div className="space-y-3 p-3 rounded-lg bg-gradient-to-r from-muted/50 to-muted-light/50 border border-muted">
                     <div className="flex items-center justify-between text-sm">
-                      <span>Progress</span>
-                      <span className="font-medium">{completionPercentage}%</span>
+                      <span className="font-medium">Progress</span>
+                      <span className="font-bold text-primary">{completionPercentage}%</span>
                     </div>
-                    <Progress value={completionPercentage} className="h-2" />
+                    <div className="relative">
+                      <Progress 
+                        value={completionPercentage} 
+                        className="h-2.5 bg-muted-medium" 
+                      />
+                      <div 
+                        className="absolute top-0 left-0 h-2.5 rounded-full bg-gradient-to-r from-learning-success to-emerald-400 transition-all duration-1000 ease-out"
+                        style={{ width: `${completionPercentage}%` }}
+                      />
+                    </div>
                   </div>
                 )}
 
                 <Button 
                   onClick={() => handleStartCourse(course)}
-                  className="w-full"
-                  variant={isCompleted ? "outline" : "default"}
+                  className={`w-full font-semibold transition-all duration-300 ${
+                    isCompleted 
+                      ? 'bg-gradient-to-r from-learning-success to-emerald-500 hover:from-learning-success/90 hover:to-emerald-500/90 text-white border-0 shadow-lg hover:shadow-xl' 
+                      : isStarted 
+                      ? 'bg-gradient-to-r from-learning-quiz to-purple-500 hover:from-learning-quiz/90 hover:to-purple-500/90 text-white border-0 shadow-lg hover:shadow-xl hover:-translate-y-0.5'
+                      : 'bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-white border-0 shadow-lg hover:shadow-xl hover:-translate-y-0.5'
+                  }`}
+                  size="lg"
                 >
                   {isCompleted ? (
                     <>

@@ -159,20 +159,28 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
     
     return (
       <div className="space-y-6">
-        <Card>
-          <CardHeader className="text-center">
-            <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
-              passed ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'
+        <Card className="bg-gradient-to-br from-card to-surface-subtle border-0 shadow-2xl">
+          <CardHeader className="text-center pb-8">
+            <div className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-xl ${
+              passed 
+                ? 'bg-gradient-to-r from-learning-success to-emerald-400 animate-achievement-burst' 
+                : 'bg-gradient-to-r from-learning-advanced to-red-500 animate-pulse'
             }`}>
-              {passed ? <Trophy className="h-8 w-8" /> : <XCircle className="h-8 w-8" />}
+              {passed ? <Trophy className="h-10 w-10 text-white" /> : <XCircle className="h-10 w-10 text-white" />}
             </div>
-            <CardTitle className="text-2xl">
-              {passed ? 'Congratulations!' : 'Quiz Not Passed'}
+            <CardTitle className="text-3xl font-bold mb-2">
+              <span className={`bg-gradient-to-r ${
+                passed 
+                  ? 'from-learning-success to-emerald-400' 
+                  : 'from-learning-advanced to-red-500'
+              } bg-clip-text text-transparent`}>
+                {passed ? 'Congratulations!' : 'Quiz Not Passed'}
+              </span>
             </CardTitle>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-lg">
               {passed 
-                ? 'You have successfully completed the quiz' 
-                : `You need ${quiz.passing_score}% to pass this quiz`}
+                ? 'You have successfully completed the quiz and earned your achievement!' 
+                : `You need ${quiz.passing_score}% to pass this quiz. Keep practicing!`}
             </p>
           </CardHeader>
           <CardContent className="space-y-6">

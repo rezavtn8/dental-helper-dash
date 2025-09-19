@@ -132,19 +132,29 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
       </div>
 
       {/* Course Progress */}
-      <Card>
+      <Card className="bg-gradient-to-r from-learning-card to-surface border-0 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-lg">Course Progress</CardTitle>
+          <CardTitle className="text-xl font-bold bg-gradient-to-r from-learning-quiz to-primary bg-clip-text text-transparent">
+            Course Progress
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span>Overall Progress</span>
-              <span className="font-medium">{Math.round(overallProgress)}%</span>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">Overall Progress</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-learning-success to-emerald-400 bg-clip-text text-transparent">
+                {Math.round(overallProgress)}%
+              </span>
             </div>
-            <Progress value={overallProgress} className="h-2" />
-            <p className="text-sm text-muted-foreground">
-              {completedModules} of {modules.length} modules completed
+            <div className="relative">
+              <Progress value={overallProgress} className="h-3 bg-muted-medium" />
+              <div 
+                className="absolute top-0 left-0 h-3 rounded-full bg-gradient-to-r from-learning-success to-emerald-400 transition-all duration-1000 ease-out animate-progress-fill"
+                style={{ width: `${overallProgress}%` }}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground font-medium">
+              <span className="text-learning-success font-bold">{completedModules}</span> of <span className="font-bold">{modules.length}</span> modules completed
             </p>
           </div>
         </CardContent>
@@ -155,12 +165,14 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Module List Sidebar */}
           <div className="lg:col-span-1">
-            <Card>
+            <Card className="bg-gradient-to-b from-card to-surface-subtle border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-lg">Modules</CardTitle>
+                <CardTitle className="text-lg font-bold bg-gradient-to-r from-learning-quiz to-primary bg-clip-text text-transparent">
+                  Modules
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="space-y-1">
+                <div className="space-y-2 p-2">
                   {modules.map((module, index) => {
                     const moduleProgress = getModuleProgress(module.id);
                     const isCompleted = moduleProgress?.completion_percentage === 100;
@@ -170,25 +182,32 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
                       <button
                         key={module.id}
                         onClick={() => setCurrentModuleIndex(index)}
-                        className={`w-full text-left p-3 rounded-none border-l-4 transition-colors ${
+                        className={`w-full text-left p-3 rounded-lg border-l-4 transition-all duration-300 hover:scale-105 ${
                           isCurrent 
-                            ? 'border-primary bg-primary/10 text-primary' 
+                            ? 'border-learning-quiz bg-gradient-to-r from-learning-quiz/20 to-learning-quiz/10 text-learning-quiz shadow-lg animate-learning-glow' 
                             : isCompleted
-                            ? 'border-success bg-success/10 text-success'
-                            : 'border-transparent hover:bg-muted'
+                            ? 'border-learning-success bg-gradient-to-r from-learning-success/20 to-learning-success/10 text-learning-success shadow-md'
+                            : 'border-transparent hover:bg-gradient-to-r hover:from-muted/50 hover:to-muted-light/50 hover:shadow-md'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0">
                             {isCompleted ? (
-                              <CheckCircle className="h-4 w-4 text-success" />
+                              <div className="w-6 h-6 bg-learning-success rounded-full flex items-center justify-center animate-learning-bounce">
+                                <CheckCircle className="h-4 w-4 text-white" />
+                              </div>
+                            ) : isCurrent ? (
+                              <div className="w-6 h-6 bg-learning-quiz rounded-full flex items-center justify-center animate-pulse">
+                                <Play className="h-3 w-3 text-white ml-0.5" />
+                              </div>
                             ) : (
-                              <div className={`w-4 h-4 rounded-full border-2 ${
-                                isCurrent ? 'border-primary bg-primary' : 'border-muted-foreground'
-                              }`} />
+                              <div className="w-6 h-6 rounded-full border-2 border-muted-foreground bg-background" />
                             )}
-                            <div>
-                              <p className="font-medium text-sm">{module.title}</p>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm truncate">{module.title}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Clock className="h-3 w-3 text-muted-foreground" />
                               <p className="text-xs text-muted-foreground">{module.duration} min</p>
                             </div>
                           </div>
@@ -203,24 +222,35 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
 
           {/* Main Content Area */}
           <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
+            <Card className="bg-gradient-to-br from-card to-surface-subtle border-0 shadow-xl">
+              <CardHeader className="pb-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      {currentModule.title}
-                      <Badge variant="outline" className="text-xs">
-                        Module {currentModuleIndex + 1} of {modules.length}
+                  <div className="flex-1">
+                    <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                      <div className="p-2 rounded-lg bg-gradient-to-r from-learning-quiz to-purple-500">
+                        <BookOpen className="h-5 w-5 text-white" />
+                      </div>
+                      <span className="bg-gradient-to-r from-learning-quiz to-primary bg-clip-text text-transparent">
+                        {currentModule.title}
+                      </span>
+                      <Badge 
+                        className="bg-gradient-to-r from-learning-achievement to-orange-500 text-white border-0 shadow-sm font-medium"
+                      >
+                        {currentModuleIndex + 1} of {modules.length}
                       </Badge>
                     </CardTitle>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{currentModule.duration} minutes</span>
+                    <div className="flex items-center gap-6 text-sm mt-3">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <div className="p-1 rounded bg-primary/10">
+                          <Clock className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="font-medium">{currentModule.duration} minutes</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Play className="h-4 w-4" />
-                        <span className="capitalize">{currentModule.module_type}</span>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <div className="p-1 rounded bg-learning-quiz/10">
+                          <Play className="h-4 w-4 text-learning-quiz" />
+                        </div>
+                        <span className="capitalize font-medium">{currentModule.module_type}</span>
                       </div>
                     </div>
                   </div>

@@ -82,6 +82,15 @@ export default {
 					900: 'hsl(var(--blue-900))',
 					950: 'hsl(var(--blue-950))'
 				},
+				learning: {
+					beginner: 'hsl(var(--learning-beginner))',
+					intermediate: 'hsl(var(--learning-intermediate))',
+					advanced: 'hsl(var(--learning-advanced))',
+					success: 'hsl(var(--learning-success))',
+					warning: 'hsl(var(--learning-warning))',
+					quiz: 'hsl(var(--learning-quiz))',
+					achievement: 'hsl(var(--learning-achievement))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -134,13 +143,61 @@ export default {
 						transform: 'scale(1)',
 						opacity: '1'
 					}
+				},
+				'learning-glow': {
+					'0%, 100%': {
+						'box-shadow': '0 0 20px hsl(258 90% 66% / 0.3)'
+					},
+					'50%': {
+						'box-shadow': '0 0 30px hsl(258 90% 66% / 0.6)'
+					}
+				},
+				'learning-bounce': {
+					'0%, 20%, 53%, 80%, 100%': {
+						transform: 'translate3d(0, 0, 0)'
+					},
+					'40%, 43%': {
+						transform: 'translate3d(0, -15px, 0)'
+					},
+					'70%': {
+						transform: 'translate3d(0, -8px, 0)'
+					},
+					'90%': {
+						transform: 'translate3d(0, -3px, 0)'
+					}
+				},
+				'progress-fill': {
+					'0%': {
+						transform: 'scaleX(0)'
+					},
+					'100%': {
+						transform: 'scaleX(1)'
+					}
+				},
+				'achievement-burst': {
+					'0%': {
+						transform: 'scale(0) rotate(0deg)',
+						opacity: '0'
+					},
+					'50%': {
+						transform: 'scale(1.2) rotate(180deg)',
+						opacity: '1'
+					},
+					'100%': {
+						transform: 'scale(1) rotate(360deg)',
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'scale-in': 'scale-in 0.2s ease-out'
+				'scale-in': 'scale-in 0.2s ease-out',
+				'learning-glow': 'learning-glow 3s ease-in-out infinite',
+				'learning-bounce': 'learning-bounce 2s ease-in-out infinite',
+				'progress-fill': 'progress-fill 1s ease-out',
+				'achievement-burst': 'achievement-burst 0.6s ease-out'
 			}
 		}
 	},

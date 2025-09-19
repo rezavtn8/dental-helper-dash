@@ -225,6 +225,111 @@ export type Database = {
         }
         Relationships: []
       }
+      course_categories: {
+        Row: {
+          clinic_id: string | null
+          color_scheme: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          clinic_id?: string | null
+          color_scheme?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          clinic_id?: string | null
+          color_scheme?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      course_templates: {
+        Row: {
+          category: string
+          clinic_id: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          difficulty_level: string
+          id: string
+          is_active: boolean
+          name: string
+          template_data: Json
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          clinic_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          difficulty_level?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          template_data: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          clinic_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          difficulty_level?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          template_data?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      course_versions: {
+        Row: {
+          course_data: Json
+          course_id: string
+          created_at: string
+          created_by: string
+          id: string
+          version_name: string | null
+          version_number: number
+        }
+        Insert: {
+          course_data: Json
+          course_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          version_name?: string | null
+          version_number: number
+        }
+        Update: {
+          course_data?: Json
+          course_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          version_name?: string | null
+          version_number?: number
+        }
+        Relationships: []
+      }
       default_task_templates: {
         Row: {
           category: string | null
@@ -756,6 +861,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      media_assets: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          file_size: number
+          file_type: string
+          filename: string
+          id: string
+          metadata: Json | null
+          original_filename: string
+          storage_path: string
+          thumbnail_path: string | null
+          uploaded_by: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          file_size: number
+          file_type: string
+          filename: string
+          id?: string
+          metadata?: Json | null
+          original_filename: string
+          storage_path: string
+          thumbnail_path?: string | null
+          uploaded_by: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          file_size?: number
+          file_type?: string
+          filename?: string
+          id?: string
+          metadata?: Json | null
+          original_filename?: string
+          storage_path?: string
+          thumbnail_path?: string | null
+          uploaded_by?: string
+        }
+        Relationships: []
       }
       milestones: {
         Row: {

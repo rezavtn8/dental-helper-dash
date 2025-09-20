@@ -4,30 +4,32 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, CheckCircle, CheckSquare, Clock, User, Building2, BarChart3, Users, ClipboardList, Star, ChevronRight, LayoutDashboard, FileText, CalendarDays, MessageSquare, Settings, BookOpen, Award, TrendingUp, ScrollText, Crown, ChevronDown } from 'lucide-react';
 export const AppPreview = () => {
-  return <section className="relative overflow-hidden py-20 bg-gradient-to-br from-muted/20 via-background to-muted/30">
+  return <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-muted/20 via-background to-muted/30 px-4">
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       
-      <div className="container mx-auto px-4 relative">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+      <div className="container mx-auto relative">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             See DentaLeague in Action
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-4">
             Explore the full-featured dashboards your team will use daily
           </p>
         </div>
 
         {/* Role Selector */}
-        <div className="max-w-6xl mx-auto mb-8">
+        <div className="max-w-6xl mx-auto mb-6 sm:mb-8">
           <Tabs defaultValue="owner" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
-              <TabsTrigger value="owner" className="flex items-center gap-2">
-                <Crown className="w-4 h-4" />
-                Owner Dashboard
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 max-w-xs sm:max-w-md mx-auto mb-6 sm:mb-8">
+              <TabsTrigger value="owner" className="flex items-center gap-2 text-xs sm:text-sm">
+                <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Owner Dashboard</span>
+                <span className="sm:hidden">Owner</span>
               </TabsTrigger>
-              <TabsTrigger value="assistant" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Assistant Dashboard
+              <TabsTrigger value="assistant" className="flex items-center gap-2 text-xs sm:text-sm">
+                <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Assistant Dashboard</span>
+                <span className="sm:hidden">Assistant</span>
               </TabsTrigger>
             </TabsList>
 
@@ -91,23 +93,23 @@ const OwnerDashboardPreview = () => {
     label: 'Settings',
     icon: Settings
   }];
-  return <div className="bg-gradient-to-br from-background to-muted/50 rounded-xl shadow-2xl border overflow-hidden">
+  return <div className="bg-gradient-to-br from-background to-muted/50 rounded-lg sm:rounded-xl shadow-xl sm:shadow-2xl border overflow-hidden">
       {/* Browser Header */}
-      <div className="bg-muted/80 px-4 py-3 border-b flex items-center gap-2">
-        <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-red-500/70" />
-          <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-          <div className="w-3 h-3 rounded-full bg-green-500/70" />
+      <div className="bg-muted/80 px-2 sm:px-4 py-2 sm:py-3 border-b flex items-center gap-2">
+        <div className="flex gap-1 sm:gap-1.5">
+          <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500/70" />
+          <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500/70" />
+          <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500/70" />
         </div>
-        <div className="flex-1 bg-background/80 rounded-md px-3 py-1 mx-4">
-          <p className="text-sm text-muted-foreground">app.dentaleague.com/owner</p>
+        <div className="flex-1 bg-background/80 rounded-md px-2 sm:px-3 py-1 mx-2 sm:mx-4">
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">app.dentaleague.com/owner</p>
         </div>
       </div>
 
       {/* App Interface */}
-      <div className="bg-gradient-to-br from-background to-muted/20 min-h-[700px] flex">
+      <div className="bg-gradient-to-br from-background to-muted/20 min-h-[400px] sm:min-h-[500px] lg:min-h-[700px] flex">
         {/* Sidebar Preview */}
-        <div className="w-72 bg-card/80 border-r p-4">
+        <div className="w-48 sm:w-60 lg:w-72 bg-card/80 border-r p-2 sm:p-3 lg:p-4 hidden md:block">
           <div className="space-y-6">
             {/* Clinic Header */}
             <div className="flex items-center gap-2 pb-4 border-b">
@@ -156,7 +158,7 @@ const OwnerDashboardPreview = () => {
         </div>
 
         {/* Main Dashboard */}
-        <div className="flex-1 p-6 overflow-y-auto max-h-[700px]">
+        <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto max-h-[400px] sm:max-h-[500px] lg:max-h-[700px]">
           <OwnerDashboardContent />
         </div>
       </div>

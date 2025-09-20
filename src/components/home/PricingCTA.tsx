@@ -59,11 +59,11 @@ export function PricingCTA() {
     calculation: "Unlimited = $399 ✓ (no-brainer)",
     recommended: "Unlimited"
   }];
-  return <section className="container mx-auto py-20">
+  return <section className="container mx-auto py-12 sm:py-16 lg:py-20 px-4">
       {/* Header */}
-      <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold text-foreground mb-4">Three-Tier Pricing</h2>
-        <p className="text-lg text-muted-foreground mb-8">
+      <div className="text-center mb-12 sm:mb-16">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">Three-Tier Pricing</h2>
+        <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8 px-4">
           Choose the plan that grows with your clinic
         </p>
         
@@ -83,7 +83,7 @@ export function PricingCTA() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
         {plans.map((plan, index) => {
         const IconComponent = plan.icon;
         return <div key={plan.name} className={cn(

@@ -75,7 +75,7 @@ export default function NewAssistantSidebar({
     <Sidebar className="border-r border-slate-200/60 bg-white/95 backdrop-blur-sm">
       <SidebarContent className="px-2">
         {/* DentaLeague Brand */}
-        <div className="p-3 border-b border-slate-100/80">
+        <div className="p-2 sm:p-3 border-b border-slate-100/80">
           <Button 
             variant="ghost" 
             className="flex items-center gap-2 h-auto p-0 hover:bg-transparent w-full justify-start"
@@ -84,20 +84,20 @@ export default function NewAssistantSidebar({
           >
             {open && !isCollapsed ? (
               <>
-                <StaticLogo size={72} className="text-primary" />
-                <span className="font-semibold text-base text-foreground">DentaLeague</span>
+                <StaticLogo size={60} className="text-primary sm:w-[72px] sm:h-[72px]" />
+                <span className="font-semibold text-sm sm:text-base text-foreground">DentaLeague</span>
               </>
             ) : (
               <div className="mx-auto">
-                <StaticLogo size={72} className="text-primary" />
+                <StaticLogo size={60} className="text-primary sm:w-[72px] sm:h-[72px]" />
               </div>
             )}
           </Button>
         </div>
 
         {/* Navigation - Compact */}
-        <SidebarGroup className="py-2">
-          <SidebarGroupLabel className="text-slate-500 font-medium text-xs mb-2 px-2">
+        <SidebarGroup className="py-1 sm:py-2">
+          <SidebarGroupLabel className="text-slate-500 font-medium text-xs mb-1 sm:mb-2 px-2">
             {(open && !isCollapsed) && "NAVIGATION"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -111,8 +111,8 @@ export default function NewAssistantSidebar({
                     <SidebarMenuButton 
                       asChild
                       className={`
-                        h-9 transition-all duration-150 rounded-lg mx-1
-                        ${!open || isCollapsed ? 'justify-center px-0 w-9' : 'px-3'}
+                        h-8 sm:h-9 transition-all duration-150 rounded-lg mx-1
+                        ${!open || isCollapsed ? 'justify-center px-0 w-8 sm:w-9' : 'px-2 sm:px-3'}
                         ${active 
                           ? 'bg-blue-500 text-white shadow-sm hover:bg-blue-600' 
                           : 'hover:bg-slate-50 hover:text-slate-700 text-slate-600'
@@ -120,12 +120,12 @@ export default function NewAssistantSidebar({
                       `}
                     >
                       <button onClick={() => onTabChange(item.id)} className="w-full flex items-center">
-                        <Icon className={`w-4 h-4 ${(!open || isCollapsed) ? '' : 'mr-2.5'} flex-shrink-0`} />
+                        <Icon className={`w-3 h-3 sm:w-4 sm:h-4 ${(!open || isCollapsed) ? '' : 'mr-2 sm:mr-2.5'} flex-shrink-0`} />
                         {(open && !isCollapsed) && (
                           <>
-                            <span className="font-medium text-sm truncate">{item.label}</span>
+                            <span className="font-medium text-xs sm:text-sm truncate">{item.label}</span>
                             {active && (
-                              <div className="ml-auto w-1.5 h-1.5 bg-white/90 rounded-full flex-shrink-0" />
+                              <div className="ml-auto w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white/90 rounded-full flex-shrink-0" />
                             )}
                           </>
                         )}
@@ -141,12 +141,12 @@ export default function NewAssistantSidebar({
 
       {/* Footer with Clinic Code - Compact */}
       {clinic?.clinic_code && (
-        <SidebarFooter className="border-t border-slate-100/80 p-2">
+        <SidebarFooter className="border-t border-slate-100/80 p-1 sm:p-2">
           {(open && !isCollapsed) && (
-            <div className="space-y-2">
+            <div className="space-y-1 sm:space-y-2">
               <button 
                 onClick={copyClinicCode}
-                className="bg-slate-50 rounded-lg p-2.5 border border-slate-100 hover:bg-slate-100 transition-colors text-left w-full"
+                className="bg-slate-50 rounded-lg p-1.5 sm:p-2.5 border border-slate-100 hover:bg-slate-100 transition-colors text-left w-full"
               >
                 <p className="text-xs font-medium text-slate-500 mb-0.5">Clinic Code</p>
                 <p className="font-mono text-xs font-semibold text-slate-700 tracking-wide">

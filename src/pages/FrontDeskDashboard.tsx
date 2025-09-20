@@ -111,9 +111,9 @@ const FrontDeskDashboard = () => {
     );
   }
 
-  return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen w-full flex bg-gradient-to-br from-background via-background to-muted/20">
+    return (
+      <SidebarProvider defaultOpen={true}>
+        <div className="min-h-screen w-full flex bg-gradient-to-br from-background via-background to-muted/20">
         <NewFrontDeskSidebar 
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -121,34 +121,31 @@ const FrontDeskDashboard = () => {
           userProfile={userProfile}
         />
         
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
           <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
-            <div className="flex items-center gap-4 h-14 px-4">
-              <SidebarTrigger />
+            <div className="flex items-center gap-2 sm:gap-4 h-12 sm:h-14 px-2 sm:px-4">
+              <SidebarTrigger className="md:hidden" />
               
               {/* Context Title Group */}
-              <div className="flex items-center gap-1.5">
-                <Building2 className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
-                <h1 className="font-semibold text-lg text-foreground max-w-[55vw] sm:max-w-none truncate">
+              <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+                <h1 className="font-semibold text-base sm:text-lg text-foreground truncate">
                   {clinic?.name || 'Front Desk Portal'}
                 </h1>
               </div>
               
-              {/* Spacer */}
-              <div className="flex-1"></div>
-              
               {/* Right: User Profile */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2 h-auto p-2 hover:bg-muted/50 rounded-lg">
-                      <Avatar className="w-8 h-8 border border-border">
+                    <Button variant="ghost" className="flex items-center gap-1 sm:gap-2 h-auto p-1 sm:p-2 hover:bg-muted/50 rounded-lg">
+                      <Avatar className="w-6 h-6 sm:w-8 sm:h-8 border border-border">
                         <AvatarFallback className="bg-gradient-to-br from-green-500 to-emerald-600 text-white text-xs font-medium">
                           {getUserInitials(userProfile?.name || 'Front Desk')}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="text-left hidden sm:block">
+                      <div className="text-left hidden lg:block">
                         <p className="font-medium text-sm text-foreground">
                           {userProfile?.name || 'Front Desk User'}
                         </p>
@@ -161,7 +158,7 @@ const FrontDeskDashboard = () => {
                           />
                         </div>
                       </div>
-                      <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                      <ChevronDown className="w-3 h-3 text-muted-foreground hidden sm:block" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 shadow-lg">
@@ -183,7 +180,7 @@ const FrontDeskDashboard = () => {
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 container mx-auto px-4 py-6">
+          <main className="flex-1 p-2 sm:p-4 lg:p-6 overflow-hidden">
             {activeTab === 'learning' ? (
               <div className="h-full">
                 <LearningHub />

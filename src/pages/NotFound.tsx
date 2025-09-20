@@ -8,13 +8,13 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md text-center">
+      <Card className="w-full max-w-sm sm:max-w-md text-center">
         <CardHeader>
-          <div className="mx-auto p-3 bg-destructive/10 rounded-full w-fit mb-4">
-            <AlertTriangle className="h-8 w-8 text-destructive" />
+          <div className="mx-auto p-2 sm:p-3 bg-destructive/10 rounded-full w-fit mb-3 sm:mb-4">
+            <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-destructive" />
           </div>
-          <CardTitle className="text-4xl font-bold mb-2">404</CardTitle>
-          <CardDescription className="text-lg">
+          <CardTitle className="text-3xl sm:text-4xl font-bold mb-2">404</CardTitle>
+          <CardDescription className="text-base sm:text-lg">
             Oops! The page you're looking for doesn't exist.
           </CardDescription>
         </CardHeader>

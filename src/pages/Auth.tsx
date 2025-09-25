@@ -27,34 +27,27 @@ export default function Auth() {
   }, [user, userProfile, navigate, loading]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-surface to-background">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100">
       
-      {/* Floating shapes background - matching landing page */}
-      <div className="floating-shapes">
-        <div className="floating-shape"></div>
-        <div className="floating-shape"></div>
-        <div className="floating-shape"></div>
-        <div className="floating-shape"></div>
-      </div>
-      
-      {/* Enhanced animated background pattern - matching landing page */}
+      {/* Modern geometric background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(217_91%_85%_/_0.15),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(217_91%_75%_/_0.15),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(217_91%_90%_/_0.1),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_49%,hsl(217_91%_90%_/_0.05)_50%,transparent_51%)] bg-[length:30px_30px] animate-pulse" />
-        <div className="absolute inset-0 bg-[linear-gradient(-45deg,transparent_49%,hsl(217_91%_85%_/_0.03)_50%,transparent_51%)] bg-[length:40px_40px]" />
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full mix-blend-multiply blur-xl animate-pulse animation-delay-0"></div>
+        <div className="absolute top-0 -right-4 w-72 h-72 bg-gradient-to-br from-cyan-400/20 to-blue-600/20 rounded-full mix-blend-multiply blur-xl animate-pulse animation-delay-2s"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-gradient-to-br from-pink-400/20 to-purple-600/20 rounded-full mix-blend-multiply blur-xl animate-pulse animation-delay-4s"></div>
+        
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       </div>
 
-      {/* Navigation Header - matching landing page style */}
-      <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="container mx-auto">
+      {/* Navigation Header */}
+      <nav className="relative z-50 w-full bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm">
+        <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo - matching landing page */}
+            {/* Logo */}
             <div className="flex items-center space-x-3">
-              <AnimatedLogo size={28} animated={false} className="text-primary" />
+              <AnimatedLogo size={32} animated={false} className="text-slate-700" />
               <div className="flex flex-col">
-                <span className="font-display text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   DentaLeague
                 </span>
               </div>
@@ -64,7 +57,7 @@ export default function Auth() {
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')}
-              className="text-sm font-semibold text-slate-600 hover:text-slate-900 flex items-center space-x-2"
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-white/60 flex items-center space-x-2 transition-all duration-200"
             >
               <ArrowLeft size={16} />
               <span>Back to Home</span>
@@ -74,28 +67,28 @@ export default function Auth() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-20">
-        <div className="w-full max-w-md">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-lg">
           
-          {/* Hero Section - matching landing page style */}
-          <div className="text-center mb-12 space-y-8">
-            {/* Large Animated Logo */}
-            <div className="flex flex-col items-center space-y-4">
-              <AnimatedLogo size={120} />
-              <div className="text-center">
-                <h2 className="text-3xl font-bold text-foreground">DentaLeague</h2>
+          {/* Hero Section */}
+          <div className="text-center mb-10 space-y-6">
+            {/* Animated Logo with glow effect */}
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full blur-2xl animate-pulse"></div>
+                <AnimatedLogo size={80} className="relative z-10 text-slate-700" />
               </div>
             </div>
             
-            {/* Headline - matching landing page typography */}
-            <div className="space-y-4">
-              <h1 className="text-[2rem] md:text-[2.4rem] font-semibold leading-[2.4rem] md:leading-[2.8rem] bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+            {/* Headline */}
+            <div className="space-y-3">
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 bg-clip-text text-transparent">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
                   ? 'Complete Your Setup' 
-                  : 'Welcome Back'
+                  : 'Welcome to DentaLeague'
                 }
               </h1>
-              <p className="text-[1rem] text-muted-foreground max-w-md mx-auto leading-[1.5rem]">
+              <p className="text-slate-600 max-w-md mx-auto text-lg leading-relaxed">
                 {user && userProfile?.role === 'owner' && !userProfile?.clinic_id 
                   ? 'Let\'s set up your clinic to get started with your dental practice management' 
                   : 'Sign in to your account or create a new one to get started'
@@ -104,72 +97,72 @@ export default function Auth() {
             </div>
           </div>
 
-          {/* Auth Card - improved styling */}
-          <Card className="glass-card border-0 shadow-2xl backdrop-blur-xl">
-            <CardContent className="p-8">
+          {/* Auth Card */}
+          <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-2xl shadow-slate-200/50">
+            <CardContent className="p-10">
               {user && userProfile?.role === 'owner' && !userProfile?.clinic_id ? (
                 <ClinicSetupForm userProfile={userProfile} />
               ) : (
                 <Tabs defaultValue="owner" className="w-full">
-                  {/* Refined tab styling to match landing page */}
-                  <TabsList className="grid w-full grid-cols-3 mb-8 bg-slate-50/80 backdrop-blur-sm rounded-full p-1.5 border border-slate-200/60">
+                  {/* Modern tab styling */}
+                  <TabsList className="grid w-full grid-cols-3 mb-10 bg-slate-100/80 backdrop-blur-sm rounded-2xl p-2 border border-slate-200/40 shadow-inner">
                     <TabsTrigger 
                       value="owner" 
-                      className="flex items-center justify-center space-x-2 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg data-[state=active]:shadow-slate-200/50 data-[state=active]:border data-[state=active]:border-slate-200/60 text-slate-600 hover:text-slate-900"
+                      className="flex items-center justify-center space-x-2 py-3 text-sm font-semibold rounded-xl transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg data-[state=active]:shadow-slate-200/60 data-[state=active]:border data-[state=active]:border-slate-200/40 text-slate-600 hover:text-slate-900 hover:bg-white/60"
                     >
                       <Crown className="w-4 h-4" />
                       <span className="hidden sm:inline">Owner</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="assistant" 
-                      className="flex items-center justify-center space-x-2 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg data-[state=active]:shadow-slate-200/50 data-[state=active]:border data-[state=active]:border-slate-200/60 text-slate-600 hover:text-slate-900"
+                      className="flex items-center justify-center space-x-2 py-3 text-sm font-semibold rounded-xl transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg data-[state=active]:shadow-slate-200/60 data-[state=active]:border data-[state=active]:border-slate-200/40 text-slate-600 hover:text-slate-900 hover:bg-white/60"
                     >
                       <UserCheck className="w-4 h-4" />
                       <span className="hidden sm:inline">Assistant</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="front_desk" 
-                      className="flex items-center justify-center space-x-2 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg data-[state=active]:shadow-slate-200/50 data-[state=active]:border data-[state=active]:border-slate-200/60 text-slate-600 hover:text-slate-900"
+                      className="flex items-center justify-center space-x-2 py-3 text-sm font-semibold rounded-xl transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-lg data-[state=active]:shadow-slate-200/60 data-[state=active]:border data-[state=active]:border-slate-200/40 text-slate-600 hover:text-slate-900 hover:bg-white/60"
                     >
                       <UserCheck className="w-4 h-4" />
                       <span className="hidden sm:inline">Front Desk</span>
                     </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="owner" className="space-y-6 mt-0">
+                  <TabsContent value="owner" className="space-y-8 mt-0">
                     <div className="text-center space-y-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center mx-auto shadow-lg">
-                        <Crown className="w-8 h-8 text-blue-600" />
+                      <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 flex items-center justify-center mx-auto shadow-xl shadow-blue-200/40 border border-blue-100">
+                        <Crown className="w-9 h-9 text-blue-600" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-xl font-semibold text-foreground">Clinic Owner</h3>
-                        <p className="text-muted-foreground text-sm">Manage your clinic and lead your dental team</p>
+                        <h3 className="text-2xl font-bold text-slate-900">Clinic Owner</h3>
+                        <p className="text-slate-600">Manage your clinic and lead your dental team</p>
                       </div>
                     </div>
                     <AuthWidget role="owner" />
                   </TabsContent>
                   
-                  <TabsContent value="assistant" className="space-y-6 mt-0">
+                  <TabsContent value="assistant" className="space-y-8 mt-0">
                     <div className="text-center space-y-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center mx-auto shadow-lg">
-                        <UserCheck className="w-8 h-8 text-blue-600" />
+                      <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-200 flex items-center justify-center mx-auto shadow-xl shadow-emerald-200/40 border border-emerald-100">
+                        <UserCheck className="w-9 h-9 text-emerald-600" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-xl font-semibold text-foreground">Dental Assistant</h3>
-                        <p className="text-muted-foreground text-sm">Access tasks and track patient care</p>
+                        <h3 className="text-2xl font-bold text-slate-900">Dental Assistant</h3>
+                        <p className="text-slate-600">Access tasks and track patient care</p>
                       </div>
                     </div>
                     <AuthWidget role="assistant" />
                   </TabsContent>
 
-                  <TabsContent value="front_desk" className="space-y-6 mt-0">
+                  <TabsContent value="front_desk" className="space-y-8 mt-0">
                     <div className="text-center space-y-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center mx-auto shadow-lg">
-                        <UserCheck className="w-8 h-8 text-blue-600" />
+                      <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-50 via-purple-100 to-purple-200 flex items-center justify-center mx-auto shadow-xl shadow-purple-200/40 border border-purple-100">
+                        <UserCheck className="w-9 h-9 text-purple-600" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-xl font-semibold text-foreground">Front Desk</h3>
-                        <p className="text-muted-foreground text-sm">Manage reception and patient scheduling</p>
+                        <h3 className="text-2xl font-bold text-slate-900">Front Desk</h3>
+                        <p className="text-slate-600">Manage reception and patient scheduling</p>
                       </div>
                     </div>
                     <AuthWidget role="front_desk" />
@@ -179,13 +172,13 @@ export default function Auth() {
             </CardContent>
           </Card>
 
-          {/* Footer Text - refined styling */}
-          <div className="text-center mt-8 text-sm text-muted-foreground space-y-2 opacity-70">
-            <p>By continuing, you agree to our Terms of Service and Privacy Policy</p>
-            <p className="flex items-center justify-center space-x-1">
-              <span>🔒</span>
+          {/* Footer Text */}
+          <div className="text-center mt-10 text-sm text-slate-500 space-y-3">
+            <p>By continuing, you agree to our <span className="text-slate-700 font-medium">Terms of Service</span> and <span className="text-slate-700 font-medium">Privacy Policy</span></p>
+            <div className="flex items-center justify-center space-x-2 text-slate-400">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span>Secure authentication powered by Supabase</span>
-            </p>
+            </div>
           </div>
         </div>
       </div>

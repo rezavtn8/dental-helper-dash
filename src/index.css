@@ -275,9 +275,9 @@ All colors MUST be HSL.
     transition: opacity 0.3s ease;
   }
   
-  .glow-effect:hover::before {
-    opacity: 1;
-  }
+  .animation-delay-0 { animation-delay: 0s; }
+  .animation-delay-2s { animation-delay: 2s; }
+  .animation-delay-4s { animation-delay: 4s; }
 }
 
 @keyframes float {

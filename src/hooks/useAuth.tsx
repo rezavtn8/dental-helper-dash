@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { errorLogger } from '@/lib/errorLogger';
 
 interface UserProfile {
   id: string;
@@ -60,6 +61,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }, 0);
       } else {
         setUserProfile(null);
+        // Clear error logger user context when no session
+        errorLogger.clearUserContext();
         setLoading(false);
       }
     });
@@ -116,7 +119,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           roles.push(data.role);
         }
 
-        setUserProfile({ ...data, roles });
+        const profileData = { ...data, roles };
+        setUserProfile(profileData);
+        
+        // Set error logger user context
+        errorLogger.setUserContext(data.id, data.clinic_id || undefined);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -270,6 +277,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async (): Promise<void> => {
     await supabase.auth.signOut();
     setUserProfile(null);
+    // Clear error logger user context
+    errorLogger.clearUserContext();
   };
 
   // Function to update last login timestamp

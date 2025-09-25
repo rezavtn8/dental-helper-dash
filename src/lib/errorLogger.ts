@@ -23,6 +23,7 @@ export class ErrorLogger {
   private static instance: ErrorLogger;
   private sessionId: string;
   private environment: 'development' | 'production';
+  private userContext?: { userId: string; clinicId?: string };
   
   private constructor() {
     this.sessionId = this.generateSessionId();
@@ -92,8 +93,8 @@ export class ErrorLogger {
         await this.logToService(errorEntry);
       }
       
-      // For critical errors, also log to Supabase if possible
-      if (error instanceof AppError && error.severity === ErrorSeverity.CRITICAL) {
+      // Log to database for all AppErrors or critical system errors
+      if (error instanceof AppError || this.shouldLogToDatabase(error)) {
         await this.logToDatabase(errorEntry);
       }
       
@@ -102,6 +103,21 @@ export class ErrorLogger {
       console.error('Error logging failed:', loggingError);
       console.error('Original error:', error);
     }
+  }
+
+  private shouldLogToDatabase(error: Error): boolean {
+    // Log all errors in production
+    if (this.environment === 'production') {
+      return true;
+    }
+    
+    // In development, log medium and above severity errors
+    if (error instanceof AppError) {
+      return error.severity !== ErrorSeverity.LOW;
+    }
+    
+    // Log all non-AppError exceptions in development too
+    return true;
   }
 
   private createErrorLogEntry(
@@ -116,14 +132,18 @@ export class ErrorLogger {
   ): ErrorLogEntry {
     const appError = error instanceof AppError ? error : null;
     
+    // Use provided context or fall back to stored user context
+    const userId = context.userId || this.userContext?.userId;
+    const clinicId = context.clinicId || this.userContext?.clinicId;
+    
     return {
       error_message: error.message,
       user_message: appError?.userMessage || 'An unexpected error occurred',
       severity: appError?.severity || ErrorSeverity.MEDIUM,
       category: appError?.category || 'unknown',
       error_code: appError?.code || 'UNKNOWN_ERROR',
-      user_id: context.userId,
-      clinic_id: context.clinicId,
+      user_id: userId,
+      clinic_id: clinicId,
       component: context.component || appError?.context.component,
       action: context.action || appError?.context.action,
       stack_trace: error.stack,
@@ -207,17 +227,12 @@ export class ErrorLogger {
 
   private async logToDatabase(errorEntry: ErrorLogEntry): Promise<void> {
     try {
-      // Only log critical errors to avoid database spam
-      // Note: This requires an error_logs table to be created in Supabase
-      // For now, we'll skip database logging until the table is created
-      console.warn('Database logging skipped - error_logs table not created yet');
-      
-      // TODO: Create error_logs table and uncomment this code
-      /*
+      // Log critical errors to database
       const { error } = await supabase
         .from('error_logs')
         .insert([{
           error_message: errorEntry.error_message,
+          user_message: errorEntry.user_message,
           severity: errorEntry.severity,
           category: errorEntry.category,
           error_code: errorEntry.error_code,
@@ -226,14 +241,16 @@ export class ErrorLogger {
           component: errorEntry.component,
           action: errorEntry.action,
           context: errorEntry.context,
+          stack_trace: errorEntry.stack_trace,
           timestamp: errorEntry.timestamp,
           environment: errorEntry.environment
         }]);
       
       if (error) {
         console.warn('Failed to log error to database:', error);
+      } else {
+        console.log('Error successfully logged to database');
       }
-      */
     } catch (dbError) {
       console.warn('Database logging failed:', dbError);
     }
@@ -242,12 +259,50 @@ export class ErrorLogger {
   public setUserContext(userId: string, clinicId?: string): void {
     // Store user context for future error logs
     this.sessionId = `session_${userId}_${Date.now()}`;
+    // Store context for automatic inclusion in error logs
+    this.userContext = { userId, clinicId };
   }
 
   public clearUserContext(): void {
     this.sessionId = this.generateSessionId();
+    this.userContext = undefined;
+  }
+
+  // Test method for verifying error logging functionality
+  public async testErrorLogging(): Promise<void> {
+    console.log('🧪 Testing error logging functionality...');
+    
+    try {
+      // Test 1: Log a simple error
+      const testError = new Error('Test error for logging verification');
+      await this.logError(testError, {
+        component: 'ErrorLogger',
+        action: 'test_logging',
+        additionalData: { test: true, timestamp: new Date().toISOString() }
+      });
+      
+      // Test 2: Log a ValidationError (concrete AppError implementation)
+      const { ValidationError } = await import('./errors');
+      const validationError = new ValidationError(
+        'Test ValidationError for database logging',
+        'This is a test validation error to verify database logging functionality',
+        'LOGGER_TEST',
+        { component: 'ErrorLogger', action: 'test_validation_error' }
+      );
+      await this.logError(validationError);
+      
+      console.log('✅ Error logging test completed. Check console and database for logged entries.');
+    } catch (error) {
+      console.error('❌ Error logging test failed:', error);
+    }
   }
 }
 
 // Export singleton instance
 export const errorLogger = ErrorLogger.getInstance();
+
+// Make test method available globally in development
+if (import.meta.env.MODE === 'development') {
+  (window as any).testErrorLogging = () => errorLogger.testErrorLogging();
+  console.log('🧪 Error logging test available: Run testErrorLogging() in console');
+}

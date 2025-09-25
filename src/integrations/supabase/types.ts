@@ -414,6 +414,57 @@ export type Database = {
         }
         Relationships: []
       }
+      error_logs: {
+        Row: {
+          action: string | null
+          category: string | null
+          clinic_id: string | null
+          component: string | null
+          context: Json | null
+          environment: string | null
+          error_code: string | null
+          error_message: string
+          id: string
+          severity: string
+          stack_trace: string | null
+          timestamp: string
+          user_id: string | null
+          user_message: string | null
+        }
+        Insert: {
+          action?: string | null
+          category?: string | null
+          clinic_id?: string | null
+          component?: string | null
+          context?: Json | null
+          environment?: string | null
+          error_code?: string | null
+          error_message: string
+          id?: string
+          severity?: string
+          stack_trace?: string | null
+          timestamp?: string
+          user_id?: string | null
+          user_message?: string | null
+        }
+        Update: {
+          action?: string | null
+          category?: string | null
+          clinic_id?: string | null
+          component?: string | null
+          context?: Json | null
+          environment?: string | null
+          error_code?: string | null
+          error_message?: string
+          id?: string
+          severity?: string
+          stack_trace?: string | null
+          timestamp?: string
+          user_id?: string | null
+          user_message?: string | null
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           assistant_id: string

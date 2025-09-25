@@ -42,7 +42,7 @@ const getConversationContext = async (supabase: any, userId: string, clinicId: s
     
     if (!data || data.length === 0) return '';
     
-    return data.reverse().map(conv => 
+    return data.reverse().map((conv: any) => 
       `User: ${conv.user_message}\nAI: ${conv.ai_response}\n---`
     ).join('\n');
   } catch (error) {
@@ -318,7 +318,7 @@ ${conversationContext}
       } catch (e) {
         console.error('Failed to parse bulk task JSON:', e);
         console.error('Response text was:', responseText);
-        throw new Error(`Failed to parse bulk task data: ${e.message}`);
+        throw new Error(`Failed to parse bulk task data: ${(e as Error).message}`);
       }
 
       if (!bulkTaskData || !bulkTaskData.tasks || !Array.isArray(bulkTaskData.tasks)) {
@@ -511,7 +511,7 @@ ${conversationContext}
       } catch (e) {
         console.error('Failed to parse task JSON:', e);
         console.error('Response text was:', responseText);
-        throw new Error(`Failed to parse task data: ${e.message}`);
+        throw new Error(`Failed to parse task data: ${(e as Error).message}`);
       }
 
       if (!taskData) {
@@ -588,7 +588,7 @@ ${conversationContext}
 
   } catch (error) {
     console.error('Error in ai-assistant function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

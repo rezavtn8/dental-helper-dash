@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Users, Award, Search, UserPlus, CheckCircle } from 'lucide-react';
 import { CourseCatalog } from '@/components/learning/CourseCatalog';
-import { useLearning } from '@/hooks/useLearning';
+import { useLearning, LearningCourse } from '@/hooks/useLearning';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -20,7 +20,7 @@ interface TeamMember {
 
 export const CourseManagementTab: React.FC = () => {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<LearningCourse | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -66,14 +66,26 @@ export const CourseManagementTab: React.FC = () => {
     }
 
     try {
-      // For now, just show success message - assignment tracking will be implemented later
-      toast.success(`Course assigned to ${selectedUsers.length} team member(s)`);
+      const assignments = selectedUsers.map(userId => ({
+        user_id: userId,
+        course_id: selectedCourse.id,
+        assigned_by: user?.id,
+        status: 'assigned'
+      }));
+
+      const { error } = await supabase
+        .from('learning_assignments')
+        .insert(assignments);
+
+      if (error) throw error;
+
+      toast.success(`Course "${selectedCourse.title}" assigned to ${selectedUsers.length} team member(s)`);
       setShowAssignDialog(false);
       setSelectedCourse(null);
       setSelectedUsers([]);
     } catch (error) {
       console.error('Error assigning course:', error);
-      toast.error('Failed to assign course');
+      toast.error('Failed to assign course. Please try again.');
     }
   };
 
@@ -133,7 +145,7 @@ export const CourseManagementTab: React.FC = () => {
         <CardContent>
           <CourseCatalog 
             onCourseSelect={(course) => {
-              setSelectedCourse(course.id);
+              setSelectedCourse(course);
               setShowAssignDialog(true);
             }} 
           />

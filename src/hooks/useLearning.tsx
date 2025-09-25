@@ -92,26 +92,48 @@ export const useLearning = () => {
         .eq('id', user.id)
         .single();
 
-      let query;
-      
       if (userProfile?.role === 'owner') {
         // Owners can see all platform courses (system courses without clinic_id)
-        query = supabase
+        const { data, error } = await supabase
           .from('learning_courses')
           .select('*')
           .eq('is_active', true)
-          .is('clinic_id', null); // Only platform/system courses
+          .is('clinic_id', null)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setCourses(data || []);
       } else {
-        // Staff only see assigned courses - placeholder for now since assignment table isn't ready
-        // For now, show no courses for staff until assignment functionality is implemented
-        setCourses([]);
-        return;
+        // Staff only see assigned courses via learning_assignments table
+        const { data, error } = await supabase
+          .from('learning_assignments')
+          .select(`
+            *,
+            learning_courses (
+              id,
+              title,
+              description,
+              category,
+              difficulty_level,
+              estimated_duration,
+              course_type,
+              thumbnail_url,
+              created_at
+            )
+          `)
+          .eq('user_id', user.id)
+          .eq('learning_courses.is_active', true)
+          .order('assigned_at', { ascending: false });
+
+        if (error) throw error;
+        
+        // Extract courses from the assignments and filter out null courses
+        const assignedCourses = (data || [])
+          .map(assignment => assignment.learning_courses)
+          .filter(Boolean) as LearningCourse[];
+        
+        setCourses(assignedCourses);
       }
-
-      const { data, error } = await query.order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setCourses(data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error fetching courses');
     }

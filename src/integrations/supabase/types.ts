@@ -2045,6 +2045,10 @@ export type Database = {
           status: string
         }[]
       }
+      get_user_email: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       get_user_profile_safe: {
         Args: { target_user_id: string }
         Returns: {

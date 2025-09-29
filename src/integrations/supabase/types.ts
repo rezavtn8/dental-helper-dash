@@ -1931,6 +1931,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_current_user_roles: {
+        Args: Record<PropertyKey, never>
+        Returns: string[]
+      }
       get_individual_user_secure: {
         Args: { target_user_id: string }
         Returns: {
@@ -2170,6 +2174,10 @@ export type Database = {
       }
       user_has_role: {
         Args: { check_role: string; user_id_param?: string }
+        Returns: boolean
+      }
+      user_has_role_check: {
+        Args: { check_role: string }
         Returns: boolean
       }
       validate_clinic_code: {

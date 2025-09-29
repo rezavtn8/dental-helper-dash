@@ -75,6 +75,13 @@ export default function RoleManagementDialog({ open, onOpenChange, member, onUpd
       return;
     }
 
+    // Critical validation: ensure clinic_id exists
+    if (!member.clinic_id) {
+      toast.error('Cannot update roles: clinic information is missing');
+      console.error('Role update failed: member.clinic_id is missing', member);
+      return;
+    }
+
     setLoading(true);
     try {
       // Update primary role in users table (use first selected role)
@@ -84,7 +91,10 @@ export default function RoleManagementDialog({ open, onOpenChange, member, onUpd
         .update({ role: primaryRole })
         .eq('id', member.id);
 
-      if (userError) throw userError;
+      if (userError) {
+        console.error('Error updating user role:', userError);
+        throw new Error(`Failed to update primary role: ${userError.message}`);
+      }
 
       // Clear existing roles
       const { error: deleteError } = await supabase
@@ -92,13 +102,16 @@ export default function RoleManagementDialog({ open, onOpenChange, member, onUpd
         .delete()
         .eq('user_id', member.id);
 
-      if (deleteError) throw deleteError;
+      if (deleteError) {
+        console.error('Error deleting existing roles:', deleteError);
+        throw new Error(`Failed to clear existing roles: ${deleteError.message}`);
+      }
 
-      // Insert new roles
+      // Insert new roles with validated clinic_id
       if (selectedRoles.length > 0) {
         const rolesToInsert = selectedRoles.map(role => ({
           user_id: member.id,
-          clinic_id: member.clinic_id || null,
+          clinic_id: member.clinic_id!, // Non-null assertion safe after validation
           role: role,
           is_active: true
         }));
@@ -107,15 +120,18 @@ export default function RoleManagementDialog({ open, onOpenChange, member, onUpd
           .from('user_roles')
           .insert(rolesToInsert);
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Error inserting new roles:', insertError);
+          throw new Error(`Failed to assign new roles: ${insertError.message}`);
+        }
       }
 
       toast.success(`Roles updated successfully for ${member.name}`);
       onUpdate();
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating roles:', error);
-      toast.error('Failed to update roles');
+      toast.error(error.message || 'Failed to update roles');
     } finally {
       setLoading(false);
     }

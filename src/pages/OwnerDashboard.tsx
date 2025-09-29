@@ -9,8 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Building2, Plus, Crown, ChevronDown, Settings, LogOut, Home } from 'lucide-react';
 import { getUserInitials } from '@/lib/taskUtils';
+import { getRoleBadgeStyle, getRoleAvatarGradient } from '@/lib/roleUtils';
 import OwnerSidebar from '@/components/owner/OwnerSidebar';
 import OwnerDashboardTabs from '@/components/owner/OwnerDashboardTabs';
+import { RoleSwitcher } from '@/components/ui/role-switcher';
 import { DashboardSkeleton } from '@/components/ui/dashboard-skeleton';
 import { useNavigate } from 'react-router-dom';
 import ClinicSetupDialog from '@/components/ClinicSetupDialog';
@@ -118,13 +120,22 @@ const OwnerDashboard = () => {
                 </h1>
               </div>
               
-              {/* Right: User Profile */}
-              <div className="flex items-center">
+              {/* Right: Role Switcher & User Profile */}
+              <div className="flex items-center gap-2">
+                {/* Role Switcher */}
+                <RoleSwitcher 
+                  currentRole="owner"
+                  availableRoles={userProfile?.roles || ['owner']}
+                  userProfile={userProfile}
+                  variant="dropdown"
+                />
+                
+                {/* User Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center gap-1 sm:gap-2 h-auto p-1 sm:p-2 hover:bg-muted/50 rounded-lg">
                       <Avatar className="w-6 h-6 sm:w-8 sm:h-8 border border-border">
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-medium">
+                        <AvatarFallback className={`bg-gradient-to-br ${getRoleAvatarGradient('owner')} text-white text-xs font-medium`}>
                           {getUserInitials(userProfile?.name || 'Owner')}
                         </AvatarFallback>
                       </Avatar>
@@ -132,12 +143,6 @@ const OwnerDashboard = () => {
                         <p className="font-medium text-sm text-foreground">
                           {userProfile?.name || 'Practice Owner'}
                         </p>
-                        <div className="flex items-center gap-1">
-                          <Badge variant="secondary" className="bg-blue-50 text-blue-600 text-xs border-blue-100 h-4 px-1.5">
-                            <Crown className="w-2.5 h-2.5 mr-1" />
-                            Owner
-                          </Badge>
-                        </div>
                       </div>
                       <ChevronDown className="w-3 h-3 text-muted-foreground hidden sm:block" />
                     </Button>

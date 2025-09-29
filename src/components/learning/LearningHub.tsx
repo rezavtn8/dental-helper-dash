@@ -17,6 +17,7 @@ import { useLearning, type LearningCourse } from '@/hooks/useLearning';
 import { CourseCatalog } from './CourseCatalog';
 import { CoursePlayer } from './CoursePlayer';
 import { AchievementsList } from './AchievementsList';
+import { LearningProgress } from './LearningProgress';
 
 export const LearningHub: React.FC = () => {
   const { loading, getProgressStats } = useLearning();
@@ -150,25 +151,7 @@ export const LearningHub: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="progress" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Learning Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center py-8">
-                  <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Detailed Progress Coming Soon</h3>
-                  <p className="text-muted-foreground">
-                    We're working on detailed progress analytics and learning insights.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <LearningProgress />
         </TabsContent>
       </Tabs>
     </div>

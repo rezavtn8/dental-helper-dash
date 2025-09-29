@@ -84,9 +84,18 @@ export default function CertificationsTab() {
       
       // Handle file upload if present
       if (newCertification.file) {
-        // For now, we'll skip file upload implementation
-        // In a real app, you'd upload to Supabase Storage here
-        toast.info('File upload functionality will be implemented soon');
+        const filePath = `${user.id}/${Date.now()}-${newCertification.file.name}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('certifications')
+          .upload(filePath, newCertification.file);
+
+        if (uploadError) {
+          toast.error('Failed to upload file');
+          throw uploadError;
+        }
+        
+        file_url = filePath;
       }
 
       const { data, error } = await supabase
@@ -119,6 +128,23 @@ export default function CertificationsTab() {
     } catch (error) {
       console.error('Error adding certification:', error);
       toast.error('Failed to add certification');
+    }
+  };
+
+  const handleDownloadFile = async (fileUrl: string, fileName: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('certifications')
+        .createSignedUrl(fileUrl, 60);
+
+      if (error) throw error;
+
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast.error('Failed to download file');
     }
   };
 
@@ -335,11 +361,31 @@ export default function CertificationsTab() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="file">Certificate File (Coming Soon)</Label>
-                    <div className="flex items-center space-x-2 p-3 border-2 border-dashed border-slate-200 rounded-lg bg-slate-50">
-                      <Upload className="w-5 h-5 text-slate-400" />
-                      <span className="text-sm text-slate-500">File upload will be available soon</span>
+                    <Label htmlFor="file">Certificate File (Optional)</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        id="file"
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => setNewCertification({...newCertification, file: e.target.files?.[0] || null})}
+                        className="flex-1"
+                      />
+                      {newCertification.file && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setNewCertification({...newCertification, file: null})}
+                        >
+                          Clear
+                        </Button>
+                      )}
                     </div>
+                    {newCertification.file && (
+                      <p className="text-xs text-muted-foreground">
+                        Selected: {newCertification.file.name}
+                      </p>
+                    )}
                   </div>
                   
                   <div className="flex space-x-3 pt-4">
@@ -408,7 +454,11 @@ export default function CertificationsTab() {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           {cert.file_url ? (
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleDownloadFile(cert.file_url!, cert.name)}
+                            >
                               <Download className="w-3 h-3 mr-1" />
                               Download
                             </Button>

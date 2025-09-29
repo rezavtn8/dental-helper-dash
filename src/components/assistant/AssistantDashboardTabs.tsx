@@ -69,7 +69,7 @@ export default function AssistantDashboardTabs({
       </div>
 
       <TabsContent value="home">
-        <AssistantHomeTab />
+        <AssistantHomeTab onViewAll={() => onTabChange?.('tasks')} />
       </TabsContent>
 
       <TabsContent value="tasks">

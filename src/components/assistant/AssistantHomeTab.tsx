@@ -12,7 +12,11 @@ import { Task } from '@/types/task';
 import PatientCounter from './PatientCounter';
 import { useOptimizedTasks } from '@/hooks/useOptimizedTasks';
 
-export default function AssistantHomeTab() {
+interface AssistantHomeTabProps {
+  onViewAll?: () => void;
+}
+
+export default function AssistantHomeTab({ onViewAll }: AssistantHomeTabProps) {
   const { user, userProfile } = useAuth();
   const navigate = useNavigate();
   const { tasks, updateTask, refreshTasks } = useOptimizedTasks();
@@ -344,7 +348,7 @@ export default function AssistantHomeTab() {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => {/* navigate to tasks tab */}}
+              onClick={onViewAll}
             >
               View All
               <ChevronRight className="w-4 h-4 ml-1" />

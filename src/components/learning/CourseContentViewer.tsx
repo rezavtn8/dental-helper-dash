@@ -37,61 +37,48 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
     const path = raw.replace(/^\/+/, '').replace(/^learning-content\//, '');
     const pathInfo = `bucket=learning-content, path=${path}`;
     try {
-      let html: string;
-      
       // 1) If absolute URL, fetch directly
       if (/^https?:\/\//i.test(raw)) {
         const res = await fetch(raw);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        html = await res.text();
-      } else {
-        // 2) Try signed URL first (works for private buckets)
-        const { data: signedData, error: signedError } = await supabase.storage
-          .from('learning-content')
-          .createSignedUrl(path, 60 * 60);
+        return await res.text();
+      }
 
-        if (signedError) {
-          console.warn('Signed URL error', { path, signedError });
-        }
+      // 2) Try signed URL first (works for private buckets)
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('learning-content')
+        .createSignedUrl(path, 60 * 60);
 
-        if (signedData?.signedUrl) {
-          const res = await fetch(signedData.signedUrl);
-          if (!res.ok) throw new Error(`Signed URL fetch failed HTTP ${res.status}`);
-          html = await res.text();
-        } else {
-          // 3) Public URL fallback (when bucket is public)
-          const { data: publicData } = supabase.storage
-            .from('learning-content')
-            .getPublicUrl(path);
-          if (publicData?.publicUrl) {
-            const res = await fetch(publicData.publicUrl);
-            if (res.ok) {
-              html = await res.text();
-            } else {
-              // 4) Fallback to direct download (for public buckets with RLS)
-              const { data: blob, error: downloadError } = await supabase.storage
-                .from('learning-content')
-                .download(path);
-              if (downloadError) {
-                throw new Error(`Storage download error: ${downloadError.message || String(downloadError)}`);
-              }
-              html = await blob.text();
-            }
-          } else {
-            throw new Error('Could not get public URL');
-          }
+      if (signedError) {
+        console.warn('Signed URL error', { path, signedError });
+      }
+
+      if (signedData?.signedUrl) {
+        const res = await fetch(signedData.signedUrl);
+        if (!res.ok) throw new Error(`Signed URL fetch failed HTTP ${res.status}`);
+        return await res.text();
+      }
+
+      // 3) Public URL fallback (when bucket is public)
+      const { data: publicData } = supabase.storage
+        .from('learning-content')
+        .getPublicUrl(path);
+      if (publicData?.publicUrl) {
+        const res = await fetch(publicData.publicUrl);
+        if (res.ok) {
+          return await res.text();
         }
       }
 
-      // Sanitize HTML but preserve data attributes and structure
-      return DOMPurify.sanitize(html, {
-        ADD_TAGS: ['iframe', 'video', 'audio', 'source'], // Allow media elements
-        ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'data-track-id', 'data-checkpoint', 'data-action', 'data-target', 'data-question', 'data-correct', 'data-question-id', 'data-track-checkbox'],
-        ALLOW_DATA_ATTR: true,
-        KEEP_CONTENT: true,
-        FORBID_TAGS: ['script'], // Block script tags for security
-        FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onchange', 'onsubmit', 'onmouseover', 'onmouseout'] // Block inline handlers
-      });
+      // 4) Fallback to direct download (for public buckets with RLS)
+      const { data: blob, error: downloadError } = await supabase.storage
+        .from('learning-content')
+        .download(path);
+      if (downloadError) {
+        throw new Error(`Storage download error: ${downloadError.message || String(downloadError)}`);
+      }
+
+      return await blob.text();
     } catch (err: any) {
       const msg = err?.message || (err instanceof Error ? err.message : JSON.stringify(err));
       throw new Error(`Failed to load content (${pathInfo}): ${msg}`);
@@ -174,92 +161,53 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
     return () => container.removeEventListener('scroll', handleScroll);
   }, [maxScrollDepth]);
 
-  // Handle interactive elements with data attributes
+  // Inject interactive functions for HTML content
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !htmlContent) return;
+    if (!htmlContent) return;
 
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      
-      // Handle collapsible toggles
-      const toggleTarget = target.closest('[data-action="toggle"]');
-      if (toggleTarget) {
-        e.preventDefault();
-        const targetId = toggleTarget.getAttribute('data-target');
-        if (targetId) {
-          const element = document.getElementById(targetId);
-          if (element) {
-            element.style.display = element.style.display === 'none' ? 'block' : 'none';
-          }
-        }
-      }
-
-      // Handle quiz checks
-      const checkTarget = target.closest('[data-action="check-answer"]');
-      if (checkTarget) {
-        e.preventDefault();
-        const questionId = checkTarget.getAttribute('data-question');
-        const correctAnswer = checkTarget.getAttribute('data-correct');
-        
-        if (questionId) {
-          // Find selected answer
-          const questionContainer = document.querySelector(`[data-question-id="${questionId}"]`);
-          if (questionContainer) {
-            const selectedInput = questionContainer.querySelector('input[type="radio"]:checked') as HTMLInputElement;
-            const feedback = document.getElementById(`${questionId}-feedback`);
-            
-            if (selectedInput && feedback) {
-              const selectedAnswer = selectedInput.value;
-              if (selectedAnswer === correctAnswer) {
-                feedback.textContent = '✓ Correct!';
-                feedback.className = 'feedback correct';
-                feedback.style.color = 'hsl(var(--success))';
-              } else {
-                feedback.textContent = '✗ Incorrect. Try again.';
-                feedback.className = 'feedback incorrect';
-                feedback.style.color = 'hsl(var(--destructive))';
-              }
-              feedback.style.display = 'block';
-            }
-          }
-        }
-      }
-
-      // Handle practice more / scroll to section
-      const scrollTarget = target.closest('[data-action="scroll-to"]');
-      if (scrollTarget) {
-        e.preventDefault();
-        const targetId = scrollTarget.getAttribute('data-target');
-        if (targetId) {
-          const element = document.getElementById(targetId);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }
+    // Define global functions that HTML content can use
+    (window as any).toggleCollapsible = (id: string) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = element.style.display === 'none' ? 'block' : 'none';
       }
     };
 
-    // Handle checkbox changes for progress tracking
-    const handleChange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      if (target.hasAttribute('data-track-checkbox')) {
-        const checkboxId = target.getAttribute('data-track-checkbox');
-        if (checkboxId && target.checked) {
-          checkpointsRef.current.add(checkboxId);
-          setProgress(calculateOverallProgress());
+    (window as any).checkResponse = (questionId: string, selectedAnswer: string, correctAnswer: string) => {
+      const feedback = document.getElementById(`${questionId}-feedback`);
+      if (feedback) {
+        if (selectedAnswer === correctAnswer) {
+          feedback.textContent = '✓ Correct!';
+          feedback.className = 'feedback correct';
+          feedback.style.color = 'green';
+        } else {
+          feedback.textContent = '✗ Incorrect. Try again.';
+          feedback.className = 'feedback incorrect';
+          feedback.style.color = 'red';
         }
+        feedback.style.display = 'block';
       }
     };
 
-    container.addEventListener('click', handleClick);
-    container.addEventListener('change', handleChange);
+    (window as any).practiceMore = (sectionId: string) => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    (window as any).updateProgress = (value: number) => {
+      setProgress(Math.min(100, Math.max(0, value)));
+    };
 
     return () => {
-      container.removeEventListener('click', handleClick);
-      container.removeEventListener('change', handleChange);
+      // Cleanup global functions
+      delete (window as any).toggleCollapsible;
+      delete (window as any).checkResponse;
+      delete (window as any).practiceMore;
+      delete (window as any).updateProgress;
     };
-  }, [htmlContent, calculateOverallProgress]);
+  }, [htmlContent]);
 
   // Video tracking
   useEffect(() => {

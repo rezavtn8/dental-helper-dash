@@ -33,16 +33,75 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
 
   // Load HTML content from Supabase Storage
   const loadHTMLContent = async (url: string): Promise<string> => {
+    const pathInfo = `bucket=learning-content, path=${url}`;
     try {
+      // 1) If absolute URL, fetch directly
+      if (/^https?:\/\//i.test(url)) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const html = await res.text();
+        return DOMPurify.sanitize(html, {
+          ALLOWED_TAGS: [
+            'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'img', 'video', 'audio', 'source', 'iframe',
+            'table', 'thead', 'tbody', 'tr', 'th', 'td',
+            'div', 'span', 'section', 'article', 'blockquote',
+            'a', 'code', 'pre'
+          ],
+          ALLOWED_ATTR: [
+            'src', 'alt', 'title', 'href', 'target',
+            'controls', 'autoplay', 'loop', 'muted',
+            'data-track-id', 'data-checkpoint', 'data-section-id',
+            'class', 'id', 'style',
+            'width', 'height', 'poster'
+          ],
+          ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp):\/\/|data:image\/)/,
+          KEEP_CONTENT: true,
+          ADD_TAGS: ['video', 'audio', 'source'],
+          ADD_ATTR: ['data-track-id', 'data-checkpoint']
+        });
+      }
+
+      // 2) Try signed URL first (works for private buckets)
+      const signed = await supabase.storage
+        .from('learning-content')
+        .createSignedUrl(url, 60 * 60);
+
+      if (signed.data?.signedUrl) {
+        const res = await fetch(signed.data.signedUrl);
+        if (!res.ok) throw new Error(`Signed URL fetch failed HTTP ${res.status}`);
+        const html = await res.text();
+        return DOMPurify.sanitize(html, {
+          ALLOWED_TAGS: [
+            'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'img', 'video', 'audio', 'source', 'iframe',
+            'table', 'thead', 'tbody', 'tr', 'th', 'td',
+            'div', 'span', 'section', 'article', 'blockquote',
+            'a', 'code', 'pre'
+          ],
+          ALLOWED_ATTR: [
+            'src', 'alt', 'title', 'href', 'target',
+            'controls', 'autoplay', 'loop', 'muted',
+            'data-track-id', 'data-checkpoint', 'data-section-id',
+            'class', 'id', 'style',
+            'width', 'height', 'poster'
+          ],
+          ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp):\/\/|data:image\/)/,
+          KEEP_CONTENT: true,
+          ADD_TAGS: ['video', 'audio', 'source'],
+          ADD_ATTR: ['data-track-id', 'data-checkpoint']
+        });
+      }
+
+      // 3) Fallback to direct download (for public buckets)
       const { data, error } = await supabase.storage
         .from('learning-content')
         .download(url);
-
       if (error) throw error;
 
       const html = await data.text();
-
-      // Sanitize HTML while preserving multimedia and styling
       return DOMPurify.sanitize(html, {
         ALLOWED_TAGS: [
           'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
@@ -65,7 +124,8 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         ADD_ATTR: ['data-track-id', 'data-checkpoint']
       });
     } catch (err) {
-      throw new Error(`Failed to load content: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const msg = err instanceof Error ? err.message : JSON.stringify(err);
+      throw new Error(`Failed to load content (${pathInfo}): ${msg}`);
     }
   };
 

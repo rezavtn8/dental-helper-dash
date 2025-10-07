@@ -23,7 +23,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Get signed URL for iframe src
+  // Get a URL for iframe src that preserves relative assets when possible
   const getContentUrl = async (url: string): Promise<string> => {
     const raw = (url || '').trim();
     const path = raw.replace(/^\/+/, '').replace(/^learning-content\//, '');
@@ -34,22 +34,27 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         return raw;
       }
 
-      // Try signed URL first (works for private buckets, lasts 1 hour)
+      // 1) Prefer PUBLIC URL so that relative assets resolve correctly
+      const { data: publicData } = supabase.storage
+        .from('learning-content')
+        .getPublicUrl(path);
+
+      if (publicData?.publicUrl) {
+        try {
+          const head = await fetch(publicData.publicUrl, { method: 'HEAD' });
+          if (head.ok) return publicData.publicUrl;
+        } catch (_) {
+          // ignore and try signed
+        }
+      }
+
+      // 2) Fallback to signed URL (works for private buckets) — note: relative assets won't work
       const { data: signedData } = await supabase.storage
         .from('learning-content')
         .createSignedUrl(path, 60 * 60);
 
       if (signedData?.signedUrl) {
         return signedData.signedUrl;
-      }
-
-      // Fallback to public URL
-      const { data: publicData } = supabase.storage
-        .from('learning-content')
-        .getPublicUrl(path);
-      
-      if (publicData?.publicUrl) {
-        return publicData.publicUrl;
       }
 
       throw new Error(`Could not generate URL for: ${path}`);

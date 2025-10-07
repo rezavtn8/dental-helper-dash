@@ -161,15 +161,23 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
     return () => container.removeEventListener('scroll', handleScroll);
   }, [maxScrollDepth]);
 
-  // Inject interactive functions for HTML content
+  // Inject interactive functions and event handlers for HTML content
   useEffect(() => {
-    if (!htmlContent) return;
+    const container = containerRef.current;
+    if (!container || !htmlContent) return;
 
     // Define global functions that HTML content can use
     (window as any).toggleCollapsible = (id: string) => {
       const element = document.getElementById(id);
       if (element) {
-        element.style.display = element.style.display === 'none' ? 'block' : 'none';
+        const isHidden = element.style.display === 'none';
+        element.style.display = isHidden ? 'block' : 'none';
+        // Also handle classes if needed
+        if (element.classList.contains('hidden')) {
+          element.classList.remove('hidden');
+        } else if (!isHidden) {
+          element.classList.add('hidden');
+        }
       }
     };
 
@@ -180,10 +188,12 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
           feedback.textContent = '✓ Correct!';
           feedback.className = 'feedback correct';
           feedback.style.color = 'green';
+          feedback.style.fontWeight = 'bold';
         } else {
           feedback.textContent = '✗ Incorrect. Try again.';
           feedback.className = 'feedback incorrect';
           feedback.style.color = 'red';
+          feedback.style.fontWeight = 'bold';
         }
         feedback.style.display = 'block';
       }
@@ -192,7 +202,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
     (window as any).practiceMore = (sectionId: string) => {
       const section = document.getElementById(sectionId);
       if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     };
 
@@ -200,14 +210,71 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
       setProgress(Math.min(100, Math.max(0, value)));
     };
 
+    // Event delegation for interactive elements
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      
+      // Handle collapsible toggles via data attributes
+      if (target.hasAttribute('data-toggle')) {
+        e.preventDefault();
+        const targetId = target.getAttribute('data-toggle');
+        if (targetId) {
+          (window as any).toggleCollapsible(targetId);
+        }
+      }
+
+      // Handle quiz check buttons via data attributes
+      if (target.hasAttribute('data-check-answer')) {
+        e.preventDefault();
+        const questionId = target.getAttribute('data-question-id');
+        const correctAnswer = target.getAttribute('data-correct-answer');
+        if (questionId && correctAnswer) {
+          // Find selected answer from radio buttons or select
+          const questionContainer = document.querySelector(`[data-question="${questionId}"]`);
+          if (questionContainer) {
+            const selectedRadio = questionContainer.querySelector('input[type="radio"]:checked') as HTMLInputElement;
+            const selectedSelect = questionContainer.querySelector('select') as HTMLSelectElement;
+            const selectedAnswer = selectedRadio?.value || selectedSelect?.value || '';
+            (window as any).checkResponse(questionId, selectedAnswer, correctAnswer);
+          }
+        }
+      }
+
+      // Handle scroll-to-section buttons
+      if (target.hasAttribute('data-scroll-to')) {
+        e.preventDefault();
+        const targetId = target.getAttribute('data-scroll-to');
+        if (targetId) {
+          (window as any).practiceMore(targetId);
+        }
+      }
+    };
+
+    // Track checkbox interactions for progress
+    const handleCheckboxChange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      if (target.type === 'checkbox' && target.hasAttribute('data-track-checkbox')) {
+        const checkboxId = target.getAttribute('data-track-checkbox');
+        if (checkboxId && target.checked) {
+          checkpointsRef.current.add(`checkbox-${checkboxId}`);
+          setProgress(calculateOverallProgress());
+        }
+      }
+    };
+
+    container.addEventListener('click', handleClick);
+    container.addEventListener('change', handleCheckboxChange);
+
     return () => {
+      container.removeEventListener('click', handleClick);
+      container.removeEventListener('change', handleCheckboxChange);
       // Cleanup global functions
       delete (window as any).toggleCollapsible;
       delete (window as any).checkResponse;
       delete (window as any).practiceMore;
       delete (window as any).updateProgress;
     };
-  }, [htmlContent]);
+  }, [htmlContent, calculateOverallProgress]);
 
   // Video tracking
   useEffect(() => {

@@ -259,24 +259,22 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Module Content */}
-                <div className="prose prose-sm max-w-none">
-                  {currentModule.content_url ? (
-                    <CourseContentViewer
-                      moduleId={currentModule.id}
-                      courseId={course.id}
-                      contentUrl={currentModule.content_url}
-                      onProgressUpdate={async (percentage) => {
-                        if (percentage >= 100) {
-                          await handleModuleComplete();
-                        }
-                      }}
-                    />
-                  ) : currentModule.content ? (
-                    <div className="whitespace-pre-wrap">{currentModule.content}</div>
-                  ) : (
-                    <p className="text-muted-foreground">Module content will be displayed here.</p>
-                  )}
-                </div>
+                {currentModule.content_url ? (
+                  <CourseContentViewer
+                    moduleId={currentModule.id}
+                    courseId={course.id}
+                    contentUrl={currentModule.content_url}
+                    onProgressUpdate={async (percentage) => {
+                      if (percentage >= 100) {
+                        await handleModuleComplete();
+                      }
+                    }}
+                  />
+                ) : currentModule.content ? (
+                  <div className="prose prose-sm max-w-none whitespace-pre-wrap">{currentModule.content}</div>
+                ) : (
+                  <p className="text-muted-foreground">Module content will be displayed here.</p>
+                )}
 
                 {/* Module Resources */}
                 {currentModule.resources && (

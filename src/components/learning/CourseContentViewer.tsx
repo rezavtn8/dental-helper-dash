@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Maximize2, Minimize2 } from 'lucide-react';
 
 interface CourseContentViewerProps {
   moduleId: string;
@@ -19,6 +21,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
@@ -170,7 +173,11 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   }, [iframeUrl]);
 
   return (
-    <div className="relative h-full flex flex-col bg-background">
+    <div className={`relative flex flex-col bg-background ${
+      isFullscreen 
+        ? 'fixed inset-0 z-50' 
+        : 'min-h-[600px] h-[70vh]'
+    }`}>
       {loading && (
         <div className="flex items-center justify-center h-full">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -192,8 +199,28 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="px-6 py-2 text-sm font-medium text-muted-foreground">
-              Progress: {Math.round(progress)}%
+            <div className="flex items-center justify-between px-6 py-2">
+              <div className="text-sm font-medium text-muted-foreground">
+                Progress: {Math.round(progress)}%
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className="flex items-center gap-2"
+              >
+                {isFullscreen ? (
+                  <>
+                    <Minimize2 className="h-4 w-4" />
+                    <span className="text-xs">Exit Fullscreen</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="h-4 w-4" />
+                    <span className="text-xs">Fullscreen</span>
+                  </>
+                )}
+              </Button>
             </div>
           </div>
           

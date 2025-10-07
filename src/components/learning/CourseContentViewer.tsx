@@ -161,6 +161,54 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
     return () => container.removeEventListener('scroll', handleScroll);
   }, [maxScrollDepth]);
 
+  // Inject interactive functions for HTML content
+  useEffect(() => {
+    if (!htmlContent) return;
+
+    // Define global functions that HTML content can use
+    (window as any).toggleCollapsible = (id: string) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = element.style.display === 'none' ? 'block' : 'none';
+      }
+    };
+
+    (window as any).checkResponse = (questionId: string, selectedAnswer: string, correctAnswer: string) => {
+      const feedback = document.getElementById(`${questionId}-feedback`);
+      if (feedback) {
+        if (selectedAnswer === correctAnswer) {
+          feedback.textContent = '✓ Correct!';
+          feedback.className = 'feedback correct';
+          feedback.style.color = 'green';
+        } else {
+          feedback.textContent = '✗ Incorrect. Try again.';
+          feedback.className = 'feedback incorrect';
+          feedback.style.color = 'red';
+        }
+        feedback.style.display = 'block';
+      }
+    };
+
+    (window as any).practiceMore = (sectionId: string) => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    (window as any).updateProgress = (value: number) => {
+      setProgress(Math.min(100, Math.max(0, value)));
+    };
+
+    return () => {
+      // Cleanup global functions
+      delete (window as any).toggleCollapsible;
+      delete (window as any).checkResponse;
+      delete (window as any).practiceMore;
+      delete (window as any).updateProgress;
+    };
+  }, [htmlContent]);
+
   // Video tracking
   useEffect(() => {
     const container = containerRef.current;

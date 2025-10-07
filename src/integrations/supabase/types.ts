@@ -804,7 +804,7 @@ export type Database = {
           clinic_id: string | null
           course_type: string
           created_at: string
-          created_by: string
+          created_by: string | null
           description: string | null
           difficulty_level: string
           estimated_duration: number | null
@@ -820,7 +820,7 @@ export type Database = {
           clinic_id?: string | null
           course_type?: string
           created_at?: string
-          created_by: string
+          created_by?: string | null
           description?: string | null
           difficulty_level?: string
           estimated_duration?: number | null
@@ -836,7 +836,7 @@ export type Database = {
           clinic_id?: string | null
           course_type?: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           description?: string | null
           difficulty_level?: string
           estimated_duration?: number | null

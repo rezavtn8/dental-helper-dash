@@ -41,18 +41,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
       if (/^https?:\/\//i.test(raw)) {
         const res = await fetch(raw);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const html = await res.text();
-        return DOMPurify.sanitize(html, {
-          FORCE_BODY: false,
-          WHOLE_DOCUMENT: false,
-          RETURN_DOM: false,
-          RETURN_DOM_FRAGMENT: false,
-          SANITIZE_DOM: true,
-          KEEP_CONTENT: true,
-          ALLOW_DATA_ATTR: true,
-          ALLOW_UNKNOWN_PROTOCOLS: true,
-          ALLOWED_URI_REGEXP: /.*/
-        });
+        return await res.text();
       }
 
       // 2) Try signed URL first (works for private buckets)
@@ -67,18 +56,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
       if (signedData?.signedUrl) {
         const res = await fetch(signedData.signedUrl);
         if (!res.ok) throw new Error(`Signed URL fetch failed HTTP ${res.status}`);
-        const html = await res.text();
-        return DOMPurify.sanitize(html, {
-          FORCE_BODY: false,
-          WHOLE_DOCUMENT: false,
-          RETURN_DOM: false,
-          RETURN_DOM_FRAGMENT: false,
-          SANITIZE_DOM: true,
-          KEEP_CONTENT: true,
-          ALLOW_DATA_ATTR: true,
-          ALLOW_UNKNOWN_PROTOCOLS: true,
-          ALLOWED_URI_REGEXP: /.*/
-        });
+        return await res.text();
       }
 
       // 3) Public URL fallback (when bucket is public)
@@ -88,18 +66,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
       if (publicData?.publicUrl) {
         const res = await fetch(publicData.publicUrl);
         if (res.ok) {
-          const html = await res.text();
-          return DOMPurify.sanitize(html, {
-            FORCE_BODY: false,
-            WHOLE_DOCUMENT: false,
-            RETURN_DOM: false,
-            RETURN_DOM_FRAGMENT: false,
-            SANITIZE_DOM: true,
-            KEEP_CONTENT: true,
-            ALLOW_DATA_ATTR: true,
-            ALLOW_UNKNOWN_PROTOCOLS: true,
-            ALLOWED_URI_REGEXP: /.*/
-          });
+          return await res.text();
         }
       }
 
@@ -111,18 +78,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         throw new Error(`Storage download error: ${downloadError.message || String(downloadError)}`);
       }
 
-      const html = await blob.text();
-      return DOMPurify.sanitize(html, {
-        FORCE_BODY: false,
-        WHOLE_DOCUMENT: false,
-        RETURN_DOM: false,
-        RETURN_DOM_FRAGMENT: false,
-        SANITIZE_DOM: true,
-        KEEP_CONTENT: true,
-        ALLOW_DATA_ATTR: true,
-        ALLOW_UNKNOWN_PROTOCOLS: true,
-        ALLOWED_URI_REGEXP: /.*/
-      });
+      return await blob.text();
     } catch (err: any) {
       const msg = err?.message || (err instanceof Error ? err.message : JSON.stringify(err));
       throw new Error(`Failed to load content (${pathInfo}): ${msg}`);

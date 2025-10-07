@@ -33,11 +33,13 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
 
   // Load HTML content from Supabase Storage
   const loadHTMLContent = async (url: string): Promise<string> => {
-    const pathInfo = `bucket=learning-content, path=${url}`;
+    const raw = (url || '').trim();
+    const path = raw.replace(/^\/+/, '').replace(/^learning-content\//, '');
+    const pathInfo = `bucket=learning-content, path=${path}`;
     try {
       // 1) If absolute URL, fetch directly
-      if (/^https?:\/\//i.test(url)) {
-        const res = await fetch(url);
+      if (/^https?:\/\//i.test(raw)) {
+        const res = await fetch(raw);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const html = await res.text();
         return DOMPurify.sanitize(html, {
@@ -64,12 +66,16 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
       }
 
       // 2) Try signed URL first (works for private buckets)
-      const signed = await supabase.storage
+      const { data: signedData, error: signedError } = await supabase.storage
         .from('learning-content')
-        .createSignedUrl(url, 60 * 60);
+        .createSignedUrl(path, 60 * 60);
 
-      if (signed.data?.signedUrl) {
-        const res = await fetch(signed.data.signedUrl);
+      if (signedError) {
+        console.warn('Signed URL error', { path, signedError });
+      }
+
+      if (signedData?.signedUrl) {
+        const res = await fetch(signedData.signedUrl);
         if (!res.ok) throw new Error(`Signed URL fetch failed HTTP ${res.status}`);
         const html = await res.text();
         return DOMPurify.sanitize(html, {
@@ -95,13 +101,47 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         });
       }
 
-      // 3) Fallback to direct download (for public buckets)
-      const { data, error } = await supabase.storage
+      // 3) Public URL fallback (when bucket is public)
+      const { data: publicData } = supabase.storage
         .from('learning-content')
-        .download(url);
-      if (error) throw error;
+        .getPublicUrl(path);
+      if (publicData?.publicUrl) {
+        const res = await fetch(publicData.publicUrl);
+        if (res.ok) {
+          const html = await res.text();
+          return DOMPurify.sanitize(html, {
+            ALLOWED_TAGS: [
+              'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
+              'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+              'img', 'video', 'audio', 'source', 'iframe',
+              'table', 'thead', 'tbody', 'tr', 'th', 'td',
+              'div', 'span', 'section', 'article', 'blockquote',
+              'a', 'code', 'pre'
+            ],
+            ALLOWED_ATTR: [
+              'src', 'alt', 'title', 'href', 'target',
+              'controls', 'autoplay', 'loop', 'muted',
+              'data-track-id', 'data-checkpoint', 'data-section-id',
+              'class', 'id', 'style',
+              'width', 'height', 'poster'
+            ],
+            ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp):\/\/|data:image\/)/,
+            KEEP_CONTENT: true,
+            ADD_TAGS: ['video', 'audio', 'source'],
+            ADD_ATTR: ['data-track-id', 'data-checkpoint']
+          });
+        }
+      }
 
-      const html = await data.text();
+      // 4) Fallback to direct download (for public buckets with RLS)
+      const { data: blob, error: downloadError } = await supabase.storage
+        .from('learning-content')
+        .download(path);
+      if (downloadError) {
+        throw new Error(`Storage download error: ${downloadError.message || String(downloadError)}`);
+      }
+
+      const html = await blob.text();
       return DOMPurify.sanitize(html, {
         ALLOWED_TAGS: [
           'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
@@ -123,8 +163,8 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         ADD_TAGS: ['video', 'audio', 'source'],
         ADD_ATTR: ['data-track-id', 'data-checkpoint']
       });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : JSON.stringify(err);
+    } catch (err: any) {
+      const msg = err?.message || (err instanceof Error ? err.message : JSON.stringify(err));
       throw new Error(`Failed to load content (${pathInfo}): ${msg}`);
     }
   };

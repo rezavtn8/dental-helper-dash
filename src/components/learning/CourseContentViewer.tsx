@@ -23,21 +23,24 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Get signed URL for private learning content
+  // Get signed URL and convert to blob URL with correct MIME type
   const getContentUrl = async (url: string): Promise<string> => {
     const raw = (url || '').trim();
     const path = raw.replace(/^\/+/, '').replace(/^learning-content\//, '');
     
     try {
-      // If absolute URL, use directly
+      // If absolute URL, fetch and convert to blob
       if (/^https?:\/\//i.test(raw)) {
-        return raw;
+        const response = await fetch(raw);
+        const html = await response.text();
+        const blob = new Blob([html], { type: 'text/html' });
+        return URL.createObjectURL(blob);
       }
 
-      // Since bucket is now private, always use signed URLs
+      // Get signed URL from Supabase
       const { data: signedData, error } = await supabase.storage
         .from('learning-content')
-        .createSignedUrl(path, 60 * 60); // 1 hour expiry
+        .createSignedUrl(path, 60 * 60);
 
       if (error) {
         throw new Error(`Failed to generate signed URL: ${error.message}`);
@@ -47,7 +50,11 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         throw new Error(`Could not generate URL for: ${path}`);
       }
 
-      return signedData.signedUrl;
+      // Fetch the HTML and create a blob with correct MIME type
+      const response = await fetch(signedData.signedUrl);
+      const html = await response.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      return URL.createObjectURL(blob);
     } catch (err: any) {
       throw new Error(`Failed to load content URL: ${err?.message || String(err)}`);
     }
@@ -149,14 +156,18 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
     logModuleOpen();
   }, [courseId, moduleId]);
 
-  // Cleanup
+  // Cleanup blob URL on unmount
   useEffect(() => {
     return () => {
       if (progressUpdateTimeoutRef.current) {
         clearTimeout(progressUpdateTimeoutRef.current);
       }
+      // Cleanup blob URL if it exists
+      if (iframeUrl && iframeUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(iframeUrl);
+      }
     };
-  }, []);
+  }, [iframeUrl]);
 
   return (
     <div className="relative h-full flex flex-col bg-background">

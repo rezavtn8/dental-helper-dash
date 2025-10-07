@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Course Content</title>
+</head>
+<body>
+    <!-- This is a sample HTML template for course content -->
+    <!-- Upload this to the learning-content bucket and it will be automatically styled -->
+    
+    <h1>Welcome to Your Course Module</h1>
+    
+    <p>
+        This is an example of how your course content will look. The typography plugin 
+        automatically styles all HTML elements to look professional and readable.
+    </p>
+
+    <h2>Text Formatting</h2>
+    
+    <p>
+        You can use <strong>bold text</strong>, <em>italic text</em>, and <u>underlined text</u>. 
+        You can also use <code>inline code</code> for technical terms or code snippets.
+    </p>
+
+    <h2 data-checkpoint="intro-complete">Section with Checkpoint</h2>
+    
+    <p>
+        This heading has a <code>data-checkpoint</code> attribute, which means progress 
+        will be tracked when the user scrolls past it. The border will turn green when completed!
+    </p>
+
+    <h3>Lists</h3>
+    
+    <p>Unordered lists look like this:</p>
+    <ul>
+        <li>First item with helpful information</li>
+        <li>Second item with more details</li>
+        <li>Third item with additional context</li>
+    </ul>
+
+    <p>Ordered lists are numbered:</p>
+    <ol>
+        <li>Step one: Do this first</li>
+        <li>Step two: Then do this</li>
+        <li>Step three: Finally, complete this</li>
+    </ol>
+
+    <h3>Code Blocks</h3>
+    
+    <p>For multi-line code examples, use pre and code tags:</p>
+    
+    <pre><code>function greet(name) {
+  console.log(`Hello, ${name}!`);
+  return true;
+}
+
+greet('Student');</code></pre>
+
+    <h3>Blockquotes</h3>
+    
+    <blockquote>
+        This is a blockquote. Use it for important callouts, quotes, or key takeaways 
+        that you want to emphasize to your students.
+    </blockquote>
+
+    <h2 data-checkpoint="media-section">Images and Videos</h2>
+    
+    <p>Images are automatically styled with rounded corners and shadows:</p>
+    
+    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800" 
+         alt="Sample educational image" />
+
+    <h3>Tracked Video Example</h3>
+    
+    <p>
+        Videos with <code>data-track-id</code> attribute will automatically track 
+        viewing progress. The progress bar at the top updates as students watch!
+    </p>
+    
+    <video 
+        controls 
+        data-track-id="intro-video"
+        poster="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800"
+    >
+        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+    </video>
+
+    <h3>Tables</h3>
+    
+    <p>Tables are automatically styled for readability:</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Description</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Typography</td>
+                <td>Beautiful, readable text styling</td>
+                <td>✓ Active</td>
+            </tr>
+            <tr>
+                <td>Progress Tracking</td>
+                <td>Scroll, video, and checkpoint tracking</td>
+                <td>✓ Active</td>
+            </tr>
+            <tr>
+                <td>Dark Mode</td>
+                <td>Automatic theme support</td>
+                <td>✓ Active</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2 data-checkpoint="links-complete">Links and Navigation</h2>
+    
+    <p>
+        Links are styled with your theme colors: 
+        <a href="#top">Jump to top</a> or 
+        <a href="https://docs.lovable.dev" target="_blank">External documentation</a>
+    </p>
+
+    <h2>Best Practices</h2>
+    
+    <ul>
+        <li>Use <code>data-checkpoint</code> on important section headings to track progress</li>
+        <li>Add <code>data-track-id</code> to videos you want to track viewing progress</li>
+        <li>Keep paragraphs concise for better readability</li>
+        <li>Use headings (h1-h6) to create a clear content hierarchy</li>
+        <li>Include images and videos to break up text and illustrate concepts</li>
+        <li>Use blockquotes for important callouts or key takeaways</li>
+    </ul>
+
+    <h2 data-checkpoint="course-complete">Conclusion</h2>
+    
+    <p>
+        That's it! Your HTML content will automatically look professional and engaging. 
+        Just upload your HTML file to the learning-content storage bucket and the 
+        CourseContentViewer will handle the rest.
+    </p>
+
+    <blockquote>
+        <strong>Pro Tip:</strong> The progress bar at the top combines scroll depth, 
+        video watching progress, and checkpoint completion to give students a complete 
+        picture of their learning journey through this module.
+    </blockquote>
+
+</body>
+</html>

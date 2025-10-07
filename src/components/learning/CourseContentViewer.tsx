@@ -382,42 +382,47 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
-
   return (
-    <div className="course-content-viewer w-full">
-      {/* Progress indicator */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b mb-4">
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Module Progress</span>
-            <span className="text-sm text-muted-foreground">{progress}% Complete</span>
-          </div>
-          <Progress value={progress} className="h-2" />
+    <div className="relative h-full flex flex-col bg-background">
+      {loading && (
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-      </div>
-
-      {/* HTML content */}
-      <div
-        ref={containerRef}
-        className="prose prose-sm max-w-none overflow-y-auto max-h-[70vh] px-6 pb-6 dark:prose-invert"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
-      />
+      )}
+      
+      {error && (
+        <Alert variant="destructive" className="m-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {!loading && !error && htmlContent && (
+        <>
+          {/* Progress bar */}
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border shadow-sm">
+            <div className="h-1 bg-muted">
+              <div 
+                className="h-full bg-gradient-to-r from-primary to-learning-success transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="px-6 py-2 text-sm font-medium text-muted-foreground">
+              Progress: {Math.round(progress)}%
+            </div>
+          </div>
+          
+          {/* Content */}
+          <div 
+            ref={containerRef}
+            className="flex-1 overflow-y-auto scroll-smooth"
+          >
+            <div 
+              className="course-content max-w-4xl mx-auto px-6 py-8"
+              dangerouslySetInnerHTML={{ __html: htmlContent }}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

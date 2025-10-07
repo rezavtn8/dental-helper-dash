@@ -365,3 +365,90 @@ All colors MUST be HSL.
     opacity: 1;
   }
 }
+
+/* Course Content Styling */
+.course-content {
+  @apply prose prose-lg dark:prose-invert max-w-none;
+}
+
+.course-content h1 {
+  @apply text-4xl font-display font-bold mb-6 mt-8 text-foreground;
+}
+
+.course-content h2 {
+  @apply text-3xl font-display font-semibold mb-4 mt-6 text-foreground border-b border-border pb-2;
+}
+
+.course-content h3 {
+  @apply text-2xl font-display font-semibold mb-3 mt-5 text-foreground;
+}
+
+.course-content p {
+  @apply text-base leading-relaxed mb-4 text-foreground;
+}
+
+.course-content ul, .course-content ol {
+  @apply mb-4 ml-6 space-y-2;
+}
+
+.course-content li {
+  @apply text-foreground;
+}
+
+.course-content a {
+  @apply text-primary hover:text-primary/80 underline transition-colors;
+}
+
+.course-content code {
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-foreground border border-border;
+}
+
+.course-content pre {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto mb-4 border border-border;
+}
+
+.course-content pre code {
+  @apply bg-transparent border-0 p-0;
+}
+
+.course-content blockquote {
+  @apply border-l-4 border-primary pl-4 py-2 my-4 bg-muted/50 rounded-r-lg italic text-foreground;
+}
+
+.course-content img {
+  @apply rounded-lg shadow-md my-6 w-full;
+}
+
+.course-content video {
+  @apply rounded-lg shadow-lg my-6 w-full;
+}
+
+.course-content table {
+  @apply w-full border-collapse mb-6;
+}
+
+.course-content th {
+  @apply bg-muted font-semibold text-left p-3 border border-border text-foreground;
+}
+
+.course-content td {
+  @apply p-3 border border-border text-foreground;
+}
+
+.course-content hr {
+  @apply my-8 border-border;
+}
+
+/* Checkpoint styling */
+.course-content [data-checkpoint] {
+  @apply scroll-mt-20 relative pl-4 border-l-4 border-primary/30 transition-colors duration-300;
+}
+
+.course-content [data-checkpoint].completed {
+  @apply border-learning-success;
+}
+
+/* Tracked video styling */
+.course-content video[data-track-id] {
+  @apply ring-2 ring-primary/30 hover:ring-primary/50 transition-all;
+}

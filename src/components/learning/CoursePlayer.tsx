@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useLearning, useLearningModules, type LearningCourse } from '@/hooks/useLearning';
 import { QuizPlayer } from './QuizPlayer';
+import { CourseContentViewer } from './CourseContentViewer';
 
 interface CoursePlayerProps {
   course: LearningCourse;
@@ -259,7 +260,18 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
               <CardContent className="space-y-6">
                 {/* Module Content */}
                 <div className="prose prose-sm max-w-none">
-                  {currentModule.content ? (
+                  {currentModule.content_url ? (
+                    <CourseContentViewer
+                      moduleId={currentModule.id}
+                      courseId={course.id}
+                      contentUrl={currentModule.content_url}
+                      onProgressUpdate={async (percentage) => {
+                        if (percentage >= 100) {
+                          await handleModuleComplete();
+                        }
+                      }}
+                    />
+                  ) : currentModule.content ? (
                     <div className="whitespace-pre-wrap">{currentModule.content}</div>
                   ) : (
                     <p className="text-muted-foreground">Module content will be displayed here.</p>

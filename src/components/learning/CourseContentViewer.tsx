@@ -43,33 +43,15 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const html = await res.text();
         return DOMPurify.sanitize(html, {
-          ALLOWED_TAGS: [
-            'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'img', 'video', 'audio', 'source', 'iframe',
-            'table', 'thead', 'tbody', 'tr', 'th', 'td',
-            'div', 'span', 'section', 'article', 'blockquote',
-            'a', 'code', 'pre', 'canvas',
-            'svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline',
-            'ellipse', 'g', 'defs', 'linearGradient', 'radialGradient', 'stop',
-            'header', 'footer', 'nav', 'aside', 'main', 'figure', 'figcaption',
-            'button', 'input', 'label', 'form', 'select', 'option'
-          ],
-          ALLOWED_ATTR: [
-            'src', 'alt', 'title', 'href', 'target',
-            'controls', 'autoplay', 'loop', 'muted',
-            'data-track-id', 'data-checkpoint', 'data-section-id',
-            'class', 'id', 'style',
-            'width', 'height', 'poster',
-            'viewBox', 'd', 'fill', 'stroke', 'stroke-width', 'stroke-linecap',
-            'cx', 'cy', 'r', 'x', 'y', 'x1', 'x2', 'y1', 'y2',
-            'points', 'rx', 'ry', 'transform', 'opacity',
-            'type', 'name', 'value', 'placeholder', 'disabled', 'readonly'
-          ],
-          ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp):\/\/|data:image\/|#)/,
+          FORCE_BODY: false,
+          WHOLE_DOCUMENT: false,
+          RETURN_DOM: false,
+          RETURN_DOM_FRAGMENT: false,
+          SANITIZE_DOM: true,
           KEEP_CONTENT: true,
-          ADD_TAGS: ['video', 'audio', 'source', 'svg', 'canvas'],
-          ADD_ATTR: ['data-track-id', 'data-checkpoint', 'style', 'class']
+          ALLOW_DATA_ATTR: true,
+          ALLOW_UNKNOWN_PROTOCOLS: true,
+          ALLOWED_URI_REGEXP: /.*/
         });
       }
 
@@ -87,33 +69,15 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         if (!res.ok) throw new Error(`Signed URL fetch failed HTTP ${res.status}`);
         const html = await res.text();
         return DOMPurify.sanitize(html, {
-          ALLOWED_TAGS: [
-            'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'img', 'video', 'audio', 'source', 'iframe',
-            'table', 'thead', 'tbody', 'tr', 'th', 'td',
-            'div', 'span', 'section', 'article', 'blockquote',
-            'a', 'code', 'pre', 'canvas',
-            'svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline',
-            'ellipse', 'g', 'defs', 'linearGradient', 'radialGradient', 'stop',
-            'header', 'footer', 'nav', 'aside', 'main', 'figure', 'figcaption',
-            'button', 'input', 'label', 'form', 'select', 'option'
-          ],
-          ALLOWED_ATTR: [
-            'src', 'alt', 'title', 'href', 'target',
-            'controls', 'autoplay', 'loop', 'muted',
-            'data-track-id', 'data-checkpoint', 'data-section-id',
-            'class', 'id', 'style',
-            'width', 'height', 'poster',
-            'viewBox', 'd', 'fill', 'stroke', 'stroke-width', 'stroke-linecap',
-            'cx', 'cy', 'r', 'x', 'y', 'x1', 'x2', 'y1', 'y2',
-            'points', 'rx', 'ry', 'transform', 'opacity',
-            'type', 'name', 'value', 'placeholder', 'disabled', 'readonly'
-          ],
-          ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp):\/\/|data:image\/|#)/,
+          FORCE_BODY: false,
+          WHOLE_DOCUMENT: false,
+          RETURN_DOM: false,
+          RETURN_DOM_FRAGMENT: false,
+          SANITIZE_DOM: true,
           KEEP_CONTENT: true,
-          ADD_TAGS: ['video', 'audio', 'source', 'svg', 'canvas'],
-          ADD_ATTR: ['data-track-id', 'data-checkpoint', 'style', 'class']
+          ALLOW_DATA_ATTR: true,
+          ALLOW_UNKNOWN_PROTOCOLS: true,
+          ALLOWED_URI_REGEXP: /.*/
         });
       }
 
@@ -126,33 +90,15 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         if (res.ok) {
           const html = await res.text();
           return DOMPurify.sanitize(html, {
-            ALLOWED_TAGS: [
-              'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
-              'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-              'img', 'video', 'audio', 'source', 'iframe',
-              'table', 'thead', 'tbody', 'tr', 'th', 'td',
-              'div', 'span', 'section', 'article', 'blockquote',
-              'a', 'code', 'pre', 'canvas',
-              'svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline',
-              'ellipse', 'g', 'defs', 'linearGradient', 'radialGradient', 'stop',
-              'header', 'footer', 'nav', 'aside', 'main', 'figure', 'figcaption',
-              'button', 'input', 'label', 'form', 'select', 'option'
-            ],
-            ALLOWED_ATTR: [
-              'src', 'alt', 'title', 'href', 'target',
-              'controls', 'autoplay', 'loop', 'muted',
-              'data-track-id', 'data-checkpoint', 'data-section-id',
-              'class', 'id', 'style',
-              'width', 'height', 'poster',
-              'viewBox', 'd', 'fill', 'stroke', 'stroke-width', 'stroke-linecap',
-              'cx', 'cy', 'r', 'x', 'y', 'x1', 'x2', 'y1', 'y2',
-              'points', 'rx', 'ry', 'transform', 'opacity',
-              'type', 'name', 'value', 'placeholder', 'disabled', 'readonly'
-            ],
-            ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp):\/\/|data:image\/|#)/,
+            FORCE_BODY: false,
+            WHOLE_DOCUMENT: false,
+            RETURN_DOM: false,
+            RETURN_DOM_FRAGMENT: false,
+            SANITIZE_DOM: true,
             KEEP_CONTENT: true,
-            ADD_TAGS: ['video', 'audio', 'source', 'svg', 'canvas'],
-            ADD_ATTR: ['data-track-id', 'data-checkpoint', 'style', 'class']
+            ALLOW_DATA_ATTR: true,
+            ALLOW_UNKNOWN_PROTOCOLS: true,
+            ALLOWED_URI_REGEXP: /.*/
           });
         }
       }
@@ -167,33 +113,15 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
 
       const html = await blob.text();
       return DOMPurify.sanitize(html, {
-        ALLOWED_TAGS: [
-          'p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li',
-          'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-          'img', 'video', 'audio', 'source', 'iframe',
-          'table', 'thead', 'tbody', 'tr', 'th', 'td',
-          'div', 'span', 'section', 'article', 'blockquote',
-          'a', 'code', 'pre', 'canvas',
-          'svg', 'path', 'circle', 'rect', 'line', 'polygon', 'polyline',
-          'ellipse', 'g', 'defs', 'linearGradient', 'radialGradient', 'stop',
-          'header', 'footer', 'nav', 'aside', 'main', 'figure', 'figcaption',
-          'button', 'input', 'label', 'form', 'select', 'option'
-        ],
-        ALLOWED_ATTR: [
-          'src', 'alt', 'title', 'href', 'target',
-          'controls', 'autoplay', 'loop', 'muted',
-          'data-track-id', 'data-checkpoint', 'data-section-id',
-          'class', 'id', 'style',
-          'width', 'height', 'poster',
-          'viewBox', 'd', 'fill', 'stroke', 'stroke-width', 'stroke-linecap',
-          'cx', 'cy', 'r', 'x', 'y', 'x1', 'x2', 'y1', 'y2',
-          'points', 'rx', 'ry', 'transform', 'opacity',
-          'type', 'name', 'value', 'placeholder', 'disabled', 'readonly'
-        ],
-        ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp):\/\/|data:image\/|#)/,
+        FORCE_BODY: false,
+        WHOLE_DOCUMENT: false,
+        RETURN_DOM: false,
+        RETURN_DOM_FRAGMENT: false,
+        SANITIZE_DOM: true,
         KEEP_CONTENT: true,
-        ADD_TAGS: ['video', 'audio', 'source', 'svg', 'canvas'],
-        ADD_ATTR: ['data-track-id', 'data-checkpoint', 'style', 'class']
+        ALLOW_DATA_ATTR: true,
+        ALLOW_UNKNOWN_PROTOCOLS: true,
+        ALLOWED_URI_REGEXP: /.*/
       });
     } catch (err: any) {
       const msg = err?.message || (err instanceof Error ? err.message : JSON.stringify(err));

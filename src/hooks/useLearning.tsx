@@ -19,7 +19,6 @@ export interface LearningModule {
   course_id: string;
   title: string;
   content: string;
-  content_url?: string;
   module_order: number;
   module_type: string;
   duration: number;

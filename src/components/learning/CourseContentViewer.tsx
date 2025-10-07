@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Progress } from '@/components/ui/progress';
-import { LoadingSpinner } from '@/components/ui/loading';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import DOMPurify from 'dompurify';
 
 interface CourseContentViewerProps {
   moduleId: string;
@@ -19,101 +15,56 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   contentUrl,
   onProgressUpdate
 }) => {
-  const [htmlContent, setHtmlContent] = useState<string>('');
+  const [iframeUrl, setIframeUrl] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const videoProgressRef = useRef(new Map<string, number>());
-  const checkpointsRef = useRef(new Set<string>());
-  const [totalCheckpoints, setTotalCheckpoints] = useState(0);
-  const [maxScrollDepth, setMaxScrollDepth] = useState(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Load HTML content from Supabase Storage
-  const loadHTMLContent = async (url: string): Promise<string> => {
+  // Get signed URL for iframe src
+  const getContentUrl = async (url: string): Promise<string> => {
     const raw = (url || '').trim();
     const path = raw.replace(/^\/+/, '').replace(/^learning-content\//, '');
-    const pathInfo = `bucket=learning-content, path=${path}`;
+    
     try {
-      // 1) If absolute URL, fetch directly
+      // If absolute URL, use directly
       if (/^https?:\/\//i.test(raw)) {
-        const res = await fetch(raw);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.text();
+        return raw;
       }
 
-      // 2) Try signed URL first (works for private buckets)
-      const { data: signedData, error: signedError } = await supabase.storage
+      // Try signed URL first (works for private buckets, lasts 1 hour)
+      const { data: signedData } = await supabase.storage
         .from('learning-content')
         .createSignedUrl(path, 60 * 60);
 
-      if (signedError) {
-        console.warn('Signed URL error', { path, signedError });
-      }
-
       if (signedData?.signedUrl) {
-        const res = await fetch(signedData.signedUrl);
-        if (!res.ok) throw new Error(`Signed URL fetch failed HTTP ${res.status}`);
-        return await res.text();
+        return signedData.signedUrl;
       }
 
-      // 3) Public URL fallback (when bucket is public)
+      // Fallback to public URL
       const { data: publicData } = supabase.storage
         .from('learning-content')
         .getPublicUrl(path);
+      
       if (publicData?.publicUrl) {
-        const res = await fetch(publicData.publicUrl);
-        if (res.ok) {
-          return await res.text();
-        }
+        return publicData.publicUrl;
       }
 
-      // 4) Fallback to direct download (for public buckets with RLS)
-      const { data: blob, error: downloadError } = await supabase.storage
-        .from('learning-content')
-        .download(path);
-      if (downloadError) {
-        throw new Error(`Storage download error: ${downloadError.message || String(downloadError)}`);
-      }
-
-      return await blob.text();
+      throw new Error(`Could not generate URL for: ${path}`);
     } catch (err: any) {
-      const msg = err?.message || (err instanceof Error ? err.message : JSON.stringify(err));
-      throw new Error(`Failed to load content (${pathInfo}): ${msg}`);
+      throw new Error(`Failed to load content URL: ${err?.message || String(err)}`);
     }
   };
 
-  // Calculate overall progress from all tracking methods
-  const calculateOverallProgress = useCallback((): number => {
-    const weights = {
-      scroll: 0.4,
-      videos: 0.4,
-      checkpoints: 0.2
-    };
-
-    const scrollContribution = (maxScrollDepth / 100) * weights.scroll;
-
-    const videoContribution = videoProgressRef.current.size > 0
-      ? (Array.from(videoProgressRef.current.values()).reduce((a, b) => a + b, 0) / 
-         videoProgressRef.current.size / 100) * weights.videos
-      : 0;
-
-    const checkpointContribution = totalCheckpoints > 0
-      ? (checkpointsRef.current.size / totalCheckpoints) * weights.checkpoints
-      : 0;
-
-    return Math.min(100, Math.round((scrollContribution + videoContribution + checkpointContribution) * 100));
-  }, [maxScrollDepth, totalCheckpoints]);
-
-  // Debounced progress update to database
+  // Update progress in database
   const updateProgressInDatabase = useCallback(async (percentage: number) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase
+      await supabase
         .from('learning_progress')
         .upsert({
           user_id: user.id,
@@ -125,249 +76,48 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         }, {
           onConflict: 'user_id,course_id,module_id'
         });
-
-      if (error) {
-        console.error('Failed to update progress:', error);
-      }
     } catch (err) {
       console.error('Error updating progress:', err);
     }
   }, [courseId, moduleId]);
 
-  // Scroll depth tracking
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  // Handle progress updates from iframe via postMessage
+  const handleProgressUpdate = useCallback((percentage: number) => {
+    const clampedProgress = Math.min(100, Math.max(0, percentage));
+    setProgress(clampedProgress);
+    onProgressUpdate?.(clampedProgress);
 
-    const handleScroll = () => {
-      const scrollTop = container.scrollTop;
-      const scrollHeight = container.scrollHeight - container.clientHeight;
-      
-      if (scrollHeight === 0) {
-        setMaxScrollDepth(100);
-        return;
-      }
-
-      const scrollPercentage = Math.min(100, (scrollTop / scrollHeight) * 100);
-
-      if (scrollPercentage > maxScrollDepth) {
-        setMaxScrollDepth(Math.round(scrollPercentage));
-      }
-    };
-
-    container.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
-
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [maxScrollDepth]);
-
-  // Inject interactive functions and event handlers for HTML content
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !htmlContent) return;
-
-    // Define global functions that HTML content can use
-    (window as any).toggleCollapsible = (id: string) => {
-      const element = document.getElementById(id);
-      if (element) {
-        const isHidden = element.style.display === 'none';
-        element.style.display = isHidden ? 'block' : 'none';
-        // Also handle classes if needed
-        if (element.classList.contains('hidden')) {
-          element.classList.remove('hidden');
-        } else if (!isHidden) {
-          element.classList.add('hidden');
-        }
-      }
-    };
-
-    (window as any).checkResponse = (questionId: string, selectedAnswer: string, correctAnswer: string) => {
-      const feedback = document.getElementById(`${questionId}-feedback`);
-      if (feedback) {
-        if (selectedAnswer === correctAnswer) {
-          feedback.textContent = '✓ Correct!';
-          feedback.className = 'feedback correct';
-          feedback.style.color = 'green';
-          feedback.style.fontWeight = 'bold';
-        } else {
-          feedback.textContent = '✗ Incorrect. Try again.';
-          feedback.className = 'feedback incorrect';
-          feedback.style.color = 'red';
-          feedback.style.fontWeight = 'bold';
-        }
-        feedback.style.display = 'block';
-      }
-    };
-
-    (window as any).practiceMore = (sectionId: string) => {
-      const section = document.getElementById(sectionId);
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    };
-
-    (window as any).updateProgress = (value: number) => {
-      setProgress(Math.min(100, Math.max(0, value)));
-    };
-
-    // Event delegation for interactive elements
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      
-      // Handle collapsible toggles via data attributes
-      if (target.hasAttribute('data-toggle')) {
-        e.preventDefault();
-        const targetId = target.getAttribute('data-toggle');
-        if (targetId) {
-          (window as any).toggleCollapsible(targetId);
-        }
-      }
-
-      // Handle quiz check buttons via data attributes
-      if (target.hasAttribute('data-check-answer')) {
-        e.preventDefault();
-        const questionId = target.getAttribute('data-question-id');
-        const correctAnswer = target.getAttribute('data-correct-answer');
-        if (questionId && correctAnswer) {
-          // Find selected answer from radio buttons or select
-          const questionContainer = document.querySelector(`[data-question="${questionId}"]`);
-          if (questionContainer) {
-            const selectedRadio = questionContainer.querySelector('input[type="radio"]:checked') as HTMLInputElement;
-            const selectedSelect = questionContainer.querySelector('select') as HTMLSelectElement;
-            const selectedAnswer = selectedRadio?.value || selectedSelect?.value || '';
-            (window as any).checkResponse(questionId, selectedAnswer, correctAnswer);
-          }
-        }
-      }
-
-      // Handle scroll-to-section buttons
-      if (target.hasAttribute('data-scroll-to')) {
-        e.preventDefault();
-        const targetId = target.getAttribute('data-scroll-to');
-        if (targetId) {
-          (window as any).practiceMore(targetId);
-        }
-      }
-    };
-
-    // Track checkbox interactions for progress
-    const handleCheckboxChange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      if (target.type === 'checkbox' && target.hasAttribute('data-track-checkbox')) {
-        const checkboxId = target.getAttribute('data-track-checkbox');
-        if (checkboxId && target.checked) {
-          checkpointsRef.current.add(`checkbox-${checkboxId}`);
-          setProgress(calculateOverallProgress());
-        }
-      }
-    };
-
-    container.addEventListener('click', handleClick);
-    container.addEventListener('change', handleCheckboxChange);
-
-    return () => {
-      container.removeEventListener('click', handleClick);
-      container.removeEventListener('change', handleCheckboxChange);
-      // Cleanup global functions
-      delete (window as any).toggleCollapsible;
-      delete (window as any).checkResponse;
-      delete (window as any).practiceMore;
-      delete (window as any).updateProgress;
-    };
-  }, [htmlContent, calculateOverallProgress]);
-
-  // Video tracking
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !htmlContent) return;
-
-    const videos = container.querySelectorAll('video[data-track-id]');
-    const handlers: Array<{ video: HTMLVideoElement; handler: () => void }> = [];
-
-    videos.forEach((videoElement) => {
-      const video = videoElement as HTMLVideoElement;
-      const trackId = video.getAttribute('data-track-id');
-      if (!trackId) return;
-
-      const handleTimeUpdate = () => {
-        if (video.duration > 0) {
-          const percentage = Math.min(100, (video.currentTime / video.duration) * 100);
-          const currentMax = videoProgressRef.current.get(trackId) || 0;
-
-          if (percentage > currentMax) {
-            videoProgressRef.current.set(trackId, percentage);
-            // Trigger recalculation
-            setProgress(calculateOverallProgress());
-          }
-        }
-      };
-
-      video.addEventListener('timeupdate', handleTimeUpdate);
-      handlers.push({ video, handler: handleTimeUpdate });
-    });
-
-    return () => {
-      handlers.forEach(({ video, handler }) => {
-        video.removeEventListener('timeupdate', handler);
-      });
-    };
-  }, [htmlContent, calculateOverallProgress]);
-
-  // Checkpoint tracking with IntersectionObserver
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !htmlContent) return;
-
-    const checkpoints = container.querySelectorAll('[data-checkpoint]');
-    setTotalCheckpoints(checkpoints.length);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const checkpointId = entry.target.getAttribute('data-checkpoint');
-            if (checkpointId && !checkpointsRef.current.has(checkpointId)) {
-              checkpointsRef.current.add(checkpointId);
-              setProgress(calculateOverallProgress());
-            }
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    checkpoints.forEach((checkpoint) => observer.observe(checkpoint));
-
-    return () => observer.disconnect();
-  }, [htmlContent, calculateOverallProgress]);
-
-  // Update progress whenever tracking values change
-  useEffect(() => {
-    const newProgress = calculateOverallProgress();
-    
-    if (newProgress !== progress) {
-      setProgress(newProgress);
-      onProgressUpdate?.(newProgress);
-
-      // Debounce database updates
-      if (progressUpdateTimeoutRef.current) {
-        clearTimeout(progressUpdateTimeoutRef.current);
-      }
-
-      progressUpdateTimeoutRef.current = setTimeout(() => {
-        updateProgressInDatabase(newProgress);
-      }, 500);
+    if (progressUpdateTimeoutRef.current) {
+      clearTimeout(progressUpdateTimeoutRef.current);
     }
-  }, [maxScrollDepth, totalCheckpoints, calculateOverallProgress, progress, onProgressUpdate, updateProgressInDatabase]);
 
-  // Load content on mount
+    progressUpdateTimeoutRef.current = setTimeout(() => {
+      updateProgressInDatabase(clampedProgress);
+    }, 500);
+  }, [onProgressUpdate, updateProgressInDatabase]);
+
+  // Listen for postMessage events from iframe
   useEffect(() => {
-    const loadContent = async () => {
+    const handleMessage = (event: MessageEvent) => {
+      const { type, data } = event.data;
+
+      if (type === 'progress' && typeof data?.percentage === 'number') {
+        handleProgressUpdate(data.percentage);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [handleProgressUpdate]);
+
+  // Load iframe URL
+  useEffect(() => {
+    const loadUrl = async () => {
       try {
         setLoading(true);
         setError(null);
-        const sanitizedHtml = await loadHTMLContent(contentUrl);
-        setHtmlContent(sanitizedHtml);
+        const url = await getContentUrl(contentUrl);
+        setIframeUrl(url);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load content');
       } finally {
@@ -376,7 +126,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
     };
 
     if (contentUrl) {
-      loadContent();
+      loadUrl();
     }
   }, [contentUrl]);
 
@@ -427,10 +177,9 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         </Alert>
       )}
       
-      {!loading && !error && htmlContent && (
+      {!loading && !error && iframeUrl && (
         <>
-          {/* Progress bar */}
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border shadow-sm">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border shadow-sm">
             <div className="h-1 bg-muted">
               <div 
                 className="h-full bg-gradient-to-r from-primary to-learning-success transition-all duration-300"
@@ -442,16 +191,13 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
             </div>
           </div>
           
-          {/* Content */}
-          <div 
-            ref={containerRef}
-            className="flex-1 overflow-y-auto scroll-smooth"
-          >
-            <div 
-              className="course-content max-w-4xl mx-auto px-6 py-8"
-              dangerouslySetInnerHTML={{ __html: htmlContent }}
-            />
-          </div>
+          <iframe
+            ref={iframeRef}
+            src={iframeUrl}
+            className="flex-1 w-full border-0"
+            title="Course Content"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+          />
         </>
       )}
     </div>

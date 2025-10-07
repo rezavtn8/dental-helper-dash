@@ -161,68 +161,57 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
         </CardContent>
       </Card>
 
-      {/* Module Content */}
+      {/* Horizontal Module Navigation */}
       {currentModule && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Module List Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="bg-gradient-to-b from-card to-surface-subtle border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold bg-gradient-to-r from-learning-quiz to-primary bg-clip-text text-transparent">
-                  Modules
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="space-y-2 p-2">
-                  {modules.map((module, index) => {
-                    const moduleProgress = getModuleProgress(module.id);
-                    const isCompleted = moduleProgress?.completion_percentage === 100;
-                    const isCurrent = index === currentModuleIndex;
-                    
-                    return (
-                      <button
-                        key={module.id}
-                        onClick={() => setCurrentModuleIndex(index)}
-                        className={`w-full text-left p-3 rounded-lg border-l-4 transition-all duration-300 hover:scale-105 ${
-                          isCurrent 
-                            ? 'border-learning-quiz bg-gradient-to-r from-learning-quiz/20 to-learning-quiz/10 text-learning-quiz shadow-lg animate-learning-glow' 
-                            : isCompleted
-                            ? 'border-learning-success bg-gradient-to-r from-learning-success/20 to-learning-success/10 text-learning-success shadow-md'
-                            : 'border-transparent hover:bg-gradient-to-r hover:from-muted/50 hover:to-muted-light/50 hover:shadow-md'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0">
-                            {isCompleted ? (
-                              <div className="w-6 h-6 bg-learning-success rounded-full flex items-center justify-center animate-learning-bounce">
-                                <CheckCircle className="h-4 w-4 text-white" />
-                              </div>
-                            ) : isCurrent ? (
-                              <div className="w-6 h-6 bg-learning-quiz rounded-full flex items-center justify-center animate-pulse">
-                                <Play className="h-3 w-3 text-white ml-0.5" />
-                              </div>
-                            ) : (
-                              <div className="w-6 h-6 rounded-full border-2 border-muted-foreground bg-background" />
-                            )}
+        <div className="space-y-4">
+          {/* Module Strip */}
+          <div className="relative">
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+              <div className="flex gap-3 pb-2 min-w-max px-1">
+                {modules.map((module, index) => {
+                  const moduleProgress = getModuleProgress(module.id);
+                  const isCompleted = moduleProgress?.completion_percentage === 100;
+                  const isCurrent = index === currentModuleIndex;
+                  
+                  return (
+                    <button
+                      key={module.id}
+                      onClick={() => setCurrentModuleIndex(index)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 whitespace-nowrap ${
+                        isCurrent 
+                          ? 'border-learning-quiz bg-gradient-to-r from-learning-quiz/20 to-learning-quiz/10 text-learning-quiz shadow-lg' 
+                          : isCompleted
+                          ? 'border-learning-success/50 bg-learning-success/10 text-learning-success shadow-md'
+                          : 'border-border hover:bg-muted/50 hover:shadow-md'
+                      }`}
+                    >
+                      <div className="flex-shrink-0">
+                        {isCompleted ? (
+                          <div className="w-5 h-5 bg-learning-success rounded-full flex items-center justify-center">
+                            <CheckCircle className="h-3 w-3 text-white" />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-sm truncate">{module.title}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Clock className="h-3 w-3 text-muted-foreground" />
-                              <p className="text-xs text-muted-foreground">{module.duration} min</p>
-                            </div>
+                        ) : isCurrent ? (
+                          <div className="w-5 h-5 bg-learning-quiz rounded-full flex items-center justify-center animate-pulse">
+                            <Play className="h-2.5 w-2.5 text-white ml-0.5" />
                           </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border-2 border-muted-foreground bg-background" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">{module.title}</span>
+                        <span className="text-xs text-muted-foreground">·</span>
+                        <span className="text-xs text-muted-foreground">{module.duration}m</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           {/* Main Content Area */}
-          <div className="lg:col-span-3">
+          <div>
             <Card className="bg-gradient-to-br from-card to-surface-subtle border-0 shadow-xl">
               <CardHeader className="pb-6">
                 <div className="flex items-center justify-between">

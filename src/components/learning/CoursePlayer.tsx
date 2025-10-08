@@ -40,6 +40,7 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
   }).length;
   
   const overallProgress = modules.length > 0 ? (completedModules / modules.length) * 100 : 0;
+  const isCourseComplete = overallProgress === 100;
 
   const handleModuleComplete = async () => {
     if (!currentModule) return;
@@ -287,22 +288,25 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
                   </Button>
 
                   <div className="flex gap-2">
-                    {currentModule.module_type === 'interactive' && (
-                      <Button onClick={handleStartQuiz}>
-                        Take Quiz
-                      </Button>
-                    )}
-                    
-                    {isLastModule ? (
-                      <Button onClick={handleModuleComplete}>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Complete Course
+                    {isCourseComplete ? (
+                      <Button onClick={handleStartQuiz} className="bg-gradient-to-r from-learning-quiz to-purple-600 hover:from-learning-quiz/90 hover:to-purple-600/90">
+                        <Award className="h-4 w-4 mr-2" />
+                        Take Final Quiz
                       </Button>
                     ) : (
-                      <Button onClick={handleNext}>
-                        Next
-                        <ChevronRight className="h-4 w-4 ml-2" />
-                      </Button>
+                      <>
+                        {isLastModule ? (
+                          <Button onClick={handleModuleComplete}>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Complete Course
+                          </Button>
+                        ) : (
+                          <Button onClick={handleNext}>
+                            Next
+                            <ChevronRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

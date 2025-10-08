@@ -103,7 +103,6 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
     return (
       <QuizPlayer
         courseId={course.id}
-        moduleId={currentModule?.id}
         onComplete={handleQuizComplete}
         onBack={() => setShowQuiz(false)}
       />

@@ -335,11 +335,16 @@ export const useLearningQuizzes = (courseId?: string, moduleId?: string) => {
       
       if (courseId) query = query.eq('course_id', courseId);
       if (moduleId) query = query.eq('module_id', moduleId);
+      // For course-level quizzes (no moduleId), we want quizzes where module_id IS NULL
+      if (courseId && !moduleId) query = query.is('module_id', null);
 
       const { data, error } = await query;
       if (error) throw error;
+      
+      console.log('Fetched quizzes:', data, 'for courseId:', courseId, 'moduleId:', moduleId);
       setQuizzes(data || []);
     } catch (err) {
+      console.error('Error fetching quizzes:', err);
       setError(err instanceof Error ? err.message : 'Error fetching quizzes');
     }
   };

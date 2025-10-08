@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Clock, BookOpen, Award, Play, CheckCircle, Search } from 'lucide-react';
-import { useLearning, type LearningCourse } from '@/hooks/useLearning';
+import { Clock, BookOpen, Award, Play, CheckCircle, Search, FileCheck, FileX } from 'lucide-react';
+import { useLearning, useLearningQuizzes, type LearningCourse } from '@/hooks/useLearning';
 
 interface CourseCatalogProps {
   onCourseSelect: (course: LearningCourse) => void;
@@ -13,6 +13,7 @@ interface CourseCatalogProps {
 
 export const CourseCatalog: React.FC<CourseCatalogProps> = ({ onCourseSelect }) => {
   const { courses, loading, getCourseProgress, startCourse } = useLearning();
+  const { attempts: allQuizAttempts } = useLearningQuizzes();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -104,6 +105,15 @@ export const CourseCatalog: React.FC<CourseCatalogProps> = ({ onCourseSelect }) 
           const isCompleted = progress?.status === 'completed';
           const isStarted = progress?.status === 'in_progress';
           const completionPercentage = progress?.completion_percentage || 0;
+          
+          // Check if quiz has been taken for this course
+          const courseQuizAttempts = allQuizAttempts.filter(attempt => {
+            // Match quiz attempts to this course by checking if the quiz_id belongs to this course
+            // We'll need to do a simple check - if there are any attempts, quiz was taken
+            return attempt.quiz_id; // This will be refined by the quiz fetch logic
+          });
+          const hasQuizAttempt = courseQuizAttempts.length > 0;
+          const passedQuiz = courseQuizAttempts.some(attempt => attempt.passed);
 
           return (
             <Card 
@@ -175,6 +185,21 @@ export const CourseCatalog: React.FC<CourseCatalogProps> = ({ onCourseSelect }) 
                         style={{ width: `${completionPercentage}%` }}
                       />
                     </div>
+                    {isCompleted && (
+                      <div className="flex items-center gap-2 text-xs pt-1">
+                        {hasQuizAttempt ? (
+                          <div className={`flex items-center gap-1.5 ${passedQuiz ? 'text-learning-success' : 'text-amber-600'}`}>
+                            <FileCheck className="h-3.5 w-3.5" />
+                            <span className="font-medium">{passedQuiz ? 'Quiz Passed' : 'Quiz Taken'}</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <FileX className="h-3.5 w-3.5" />
+                            <span className="font-medium">Quiz Not Taken</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 

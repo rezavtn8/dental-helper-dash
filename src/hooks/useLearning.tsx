@@ -240,37 +240,33 @@ export const useLearning = () => {
 
   // Get course progress - returns course-level progress or calculates from modules
   const getCourseProgress = (courseId: string) => {
-    // First try to find course-level progress (created when course is completed)
-    const courseLevelProgress = progress.find(p => p.course_id === courseId && !p.module_id);
-    if (courseLevelProgress) {
-      return courseLevelProgress;
-    }
-
-    // If no course-level progress, calculate from module progress
+    // Prefer calculating from module progress when available for accurate UI display
     const moduleProgressList = progress.filter(p => p.course_id === courseId && p.module_id);
-    if (moduleProgressList.length === 0) {
-      return null; // No progress at all
+
+    if (moduleProgressList.length > 0) {
+      // Calculate average completion percentage from modules
+      const totalCompletion = moduleProgressList.reduce((sum, p) => sum + p.completion_percentage, 0);
+      const avgCompletion = Math.round(totalCompletion / moduleProgressList.length);
+
+      const hasStarted = moduleProgressList.some(p => p.started_at);
+      const allCompleted = moduleProgressList.every(p => p.completion_percentage === 100);
+
+      // Build a synthetic progress object derived from modules
+      return {
+        id: `synthetic-${courseId}`,
+        user_id: user?.id || '',
+        course_id: courseId,
+        completion_percentage: avgCompletion,
+        status: allCompleted ? 'completed' : hasStarted ? 'in_progress' : 'not_started',
+        started_at: hasStarted ? moduleProgressList.find(p => p.started_at)?.started_at : undefined,
+        completed_at: allCompleted ? moduleProgressList.find(p => p.completed_at)?.completed_at : undefined,
+        last_accessed_at: moduleProgressList.sort((a, b) => new Date(b.last_accessed_at).getTime() - new Date(a.last_accessed_at).getTime())[0]?.last_accessed_at || new Date().toISOString(),
+      } as LearningProgress;
     }
 
-    // Calculate average completion percentage from modules
-    const totalCompletion = moduleProgressList.reduce((sum, p) => sum + p.completion_percentage, 0);
-    const avgCompletion = Math.round(totalCompletion / moduleProgressList.length);
-    
-    // Check if any module was started
-    const hasStarted = moduleProgressList.some(p => p.started_at);
-    const allCompleted = moduleProgressList.every(p => p.completion_percentage === 100);
-
-    // Return a synthetic progress object
-    return {
-      id: `synthetic-${courseId}`,
-      user_id: user?.id || '',
-      course_id: courseId,
-      completion_percentage: avgCompletion,
-      status: allCompleted ? 'completed' : hasStarted ? 'in_progress' : 'not_started',
-      started_at: hasStarted ? moduleProgressList[0].started_at : undefined,
-      completed_at: allCompleted ? moduleProgressList[moduleProgressList.length - 1].completed_at : undefined,
-      last_accessed_at: moduleProgressList[0]?.last_accessed_at || new Date().toISOString(),
-    } as LearningProgress;
+    // If no module-level entries, fall back to any course-level progress row
+    const courseLevelProgress = progress.find(p => p.course_id === courseId && !p.module_id);
+    return courseLevelProgress || null;
   };
 
   // Get module progress

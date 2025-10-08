@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Users, Award, Search, UserPlus, CheckCircle } from 'lucide-react';
 import { CourseCatalog } from '@/components/learning/CourseCatalog';
+import { CourseProgressTable } from '@/components/owner/CourseProgressTable';
 import { useLearning, LearningCourse } from '@/hooks/useLearning';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -110,32 +111,8 @@ export const CourseManagementTab: React.FC = () => {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-learning-quiz/20 to-learning-quiz/5 border-learning-quiz/20">
-          <CardContent className="p-6 text-center">
-            <BookOpen className="h-8 w-8 mx-auto text-learning-quiz mb-2" />
-            <div className="text-2xl font-bold">{courses.length}</div>
-            <p className="text-sm text-muted-foreground">Total Courses</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-learning-success/20 to-learning-success/5 border-learning-success/20">
-          <CardContent className="p-6 text-center">
-            <Users className="h-8 w-8 mx-auto text-learning-success mb-2" />
-            <div className="text-2xl font-bold">{stats.inProgressCourses}</div>
-            <p className="text-sm text-muted-foreground">Active Learners</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-learning-achievement/20 to-learning-achievement/5 border-learning-achievement/20">
-          <CardContent className="p-6 text-center">
-            <Award className="h-8 w-8 mx-auto text-learning-achievement mb-2" />
-            <div className="text-2xl font-bold">{stats.completedCourses}</div>
-            <p className="text-sm text-muted-foreground">Completions</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Course Progress Table */}
+      <CourseProgressTable />
 
       {/* Platform Courses */}
       <Card>

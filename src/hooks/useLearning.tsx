@@ -81,60 +81,20 @@ export const useLearning = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch courses - for staff, only show assigned courses
+  // Fetch courses - all authenticated users can see all active courses
   const fetchCourses = async () => {
     try {
       if (!user?.id) return;
       
-      // Get user profile to check role
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('role, clinic_id')
-        .eq('id', user.id)
-        .single();
+      // All users can see all active courses (both system and clinic courses)
+      const { data, error } = await supabase
+        .from('learning_courses')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-      if (userProfile?.role === 'owner') {
-        // Owners can see all platform courses (system courses without clinic_id)
-        const { data, error } = await supabase
-          .from('learning_courses')
-          .select('*')
-          .eq('is_active', true)
-          .is('clinic_id', null)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setCourses(data || []);
-      } else {
-        // Staff only see assigned courses via learning_assignments table
-        const { data, error } = await supabase
-          .from('learning_assignments')
-          .select(`
-            *,
-            learning_courses (
-              id,
-              title,
-              description,
-              category,
-              difficulty_level,
-              estimated_duration,
-              course_type,
-              thumbnail_url,
-              created_at
-            )
-          `)
-          .eq('user_id', user.id)
-          .eq('learning_courses.is_active', true)
-          .order('assigned_at', { ascending: false });
-
-        if (error) throw error;
-        
-        // Extract courses from the assignments and filter out null courses
-        const assignedCourses = (data || [])
-          .map(assignment => assignment.learning_courses)
-          .filter(Boolean) as LearningCourse[];
-        
-        setCourses(assignedCourses);
-      }
+      if (error) throw error;
+      setCourses(data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error fetching courses');
     }

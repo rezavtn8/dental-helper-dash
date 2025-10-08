@@ -48,7 +48,13 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
     await updateModuleProgress(currentModule.id, course.id, 100);
     
     if (isLastModule) {
-      // Course completed, maybe show completion modal
+      // Mark all modules as complete if not already
+      for (const module of modules) {
+        const moduleProgress = getModuleProgress(module.id);
+        if (!moduleProgress || moduleProgress.completion_percentage < 100) {
+          await updateModuleProgress(module.id, course.id, 100);
+        }
+      }
       return;
     }
     
@@ -288,6 +294,18 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
                   </Button>
 
                   <div className="flex gap-2">
+                    {/* Mark Complete Button */}
+                    {getModuleProgress(currentModule.id)?.completion_percentage !== 100 && (
+                      <Button 
+                        variant="outline"
+                        onClick={() => updateModuleProgress(currentModule.id, course.id, 100)}
+                        className="border-learning-success text-learning-success hover:bg-learning-success/10"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark Complete
+                      </Button>
+                    )}
+                    
                     {isCourseComplete ? (
                       <Button onClick={handleStartQuiz} className="bg-gradient-to-r from-learning-quiz to-purple-600 hover:from-learning-quiz/90 hover:to-purple-600/90">
                         <Award className="h-4 w-4 mr-2" />

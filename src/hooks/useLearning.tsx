@@ -201,22 +201,39 @@ export const useLearning = () => {
     if (!user?.id) return;
 
     try {
-      const { error } = await supabase
+      // Check if progress exists
+      const { data: existingProgress } = await supabase
         .from('learning_progress')
-        .upsert({
-          user_id: user.id,
-          course_id: courseId,
-          module_id: moduleId,
-          completion_percentage: completionPercentage,
-          status: completionPercentage >= 100 ? 'completed' : 'in_progress',
-          ...(completionPercentage >= 100 && { completed_at: new Date().toISOString() }),
-          ...(completionPercentage > 0 && !progress.some(p => p.module_id === moduleId) && { started_at: new Date().toISOString() }),
-          last_accessed_at: new Date().toISOString(),
-        });
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('course_id', courseId)
+        .eq('module_id', moduleId)
+        .maybeSingle();
+
+      const progressData = {
+        user_id: user.id,
+        course_id: courseId,
+        module_id: moduleId,
+        completion_percentage: completionPercentage,
+        status: completionPercentage >= 100 ? 'completed' : 'in_progress',
+        last_accessed_at: new Date().toISOString(),
+        ...(completionPercentage >= 100 && { completed_at: new Date().toISOString() }),
+        ...(!existingProgress && { started_at: new Date().toISOString() }),
+      };
+
+      const { error } = existingProgress
+        ? await supabase
+            .from('learning_progress')
+            .update(progressData)
+            .eq('id', existingProgress.id)
+        : await supabase
+            .from('learning_progress')
+            .insert(progressData);
 
       if (error) throw error;
       await fetchProgress();
     } catch (err) {
+      console.error('Error updating module progress:', err);
       setError(err instanceof Error ? err.message : 'Error updating progress');
     }
   };

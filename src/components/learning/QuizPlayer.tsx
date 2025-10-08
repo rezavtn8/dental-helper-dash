@@ -23,12 +23,13 @@ interface QuizPlayerProps {
 }
 
 interface Question {
-  id: number;
+  id: string | number;
   question: string;
   type: 'multiple_choice' | 'true_false';
   options?: string[];
-  correct_answer: number | boolean;
+  correctAnswer: number | boolean;
   explanation?: string;
+  points?: number;
 }
 
 export const QuizPlayer: React.FC<QuizPlayerProps> = ({ 
@@ -101,7 +102,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
   const calculateScore = () => {
     let correct = 0;
     questions.forEach(q => {
-      if (answers[q.id] === q.correct_answer) {
+      if (answers[q.id] === q.correctAnswer) {
         correct++;
       }
     });
@@ -208,7 +209,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
               <h3 className="font-semibold">Review Your Answers</h3>
               {questions.map((q, index) => {
                 const userAnswer = answers[q.id];
-                const isCorrect = userAnswer === q.correct_answer;
+                const isCorrect = userAnswer === q.correctAnswer;
                 
                 return (
                   <Card key={q.id} className={`border-l-4 ${
@@ -232,7 +233,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                               </p>
                               {!isCorrect && (
                                 <p className="text-success">
-                                  Correct answer: {q.options[q.correct_answer as number]}
+                                  Correct answer: {q.options[q.correctAnswer as number]}
                                 </p>
                               )}
                             </div>
@@ -245,7 +246,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                               </p>
                               {!isCorrect && (
                                 <p className="text-success">
-                                  Correct answer: {q.correct_answer ? 'True' : 'False'}
+                                  Correct answer: {q.correctAnswer ? 'True' : 'False'}
                                 </p>
                               )}
                             </div>

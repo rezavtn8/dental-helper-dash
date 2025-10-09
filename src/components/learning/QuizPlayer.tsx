@@ -115,9 +115,14 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
     const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
     const score = calculateScore();
     
+    console.log('Submitting quiz with score:', score);
     const result = await submitQuizAttempt(quiz.id, answers, score, timeTaken);
-    setQuizResults({ ...result, score, timeTaken });
-    setShowResults(true);
+    console.log('Quiz submission result:', result);
+    
+    if (result) {
+      setQuizResults({ ...result, score, timeTaken });
+      setShowResults(true);
+    }
   };
 
   const handleRetakeQuiz = () => {

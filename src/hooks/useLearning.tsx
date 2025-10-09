@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { toast } from 'sonner';
 
 export interface LearningCourse {
   id: string;
@@ -360,6 +361,7 @@ export const useLearningQuizzes = (courseId?: string, moduleId?: string) => {
     const passed = score >= quiz.passing_score;
 
     try {
+      // Submit quiz attempt
       const { data, error } = await supabase
         .from('quiz_attempts')
         .insert({
@@ -378,31 +380,58 @@ export const useLearningQuizzes = (courseId?: string, moduleId?: string) => {
       if (error) throw error;
       
       // If quiz passed, create a certificate
-      if (passed) {
+      if (passed && quiz.course_id) {
+        console.log('Quiz passed! Creating certificate...');
+        
         // Get course name for certificate
-        const { data: courseData } = await supabase
+        const { data: courseData, error: courseError } = await supabase
           .from('learning_courses')
           .select('title')
           .eq('id', quiz.course_id)
-          .single();
+          .maybeSingle();
+        
+        if (courseError) {
+          console.error('Error fetching course:', courseError);
+        }
         
         const courseName = courseData?.title || 'Course';
         
-        // Create certificate
-        await supabase
+        // Check if certificate already exists for this quiz
+        const { data: existingCert } = await supabase
           .from('certifications')
-          .insert({
-            user_id: user.id,
-            name: `${courseName} - ${quiz.title}`,
-            certification_type: 'Other',
-            issued_date: new Date().toISOString().split('T')[0],
-            issuing_organization: 'Learning Platform'
-          });
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('name', `${courseName} - ${quiz.title}`)
+          .maybeSingle();
+        
+        if (!existingCert) {
+          // Create certificate
+          const { error: certError } = await supabase
+            .from('certifications')
+            .insert({
+              user_id: user.id,
+              name: `${courseName} - ${quiz.title}`,
+              certification_type: 'Other',
+              issued_date: new Date().toISOString().split('T')[0],
+              issuing_organization: 'Learning Platform'
+            });
+          
+          if (certError) {
+            console.error('Error creating certificate:', certError);
+            toast.error('Failed to create certificate');
+          } else {
+            console.log('Certificate created successfully!');
+            toast.success('🎉 Certificate earned! Check the Certifications tab');
+          }
+        } else {
+          console.log('Certificate already exists');
+        }
       }
       
       await fetchAttempts();
-      return data;
+      return { ...data, passed };
     } catch (err) {
+      console.error('Error submitting quiz:', err);
       setError(err instanceof Error ? err.message : 'Error submitting quiz attempt');
       return null;
     }

@@ -376,6 +376,30 @@ export const useLearningQuizzes = (courseId?: string, moduleId?: string) => {
         .single();
 
       if (error) throw error;
+      
+      // If quiz passed, create a certificate
+      if (passed) {
+        // Get course name for certificate
+        const { data: courseData } = await supabase
+          .from('learning_courses')
+          .select('title')
+          .eq('id', quiz.course_id)
+          .single();
+        
+        const courseName = courseData?.title || 'Course';
+        
+        // Create certificate
+        await supabase
+          .from('certifications')
+          .insert({
+            user_id: user.id,
+            name: `${courseName} - ${quiz.title}`,
+            certification_type: 'Other',
+            issued_date: new Date().toISOString().split('T')[0],
+            issuing_organization: 'Learning Platform'
+          });
+      }
+      
       await fetchAttempts();
       return data;
     } catch (err) {

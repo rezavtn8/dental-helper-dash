@@ -25,7 +25,7 @@ interface QuizPlayerProps {
 interface Question {
   id: string | number;
   question: string;
-  type: 'multiple_choice' | 'true_false';
+  type: string;
   options?: string[];
   correctAnswer: number | boolean;
   explanation?: string;
@@ -226,7 +226,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
                           <p className="font-medium">Question {index + 1}</p>
                           <p className="text-sm">{q.question}</p>
                           
-                          {q.type === 'multiple_choice' && q.options && (
+                          {q.options && q.options.length > 0 && (
                             <div className="space-y-1 text-sm">
                               <p className="text-muted-foreground">
                                 Your answer: {q.options[userAnswer as number] || 'No answer'}
@@ -396,15 +396,15 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
           <p className="text-lg leading-relaxed">{question.question}</p>
           
           <div className="space-y-4">
-            {question.type === 'multiple_choice' && question.options && (
+            {question.options && question.options.length > 0 && (
               <RadioGroup 
                 value={answers[question.id]?.toString() || ''} 
                 onValueChange={handleAnswerSelect}
               >
                 {question.options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
+                  <div key={index} className="flex items-center space-x-2 p-3 rounded-lg hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                    <Label htmlFor={`option-${index}`} className="cursor-pointer">
+                    <Label htmlFor={`option-${index}`} className="cursor-pointer flex-1 text-sm leading-relaxed">
                       {option}
                     </Label>
                   </div>
@@ -412,7 +412,7 @@ export const QuizPlayer: React.FC<QuizPlayerProps> = ({
               </RadioGroup>
             )}
             
-            {question.type === 'true_false' && (
+            {!question.options && question.type === 'true_false' && (
               <RadioGroup 
                 value={answers[question.id]?.toString() || ''} 
                 onValueChange={handleAnswerSelect}

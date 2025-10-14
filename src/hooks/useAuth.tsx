@@ -267,6 +267,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('Sign-up successful:', data);
+      
+      // Send welcome email (non-blocking)
+      if (data.user) {
+        setTimeout(() => {
+          supabase.functions.invoke('send-welcome-email', {
+            body: {
+              userId: data.user!.id,
+              userName: name,
+              userEmail: email,
+              userRole: role,
+            }
+          }).catch(error => {
+            console.error('Failed to send welcome email:', error);
+          });
+        }, 0);
+      }
+      
       return {};
     } catch (error) {
       console.error('Sign-up error:', error);

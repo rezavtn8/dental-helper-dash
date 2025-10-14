@@ -414,6 +414,78 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          clicked_at: string | null
+          clinic_id: string | null
+          created_at: string | null
+          delivered_at: string | null
+          email_type: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          opened_at: string | null
+          recipient_email: string
+          resend_id: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          clinic_id?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          email_type: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          recipient_email: string
+          resend_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          clinic_id?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          recipient_email?: string
+          resend_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       error_logs: {
         Row: {
           action: string | null
@@ -1668,33 +1740,45 @@ export type Database = {
           created_at: string
           created_by: string | null
           email: string
+          email_verified: boolean | null
+          email_verified_at: string | null
           id: string
           is_active: boolean | null
           last_login: string | null
           name: string | null
           role: string | null
+          verification_token: string | null
+          verification_token_expires_at: string | null
         }
         Insert: {
           clinic_id?: string | null
           created_at?: string
           created_by?: string | null
           email: string
+          email_verified?: boolean | null
+          email_verified_at?: string | null
           id?: string
           is_active?: boolean | null
           last_login?: string | null
           name?: string | null
           role?: string | null
+          verification_token?: string | null
+          verification_token_expires_at?: string | null
         }
         Update: {
           clinic_id?: string | null
           created_at?: string
           created_by?: string | null
           email?: string
+          email_verified?: boolean | null
+          email_verified_at?: string | null
           id?: string
           is_active?: boolean | null
           last_login?: string | null
           name?: string | null
           role?: string | null
+          verification_token?: string | null
+          verification_token_expires_at?: string | null
         }
         Relationships: [
           {

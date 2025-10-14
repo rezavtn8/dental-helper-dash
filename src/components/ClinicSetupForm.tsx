@@ -62,6 +62,21 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
         // Refresh user profile to get the updated clinic_id
         await refreshUserProfile();
         
+        // Send clinic setup email (non-blocking)
+        const clinicId = result[0].clinic_id;
+        if (clinicId) {
+          setTimeout(() => {
+            supabase.functions.invoke('send-clinic-setup-email', {
+              body: {
+                userId: userProfile.id,
+                clinicId: clinicId,
+              }
+            }).catch(error => {
+              console.error('Failed to send clinic setup email:', error);
+            });
+          }, 0);
+        }
+        
         // Call success callback if provided, otherwise navigate
         if (onSuccess) {
           onSuccess();

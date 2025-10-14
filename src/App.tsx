@@ -63,39 +63,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const AppRoutes = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/hub" element={<ProtectedRoute><TeamHub /></ProtectedRoute>} />
-      <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
-      <Route path="/assistant" element={
-        <ProtectedRoute>
-          <ClinicRequiredRoute requiredRole="assistant">
-            <AssistantDashboard />
-          </ClinicRequiredRoute>
-        </ProtectedRoute>
-      } />
-      <Route path="/front-desk" element={
-        <ProtectedRoute>
-          <ClinicRequiredRoute requiredRole="front_desk">
-            <FrontDeskDashboard />
-          </ClinicRequiredRoute>
-        </ProtectedRoute>
-      } />
-      <Route path="/owner" element={
-        <ProtectedRoute>
-          <ClinicRequiredRoute requiredRole="owner">
-            <OwnerDashboard />
-          </ClinicRequiredRoute>
-        </ProtectedRoute>
-      } />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  </BrowserRouter>
-);
-
 const App = () => (
   <ErrorBoundary 
     FallbackComponent={ErrorFallback}
@@ -111,9 +78,38 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <AuthErrorBoundary>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/hub" element={<ProtectedRoute><TeamHub /></ProtectedRoute>} />
+                <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
+                <Route path="/assistant" element={
+                  <ProtectedRoute>
+                    <ClinicRequiredRoute requiredRole="assistant">
+                      <AssistantDashboard />
+                    </ClinicRequiredRoute>
+                  </ProtectedRoute>
+                } />
+                <Route path="/front-desk" element={
+                  <ProtectedRoute>
+                    <ClinicRequiredRoute requiredRole="front_desk">
+                      <FrontDeskDashboard />
+                    </ClinicRequiredRoute>
+                  </ProtectedRoute>
+                } />
+                <Route path="/owner" element={
+                  <ProtectedRoute>
+                    <ClinicRequiredRoute requiredRole="owner">
+                      <OwnerDashboard />
+                    </ClinicRequiredRoute>
+                  </ProtectedRoute>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
+          </BrowserRouter>
         </AuthErrorBoundary>
       </TooltipProvider>
     </QueryClientProvider>

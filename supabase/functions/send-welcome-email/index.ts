@@ -42,7 +42,7 @@ serve(async (req) => {
 
     // Send email
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'DentaLeague <onboarding@resend.dev>',
+      from: 'DentaLeague <admin@dentaleague.com>',
       to: [userEmail],
       subject: '🦷 Welcome to DentaLeague!',
       html: emailHtml,

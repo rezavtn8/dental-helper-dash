@@ -82,10 +82,20 @@ serve(async (req) => {
 
     // Send email
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'DentaLeague <admin@dentaleague.com>',
+      from: 'DentaLeague <noreply@dentaleague.com>',
       to: [invitation.email],
+      replyTo: 'support@dentaleague.com',
       subject: `You've been invited to join ${clinicName} on DentaLeague`,
       html: emailHtml,
+      headers: {
+        'X-Entity-Ref-ID': invitationId,
+      },
+      tags: [
+        {
+          name: 'category',
+          value: 'invitation',
+        },
+      ],
     });
 
     if (emailError) {

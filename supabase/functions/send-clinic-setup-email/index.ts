@@ -65,10 +65,20 @@ serve(async (req) => {
 
     // Send email
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'DentaLeague <admin@dentaleague.com>',
+      from: 'DentaLeague <noreply@dentaleague.com>',
       to: [user.email],
+      replyTo: 'support@dentaleague.com',
       subject: `🎉 ${clinic.name} is ready on DentaLeague!`,
       html: emailHtml,
+      headers: {
+        'X-Entity-Ref-ID': userId,
+      },
+      tags: [
+        {
+          name: 'category',
+          value: 'clinic_setup',
+        },
+      ],
     });
 
     if (emailError) {

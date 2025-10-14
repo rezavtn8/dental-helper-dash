@@ -6,6 +6,7 @@ import React from 'npm:react@18.3.1';
 import { InvitationEmail } from '../_shared/email-templates/invitation.tsx';
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string);
+const BASE_APP_URL = 'https://dentaleague.com';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -54,8 +55,7 @@ serve(async (req) => {
       .eq('id', invitation.invited_by)
       .single();
 
-    const appUrl = 'https://jnbdhtlmdxtanwlubyis.supabase.co';
-    const invitationUrl = `${appUrl}/join?token=${invitation.token}`;
+    const invitationUrl = `${BASE_APP_URL}/join?token=${invitation.token}`;
     
     const inviteeName = invitation.email.split('@')[0];
     const inviterName = inviter?.name || 'Your colleague';
@@ -83,6 +83,27 @@ serve(async (req) => {
 
     if (emailError) {
       console.error('Error sending invitation email:', emailError);
+      
+      // Log failed email
+      await supabase.from('email_logs').insert({
+        clinic_id: invitation.clinic_id,
+        email_type: 'invitation',
+        recipient_email: invitation.email,
+        subject: `You've been invited to join ${clinicName} on DentaLeague`,
+        status: 'failed',
+        error_message: emailError.message || JSON.stringify(emailError),
+        metadata: { invitationId, role: invitation.role, clinicName },
+      });
+      
+      // Update invitation with failure status
+      await supabase
+        .from('invitations')
+        .update({
+          email_status: 'failed',
+          failure_reason: emailError.message || JSON.stringify(emailError),
+        })
+        .eq('id', invitationId);
+      
       throw emailError;
     }
 
@@ -117,6 +138,36 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in send-invitation-email function:', error);
+    
+    // Try to log the error if we have invitation info
+    try {
+      const { invitationId } = await req.json();
+      if (invitationId) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        const { data: invitation } = await supabase
+          .from('invitations')
+          .select('email, clinic_id')
+          .eq('id', invitationId)
+          .single();
+        
+        if (invitation) {
+          await supabase.from('email_logs').insert({
+            clinic_id: invitation.clinic_id,
+            email_type: 'invitation',
+            recipient_email: invitation.email,
+            subject: 'Invitation email',
+            status: 'failed',
+            error_message: error.message || JSON.stringify(error),
+          });
+        }
+      }
+    } catch (logError) {
+      console.error('Error logging failed email:', logError);
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

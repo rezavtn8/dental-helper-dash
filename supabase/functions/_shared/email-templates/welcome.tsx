@@ -18,7 +18,7 @@ export const WelcomeEmail = ({
 }: WelcomeEmailProps) => (
   <Html>
     <Head />
-    <Preview>Welcome to DentaLeague - Your dental practice management platform</Preview>
+    <Preview>Welcome to DentaLeague! Let's get you set up 🦷</Preview>
     <Body style={main}>
       <Container style={container}>
         <Heading style={h1}>Welcome to DentaLeague! 🦷</Heading>
@@ -26,13 +26,14 @@ export const WelcomeEmail = ({
         <Text style={text}>Hi {userName},</Text>
         
         <Text style={text}>
-          We're excited to have you join DentaLeague as a <strong>{userRole}</strong>!
+          Welcome to DentaLeague! We're excited to have you onboard as a <strong>{userRole}</strong>. 
+          Your workspace is ready—let's get started!
         </Text>
 
         {clinicName && (
           <Section style={infoBox}>
             <Text style={infoText}>
-              <strong>Clinic:</strong> {clinicName}
+              <strong>Your Clinic:</strong> {clinicName}
             </Text>
             {clinicCode && (
               <Text style={infoText}>
@@ -42,6 +43,14 @@ export const WelcomeEmail = ({
           </Section>
         )}
 
+        <Section style={nextStepsBox}>
+          <Heading style={h2}>What's Next?</Heading>
+          <Text style={listItem}>✓ Complete your profile</Text>
+          <Text style={listItem}>✓ Explore the dashboard</Text>
+          {userRole === 'owner' && <Text style={listItem}>✓ Invite your team members</Text>}
+          <Text style={listItem}>✓ Check out the learning hub</Text>
+        </Section>
+
         <Section style={buttonContainer}>
           <Link href={dashboardUrl} style={button}>
             Go to Dashboard
@@ -49,7 +58,7 @@ export const WelcomeEmail = ({
         </Section>
 
         <Text style={text}>
-          If you have any questions, feel free to reach out to our support team.
+          If you ever need help, just reply to this email or contact our support team. We're here for you!
         </Text>
 
         <Text style={footer}>
@@ -83,11 +92,34 @@ const h1 = {
   textAlign: 'center' as const,
 };
 
+const h2 = {
+  color: '#1f2937',
+  fontSize: '20px',
+  fontWeight: 'bold',
+  marginBottom: '16px',
+};
+
 const text = {
   color: '#374151',
   fontSize: '16px',
   lineHeight: '24px',
   marginBottom: '16px',
+};
+
+const nextStepsBox = {
+  backgroundColor: '#f0fdf4',
+  padding: '24px',
+  borderRadius: '8px',
+  marginBottom: '24px',
+  marginTop: '24px',
+  border: '1px solid #d1fae5',
+};
+
+const listItem = {
+  color: '#374151',
+  fontSize: '15px',
+  margin: '8px 0',
+  paddingLeft: '8px',
 };
 
 const infoBox = {

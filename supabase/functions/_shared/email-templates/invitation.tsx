@@ -20,7 +20,7 @@ export const InvitationEmail = ({
 }: InvitationEmailProps) => (
   <Html>
     <Head />
-    <Preview>You've been invited to join {clinicName} on DentaLeague</Preview>
+    <Preview>Join {clinicName} on DentaLeague! 🎉</Preview>
     <Body style={main}>
       <Container style={container}>
         <Heading style={h1}>You've Been Invited! 🎉</Heading>
@@ -28,7 +28,8 @@ export const InvitationEmail = ({
         <Text style={text}>Hi {inviteeName},</Text>
         
         <Text style={text}>
-          <strong>{inviterName}</strong> has invited you to join <strong>{clinicName}</strong> as a <strong>{role}</strong> on DentaLeague.
+          <strong>{inviterName}</strong> has invited you to join <strong>{clinicName}</strong> on DentaLeague 
+          as a <strong>{role}</strong>. We're excited to have you join the team!
         </Text>
 
         <Section style={infoBox}>

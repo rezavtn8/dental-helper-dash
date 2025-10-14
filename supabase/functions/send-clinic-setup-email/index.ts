@@ -6,6 +6,7 @@ import React from 'npm:react@18.3.1';
 import { ClinicSetupEmail } from '../_shared/email-templates/clinic-setup.tsx';
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string);
+const BASE_APP_URL = 'https://dentaleague.com';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,8 +44,7 @@ serve(async (req) => {
       throw new Error('User or clinic not found');
     }
 
-    const appUrl = 'https://jnbdhtlmdxtanwlubyis.supabase.co';
-    const dashboardUrl = `${appUrl}/owner`;
+    const dashboardUrl = `${BASE_APP_URL}/owner`;
 
     // Render email template
     const emailHtml = await renderAsync(
@@ -66,10 +66,23 @@ serve(async (req) => {
 
     if (emailError) {
       console.error('Error sending clinic setup email:', emailError);
+      
+      // Log failed email
+      await supabase.from('email_logs').insert({
+        user_id: userId,
+        clinic_id: clinicId,
+        email_type: 'clinic_setup',
+        recipient_email: user.email,
+        subject: `🎉 ${clinic.name} is ready on DentaLeague!`,
+        status: 'failed',
+        error_message: emailError.message || JSON.stringify(emailError),
+        metadata: { clinicName: clinic.name, clinicCode: clinic.clinic_code },
+      });
+      
       throw emailError;
     }
 
-    // Log email
+    // Log successful email
     await supabase.from('email_logs').insert({
       user_id: userId,
       clinic_id: clinicId,
@@ -90,6 +103,33 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in send-clinic-setup-email function:', error);
+    
+    // Try to log the error if we have clinic info
+    try {
+      const { userId, clinicId } = await req.json();
+      if (userId && clinicId) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        const { data: user } = await supabase.from('users').select('email').eq('id', userId).single();
+        
+        if (user) {
+          await supabase.from('email_logs').insert({
+            user_id: userId,
+            clinic_id: clinicId,
+            email_type: 'clinic_setup',
+            recipient_email: user.email,
+            subject: 'Clinic setup email',
+            status: 'failed',
+            error_message: error.message || JSON.stringify(error),
+          });
+        }
+      }
+    } catch (logError) {
+      console.error('Error logging failed email:', logError);
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

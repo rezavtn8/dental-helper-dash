@@ -6,6 +6,7 @@ import React from 'npm:react@18.3.1';
 import { WelcomeEmail } from '../_shared/email-templates/welcome.tsx';
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string);
+const BASE_APP_URL = 'https://dentaleague.com';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,8 +27,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const appUrl = 'https://jnbdhtlmdxtanwlubyis.supabase.co';
-    const dashboardUrl = `${appUrl}/owner`;
+    const dashboardUrl = userRole === 'owner' ? `${BASE_APP_URL}/owner` : `${BASE_APP_URL}/${userRole}`;
 
     // Render email template
     const emailHtml = await renderAsync(
@@ -49,11 +49,23 @@ serve(async (req) => {
     });
 
     if (emailError) {
-      console.error('Error sending email:', emailError);
+      console.error('Error sending welcome email:', emailError);
+      
+      // Log failed email
+      await supabase.from('email_logs').insert({
+        user_id: userId,
+        email_type: 'welcome',
+        recipient_email: userEmail,
+        subject: '🦷 Welcome to DentaLeague!',
+        status: 'failed',
+        error_message: emailError.message || JSON.stringify(emailError),
+        metadata: { userName, userRole, clinicName, clinicCode },
+      });
+      
       throw emailError;
     }
 
-    // Log email to database
+    // Log successful email
     await supabase.from('email_logs').insert({
       user_id: userId,
       email_type: 'welcome',
@@ -73,6 +85,28 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in send-welcome-email function:', error);
+    
+    // Try to log the error if we have user info
+    try {
+      const { userId, userEmail } = await req.json();
+      if (userId && userEmail) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        await supabase.from('email_logs').insert({
+          user_id: userId,
+          email_type: 'welcome',
+          recipient_email: userEmail,
+          subject: '🦷 Welcome to DentaLeague!',
+          status: 'failed',
+          error_message: error.message || JSON.stringify(error),
+        });
+      }
+    } catch (logError) {
+      console.error('Error logging failed email:', logError);
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

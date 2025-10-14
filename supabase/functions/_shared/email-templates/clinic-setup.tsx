@@ -16,15 +16,16 @@ export const ClinicSetupEmail = ({
 }: ClinicSetupEmailProps) => (
   <Html>
     <Head />
-    <Preview>Your clinic {clinicName} is ready!</Preview>
+    <Preview>🎉 {clinicName} is ready on DentaLeague!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>🎉 Your Clinic is Set Up!</Heading>
+        <Heading style={h1}>🎉 {clinicName} is Ready!</Heading>
         
         <Text style={text}>Hi {ownerName},</Text>
         
         <Text style={text}>
-          Congratulations! Your clinic <strong>{clinicName}</strong> has been successfully created on DentaLeague.
+          Congratulations! Your clinic <strong>{clinicName}</strong> has been successfully set up on DentaLeague. 
+          You're all set to start managing your practice more efficiently.
         </Text>
 
         <Section style={infoBox}>
@@ -44,11 +45,11 @@ export const ClinicSetupEmail = ({
         </Section>
 
         <Section style={nextStepsBox}>
-          <Heading style={h2}>Next Steps</Heading>
-          <Text style={listItem}>✓ Invite your team members</Text>
-          <Text style={listItem}>✓ Create task templates</Text>
-          <Text style={listItem}>✓ Set up your schedule</Text>
-          <Text style={listItem}>✓ Explore the learning hub</Text>
+          <Heading style={h2}>What to Do Next</Heading>
+          <Text style={listItem}>✓ Invite your assistants and team members</Text>
+          <Text style={listItem}>✓ Set up schedules and working hours</Text>
+          <Text style={listItem}>✓ Create task templates for your team</Text>
+          <Text style={listItem}>✓ Explore the learning hub and assign courses</Text>
         </Section>
 
         <Section style={buttonContainer}>

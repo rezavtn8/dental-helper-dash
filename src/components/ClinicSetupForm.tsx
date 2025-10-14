@@ -71,8 +71,16 @@ export default function ClinicSetupForm({ userProfile, onSuccess }: ClinicSetupF
                 userId: userProfile.id,
                 clinicId: clinicId,
               }
+            }).then((response) => {
+              console.log('Clinic setup email response:', response);
+              // Temporary console log for testing - remove after email verification
+              if (response.data?.success) {
+                console.info('✅ Clinic setup email sent successfully');
+              }
             }).catch(error => {
               console.error('Failed to send clinic setup email:', error);
+              // Temporary console log for testing - remove after email verification
+              console.warn('⚠️ Failed to send clinic setup email');
             });
           }, 0);
         }

@@ -278,8 +278,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               userEmail: email,
               userRole: role,
             }
+          }).then((response) => {
+            console.log('Welcome email response:', response);
+            // Temporary toast for testing - remove after email verification
+            if (response.data?.success) {
+              console.info('✅ Welcome email sent successfully');
+            }
           }).catch(error => {
             console.error('Failed to send welcome email:', error);
+            // Temporary toast for testing - remove after email verification
+            console.warn('⚠️ Failed to send welcome email');
           });
         }, 0);
       }

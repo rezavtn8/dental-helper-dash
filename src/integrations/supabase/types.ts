@@ -2206,7 +2206,6 @@ export type Database = {
       lookup_clinic_for_join: {
         Args: { p_code: string }
         Returns: {
-          can_join: boolean
           clinic_code: string
           id: string
           name: string

@@ -64,7 +64,7 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
         return;
       }
 
-      // Get user info for each request
+      // Get user info for each request from public.users table
       const userIds = joinRequestsData.map(req => req.user_id);
       const { data: usersData, error: usersError } = await supabase
         .from('users')
@@ -72,14 +72,21 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
         .in('id', userIds);
 
       if (usersError) throw usersError;
-
-      // Combine data
+      
+      // Combine data with smart fallback for names
       const formattedRequests = joinRequestsData.map(request => {
         const user = usersData?.find(u => u.id === request.user_id);
+        
+        // Extract name with fallback to email username if name is generic/missing
+        let userName = user?.name || 'Unknown User';
+        if (userName === 'User' || !userName || userName.trim() === '') {
+          userName = user?.email ? user.email.split('@')[0] : 'Unknown User';
+        }
+        
         return {
           ...request,
           user_email: user?.email || 'Unknown',
-          user_name: user?.name || 'Unknown User'
+          user_name: userName
         } as JoinRequest;
       });
 

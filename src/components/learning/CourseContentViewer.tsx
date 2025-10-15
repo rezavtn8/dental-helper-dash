@@ -30,27 +30,23 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   const getContentUrl = async (url: string): Promise<string> => {
     const raw = (url || '').trim();
     const path = raw.replace(/^\/+/,'').replace(/^learning-content\//,'');
+    const hasExtension = /\.[a-z0-9]+($|\?)/i.test(path);
+    const normalizedPath = hasExtension ? path : `${path.replace(/\/$/,'')}/index.html`;
     
     try {
-      // If absolute URL, fetch and convert to blob
+      // If absolute URL, use it directly so relative assets resolve correctly
       if (/^https?:\/\//i.test(raw)) {
-        const response = await fetch(raw);
-        const html = await response.text();
-        const blob = new Blob([html], { type: 'text/html' });
-        return URL.createObjectURL(blob);
+        return raw;
       }
 
-      // Try local public asset (e.g., /courses/.. or courses/..)
+      // Try local public asset first (e.g., /courses/.. or courses/..)
       try {
-        const localUrl = raw.startsWith('/') ? raw : `/${path}`;
-        const response = await fetch(localUrl);
+        const localUrl = raw.startsWith('/')
+          ? (/\.[a-z0-9]+($|\?)/i.test(raw) ? raw : `${raw.replace(/\/$/,'')}/index.html`)
+          : `/${normalizedPath}`;
+        const response = await fetch(localUrl, { method: 'HEAD' });
         if (response.ok) {
-          const contentType = response.headers.get('content-type') || '';
-          const text = await response.text();
-          const blob = new Blob([text], { 
-            type: contentType.includes('pdf') ? 'application/pdf' : 'text/html' 
-          });
-          return URL.createObjectURL(blob);
+          return localUrl;
         }
       } catch (_) {
         // Ignore and fall back to Supabase storage
@@ -59,7 +55,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
       // Fall back to Supabase Storage bucket 'learning-content'
       const { data: signedData, error } = await supabase.storage
         .from('learning-content')
-        .createSignedUrl(path, 60 * 60);
+        .createSignedUrl(normalizedPath, 60 * 60);
 
       if (error) {
         throw new Error(`Failed to generate signed URL: ${error.message}`);
@@ -69,11 +65,8 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         throw new Error(`Could not generate URL for: ${path}`);
       }
 
-      // Fetch the HTML and create a blob with correct MIME type
-      const response = await fetch(signedData.signedUrl);
-      const html = await response.text();
-      const blob = new Blob([html], { type: 'text/html' });
-      return URL.createObjectURL(blob);
+      // Use the signed URL directly to preserve relative paths inside the HTML
+      return signedData.signedUrl;
     } catch (err: any) {
       throw new Error(`Failed to load content URL: ${err?.message || String(err)}`);
     }

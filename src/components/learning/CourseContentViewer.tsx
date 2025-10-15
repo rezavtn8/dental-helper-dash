@@ -29,46 +29,63 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   // Get signed URL and convert to blob URL with correct MIME type
   const getContentUrl = async (url: string): Promise<string> => {
     const raw = (url || '').trim();
-    const path = raw.replace(/^\/+/,'').replace(/^learning-content\//,'');
-    const hasExtension = /\.[a-z0-9]+($|\?)/i.test(path);
-    const normalizedPath = hasExtension ? path : `${path.replace(/\/$/,'')}/index.html`;
     
     try {
-      // If absolute URL, use it directly so relative assets resolve correctly
+      // If absolute URL, return directly
       if (/^https?:\/\//i.test(raw)) {
         return raw;
       }
 
-      // Try local public asset first (e.g., /courses/.. or courses/..)
-      try {
-        const localUrl = raw.startsWith('/')
-          ? (/\.[a-z0-9]+($|\?)/i.test(raw) ? raw : `${raw.replace(/\/$/,'')}/index.html`)
-          : `/${normalizedPath}`;
-        const response = await fetch(localUrl, { method: 'HEAD' });
-        if (response.ok) {
-          return localUrl;
-        }
-      } catch (_) {
-        // Ignore and fall back to Supabase storage
+      // Build candidate local paths to try
+      const candidates: string[] = [];
+      const hasExtension = /\.[a-z0-9]+($|\?|#)/i.test(raw);
+      
+      // Add raw path with leading slash
+      if (raw.startsWith('/')) {
+        candidates.push(hasExtension ? raw : `${raw.replace(/\/$/,'')}/index.html`);
+      }
+      
+      // Add variant with /learning-content/ prefix
+      const withPrefix = raw.startsWith('/learning-content/') 
+        ? raw 
+        : `/learning-content/${raw.replace(/^\/+/,'')}`;
+      candidates.push(hasExtension ? withPrefix : `${withPrefix.replace(/\/$/,'')}/index.html`);
+      
+      // Add variant without /learning-content/ prefix
+      const withoutPrefix = raw.replace(/^\/+learning-content\/+/, '/');
+      if (!candidates.includes(withoutPrefix)) {
+        candidates.push(hasExtension ? withoutPrefix : `${withoutPrefix.replace(/\/$/,'')}/index.html`);
       }
 
-      // Fall back to Supabase Storage bucket 'learning-content'
+      // Try each local candidate
+      for (const candidate of candidates) {
+        try {
+          const headResponse = await fetch(candidate, { method: 'HEAD', cache: 'no-store' });
+          if (headResponse.ok) {
+            return candidate;
+          }
+        } catch (_) {
+          // Continue to next candidate
+        }
+      }
+
+      // Fall back to Supabase Storage
+      const storagePath = raw.replace(/^\/+/,'').replace(/^learning-content\//,'');
+      const finalPath = hasExtension ? storagePath : `${storagePath.replace(/\/$/,'')}/index.html`;
+      
       const { data: signedData, error } = await supabase.storage
         .from('learning-content')
-        .createSignedUrl(normalizedPath, 60 * 60);
+        .createSignedUrl(finalPath, 60 * 60);
 
-      if (error) {
-        throw new Error(`Failed to generate signed URL: ${error.message}`);
+      if (error || !signedData?.signedUrl) {
+        throw new Error(
+          `Content not found.\nTried local: ${candidates.join(', ')}\nTried storage: learning-content/${finalPath}\nError: ${error?.message || 'No signed URL generated'}`
+        );
       }
 
-      if (!signedData?.signedUrl) {
-        throw new Error(`Could not generate URL for: ${path}`);
-      }
-
-      // Use the signed URL directly to preserve relative paths inside the HTML
       return signedData.signedUrl;
     } catch (err: any) {
-      throw new Error(`Failed to load content URL: ${err?.message || String(err)}`);
+      throw new Error(`Failed to load content: ${err?.message || String(err)}`);
     }
   };
 

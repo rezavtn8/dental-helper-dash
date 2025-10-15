@@ -29,7 +29,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   // Get signed URL and convert to blob URL with correct MIME type
   const getContentUrl = async (url: string): Promise<string> => {
     const raw = (url || '').trim();
-    const path = raw.replace(/^\/+/, '').replace(/^learning-content\//, '');
+    const path = raw.replace(/^\/+/,'').replace(/^learning-content\//,'');
     
     try {
       // If absolute URL, fetch and convert to blob
@@ -40,7 +40,23 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
         return URL.createObjectURL(blob);
       }
 
-      // Get signed URL from Supabase
+      // Try local public asset (e.g., /courses/.. or courses/..)
+      try {
+        const localUrl = raw.startsWith('/') ? raw : `/${path}`;
+        const response = await fetch(localUrl);
+        if (response.ok) {
+          const contentType = response.headers.get('content-type') || '';
+          const text = await response.text();
+          const blob = new Blob([text], { 
+            type: contentType.includes('pdf') ? 'application/pdf' : 'text/html' 
+          });
+          return URL.createObjectURL(blob);
+        }
+      } catch (_) {
+        // Ignore and fall back to Supabase storage
+      }
+
+      // Fall back to Supabase Storage bucket 'learning-content'
       const { data: signedData, error } = await supabase.storage
         .from('learning-content')
         .createSignedUrl(path, 60 * 60);

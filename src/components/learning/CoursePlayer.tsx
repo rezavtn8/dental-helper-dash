@@ -255,10 +255,13 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
               <CardContent className="space-y-6">
                 {/* Module Content */}
                 {(() => {
-                  const contentUrl = currentModule.content_url || 
-                    (currentModule.content?.trim().match(/^[\/\\]?[a-zA-Z0-9_\-\/\\]+\.(html?|pdf)$/i) 
-                      ? currentModule.content.trim() 
-                      : null);
+                  const raw = (currentModule.content || '').trim();
+                  const isLikelyUrl =
+                    /^https?:\/\//i.test(raw) ||
+                    /^\/?courses\//i.test(raw) ||
+                    /\.(html?|pdf)(\?.*)?(#.*)?$/i.test(raw) ||
+                    raw.startsWith('/');
+                  const contentUrl = currentModule.content_url || (raw && isLikelyUrl ? raw : null);
                   
                   if (contentUrl) {
                     return (

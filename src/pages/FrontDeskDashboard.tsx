@@ -65,8 +65,8 @@ const FrontDeskDashboard = () => {
     return <Navigate to="/hub" replace />;
   }
 
-  // Show message if user is not part of any clinic
-  if (userProfile && !userProfile.clinic_id) {
+  // Show message if user is not part of any clinic or was removed
+  if (userProfile && (!userProfile.clinic_id || userProfile.clinic_membership_status === 'removed')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
         <Card className="w-full max-w-md border-blue-200">

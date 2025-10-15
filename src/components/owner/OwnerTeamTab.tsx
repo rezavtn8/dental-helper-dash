@@ -37,6 +37,7 @@ interface TeamMember {
   created_at: string;
   last_login?: string;
   clinic_id?: string;
+  clinic_membership_status?: string;
 }
 
 interface JoinRequest {
@@ -79,10 +80,10 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     try {
       setLoading(true);
 
-      // Fetch team members directly with email included (both active and inactive)
+      // Fetch team members directly with email included (both active and removed)
       const { data: membersData, error: membersError } = await supabase
         .from('users')
-        .select('id, name, email, role, is_active, created_at, last_login')
+        .select('id, name, email, role, is_active, created_at, last_login, clinic_id, clinic_membership_status')
         .eq('clinic_id', clinicId)
         .order('created_at', { ascending: false });
 
@@ -207,10 +208,10 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
   const handleDeactivateMember = async (member: TeamMember) => {
     try {
-      // Remove from clinic but keep account active so they can join another clinic
+      // Mark as removed from clinic but keep clinic_id so they appear in the list
       const { error } = await supabase
         .from('users')
-        .update({ clinic_id: null })
+        .update({ clinic_membership_status: 'removed' })
         .eq('id', member.id);
 
       if (error) throw error;
@@ -228,7 +229,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
       // Add back to clinic
       const { error } = await supabase
         .from('users')
-        .update({ clinic_id: clinicId })
+        .update({ clinic_membership_status: 'active' })
         .eq('id', member.id);
 
       if (error) throw error;
@@ -267,8 +268,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                          member.role.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' && member.clinic_id === clinicId) ||
-                         (statusFilter === 'inactive' && member.clinic_id !== clinicId);
+                         (statusFilter === 'active' && member.clinic_membership_status === 'active') ||
+                         (statusFilter === 'inactive' && member.clinic_membership_status === 'removed');
 
     return matchesSearch && matchesStatus;
   });
@@ -477,8 +478,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={member.clinic_id === clinicId ? 'default' : 'secondary'}>
-                        {member.clinic_id === clinicId ? 'Active' : 'Removed'}
+                      <Badge variant={member.clinic_membership_status === 'active' ? 'default' : 'secondary'}>
+                        {member.clinic_membership_status === 'active' ? 'Active' : 'Removed'}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -497,7 +498,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                     <TableCell className="text-right">
                       {member.role !== 'owner' && (
                         <div className="flex items-center gap-1 justify-end">
-                          {member.clinic_id === clinicId && (
+                          {member.clinic_membership_status === 'active' && (
                             <Button
                               variant="outline"
                               size="sm"
@@ -507,7 +508,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                               <Settings className="w-4 h-4" />
                             </Button>
                           )}
-                          {member.clinic_id === clinicId ? (
+                          {member.clinic_membership_status === 'active' ? (
                             <>
                               <Button
                                 variant="ghost"

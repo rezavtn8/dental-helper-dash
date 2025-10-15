@@ -1737,6 +1737,7 @@ export type Database = {
       users: {
         Row: {
           clinic_id: string | null
+          clinic_membership_status: string | null
           created_at: string
           created_by: string | null
           email: string
@@ -1752,6 +1753,7 @@ export type Database = {
         }
         Insert: {
           clinic_id?: string | null
+          clinic_membership_status?: string | null
           created_at?: string
           created_by?: string | null
           email: string
@@ -1767,6 +1769,7 @@ export type Database = {
         }
         Update: {
           clinic_id?: string | null
+          clinic_membership_status?: string | null
           created_at?: string
           created_by?: string | null
           email?: string

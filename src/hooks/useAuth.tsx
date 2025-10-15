@@ -12,6 +12,7 @@ interface UserProfile {
   roles?: string[]; // Support for multiple roles
   clinic_id: string | null;
   is_active: boolean;
+  clinic_membership_status?: string;
 }
 
 interface AuthContextType {

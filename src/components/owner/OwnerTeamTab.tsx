@@ -207,35 +207,37 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
   const handleDeactivateMember = async (member: TeamMember) => {
     try {
+      // Remove from clinic but keep account active so they can join another clinic
       const { error } = await supabase
         .from('users')
-        .update({ is_active: false })
+        .update({ clinic_id: null })
         .eq('id', member.id);
 
       if (error) throw error;
 
-      toast.success(`${member.name} has been deactivated`);
+      toast.success(`${member.name} has been removed from the clinic. They can now join another clinic.`);
       fetchData();
     } catch (error) {
-      console.error('Error deactivating member:', error);
-      toast.error('Failed to deactivate member');
+      console.error('Error removing member from clinic:', error);
+      toast.error('Failed to remove member from clinic');
     }
   };
 
   const handleReactivateMember = async (member: TeamMember) => {
     try {
+      // Add back to clinic
       const { error } = await supabase
         .from('users')
-        .update({ is_active: true })
+        .update({ clinic_id: clinicId })
         .eq('id', member.id);
 
       if (error) throw error;
 
-      toast.success(`${member.name} has been reactivated`);
+      toast.success(`${member.name} has been added back to the clinic`);
       fetchData();
     } catch (error) {
-      console.error('Error reactivating member:', error);
-      toast.error('Failed to reactivate member');
+      console.error('Error adding member back to clinic:', error);
+      toast.error('Failed to add member back to clinic');
     }
   };
 
@@ -243,17 +245,15 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     if (!removeDialog.member) return;
 
     try {
+      // Permanently delete the user account
       const { error } = await supabase
         .from('users')
-        .update({ 
-          is_active: false,
-          clinic_id: null
-        })
+        .delete()
         .eq('id', removeDialog.member.id);
 
       if (error) throw error;
 
-      toast.success(`${removeDialog.member.name} has been removed from your team`);
+      toast.success(`${removeDialog.member.name} has been permanently removed`);
       setRemoveDialog({ open: false, member: null });
       fetchData();
     } catch (error) {
@@ -267,8 +267,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                          member.role.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' && member.is_active) ||
-                         (statusFilter === 'inactive' && !member.is_active);
+                         (statusFilter === 'active' && member.clinic_id === clinicId) ||
+                         (statusFilter === 'inactive' && member.clinic_id !== clinicId);
 
     return matchesSearch && matchesStatus;
   });
@@ -477,8 +477,8 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={member.is_active ? 'default' : 'secondary'}>
-                        {member.is_active ? 'Active' : 'Inactive'}
+                      <Badge variant={member.clinic_id === clinicId ? 'default' : 'secondary'}>
+                        {member.clinic_id === clinicId ? 'Active' : 'Removed'}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -497,22 +497,24 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                     <TableCell className="text-right">
                       {member.role !== 'owner' && (
                         <div className="flex items-center gap-1 justify-end">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setRoleDialog({ open: true, member })}
-                            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                          >
-                            <Settings className="w-4 h-4" />
-                          </Button>
-                          {member.is_active ? (
+                          {member.clinic_id === clinicId && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setRoleDialog({ open: true, member })}
+                              className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                            >
+                              <Settings className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {member.clinic_id === clinicId ? (
                             <>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeactivateMember(member)}
                                 className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                                title="Deactivate member (they can be reactivated later)"
+                                title="Remove from clinic (they can join another clinic)"
                               >
                                 <UserX className="w-4 h-4" />
                               </Button>
@@ -521,7 +523,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                                 size="sm"
                                 onClick={() => setRemoveDialog({ open: true, member })}
                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                title="Remove member from clinic permanently"
+                                title="Permanently delete account"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -533,7 +535,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
                                 size="sm"
                                 onClick={() => handleReactivateMember(member)}
                                 className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                title="Reactivate member"
+                                title="Add back to clinic"
                               >
                                 <UserCheck className="w-4 h-4" />
                               </Button>
@@ -556,10 +558,13 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Remove Team Member</DialogTitle>
+            <DialogTitle>Permanently Delete Account</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove {removeDialog.member?.name} from your clinic? 
-              This will deactivate their account and remove their clinic access.
+              Are you sure you want to permanently delete {removeDialog.member?.name}'s account? 
+              This action cannot be undone and will remove all their data.
+              <br /><br />
+              <strong>Tip:</strong> If you just want to remove them from your clinic, use the remove button (orange icon) instead. 
+              That way they can join another clinic or be re-added later.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2">
@@ -573,7 +578,7 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
               onClick={handleRemoveMember}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              Remove Member
+              Permanently Delete
             </Button>
           </DialogFooter>
         </DialogContent>

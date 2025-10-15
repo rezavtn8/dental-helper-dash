@@ -65,46 +65,50 @@ const FrontDeskDashboard = () => {
     return <Navigate to="/hub" replace />;
   }
 
-  // Show deactivated status if user is inactive
-  if (userProfile && !userProfile.is_active) {
+  // Show message if user is not part of any clinic
+  if (userProfile && !userProfile.clinic_id) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50">
-        <Card className="w-full max-w-md border-red-200">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <Card className="w-full max-w-md border-blue-200">
           <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <XCircle className="w-8 h-8 text-red-600" />
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Building2 className="w-8 h-8 text-blue-600" />
             </div>
-            <CardTitle className="text-red-800">Account Deactivated</CardTitle>
-            <CardDescription className="text-red-600">
-              Your account has been temporarily deactivated by your clinic administrator.
+            <CardTitle className="text-blue-800">No Clinic Assigned</CardTitle>
+            <CardDescription className="text-blue-600">
+              You're not currently part of any clinic.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-center">
-            <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-              <p className="text-sm text-red-700">
-                <strong>What this means:</strong>
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-700">
+                <strong>What you can do:</strong>
               </p>
-              <ul className="text-sm text-red-600 mt-2 space-y-1 text-left">
-                <li>• You cannot access clinic features</li>
-                <li>• Your tasks and data are preserved</li>
-                <li>• Contact your clinic administrator for reactivation</li>
+              <ul className="text-sm text-blue-600 mt-2 space-y-1 text-left">
+                <li>• Request to join a clinic using a clinic code</li>
+                <li>• Accept an invitation if you've received one</li>
+                <li>• Contact a clinic administrator for access</li>
               </ul>
             </div>
-            <div className="text-sm text-muted-foreground">
-              <p>Need help? Contact your clinic administrator:</p>
-              <p className="font-medium">{clinic?.name || 'Your Clinic'}</p>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => navigate('/join-clinic')}
+                className="flex-1"
+              >
+                Join a Clinic
+              </Button>
+              <Button 
+                onClick={() => {
+                  signOut();
+                  navigate('/');
+                }}
+                variant="outline"
+                className="flex-1"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
             </div>
-            <Button 
-              onClick={() => {
-                signOut();
-                navigate('/');
-              }}
-              variant="outline"
-              className="w-full"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
           </CardContent>
         </Card>
       </div>

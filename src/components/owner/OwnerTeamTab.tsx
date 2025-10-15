@@ -79,12 +79,11 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     try {
       setLoading(true);
 
-      // Fetch team members directly with email included
+      // Fetch team members directly with email included (both active and inactive)
       const { data: membersData, error: membersError } = await supabase
         .from('users')
         .select('id, name, email, role, is_active, created_at, last_login')
         .eq('clinic_id', clinicId)
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (membersError) throw membersError;

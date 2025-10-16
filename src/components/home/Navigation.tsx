@@ -34,7 +34,7 @@ export function Navigation() {
     href: '#features'
   }, {
     name: 'How It Works',
-    href: '#how-it-works'
+    href: '/how-it-works'
   }, {
     name: 'Pricing',
     href: '/pricing'

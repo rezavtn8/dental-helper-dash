@@ -2,29 +2,35 @@ import { useEffect, useRef, useState } from 'react';
 
 export function ThreeRoles() {
   const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set());
+  const [scrollProgress, setScrollProgress] = useState(0);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Observe only the first section to trigger the sequence
-    const firstRef = sectionRefs.current[0];
-    if (!firstRef) return;
-    
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Trigger sequential animations
-            setVisibleSections(new Set([0]));
-            setTimeout(() => setVisibleSections(new Set([0, 1])), 600);
-            setTimeout(() => setVisibleSections(new Set([0, 1, 2])), 1200);
-          }
-        });
-      },
-      { threshold: 0.2, rootMargin: '0px 0px -100px 0px' }
-    );
+    const handleScroll = () => {
+      if (!containerRef.current) return;
+      
+      const container = containerRef.current;
+      const rect = container.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Calculate scroll progress through the section
+      const progress = Math.max(0, Math.min(1, 
+        (windowHeight - rect.top) / (windowHeight + rect.height)
+      ));
+      
+      setScrollProgress(progress);
+      
+      // Trigger section visibility based on scroll position
+      if (progress > 0.15) setVisibleSections(new Set([0]));
+      if (progress > 0.4) setVisibleSections(new Set([0, 1]));
+      if (progress > 0.65) setVisibleSections(new Set([0, 1, 2]));
+    };
 
-    observer.observe(firstRef);
-    return () => observer.disconnect();
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check
+    
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const sections = [
@@ -46,9 +52,21 @@ export function ThreeRoles() {
   ];
 
   return (
-    <section className="relative bg-background py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Vertical connecting line */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent hidden lg:block" />
+    <section 
+      ref={containerRef}
+      className="relative bg-background py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
+    >
+      {/* Vertical connecting line - background */}
+      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
+      
+      {/* Animated progress line */}
+      <div 
+        className="absolute left-1/2 top-0 w-px bg-gradient-to-b from-primary/0 via-primary to-primary/0 hidden lg:block transition-all duration-300"
+        style={{ 
+          height: `${scrollProgress * 100}%`,
+          opacity: scrollProgress > 0.1 ? 1 : 0
+        }}
+      />
       
       <div className="max-w-6xl mx-auto">
         {sections.map((section, index) => {
@@ -61,14 +79,22 @@ export function ThreeRoles() {
               ref={(el) => (sectionRefs.current[index] = el)}
               className="relative mb-32 sm:mb-40 lg:mb-48 last:mb-0"
             >
-              {/* Connecting dot */}
-              <div className="absolute left-1/2 top-8 -translate-x-1/2 hidden lg:block">
+              {/* Connecting dot with glow */}
+              <div className="absolute left-1/2 top-8 -translate-x-1/2 hidden lg:block z-10">
                 <div 
-                  className={`w-3 h-3 rounded-full bg-primary transition-all duration-700 ${
+                  className={`relative w-4 h-4 rounded-full bg-primary transition-all duration-700 ${
                     isVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                   }`}
+                  style={{
+                    boxShadow: isVisible ? '0 0 20px hsl(var(--primary) / 0.6)' : 'none'
+                  }}
                 >
-                  <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-75" />
+                  {isVisible && (
+                    <>
+                      <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-40" />
+                      <div className="absolute inset-0 rounded-full bg-primary/20 blur-md animate-pulse" />
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -76,30 +102,50 @@ export function ThreeRoles() {
               <div
                 className={`relative transition-all duration-1000 ease-out ${
                   isVisible
-                    ? 'opacity-100 translate-x-0 translate-y-0'
-                    : `opacity-0 ${isLeft ? '-translate-x-12' : 'translate-x-12'} translate-y-8`
+                    ? 'opacity-100 translate-x-0 translate-y-0 blur-0'
+                    : `opacity-0 ${isLeft ? '-translate-x-16' : 'translate-x-16'} translate-y-12 blur-sm`
                 } ${
                   isLeft 
                     ? 'lg:pr-[55%] text-left' 
                     : 'lg:pl-[55%] text-left lg:text-right'
                 }`}
+                style={{
+                  transitionDelay: isVisible ? `${index * 200}ms` : '0ms'
+                }}
               >
-                {/* Motion lines */}
-                <div className={`absolute top-8 ${isLeft ? '-right-8 lg:-right-16' : '-left-8 lg:-left-16'} hidden lg:block`}>
+                {/* Enhanced motion lines */}
+                <div className={`absolute top-12 ${isLeft ? '-right-8 lg:-right-20' : '-left-8 lg:-left-20'} hidden lg:block`}>
                   <div 
-                    className={`w-12 h-px bg-gradient-to-r ${
-                      isLeft ? 'from-primary/40 to-transparent' : 'from-transparent to-primary/40'
+                    className={`h-px bg-gradient-to-r ${
+                      isLeft ? 'from-primary/60 via-primary/30 to-transparent' : 'from-transparent via-primary/30 to-primary/60'
                     } transition-all duration-1000 ${
-                      isVisible ? 'scale-x-100' : 'scale-x-0'
+                      isVisible ? 'w-16 opacity-100' : 'w-0 opacity-0'
                     }`}
-                    style={{ transformOrigin: isLeft ? 'left' : 'right' }}
+                    style={{ 
+                      transformOrigin: isLeft ? 'left' : 'right',
+                      transitionDelay: isVisible ? `${index * 200 + 400}ms` : '0ms'
+                    }}
                   />
                 </div>
 
-                <h3 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-foreground tracking-tight">
+                <h3 
+                  className={`text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-foreground tracking-tight transition-all duration-700 ${
+                    isVisible ? 'translate-y-0' : 'translate-y-4'
+                  }`}
+                  style={{
+                    transitionDelay: isVisible ? `${index * 200 + 200}ms` : '0ms'
+                  }}
+                >
                   {section.title}
                 </h3>
-                <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-2xl">
+                <p 
+                  className={`text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-2xl transition-all duration-700 ${
+                    isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                  }`}
+                  style={{
+                    transitionDelay: isVisible ? `${index * 200 + 400}ms` : '0ms'
+                  }}
+                >
                   {section.description}
                 </p>
               </div>

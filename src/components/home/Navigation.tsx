@@ -78,11 +78,11 @@ export function Navigation() {
                 </button>)}
             </div>
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate('/auth')} className="text-sm font-semibold text-slate-600 hover:text-slate-900">
+              <Button variant="ghost" onClick={() => navigate('/signin')} className="text-sm font-semibold text-slate-600 hover:text-slate-900">
                 Sign In
               </Button>
-              <Button onClick={() => navigate('/auth')} variant="gradient" size="default" className="rounded-full h-10 px-6 font-display font-semibold shadow-lg">
-                Start Free Trial
+              <Button onClick={() => navigate('/signup/owner')} variant="gradient" size="default" className="rounded-full h-10 px-6 font-display font-semibold shadow-lg">
+                Get Started
               </Button>
             </div>
           </div>
@@ -101,11 +101,11 @@ export function Navigation() {
                      {item.name}
                    </button>)}
                 <div className="pt-4 space-y-3">
-                  <Button variant="ghost" onClick={() => navigate('/auth')} className="w-full text-base font-semibold text-slate-600">
+                  <Button variant="ghost" onClick={() => navigate('/signin')} className="w-full text-base font-semibold text-slate-600">
                     Sign In
                   </Button>
-                  <Button onClick={() => navigate('/auth')} variant="gradient" size="lg" className="w-full rounded-xl h-12 text-base font-display font-semibold">
-                    Start Free Trial
+                  <Button onClick={() => navigate('/signup/owner')} variant="gradient" size="lg" className="w-full rounded-xl h-12 text-base font-display font-semibold">
+                    Get Started
                   </Button>
                 </div>
               </div>

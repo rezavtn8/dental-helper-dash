@@ -53,12 +53,12 @@ export function HeroSection() {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 justify-center items-center px-4">
           <Button 
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/signup/owner')}
             variant="clean"
             size="lg" 
             className="w-full sm:w-auto text-sm sm:text-base font-semibold px-6 sm:px-8 lg:px-10 py-3 sm:py-4 h-auto"
           >
-            Launch Your Clinic Hub
+            Start Your Clinic
             <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
           <Button 

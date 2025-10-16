@@ -11,6 +11,9 @@ import { ClinicRequiredRoute } from "@/components/routes/ClinicRequiredRoute";
 import { errorLogger } from "@/lib/errorLogger";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
+import SignIn from "./pages/SignIn";
+import SignUpOwner from "./pages/SignUpOwner";
+import SignUpStaff from "./pages/SignUpStaff";
 import TeamHub from './pages/TeamHub';
 import JoinClinic from './pages/JoinClinic';
 import AssistantDashboard from './pages/AssistantDashboard';
@@ -82,7 +85,11 @@ const App = () => (
             <AuthProvider>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/auth" element={<Auth />} />
+                {/* Redirect old /auth to new /signin for backwards compatibility */}
+                <Route path="/auth" element={<Navigate to="/signin" replace />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup/owner" element={<SignUpOwner />} />
+                <Route path="/signup/staff" element={<SignUpStaff />} />
                 <Route path="/hub" element={<ProtectedRoute><TeamHub /></ProtectedRoute>} />
                 <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
                 <Route path="/assistant" element={

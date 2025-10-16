@@ -217,8 +217,9 @@ export function ThreeRoles() {
                 >
                   <div className="relative h-full">
                     {section.floatingCards.map((card, cardIndex) => {
-                      const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.1 + index * 0.25)) / 0.25));
-                      const shouldShow = cardProgress > (cardIndex * 0.2);
+                      const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
+                      // Sequential appearance: each card waits for previous
+                      const shouldShow = cardProgress > (cardIndex * 0.25);
                       
                       // Scattered, organic positioning with varied depths
                       const positions = [
@@ -231,16 +232,16 @@ export function ThreeRoles() {
                       const position = positions[cardIndex] || positions[0];
                       
                       return (
-                        <div
+                          <div
                           key={cardIndex}
-                          className={`absolute transition-all duration-1000 ease-out ${
+                          className={`absolute transition-all duration-700 ease-out ${
                             shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                           }`}
                           style={{
                             top: `${position.top}px`,
                             left: isLeft ? `${position.left}px` : 'auto',
                             right: isLeft ? 'auto' : `${position.left}px`,
-                            transitionDelay: `${card.delay}ms`,
+                            transitionDelay: `${shouldShow ? cardIndex * 300 : 0}ms`,
                             animation: shouldShow ? `float ${3 + cardIndex * 0.5}s ease-in-out infinite` : 'none',
                             animationDelay: `${cardIndex * 0.3}s`,
                             transform: `scale(${position.scale})`,

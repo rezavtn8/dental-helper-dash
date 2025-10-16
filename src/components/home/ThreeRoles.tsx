@@ -221,12 +221,12 @@ export function ThreeRoles() {
                       // Sequential appearance: each card waits for previous
                       const shouldShow = cardProgress > (cardIndex * 0.25);
                       
-                      // Scattered, organic positioning with varied depths
+                      // Scattered positioning with minimal overlap
                       const positions = [
-                        { top: 10, left: 60, scale: 1 },
-                        { top: 130, left: 180, scale: 0.95 },
-                        { top: 240, left: 30, scale: 1.05 },
-                        { top: 330, left: 140, scale: 0.9 },
+                        { top: 20, left: 40, scale: 1 },
+                        { top: 100, left: 280, scale: 0.95 },
+                        { top: 220, left: 10, scale: 1.05 },
+                        { top: 320, left: 250, scale: 0.9 },
                       ];
                       
                       const position = positions[cardIndex] || positions[0];

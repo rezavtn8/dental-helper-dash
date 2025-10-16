@@ -112,7 +112,7 @@ export function ThreeRoles() {
   return (
     <section 
       ref={containerRef}
-      className="relative bg-background py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative bg-background py-10 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       {/* Vertical connecting line - background */}
       <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
@@ -135,7 +135,7 @@ export function ThreeRoles() {
             <div
               key={index}
               ref={(el) => (sectionRefs.current[index] = el)}
-              className="relative mb-32 sm:mb-40 lg:mb-48 last:mb-0"
+              className="relative mb-16 sm:mb-24 lg:mb-32 last:mb-0"
             >
               {/* Connecting dot with glow */}
               <div className="absolute left-1/2 top-8 -translate-x-1/2 hidden lg:block z-10">
@@ -188,7 +188,7 @@ export function ThreeRoles() {
                 </div>
 
                   <h3 
-                    className={`text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-foreground tracking-tight transition-all ${
+                    className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground tracking-tight transition-all ${
                       isVisible ? 'translate-y-0' : 'translate-y-4'
                     }`}
                     style={{
@@ -199,7 +199,7 @@ export function ThreeRoles() {
                     {section.title}
                   </h3>
                   <p 
-                    className={`text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-2xl transition-all ${
+                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl transition-all ${
                       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                     }`}
                     style={{

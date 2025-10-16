@@ -66,9 +66,9 @@ export function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <AnimatedLogo size={28} animated={false} className="text-primary" />
-            <span className="text-xl font-bold text-foreground">DentaLeague</span>
+          <div className="flex items-center gap-2">
+            <AnimatedLogo size={24} animated={false} className="text-primary" />
+            <span className="text-base sm:text-lg font-bold text-foreground">DentaLeague</span>
           </div>
 
           {/* Desktop Navigation */}

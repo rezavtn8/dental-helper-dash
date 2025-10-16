@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { AnimatedLogo } from '@/components/ui/animated-logo';
-import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { AnimatedLogo } from "@/components/ui/animated-logo";
+import { useNavigate } from "react-router-dom";
 
 export function HeroSection() {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ export function HeroSection() {
         <div className="floating-shape"></div>
         <div className="floating-shape"></div>
       </div>
-      
+
       {/* Enhanced animated background pattern */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(217_91%_85%_/_0.15),transparent_60%)]" />
@@ -32,41 +32,44 @@ export function HeroSection() {
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground">DentaLeague</h2>
           </div>
         </div>
-        
+
         {/* Headline */}
         <h1 className="text-[1.75rem] sm:text-[2rem] md:text-[2.4rem] lg:text-[2.8rem] xl:text-[3.2rem] font-semibold mb-4 sm:mb-6 leading-[2rem] sm:leading-[2.4rem] md:leading-[2.8rem] lg:leading-[3.2rem] xl:leading-[3.6rem] bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-4">
-          Onboard. Train. Manage.
+          Onboard. Train. Track.
           <br />
-          <span className="font-handwritten bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">All in One Place.</span>
+          <span className="font-handwritten bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">
+            All in One Place.
+          </span>
         </h1>
-        
+
         {/* Subtext */}
         <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-2xl lg:max-w-3xl mx-auto leading-[1.4rem] sm:leading-[1.5rem] lg:leading-[1.6rem] px-4">
-          Whether it's a new assistant, front desk hire, or floating staff, Dentaleague makes sure they know exactly what to do — from day 1 to day 100.
+          Whether it's a new assistant, front desk hire, or floating staff, Dentaleague makes sure they know exactly
+          what to do — from day 1 to day 100.
         </p>
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4 max-w-2xl mx-auto">
-          <Button 
-            onClick={() => navigate('/signin')}
+          <Button
+            onClick={() => navigate("/signin")}
             variant="clean"
-            size="lg" 
+            size="lg"
             className="w-full sm:w-auto text-base sm:text-lg font-bold px-8 sm:px-10 lg:px-12 py-4 sm:py-5 h-auto"
           >
             Sign In
           </Button>
-          <Button 
-            onClick={() => navigate('/signup/owner')}
+          <Button
+            onClick={() => navigate("/signup/owner")}
             variant="clean-outline"
-            size="lg" 
+            size="lg"
             className="w-full sm:w-auto text-sm sm:text-base font-semibold px-6 sm:px-8 py-3 sm:py-4 h-auto"
           >
             Owner Sign Up
           </Button>
-          <Button 
-            onClick={() => navigate('/signup/staff')}
+          <Button
+            onClick={() => navigate("/signup/staff")}
             variant="clean-outline"
-            size="lg" 
+            size="lg"
             className="w-full sm:w-auto text-sm sm:text-base font-semibold px-6 sm:px-8 py-3 sm:py-4 h-auto"
           >
             Staff Sign Up

@@ -215,21 +215,21 @@ export function ThreeRoles() {
                 <div 
                   className={`relative ${isLeft ? 'lg:order-2' : 'lg:order-1'}`}
                 >
-                  {/* Mobile Layout - Simplified 2-card horizontal scroll */}
-                  <div className="lg:hidden relative py-6">
-                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-                      {section.floatingCards.slice(0, 2).map((card, cardIndex) => {
+                  {/* Mobile Layout - All cards in horizontal scroll */}
+                  <div className="lg:hidden relative py-8">
+                    <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+                      {section.floatingCards.map((card, cardIndex) => {
                         const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                        const shouldShow = cardProgress > (cardIndex * 0.4);
+                        const shouldShow = cardProgress > (cardIndex * 0.2);
                         
                         return (
                           <div
                             key={cardIndex}
-                            className={`flex-shrink-0 w-[280px] snap-center transition-all duration-700 ease-out ${
+                            className={`flex-shrink-0 w-[260px] snap-center transition-all duration-700 ease-out ${
                               shouldShow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
                             }`}
                             style={{
-                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
+                              transitionDelay: `${shouldShow ? cardIndex * 150 : 0}ms`,
                             }}
                           >
                             {renderFloatingCard(card, true)}
@@ -238,8 +238,8 @@ export function ThreeRoles() {
                       })}
                     </div>
                     {/* Scroll indicator dots */}
-                    <div className="flex justify-center gap-1.5 mt-2">
-                      {section.floatingCards.slice(0, 2).map((_, idx) => (
+                    <div className="flex justify-center gap-1.5 mt-3">
+                      {section.floatingCards.map((_, idx) => (
                         <div key={idx} className="w-1.5 h-1.5 rounded-full bg-primary/30" />
                       ))}
                     </div>

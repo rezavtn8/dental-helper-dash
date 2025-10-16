@@ -23,71 +23,43 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   const [progress, setProgress] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const [iframeSrcDoc, setIframeSrcDoc] = useState<string | null>(null);
-
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Get signed URL and convert to blob URL with correct MIME type
   const getContentUrl = async (url: string): Promise<string> => {
     const raw = (url || '').trim();
+    const path = raw.replace(/^\/+/, '').replace(/^learning-content\//, '');
     
     try {
-      // If absolute URL, return directly
+      // If absolute URL, fetch and convert to blob
       if (/^https?:\/\//i.test(raw)) {
-        return raw;
+        const response = await fetch(raw);
+        const html = await response.text();
+        const blob = new Blob([html], { type: 'text/html' });
+        return URL.createObjectURL(blob);
       }
 
-      // Build candidate local paths to try
-      const candidates: string[] = [];
-      const hasExtension = /\.[a-z0-9]+($|\?|#)/i.test(raw);
-      
-      // Add raw path with leading slash
-      if (raw.startsWith('/')) {
-        candidates.push(hasExtension ? raw : `${raw.replace(/\/$/,'')}/index.html`);
-      }
-      
-      // Add variant with /learning-content/ prefix
-      const withPrefix = raw.startsWith('/learning-content/') 
-        ? raw 
-        : `/learning-content/${raw.replace(/^\/+/,'')}`;
-      candidates.push(hasExtension ? withPrefix : `${withPrefix.replace(/\/$/,'')}/index.html`);
-      
-      // Add variant without /learning-content/ prefix
-      const withoutPrefix = raw.replace(/^\/+learning-content\/+/, '/');
-      if (!candidates.includes(withoutPrefix)) {
-        candidates.push(hasExtension ? withoutPrefix : `${withoutPrefix.replace(/\/$/,'')}/index.html`);
-      }
-
-      // Try each local candidate
-      for (const candidate of candidates) {
-        try {
-          const headResponse = await fetch(candidate, { method: 'HEAD', cache: 'no-store' });
-          if (headResponse.ok) {
-            return candidate;
-          }
-        } catch (_) {
-          // Continue to next candidate
-        }
-      }
-
-      // Fall back to Supabase Storage
-      const storagePath = raw.replace(/^\/+/,'').replace(/^learning-content\//,'');
-      const finalPath = hasExtension ? storagePath : `${storagePath.replace(/\/$/,'')}/index.html`;
-      
+      // Get signed URL from Supabase
       const { data: signedData, error } = await supabase.storage
         .from('learning-content')
-        .createSignedUrl(finalPath, 60 * 60);
+        .createSignedUrl(path, 60 * 60);
 
-      if (error || !signedData?.signedUrl) {
-        throw new Error(
-          `Content not found.\nTried local: ${candidates.join(', ')}\nTried storage: learning-content/${finalPath}\nError: ${error?.message || 'No signed URL generated'}`
-        );
+      if (error) {
+        throw new Error(`Failed to generate signed URL: ${error.message}`);
       }
 
-      return signedData.signedUrl;
+      if (!signedData?.signedUrl) {
+        throw new Error(`Could not generate URL for: ${path}`);
+      }
+
+      // Fetch the HTML and create a blob with correct MIME type
+      const response = await fetch(signedData.signedUrl);
+      const html = await response.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      return URL.createObjectURL(blob);
     } catch (err: any) {
-      throw new Error(`Failed to load content: ${err?.message || String(err)}`);
+      throw new Error(`Failed to load content URL: ${err?.message || String(err)}`);
     }
   };
 
@@ -149,27 +121,8 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
       try {
         setLoading(true);
         setError(null);
-        setIframeSrcDoc(null);
         const url = await getContentUrl(contentUrl);
-        // If using Supabase signed URL (may return text/plain), fetch HTML and inject <base> so relative assets resolve
-        if (/^https?:\/\//i.test(url) && url.includes('/storage/v1/object/sign/')) {
-          try {
-            const res = await fetch(url, { cache: 'no-store' });
-            const html = await res.text();
-            const baseHref = url.replace(/[^\/]+(\?.*)?$/, '');
-            const htmlWithBase = (/<base\s/i.test(html))
-              ? html
-              : (/<head[^>]*>/i.test(html)
-                  ? html.replace(/<head[^>]*>/i, (m) => `${m}<base href="${baseHref}">`)
-                  : `<head><base href="${baseHref}"></head>${html}`);
-            setIframeSrcDoc(htmlWithBase);
-            setIframeUrl('about:blank');
-          } catch {
-            setIframeUrl(url);
-          }
-        } else {
-          setIframeUrl(url);
-        }
+        setIframeUrl(url);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load content');
       } finally {
@@ -274,7 +227,6 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
           <iframe
             ref={iframeRef}
             src={iframeUrl}
-            srcDoc={iframeSrcDoc || undefined}
             className="flex-1 w-full border-0"
             title="Course Content"
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"

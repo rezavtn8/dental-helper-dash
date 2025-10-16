@@ -254,36 +254,22 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({ course, onBack }) =>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Module Content */}
-                {(() => {
-                  const raw = (currentModule.content || '').trim();
-                  const isLikelyUrl =
-                    /^https?:\/\//i.test(raw) ||
-                    /^\/?courses\//i.test(raw) ||
-                    /\.(html?|pdf)(\?.*)?(#.*)?$/i.test(raw) ||
-                    raw.startsWith('/');
-                  const contentUrl = currentModule.content_url || (raw && isLikelyUrl ? raw : null);
-                  
-                  if (contentUrl) {
-                    return (
-                      <CourseContentViewer
-                        moduleId={currentModule.id}
-                        courseId={course.id}
-                        contentUrl={contentUrl}
-                        onProgressUpdate={async (percentage) => {
-                          if (percentage >= 100) {
-                            await handleModuleComplete();
-                          }
-                        }}
-                      />
-                    );
-                  }
-                  
-                  if (currentModule.content) {
-                    return <div className="prose prose-sm max-w-none whitespace-pre-wrap">{currentModule.content}</div>;
-                  }
-                  
-                  return <p className="text-muted-foreground">Module content will be displayed here.</p>;
-                })()}
+                {currentModule.content_url ? (
+                  <CourseContentViewer
+                    moduleId={currentModule.id}
+                    courseId={course.id}
+                    contentUrl={currentModule.content_url}
+                    onProgressUpdate={async (percentage) => {
+                      if (percentage >= 100) {
+                        await handleModuleComplete();
+                      }
+                    }}
+                  />
+                ) : currentModule.content ? (
+                  <div className="prose prose-sm max-w-none whitespace-pre-wrap">{currentModule.content}</div>
+                ) : (
+                  <p className="text-muted-foreground">Module content will be displayed here.</p>
+                )}
 
                 {/* Module Resources */}
                 {currentModule.resources && (

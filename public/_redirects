@@ -10,4 +10,3 @@
 # Cache static assets
 /assets/*  /assets/:splat  200  Cache-Control: max-age=31536000
 /favicon.ico  /favicon.ico  200  Cache-Control: max-age=31536000
-/learning-content/*  /learning-content/:splat  200  Cache-Control: max-age=3600

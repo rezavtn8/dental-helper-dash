@@ -21,6 +21,7 @@ export function ThreeRoles() {
   const [animationDuration, setAnimationDuration] = useState(700);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const mobileScrollRefs = useRef<(HTMLDivElement | null)[]>([]);
   const lastScrollTime = useRef<number>(Date.now());
   const lastProgress = useRef<number>(0);
 
@@ -71,6 +72,59 @@ export function ThreeRoles() {
     handleScroll(); // Initial check
     
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Auto-scroll mobile strips horizontally like tiles
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    if (!mq.matches) return;
+
+    const states = mobileScrollRefs.current
+      .map((el, i) => ({ el, dir: i % 2 === 0 ? 1 : -1, pausedUntil: 0 }))
+      .filter((s): s is { el: HTMLDivElement; dir: number; pausedUntil: number } => Boolean(s.el));
+
+    let raf = 0;
+    let last = performance.now();
+    const pxPerMs = 0.03; // ~30px/sec moderate speed
+
+    const step = (now: number) => {
+      const dt = now - last;
+      last = now;
+      states.forEach((s) => {
+        const el = s.el;
+        if (!el) return;
+        if (Date.now() < s.pausedUntil) return;
+        const max = el.scrollWidth - el.clientWidth;
+        if (max <= 0) return;
+        let next = el.scrollLeft + s.dir * (pxPerMs * dt);
+        if (next <= 0) { next = 0; s.dir = 1; }
+        if (next >= max) { next = max; s.dir = -1; }
+        el.scrollLeft = next;
+      });
+      raf = requestAnimationFrame(step);
+    };
+
+    const onInteract = () => {
+      const until = Date.now() + 3000; // pause 3s after interaction
+      states.forEach((s) => { s.pausedUntil = until; });
+    };
+
+    states.forEach((s) => {
+      s.el.addEventListener('touchstart', onInteract as any, { passive: true } as any);
+      s.el.addEventListener('wheel', onInteract as any, { passive: true } as any);
+      s.el.addEventListener('mousedown', onInteract as any);
+    });
+
+    raf = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      states.forEach((s) => {
+        s.el.removeEventListener('touchstart', onInteract as any);
+        s.el.removeEventListener('wheel', onInteract as any);
+        s.el.removeEventListener('mousedown', onInteract as any);
+      });
+    };
   }, []);
 
   const sections = [
@@ -199,12 +253,14 @@ export function ThreeRoles() {
                     {section.title}
                   </h3>
                   <p 
-                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl transition-all ${
+                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl transition-all break-words whitespace-normal overflow-hidden ${
                       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                     }`}
                     style={{
                       transitionDuration: `${animationDuration}ms`,
-                      transitionDelay: isVisible ? `${Math.min(index * 200 + 400, animationDuration * 0.6)}ms` : '0ms'
+                      transitionDelay: isVisible ? `${Math.min(index * 200 + 400, animationDuration * 0.6)}ms` : '0ms',
+                      hyphens: 'auto',
+                      overflowWrap: 'anywhere'
                     }}
                   >
                     {section.description}
@@ -221,7 +277,7 @@ export function ThreeRoles() {
                     <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
                     <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
                     
-                    <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 scroll-smooth">
+                    <div ref={(el) => (mobileScrollRefs.current[index] = el)} className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 scroll-smooth">
                       {section.floatingCards.map((card, cardIndex) => {
                         const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
                         const shouldShow = cardProgress > (cardIndex * 0.2);
@@ -233,8 +289,7 @@ export function ThreeRoles() {
                               shouldShow ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-60 scale-95'
                             }`}
                             style={{
-                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
-                              animation: shouldShow ? `floatMobile ${3 + cardIndex * 0.3}s ease-in-out ${cardIndex * 0.2}s infinite` : 'none',
+                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`
                             }}
                           >
                             {renderFloatingCard(card, true)}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 export function ThreeRoles() {
+  const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set());
   const [scrollProgress, setScrollProgress] = useState(0);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -19,6 +20,14 @@ export function ThreeRoles() {
       ));
       
       setScrollProgress(progress);
+      
+      // Trigger section visibility based on scroll position - more responsive thresholds
+      const newVisible = new Set<number>();
+      if (progress > 0.1) newVisible.add(0);
+      if (progress > 0.35) newVisible.add(1);
+      if (progress > 0.55) newVisible.add(2);
+      
+      setVisibleSections(newVisible);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -26,17 +35,6 @@ export function ThreeRoles() {
     
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Calculate individual section progress based on scroll
-  const getSectionProgress = (index: number) => {
-    const sectionStart = 0.1 + (index * 0.25);
-    const sectionEnd = sectionStart + 0.3;
-    
-    if (scrollProgress < sectionStart) return 0;
-    if (scrollProgress > sectionEnd) return 1;
-    
-    return (scrollProgress - sectionStart) / (sectionEnd - sectionStart);
-  };
 
   const sections = [
     {
@@ -75,16 +73,8 @@ export function ThreeRoles() {
       
       <div className="max-w-6xl mx-auto">
         {sections.map((section, index) => {
-          const progress = getSectionProgress(index);
+          const isVisible = visibleSections.has(index);
           const isLeft = section.align === 'left';
-          
-          // Calculate animation values based on progress
-          const opacity = Math.min(1, progress * 1.5);
-          const translateX = isLeft ? (1 - progress) * -60 : (1 - progress) * 60;
-          const translateY = (1 - progress) * 40;
-          const blur = (1 - progress) * 4;
-          const dotScale = Math.min(1, progress * 2);
-          const lineWidth = Math.min(1, Math.max(0, (progress - 0.3) * 2)) * 64;
           
           return (
             <div
@@ -95,14 +85,14 @@ export function ThreeRoles() {
               {/* Connecting dot with glow */}
               <div className="absolute left-1/2 top-8 -translate-x-1/2 hidden lg:block z-10">
                 <div 
-                  className="relative w-4 h-4 rounded-full bg-primary transition-all duration-150"
+                  className={`relative w-4 h-4 rounded-full bg-primary transition-all duration-700 ${
+                    isVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+                  }`}
                   style={{
-                    transform: `scale(${dotScale})`,
-                    opacity: opacity,
-                    boxShadow: progress > 0.5 ? `0 0 ${20 * progress}px hsl(var(--primary) / ${0.6 * progress})` : 'none'
+                    boxShadow: isVisible ? '0 0 20px hsl(var(--primary) / 0.6)' : 'none'
                   }}
                 >
-                  {progress > 0.7 && (
+                  {isVisible && (
                     <>
                       <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-40" />
                       <div className="absolute inset-0 rounded-full bg-primary/20 blur-md animate-pulse" />
@@ -113,16 +103,17 @@ export function ThreeRoles() {
 
               {/* Content */}
               <div
-                className={`relative ${
+                className={`relative transition-all duration-1000 ease-out ${
+                  isVisible
+                    ? 'opacity-100 translate-x-0 translate-y-0 blur-0'
+                    : `opacity-0 ${isLeft ? '-translate-x-16' : 'translate-x-16'} translate-y-12 blur-sm`
+                } ${
                   isLeft 
                     ? 'lg:pr-[55%] text-left' 
                     : 'lg:pl-[55%] text-left lg:text-right'
                 }`}
                 style={{
-                  opacity,
-                  transform: `translate(${translateX}px, ${translateY}px)`,
-                  filter: `blur(${blur}px)`,
-                  transition: 'all 0.1s linear'
+                  transitionDelay: isVisible ? `${index * 200}ms` : '0ms'
                 }}
               >
                 {/* Enhanced motion lines */}
@@ -130,31 +121,32 @@ export function ThreeRoles() {
                   <div 
                     className={`h-px bg-gradient-to-r ${
                       isLeft ? 'from-primary/60 via-primary/30 to-transparent' : 'from-transparent via-primary/30 to-primary/60'
+                    } transition-all duration-1000 ${
+                      isVisible ? 'w-16 opacity-100' : 'w-0 opacity-0'
                     }`}
                     style={{ 
-                      width: `${lineWidth}px`,
-                      opacity: opacity,
                       transformOrigin: isLeft ? 'left' : 'right',
-                      transition: 'all 0.1s linear'
+                      transitionDelay: isVisible ? `${index * 200 + 400}ms` : '0ms'
                     }}
                   />
                 </div>
 
                 <h3 
-                  className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-foreground tracking-tight"
+                  className={`text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-foreground tracking-tight transition-all duration-700 ${
+                    isVisible ? 'translate-y-0' : 'translate-y-4'
+                  }`}
                   style={{
-                    transform: `translateY(${(1 - progress) * 16}px)`,
-                    transition: 'transform 0.1s linear'
+                    transitionDelay: isVisible ? `${index * 200 + 200}ms` : '0ms'
                   }}
                 >
                   {section.title}
                 </h3>
                 <p 
-                  className="text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-2xl"
+                  className={`text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-2xl transition-all duration-700 ${
+                    isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                  }`}
                   style={{
-                    transform: `translateY(${(1 - progress) * 20}px)`,
-                    opacity: Math.min(1, progress * 1.2),
-                    transition: 'all 0.1s linear'
+                    transitionDelay: isVisible ? `${index * 200 + 400}ms` : '0ms'
                   }}
                 >
                   {section.description}

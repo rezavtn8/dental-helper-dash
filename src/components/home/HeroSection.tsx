@@ -50,7 +50,7 @@ export function HeroSection() {
 
         {/* Headline */}
         <h1 
-          className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold mb-3 sm:mb-5 leading-tight sm:leading-normal bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-2 transition-all duration-1000 ease-out ${
+          className={`text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold mb-3 sm:mb-5 leading-tight sm:leading-normal bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-2 transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
           style={{ transitionDelay: '200ms' }}

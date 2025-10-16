@@ -23,6 +23,8 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
   const [progress, setProgress] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  const [iframeSrcDoc, setIframeSrcDoc] = useState<string | null>(null);
+
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -147,8 +149,27 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
       try {
         setLoading(true);
         setError(null);
+        setIframeSrcDoc(null);
         const url = await getContentUrl(contentUrl);
-        setIframeUrl(url);
+        // If using Supabase signed URL (may return text/plain), fetch HTML and inject <base> so relative assets resolve
+        if (/^https?:\/\//i.test(url) && url.includes('/storage/v1/object/sign/')) {
+          try {
+            const res = await fetch(url, { cache: 'no-store' });
+            const html = await res.text();
+            const baseHref = url.replace(/[^\/]+(\?.*)?$/, '');
+            const htmlWithBase = (/<base\s/i.test(html))
+              ? html
+              : (/<head[^>]*>/i.test(html)
+                  ? html.replace(/<head[^>]*>/i, (m) => `${m}<base href="${baseHref}">`)
+                  : `<head><base href="${baseHref}"></head>${html}`);
+            setIframeSrcDoc(htmlWithBase);
+            setIframeUrl('about:blank');
+          } catch {
+            setIframeUrl(url);
+          }
+        } else {
+          setIframeUrl(url);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load content');
       } finally {
@@ -253,6 +274,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({
           <iframe
             ref={iframeRef}
             src={iframeUrl}
+            srcDoc={iframeSrcDoc || undefined}
             className="flex-1 w-full border-0"
             title="Course Content"
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"

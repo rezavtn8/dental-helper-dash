@@ -42,7 +42,9 @@ export function HeroSection() {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <AnimatedLogo size={70} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px]" />
+          <div className="inline-flex">
+            <AnimatedLogo size={70} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px]" />
+          </div>
           <div className="text-center -mt-1 sm:-mt-2">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground">DentaLeague</h2>
           </div>

@@ -78,11 +78,28 @@ export function Navigation() {
                 </button>)}
             </div>
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate('/signin')} className="text-sm font-semibold text-slate-600 hover:text-slate-900">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/signin')} 
+                className="text-base font-semibold text-slate-700 hover:text-slate-900 px-5 py-2.5"
+              >
                 Sign In
               </Button>
-              <Button onClick={() => navigate('/signup/owner')} variant="gradient" size="default" className="rounded-full h-10 px-6 font-display font-semibold shadow-lg">
-                Sign Up
+              <Button 
+                onClick={() => navigate('/signup/owner')} 
+                variant="default" 
+                size="default" 
+                className="rounded-full h-10 px-5 font-semibold shadow-md"
+              >
+                Owner Sign Up
+              </Button>
+              <Button 
+                onClick={() => navigate('/signup/staff')} 
+                variant="outline" 
+                size="default" 
+                className="rounded-full h-10 px-5 font-semibold"
+              >
+                Staff Sign Up
               </Button>
             </div>
           </div>
@@ -101,11 +118,28 @@ export function Navigation() {
                      {item.name}
                    </button>)}
                 <div className="pt-4 space-y-3">
-                  <Button variant="ghost" onClick={() => navigate('/signin')} className="w-full text-base font-semibold text-slate-600">
+                  <Button 
+                    variant="default" 
+                    onClick={() => navigate('/signin')} 
+                    className="w-full text-base font-semibold h-12"
+                  >
                     Sign In
                   </Button>
-                  <Button onClick={() => navigate('/signup/owner')} variant="gradient" size="lg" className="w-full rounded-xl h-12 text-base font-display font-semibold">
-                    Sign Up
+                  <Button 
+                    onClick={() => navigate('/signup/owner')} 
+                    variant="default" 
+                    size="lg" 
+                    className="w-full rounded-xl h-12 text-base font-semibold"
+                  >
+                    Owner Sign Up
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/signup/staff')} 
+                    variant="outline" 
+                    size="lg" 
+                    className="w-full rounded-xl h-12 text-base font-semibold"
+                  >
+                    Staff Sign Up
                   </Button>
                 </div>
               </div>

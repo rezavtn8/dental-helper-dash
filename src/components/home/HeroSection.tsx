@@ -46,22 +46,30 @@ export function HeroSection() {
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
-          <Button 
-            onClick={() => navigate('/signup/owner')}
-            variant="clean"
-            size="lg" 
-            className="w-full sm:w-auto text-sm sm:text-base font-semibold px-6 sm:px-8 lg:px-10 py-3 sm:py-4 h-auto"
-          >
-            Sign Up
-          </Button>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4 max-w-2xl mx-auto">
           <Button 
             onClick={() => navigate('/signin')}
-            variant="clean-outline"
+            variant="clean"
             size="lg" 
-            className="w-full sm:w-auto text-sm sm:text-base font-medium px-6 sm:px-8 lg:px-10 py-3 sm:py-4 h-auto"
+            className="w-full sm:w-auto text-base sm:text-lg font-bold px-8 sm:px-10 lg:px-12 py-4 sm:py-5 h-auto"
           >
             Sign In
+          </Button>
+          <Button 
+            onClick={() => navigate('/signup/owner')}
+            variant="clean-outline"
+            size="lg" 
+            className="w-full sm:w-auto text-sm sm:text-base font-semibold px-6 sm:px-8 py-3 sm:py-4 h-auto"
+          >
+            Owner Sign Up
+          </Button>
+          <Button 
+            onClick={() => navigate('/signup/staff')}
+            variant="clean-outline"
+            size="lg" 
+            className="w-full sm:w-auto text-sm sm:text-base font-semibold px-6 sm:px-8 py-3 sm:py-4 h-auto"
+          >
+            Staff Sign Up
           </Button>
         </div>
       </div>

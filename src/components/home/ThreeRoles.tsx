@@ -226,7 +226,7 @@ export function ThreeRoles() {
                           <div
                             key={cardIndex}
                             className={`flex-shrink-0 w-[260px] snap-center transition-all duration-700 ease-out ${
-                              shouldShow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                              shouldShow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
                             }`}
                             style={{
                               transitionDelay: `${shouldShow ? cardIndex * 150 : 0}ms`,

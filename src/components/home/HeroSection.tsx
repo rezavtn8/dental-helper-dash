@@ -38,7 +38,7 @@ export function HeroSection() {
       <div className="container mx-auto text-center relative z-10 max-w-6xl">
         {/* Large Animated Logo */}
         <div 
-          className={`mb-6 sm:mb-8 flex flex-col items-center space-y-1 sm:space-y-2 transition-all duration-1000 ease-out ${
+          className={`mb-6 sm:mb-8 flex flex-col items-center gap-1 transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >

@@ -85,7 +85,7 @@ export function ThreeRoles() {
 
     let raf = 0;
     let last = performance.now();
-    const pxPerMs = 0.03; // ~30px/sec moderate speed
+    const pxPerMs = 0.08; // ~80px/sec moderate speed
 
     const step = (now: number) => {
       const dt = now - last;
@@ -253,14 +253,15 @@ export function ThreeRoles() {
                     {section.title}
                   </h3>
                   <p 
-                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl transition-all break-words whitespace-normal overflow-hidden ${
+                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-full px-4 lg:px-0 lg:max-w-xl transition-all break-words whitespace-normal overflow-hidden ${
                       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                     }`}
                     style={{
                       transitionDuration: `${animationDuration}ms`,
                       transitionDelay: isVisible ? `${Math.min(index * 200 + 400, animationDuration * 0.6)}ms` : '0ms',
                       hyphens: 'auto',
-                      overflowWrap: 'anywhere'
+                      overflowWrap: 'anywhere',
+                      wordBreak: 'break-word'
                     }}
                   >
                     {section.description}
@@ -289,7 +290,8 @@ export function ThreeRoles() {
                               shouldShow ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-60 scale-95'
                             }`}
                             style={{
-                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`
+                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
+                              animation: shouldShow ? `floatMobile ${4 + cardIndex * 0.3}s ease-in-out ${cardIndex * 0.3}s infinite` : 'none'
                             }}
                           >
                             {renderFloatingCard(card, true)}

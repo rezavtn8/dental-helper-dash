@@ -166,9 +166,9 @@ export function PricingCTA() {
                     "w-full bg-white text-gray-800 hover:bg-white/95 border-0 font-medium py-2 text-sm transition-all duration-300",
                     "hover:shadow-md"
                   )}
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate('/signup/owner')}
                 >
-                  Start {plan.name} Plan
+                  Get Started
                   <ArrowRight className="w-3 h-3 ml-2" />
                 </Button>
               </div>

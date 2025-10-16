@@ -1,14 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
-import { ArrowRight, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function HeroSection() {
   const navigate = useNavigate();
-  
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-background via-surface to-background py-12 sm:py-16 lg:py-24 xl:py-32 px-4">
@@ -51,24 +46,22 @@ export function HeroSection() {
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 justify-center items-center px-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
           <Button 
             onClick={() => navigate('/signup/owner')}
             variant="clean"
             size="lg" 
             className="w-full sm:w-auto text-sm sm:text-base font-semibold px-6 sm:px-8 lg:px-10 py-3 sm:py-4 h-auto"
           >
-            Start Your Clinic
-            <ArrowRight className="w-4 h-4 ml-1" />
+            Sign Up
           </Button>
           <Button 
-            onClick={() => scrollToSection('features')}
+            onClick={() => navigate('/signin')}
             variant="clean-outline"
             size="lg" 
             className="w-full sm:w-auto text-sm sm:text-base font-medium px-6 sm:px-8 lg:px-10 py-3 sm:py-4 h-auto"
           >
-            Watch Demo
-            <Play className="w-4 h-4 ml-1" />
+            Sign In
           </Button>
         </div>
       </div>

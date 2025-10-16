@@ -82,7 +82,7 @@ export function Navigation() {
                 Sign In
               </Button>
               <Button onClick={() => navigate('/signup/owner')} variant="gradient" size="default" className="rounded-full h-10 px-6 font-display font-semibold shadow-lg">
-                Get Started
+                Sign Up
               </Button>
             </div>
           </div>
@@ -105,7 +105,7 @@ export function Navigation() {
                     Sign In
                   </Button>
                   <Button onClick={() => navigate('/signup/owner')} variant="gradient" size="lg" className="w-full rounded-xl h-12 text-base font-display font-semibold">
-                    Get Started
+                    Sign Up
                   </Button>
                 </div>
               </div>

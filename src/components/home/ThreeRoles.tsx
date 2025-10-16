@@ -5,27 +5,26 @@ export function ThreeRoles() {
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    const observers = sectionRefs.current.map((ref, index) => {
-      if (!ref) return null;
-      
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setVisibleSections((prev) => new Set(prev).add(index));
-            }
-          });
-        },
-        { threshold: 0.2, rootMargin: '0px 0px -100px 0px' }
-      );
+    // Observe only the first section to trigger the sequence
+    const firstRef = sectionRefs.current[0];
+    if (!firstRef) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Trigger sequential animations
+            setVisibleSections(new Set([0]));
+            setTimeout(() => setVisibleSections(new Set([0, 1])), 600);
+            setTimeout(() => setVisibleSections(new Set([0, 1, 2])), 1200);
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -100px 0px' }
+    );
 
-      observer.observe(ref);
-      return observer;
-    });
-
-    return () => {
-      observers.forEach((observer) => observer?.disconnect());
-    };
+    observer.observe(firstRef);
+    return () => observer.disconnect();
   }, []);
 
   const sections = [

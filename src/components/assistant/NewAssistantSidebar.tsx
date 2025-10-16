@@ -85,7 +85,7 @@ export default function NewAssistantSidebar({
             {open && !isCollapsed ? (
               <>
                 <StaticLogo size={60} className="text-primary sm:w-[72px] sm:h-[72px]" />
-                <span className="font-semibold text-sm sm:text-base text-foreground">DentaLeague</span>
+                <span className="text-xl font-bold text-foreground">DentaLeague</span>
               </>
             ) : (
               <div className="mx-auto">

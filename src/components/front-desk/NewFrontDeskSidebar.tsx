@@ -83,7 +83,7 @@ export default function NewFrontDeskSidebar({
             {open && !isCollapsed ? (
               <>
                 <StaticLogo size={72} className="text-primary" />
-                <span className="font-semibold text-base text-foreground">DentaLeague</span>
+                <span className="text-xl font-bold text-foreground">DentaLeague</span>
               </>
             ) : (
               <div className="mx-auto">

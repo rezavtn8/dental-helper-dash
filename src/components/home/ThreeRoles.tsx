@@ -217,7 +217,11 @@ export function ThreeRoles() {
                 >
                   {/* Mobile Layout - All cards in horizontal scroll */}
                   <div className="lg:hidden relative py-8">
-                    <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+                    {/* Gradient fade hints */}
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+                    
+                    <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 scroll-smooth">
                       {section.floatingCards.map((card, cardIndex) => {
                         const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
                         const shouldShow = cardProgress > (cardIndex * 0.2);
@@ -225,11 +229,12 @@ export function ThreeRoles() {
                         return (
                           <div
                             key={cardIndex}
-                            className={`flex-shrink-0 w-[260px] snap-center transition-all duration-700 ease-out ${
-                              shouldShow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
+                            className={`flex-shrink-0 w-[280px] snap-center transition-all duration-700 ease-out will-change-transform ${
+                              shouldShow ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-60 scale-95'
                             }`}
                             style={{
-                              transitionDelay: `${shouldShow ? cardIndex * 150 : 0}ms`,
+                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
+                              animation: shouldShow ? `floatMobile ${3 + cardIndex * 0.3}s ease-in-out ${cardIndex * 0.2}s infinite` : 'none',
                             }}
                           >
                             {renderFloatingCard(card, true)}
@@ -237,10 +242,16 @@ export function ThreeRoles() {
                         );
                       })}
                     </div>
-                    {/* Scroll indicator dots */}
-                    <div className="flex justify-center gap-1.5 mt-3">
+                    
+                    {/* Enhanced scroll indicator dots */}
+                    <div className="flex justify-center gap-2 mt-4">
                       {section.floatingCards.map((_, idx) => (
-                        <div key={idx} className="w-1.5 h-1.5 rounded-full bg-primary/30" />
+                        <div 
+                          key={idx} 
+                          className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                            idx === 0 ? 'bg-primary w-6' : 'bg-primary/30'
+                          }`}
+                        />
                       ))}
                     </div>
                   </div>
@@ -301,6 +312,15 @@ export function ThreeRoles() {
           }
         }
         
+        @keyframes floatMobile {
+          0%, 100% {
+            transform: translateY(0px) scale(1);
+          }
+          50% {
+            transform: translateY(-8px) scale(1.02);
+          }
+        }
+        
         @keyframes pulse-glow {
           0%, 100% {
             box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
@@ -336,6 +356,11 @@ export function ThreeRoles() {
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
+        }
+        
+        .scroll-smooth {
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
         }
       `}</style>
     </section>

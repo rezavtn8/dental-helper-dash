@@ -199,7 +199,7 @@ export function ThreeRoles() {
                     {section.title}
                   </h3>
                   <p 
-                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl break-words overflow-hidden transition-all ${
+                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl transition-all ${
                       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                     }`}
                     style={{
@@ -216,12 +216,12 @@ export function ThreeRoles() {
                   className={`relative ${isLeft ? 'lg:order-2' : 'lg:order-1'}`}
                 >
                   {/* Mobile Layout - All cards in horizontal scroll */}
-                  <div className="lg:hidden relative py-8 overflow-hidden">
+                  <div className="lg:hidden relative py-8">
                     {/* Gradient fade hints */}
                     <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
                     <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
                     
-                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 scroll-smooth">
+                    <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 scroll-smooth">
                       {section.floatingCards.map((card, cardIndex) => {
                         const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
                         const shouldShow = cardProgress > (cardIndex * 0.2);
@@ -229,12 +229,12 @@ export function ThreeRoles() {
                         return (
                           <div
                             key={cardIndex}
-                            className={`flex-shrink-0 w-[260px] snap-center transition-all duration-500 ease-in-out will-change-transform ${
-                              shouldShow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
+                            className={`flex-shrink-0 w-[280px] snap-center transition-all duration-700 ease-out will-change-transform ${
+                              shouldShow ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-60 scale-95'
                             }`}
                             style={{
-                              transitionDelay: `${shouldShow ? cardIndex * 150 : 0}ms`,
-                              animation: shouldShow ? `floatMobile 4s ease-in-out ${cardIndex * 0.3}s infinite` : 'none',
+                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
+                              animation: shouldShow ? `floatMobile ${3 + cardIndex * 0.3}s ease-in-out ${cardIndex * 0.2}s infinite` : 'none',
                             }}
                           >
                             {renderFloatingCard(card, true)}
@@ -314,10 +314,10 @@ export function ThreeRoles() {
         
         @keyframes floatMobile {
           0%, 100% {
-            transform: translateY(0px);
+            transform: translateY(0px) scale(1);
           }
           50% {
-            transform: translateY(-5px);
+            transform: translateY(-8px) scale(1.02);
           }
         }
         

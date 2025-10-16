@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, CheckCircle, CheckSquare, Clock, User, Building2, BarChart3, Users, ClipboardList, Star, ChevronRight, LayoutDashboard, FileText, CalendarDays, MessageSquare, Settings, BookOpen, Award, TrendingUp, ScrollText, Crown, ChevronDown } from 'lucide-react';
 export const AppPreview = () => {
-  return <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-muted/20 via-background to-muted/30 px-4">
-      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+  return <section className="relative overflow-hidden bg-background py-20 sm:py-24 lg:py-32 px-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/3 to-transparent" />
       
       <div className="container mx-auto relative">
         <div className="text-center mb-8 sm:mb-12">
@@ -93,9 +93,9 @@ const OwnerDashboardPreview = () => {
     label: 'Settings',
     icon: Settings
   }];
-  return <div className="bg-gradient-to-br from-background to-muted/50 rounded-lg sm:rounded-xl shadow-xl sm:shadow-2xl border overflow-hidden">
+  return <div className="bg-card rounded-lg sm:rounded-xl shadow-lg border overflow-hidden">
       {/* Browser Header */}
-      <div className="bg-muted/80 px-2 sm:px-4 py-2 sm:py-3 border-b flex items-center gap-2">
+      <div className="bg-muted/50 px-2 sm:px-4 py-2 sm:py-3 border-b flex items-center gap-2">
         <div className="flex gap-1 sm:gap-1.5">
           <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500/70" />
           <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500/70" />
@@ -107,9 +107,9 @@ const OwnerDashboardPreview = () => {
       </div>
 
       {/* App Interface */}
-      <div className="bg-gradient-to-br from-background to-muted/20 min-h-[400px] sm:min-h-[500px] lg:min-h-[700px] flex">
+      <div className="bg-background min-h-[400px] sm:min-h-[500px] lg:min-h-[700px] flex">
         {/* Sidebar Preview */}
-        <div className="w-48 sm:w-60 lg:w-72 bg-card/80 border-r p-2 sm:p-3 lg:p-4 hidden md:block">
+        <div className="w-48 sm:w-60 lg:w-72 bg-card border-r p-2 sm:p-3 lg:p-4 hidden md:block">
           <div className="space-y-6">
             {/* Clinic Header */}
             <div className="flex items-center gap-2 pb-4 border-b">
@@ -199,9 +199,9 @@ const AssistantDashboardPreview = () => {
     label: 'Settings',
     icon: Settings
   }];
-  return <div className="bg-gradient-to-br from-background to-muted/50 rounded-xl shadow-2xl border overflow-hidden">
+  return <div className="bg-card rounded-xl shadow-lg border overflow-hidden">
       {/* Browser Header */}
-      <div className="bg-muted/80 px-4 py-3 border-b flex items-center gap-2">
+      <div className="bg-muted/50 px-4 py-3 border-b flex items-center gap-2">
         <div className="flex gap-1.5">
           <div className="w-3 h-3 rounded-full bg-red-500/70" />
           <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
@@ -213,9 +213,9 @@ const AssistantDashboardPreview = () => {
       </div>
 
       {/* App Interface */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 min-h-[700px] flex">
+      <div className="bg-background min-h-[700px] flex">
         {/* Sidebar Preview */}
-        <div className="w-72 bg-white/95 border-r p-4">
+        <div className="w-72 bg-card border-r p-4">
           <div className="space-y-6">
             {/* Clinic Header */}
             <div className="flex items-center gap-2 pb-4 border-b">

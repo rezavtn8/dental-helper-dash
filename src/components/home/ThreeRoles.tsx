@@ -205,6 +205,16 @@ export function ThreeRoles() {
                       const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.1 + index * 0.25)) / 0.25));
                       const shouldShow = cardProgress > (cardIndex * 0.2);
                       
+                      // Scattered positioning patterns
+                      const positions = [
+                        { top: 20, left: 40, right: 'auto' },
+                        { top: 110, left: 120, right: 'auto' },
+                        { top: 200, left: 20, right: 'auto' },
+                        { top: 300, left: 100, right: 'auto' },
+                      ];
+                      
+                      const position = positions[cardIndex] || positions[0];
+                      
                       return (
                         <div
                           key={cardIndex}
@@ -212,9 +222,9 @@ export function ThreeRoles() {
                             shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                           }`}
                           style={{
-                            top: `${cardIndex * 90 + 20}px`,
-                            left: isLeft ? `${cardIndex * 20}px` : 'auto',
-                            right: isLeft ? 'auto' : `${cardIndex * 20}px`,
+                            top: `${position.top}px`,
+                            left: isLeft ? `${position.left}px` : 'auto',
+                            right: isLeft ? 'auto' : `${position.left}px`,
                             transitionDelay: `${card.delay}ms`,
                             animation: shouldShow ? `float ${3 + cardIndex * 0.5}s ease-in-out infinite` : 'none',
                             animationDelay: `${cardIndex * 0.3}s`

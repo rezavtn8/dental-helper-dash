@@ -213,45 +213,76 @@ export function ThreeRoles() {
 
                 {/* Floating Visual Elements */}
                 <div 
-                  className={`relative h-[400px] hidden lg:block ${isLeft ? 'lg:order-2' : 'lg:order-1'}`}
+                  className={`relative ${isLeft ? 'lg:order-2' : 'lg:order-1'}`}
                 >
-                  <div className="relative h-full">
-                    {section.floatingCards.map((card, cardIndex) => {
-                      const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                      // Sequential appearance: each card waits for previous
-                      const shouldShow = cardProgress > (cardIndex * 0.25);
-                      
-                      // Scattered positioning with minimal overlap
-                      const positions = [
-                        { top: 20, left: 40, scale: 1 },
-                        { top: 100, left: 280, scale: 0.95 },
-                        { top: 220, left: 10, scale: 1.05 },
-                        { top: 320, left: 250, scale: 0.9 },
-                      ];
-                      
-                      const position = positions[cardIndex] || positions[0];
-                      
-                      return (
+                  {/* Mobile Layout - Simplified 2-card horizontal scroll */}
+                  <div className="lg:hidden relative py-6">
+                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+                      {section.floatingCards.slice(0, 2).map((card, cardIndex) => {
+                        const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
+                        const shouldShow = cardProgress > (cardIndex * 0.4);
+                        
+                        return (
                           <div
-                          key={cardIndex}
-                          className={`absolute transition-all duration-700 ease-out ${
-                            shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                          }`}
-                          style={{
-                            top: `${position.top}px`,
-                            left: isLeft ? `${position.left}px` : 'auto',
-                            right: isLeft ? 'auto' : `${position.left}px`,
-                            transitionDelay: `${shouldShow ? cardIndex * 300 : 0}ms`,
-                            animation: shouldShow ? `float ${3 + cardIndex * 0.5}s ease-in-out infinite` : 'none',
-                            animationDelay: `${cardIndex * 0.3}s`,
-                            transform: `scale(${position.scale})`,
-                            zIndex: Math.floor(position.scale * 10)
-                          }}
-                        >
-                          {renderFloatingCard(card)}
-                        </div>
-                      );
-                    })}
+                            key={cardIndex}
+                            className={`flex-shrink-0 w-[280px] snap-center transition-all duration-700 ease-out ${
+                              shouldShow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                            }`}
+                            style={{
+                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
+                            }}
+                          >
+                            {renderFloatingCard(card, true)}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {/* Scroll indicator dots */}
+                    <div className="flex justify-center gap-1.5 mt-2">
+                      {section.floatingCards.slice(0, 2).map((_, idx) => (
+                        <div key={idx} className="w-1.5 h-1.5 rounded-full bg-primary/30" />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout - Original scattered cards */}
+                  <div className="hidden lg:block relative h-[400px]">
+                    <div className="relative h-full">
+                      {section.floatingCards.map((card, cardIndex) => {
+                        const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
+                        const shouldShow = cardProgress > (cardIndex * 0.25);
+                        
+                        const positions = [
+                          { top: 20, left: 40, scale: 1 },
+                          { top: 100, left: 280, scale: 0.95 },
+                          { top: 220, left: 10, scale: 1.05 },
+                          { top: 320, left: 250, scale: 0.9 },
+                        ];
+                        
+                        const position = positions[cardIndex] || positions[0];
+                        
+                        return (
+                          <div
+                            key={cardIndex}
+                            className={`absolute transition-all duration-700 ease-out ${
+                              shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                            }`}
+                            style={{
+                              top: `${position.top}px`,
+                              left: isLeft ? `${position.left}px` : 'auto',
+                              right: isLeft ? 'auto' : `${position.left}px`,
+                              transitionDelay: `${shouldShow ? cardIndex * 300 : 0}ms`,
+                              animation: shouldShow ? `float ${3 + cardIndex * 0.5}s ease-in-out infinite` : 'none',
+                              animationDelay: `${cardIndex * 0.3}s`,
+                              transform: `scale(${position.scale})`,
+                              zIndex: Math.floor(position.scale * 10)
+                            }}
+                          >
+                            {renderFloatingCard(card, false)}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -298,16 +329,26 @@ export function ThreeRoles() {
             transform: scale(1);
           }
         }
+
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
       `}</style>
     </section>
   );
 }
 
-function renderFloatingCard(card: any) {
+function renderFloatingCard(card: any, isMobile: boolean = false) {
+  const cardClasses = isMobile ? "w-full" : "min-w-[260px]";
+  
   // TRAIN SECTION CARDS
   if (card.type === 'course-progress') {
     return (
-      <div className="bg-gradient-to-br from-learning-quiz/10 to-learning-primary/10 border border-learning-quiz/30 rounded-xl p-4 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-shadow min-w-[260px]">
+      <div className={`bg-gradient-to-br from-learning-quiz/10 to-learning-primary/10 border border-learning-quiz/30 rounded-xl p-4 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-shadow ${cardClasses}`}>
         <div className="flex items-center gap-2 mb-3">
           <Target className="w-5 h-5 text-learning-quiz" />
           <span className="text-sm font-semibold text-foreground">{card.title}</span>
@@ -330,7 +371,7 @@ function renderFloatingCard(card: any) {
   
   if (card.type === 'quiz') {
     return (
-      <div className="bg-card border-2 border-learning-primary/40 rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[240px] relative overflow-hidden">
+      <div className={`bg-card border-2 border-learning-primary/40 rounded-xl p-4 backdrop-blur-sm shadow-xl ${isMobile ? 'w-full' : 'min-w-[240px]'} relative overflow-hidden`}>
         <div className="absolute top-0 right-0 w-20 h-20 bg-learning-primary/10 rounded-bl-full" />
         <div className="relative">
           <div className="flex items-center justify-between mb-2">
@@ -352,7 +393,7 @@ function renderFloatingCard(card: any) {
   
   if (card.type === 'certificate') {
     return (
-      <div className="bg-gradient-to-br from-learning-achievement/20 to-amber-500/10 border-2 border-learning-achievement/50 rounded-xl p-4 backdrop-blur-sm shadow-2xl min-w-[220px] relative">
+      <div className={`bg-gradient-to-br from-learning-achievement/20 to-amber-500/10 border-2 border-learning-achievement/50 rounded-xl p-4 backdrop-blur-sm shadow-2xl ${isMobile ? 'w-full' : 'min-w-[220px]'} relative`}>
         <div className="absolute top-2 right-2">
           <div className="w-8 h-8 bg-learning-achievement/20 rounded-full flex items-center justify-center">
             <Trophy className="w-4 h-4 text-learning-achievement" />
@@ -372,7 +413,7 @@ function renderFloatingCard(card: any) {
   
   if (card.type === 'achievement') {
     return (
-      <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-full px-5 py-3 backdrop-blur-sm shadow-xl flex items-center gap-3 min-w-[200px] relative overflow-hidden">
+      <div className={`bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-full px-5 py-3 backdrop-blur-sm shadow-xl flex items-center gap-3 ${isMobile ? 'w-full justify-center' : 'min-w-[200px]'} relative overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse" />
         <div className="relative flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
@@ -397,7 +438,7 @@ function renderFloatingCard(card: any) {
     };
     
     return (
-      <div className={`${priorityColors[card.priority as keyof typeof priorityColors]} border-2 rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[280px]`}>
+      <div className={`${priorityColors[card.priority as keyof typeof priorityColors]} border-2 rounded-xl p-4 backdrop-blur-sm shadow-xl ${isMobile ? 'w-full' : 'min-w-[280px]'}`}>
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
@@ -424,7 +465,7 @@ function renderFloatingCard(card: any) {
     const offset = circumference - (percentage / 100) * circumference;
     
     return (
-      <div className="bg-card border border-border rounded-2xl p-6 backdrop-blur-sm shadow-xl">
+      <div className={`bg-card border border-border rounded-2xl p-6 backdrop-blur-sm shadow-xl ${isMobile ? 'w-full' : ''}`}>
         <div className="flex flex-col items-center">
           <div className="relative w-28 h-28">
             <svg className="transform -rotate-90 w-28 h-28">
@@ -463,7 +504,7 @@ function renderFloatingCard(card: any) {
   
   if (card.type === 'template') {
     return (
-      <div className="bg-card border border-primary/30 rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[240px] hover:border-primary/50 transition-colors">
+      <div className={`bg-card border border-primary/30 rounded-xl p-4 backdrop-blur-sm shadow-xl ${isMobile ? 'w-full' : 'min-w-[240px]'} hover:border-primary/50 transition-colors`}>
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
             <Calendar className="w-5 h-5 text-primary" />
@@ -482,7 +523,7 @@ function renderFloatingCard(card: any) {
   
   if (card.type === 'assignment') {
     return (
-      <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30 rounded-full px-5 py-3 backdrop-blur-sm shadow-lg flex items-center gap-3 min-w-[180px]">
+      <div className={`bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30 rounded-full px-5 py-3 backdrop-blur-sm shadow-lg flex items-center gap-3 ${isMobile ? 'w-full justify-center' : 'min-w-[180px]'}`}>
         <div className="flex -space-x-2">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 border-2 border-background flex items-center justify-center">
             <Users className="w-4 h-4 text-white" />
@@ -499,7 +540,7 @@ function renderFloatingCard(card: any) {
   // ANALYZE SECTION CARDS
   if (card.type === 'completion-rate') {
     return (
-      <div className="bg-gradient-to-br from-learning-success/10 to-emerald-500/10 border-2 border-learning-success/40 rounded-2xl p-5 backdrop-blur-sm shadow-2xl min-w-[220px]">
+      <div className={`bg-gradient-to-br from-learning-success/10 to-emerald-500/10 border-2 border-learning-success/40 rounded-2xl p-5 backdrop-blur-sm shadow-2xl ${isMobile ? 'w-full' : 'min-w-[220px]'}`}>
         <div className="flex items-start justify-between mb-3">
           <div>
             <p className="text-xs font-semibold text-learning-success mb-1">{card.label}</p>
@@ -520,7 +561,7 @@ function renderFloatingCard(card: any) {
   
   if (card.type === 'performance-chart') {
     return (
-      <div className="bg-card border border-border rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[200px]">
+      <div className={`bg-card border border-border rounded-xl p-4 backdrop-blur-sm shadow-xl ${isMobile ? 'w-full' : 'min-w-[200px]'}`}>
         <div className="flex items-end justify-between gap-2 h-20 mb-2">
           {card.data.map((value: number, i: number) => (
             <div 
@@ -543,7 +584,7 @@ function renderFloatingCard(card: any) {
   
   if (card.type === 'top-performer') {
     return (
-      <div className="bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 border-2 border-amber-500/40 rounded-2xl p-4 backdrop-blur-sm shadow-2xl min-w-[220px] relative overflow-hidden">
+      <div className={`bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 border-2 border-amber-500/40 rounded-2xl p-4 backdrop-blur-sm shadow-2xl ${isMobile ? 'w-full' : 'min-w-[220px]'} relative overflow-hidden`}>
         <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-bl-full" />
         <div className="absolute top-2 right-2">
           <Star className="w-6 h-6 text-amber-500 fill-amber-500 animate-pulse" />
@@ -567,7 +608,7 @@ function renderFloatingCard(card: any) {
   
   if (card.type === 'live-metrics') {
     return (
-      <div className="bg-card border border-border rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[220px]">
+      <div className={`bg-card border border-border rounded-xl p-4 backdrop-blur-sm shadow-xl ${isMobile ? 'w-full' : 'min-w-[220px]'}`}>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Activity className="w-5 h-5 text-primary animate-pulse" />

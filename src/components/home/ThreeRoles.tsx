@@ -58,11 +58,11 @@ export function ThreeRoles() {
       lastScrollTime.current = now;
       lastProgress.current = progress;
       
-      // Trigger section visibility based on scroll position - more responsive thresholds
+      // Trigger section visibility based on scroll position - adjusted for compact layout
       const newVisible = new Set<number>();
-      if (progress > 0.1) newVisible.add(0);
-      if (progress > 0.35) newVisible.add(1);
-      if (progress > 0.55) newVisible.add(2);
+      if (progress > 0.05) newVisible.add(0);
+      if (progress > 0.25) newVisible.add(1);
+      if (progress > 0.45) newVisible.add(2);
       
       setVisibleSections(newVisible);
     };

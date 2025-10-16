@@ -3,11 +3,9 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 
-// Import new components
 import { Navigation } from '@/components/home/Navigation';
 import { HeroSection } from '@/components/home/HeroSection';
 import { ThreeRoles } from '@/components/home/ThreeRoles';
-import { PricingCTA } from '@/components/home/PricingCTA';
 import { AppPreview } from '@/components/home/AppPreview';
 import { Footer } from '@/components/home/Footer';
 export default function Home() {
@@ -62,12 +60,6 @@ export default function Home() {
       <section id="how-it-works">
         <AppPreview />
       </section>
-
-      {/* Pricing CTA Section */}
-      <section id="pricing">
-        <PricingCTA />
-      </section>
-
 
       {/* Footer */}
       <Footer />

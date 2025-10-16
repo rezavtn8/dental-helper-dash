@@ -36,11 +36,8 @@ export function Navigation() {
     name: 'How It Works',
     href: '#how-it-works'
   }, {
-    name: 'Testimonials',
-    href: '#testimonials'
-  }, {
     name: 'Pricing',
-    href: '#pricing'
+    href: '/pricing'
   }];
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -49,6 +46,15 @@ export function Navigation() {
         behavior: 'smooth',
         block: 'start'
       });
+      setIsMobileMenuOpen(false);
+    }
+  };
+  
+  const handleNavClick = (href: string) => {
+    if (href.startsWith('#')) {
+      scrollToSection(href.slice(1));
+    } else {
+      navigate(href);
       setIsMobileMenuOpen(false);
     }
   };
@@ -73,7 +79,7 @@ export function Navigation() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center">
             <div className="flex items-center bg-slate-50/80 backdrop-blur-sm rounded-full p-1.5 mr-6 border border-slate-200/60">
-              {navItems.map(item => <button key={item.name} onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))} className={`relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 whitespace-nowrap ${isActive(item.href) ? 'bg-white text-slate-900 shadow-lg shadow-slate-200/50 border border-slate-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'}`}>
+              {navItems.map(item => <button key={item.name} onClick={() => handleNavClick(item.href)} className={`relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 whitespace-nowrap ${isActive(item.href) ? 'bg-white text-slate-900 shadow-lg shadow-slate-200/50 border border-slate-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'}`}>
                   {item.name}
                 </button>)}
             </div>
@@ -114,7 +120,7 @@ export function Navigation() {
         {isMobileMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-xl rounded-b-2xl">
             <div className="container mx-auto py-6">
               <div className="space-y-3">
-                 {navItems.map(item => <button key={item.name} onClick={() => item.href.startsWith('#') && scrollToSection(item.href.slice(1))} className={`block w-full text-left py-3 px-4 text-base font-semibold transition-colors duration-200 rounded-xl ${isActive(item.href) ? 'bg-blue-50 text-blue-700 border border-blue-200/60' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-50'}`}>
+                 {navItems.map(item => <button key={item.name} onClick={() => handleNavClick(item.href)} className={`block w-full text-left py-3 px-4 text-base font-semibold transition-colors duration-200 rounded-xl ${isActive(item.href) ? 'bg-blue-50 text-blue-700 border border-blue-200/60' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-50'}`}>
                      {item.name}
                    </button>)}
                 <div className="pt-4 space-y-3">

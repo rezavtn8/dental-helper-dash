@@ -21,10 +21,13 @@ export function ThreeRoles() {
       
       setScrollProgress(progress);
       
-      // Trigger section visibility based on scroll position
-      if (progress > 0.15) setVisibleSections(new Set([0]));
-      if (progress > 0.4) setVisibleSections(new Set([0, 1]));
-      if (progress > 0.65) setVisibleSections(new Set([0, 1, 2]));
+      // Trigger section visibility based on scroll position - more responsive thresholds
+      const newVisible = new Set<number>();
+      if (progress > 0.1) newVisible.add(0);
+      if (progress > 0.35) newVisible.add(1);
+      if (progress > 0.55) newVisible.add(2);
+      
+      setVisibleSections(newVisible);
     };
 
     window.addEventListener('scroll', handleScroll);

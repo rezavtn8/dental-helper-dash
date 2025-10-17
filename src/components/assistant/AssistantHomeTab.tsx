@@ -33,11 +33,8 @@ export default function AssistantHomeTab({ onViewAll }: AssistantHomeTabProps) {
             <p className="text-muted-foreground mb-4">
               To see your tasks, patient counts, and clinic information, you need to join a clinic first.
             </p>
-            <Button onClick={() => navigate('/join')} className="mb-2">
+            <Button onClick={() => navigate('/join-clinic')}>
               Join a Clinic
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/hub')}>
-              Go to Hub
             </Button>
           </CardContent>
         </Card>

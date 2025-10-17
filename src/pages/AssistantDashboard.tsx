@@ -56,56 +56,6 @@ const AssistantDashboard = () => {
     );
   }
 
-  // Show message if user is not part of any clinic or was removed
-  if (userProfile && (!userProfile.clinic_id || userProfile.clinic_membership_status === 'removed')) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-        <Card className="w-full max-w-md border-blue-200">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Building2 className="w-8 h-8 text-blue-600" />
-            </div>
-            <CardTitle className="text-blue-800">No Clinic Assigned</CardTitle>
-            <CardDescription className="text-blue-600">
-              You're not currently part of any clinic.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-center">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-700">
-                <strong>What you can do:</strong>
-              </p>
-              <ul className="text-sm text-blue-600 mt-2 space-y-1 text-left">
-                <li>• Request to join a clinic using a clinic code</li>
-                <li>• Accept an invitation if you've received one</li>
-                <li>• Contact a clinic administrator for access</li>
-              </ul>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                onClick={() => navigate('/join-clinic')}
-                className="flex-1"
-              >
-                Join a Clinic
-              </Button>
-              <Button 
-                onClick={() => {
-                  signOut();
-                  navigate('/');
-                }}
-                variant="outline"
-                className="flex-1"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
     return (
       <SidebarProvider defaultOpen={true}>
         <div className="min-h-screen w-full flex bg-gradient-to-br from-background via-background to-muted/20">

@@ -38,11 +38,8 @@ export default function MyStatsTab({ tasks }: MyStatsTabProps) {
             <p className="text-muted-foreground mb-4">
               To view your performance statistics and achievements, you need to join a clinic first.
             </p>
-            <Button onClick={() => navigate('/join')} className="mb-2">
+            <Button onClick={() => navigate('/join-clinic')}>
               Join a Clinic
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/hub')}>
-              Go to Hub
             </Button>
           </CardContent>
         </Card>

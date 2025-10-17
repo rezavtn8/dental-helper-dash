@@ -66,7 +66,7 @@ export default function AssistantTasksTab() {
             <p className="text-muted-foreground mb-4">
               You need to join a clinic to access tasks.
             </p>
-            <Button onClick={() => navigate('/join')} className="mb-2">
+            <Button onClick={() => navigate('/join-clinic')}>
               Join a Clinic
             </Button>
           </CardContent>

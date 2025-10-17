@@ -15,6 +15,7 @@ import SignIn from "./pages/SignIn";
 import SignUpOwner from "./pages/SignUpOwner";
 import SignUpStaff from "./pages/SignUpStaff";
 import Pricing from "./pages/Pricing";
+import HowItWorks from "./pages/HowItWorks";
 import TeamHub from './pages/TeamHub';
 import JoinClinic from './pages/JoinClinic';
 import AssistantDashboard from './pages/AssistantDashboard';
@@ -92,6 +93,7 @@ const App = () => (
                 <Route path="/signup/owner" element={<SignUpOwner />} />
                 <Route path="/signup/staff" element={<SignUpStaff />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/hub" element={<ProtectedRoute><TeamHub /></ProtectedRoute>} />
                 <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
                 <Route path="/assistant" element={

@@ -238,7 +238,7 @@ export function ThreeRoles() {
                       return (
                         <div
                           key={cardIndex}
-                          className={`absolute transition-all duration-500 ease-out w-[240px] ${
+                          className={`absolute transition-all duration-700 ease-out w-[240px] ${
                             shouldShow ? 'opacity-100' : 'opacity-0 translate-y-12'
                           }`}
                           style={{
@@ -246,10 +246,11 @@ export function ThreeRoles() {
                             left: `${position.left}px`,
                             transitionDelay: `${shouldShow ? cardIndex * 150 : 0}ms`,
                             animation: shouldShow 
-                              ? `floatMobile ${5 + cardIndex * 0.5}s ease-in-out ${cardIndex * 0.4}s infinite, 
-                                 slideHorizontal ${8 + cardIndex * 0.7}s ease-in-out ${cardIndex * 0.5}s infinite` 
+                              ? `floatMobile ${4 + cardIndex * 0.3}s ease-in-out ${cardIndex * 0.2}s infinite, 
+                                 slideHorizontal ${6 + cardIndex * 0.5}s ease-in-out ${cardIndex * 0.3}s infinite,
+                                 tiltCard ${7 + cardIndex * 0.4}s ease-in-out ${cardIndex * 0.4}s infinite` 
                               : 'none',
-                            transform: `scale(${position.scale})`,
+                            transformOrigin: 'center center',
                             zIndex: Math.floor(position.scale * 10)
                           }}
                         >
@@ -320,7 +321,7 @@ export function ThreeRoles() {
             transform: translateY(0px);
           }
           50% {
-            transform: translateY(-8px);
+            transform: translateY(-15px);
           }
         }
         
@@ -328,8 +329,26 @@ export function ThreeRoles() {
           0%, 100% {
             transform: translateX(0px);
           }
+          25% {
+            transform: translateX(25px);
+          }
+          75% {
+            transform: translateX(-15px);
+          }
+        }
+        
+        @keyframes tiltCard {
+          0%, 100% {
+            transform: rotate(0deg) scale(1);
+          }
+          25% {
+            transform: rotate(2deg) scale(1.02);
+          }
           50% {
-            transform: translateX(15px);
+            transform: rotate(0deg) scale(1);
+          }
+          75% {
+            transform: rotate(-2deg) scale(0.98);
           }
         }
         

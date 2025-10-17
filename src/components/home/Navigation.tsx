@@ -34,10 +34,10 @@ export function Navigation() {
     href: '#features'
   }, {
     name: 'For Owners',
-    href: '#for-owners'
+    href: '/for-owners'
   }, {
     name: 'For Staff',
-    href: '#for-staff'
+    href: '/for-staff'
   }, {
     name: 'Pricing',
     href: '/pricing'

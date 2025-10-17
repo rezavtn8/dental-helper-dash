@@ -8,7 +8,7 @@ export default function ForOwners() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative py-20 sm:py-28 px-4 overflow-hidden">
+      <section className="relative py-12 sm:py-16 px-4 overflow-hidden">
         {/* Floating shapes background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-float" />
@@ -43,7 +43,7 @@ export default function ForOwners() {
       </section>
 
       {/* Key Challenges Section */}
-      <section className="py-20 px-4 bg-muted/30">
+      <section className="py-12 px-4 bg-muted/30">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             
@@ -240,7 +240,7 @@ export default function ForOwners() {
       </section>
 
       {/* Solution Benefits Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             
@@ -312,7 +312,7 @@ export default function ForOwners() {
       </section>
 
       {/* Proven Results Section */}
-      <section className="py-20 px-4 bg-muted/30">
+      <section className="py-12 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             
@@ -373,7 +373,7 @@ export default function ForOwners() {
       </section>
 
       {/* Data-Driven CTA */}
-      <section className="py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+      <section className="py-12 px-4 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="container mx-auto max-w-4xl text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <CheckCircle className="w-4 h-4 text-primary" />

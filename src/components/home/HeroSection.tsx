@@ -42,9 +42,7 @@ export function HeroSection() {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <div className="inline-flex">
-            <AnimatedLogo size={70} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px]" />
-          </div>
+          <AnimatedLogo size={70} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px] mx-auto" />
           <div className="text-center -mt-1 sm:-mt-2">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground">DentaLeague</h2>
           </div>
@@ -52,7 +50,7 @@ export function HeroSection() {
 
         {/* Headline */}
         <h1 
-          className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold mb-3 sm:mb-5 leading-tight sm:leading-normal bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-2 transition-all duration-1000 ease-out ${
+          className={`text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold mb-3 sm:mb-5 leading-tight sm:leading-normal bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-2 transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
           style={{ transitionDelay: '200ms' }}

@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, ArrowRight, Star, Users, TrendingUp, Zap, ArrowLeft } from 'lucide-react';
+import { Navigation } from '@/components/home/Navigation';
+import { Check, ArrowRight, Star, Users, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { AnimatedLogo } from '@/components/ui/animated-logo';
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -39,26 +39,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Header */}
-      <nav className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <AnimatedLogo size={24} animated={false} className="text-primary" />
-              <span className="text-lg font-bold text-foreground">
-                DentaLeague
-              </span>
-            </div>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="text-sm font-medium"
-            >
-              <ArrowLeft size={16} className="mr-2" />
-              Back to Home
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Pricing Content */}
       <section className="container mx-auto py-12 sm:py-16 lg:py-24 px-4">

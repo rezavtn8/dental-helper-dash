@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { AnimatedLogo } from '@/components/ui/animated-logo';
+import { Navigation } from '@/components/home/Navigation';
 import { 
-  ArrowLeft, 
   ArrowRight,
   CheckSquare, 
   GraduationCap, 
@@ -63,27 +62,7 @@ export default function ForStaff() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
-            <button 
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-            >
-              <AnimatedLogo size={24} animated={false} className="text-primary" />
-              <span className="text-lg font-bold text-foreground">DentaLeague</span>
-            </button>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="text-sm font-medium"
-            >
-              <ArrowLeft size={16} className="mr-2" />
-              Back to Home
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <section className="relative py-16 sm:py-24 lg:py-32 px-4 overflow-hidden">

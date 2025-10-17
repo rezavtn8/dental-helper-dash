@@ -3,12 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Navigation } from '@/components/home/Navigation';
 import { 
   ArrowRight,
-  BarChart3, 
   Users, 
-  Calendar,
-  ClipboardCheck,
   TrendingUp,
-  FileText,
   CheckCircle,
   AlertCircle,
   DollarSign,
@@ -22,45 +18,6 @@ import {
 
 export default function ForOwners() {
   const navigate = useNavigate();
-
-  const features = [
-    {
-      icon: Users,
-      title: "Team Management",
-      description: "Manage team members, assign roles, and track performance",
-      stat: "25-30% annual turnover without proper systems"
-    },
-    {
-      icon: ClipboardCheck,
-      title: "Task Templates",
-      description: "Pre-built workflows for daily, weekly, and monthly operations",
-      stat: "40% of tasks forgotten without tracking"
-    },
-    {
-      icon: BarChart3,
-      title: "Analytics",
-      description: "Real-time insights into team productivity and compliance",
-      stat: "20-30% efficiency gain with structured systems"
-    },
-    {
-      icon: Calendar,
-      title: "Scheduling",
-      description: "Automated task assignment and deadline tracking",
-      stat: "#1 owner complaint: tasks not followed through"
-    },
-    {
-      icon: FileText,
-      title: "Compliance Reports",
-      description: "Audit-ready documentation at your fingertips",
-      stat: "40% error reduction with proper training"
-    },
-    {
-      icon: TrendingUp,
-      title: "Training Tracking",
-      description: "Monitor certifications and skill development",
-      stat: "50% faster proficiency with structured programs"
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -167,41 +124,6 @@ export default function ForOwners() {
                     <p className="text-xs text-muted-foreground">
                       Source: {stat.source}
                     </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => {
-              const IconComponent = feature.icon;
-              return (
-                <div
-                  key={index}
-                  className="group relative bg-card border border-border rounded-2xl p-8 transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity" />
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <IconComponent className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                      {feature.description}
-                    </p>
-                    <div className="pt-3 border-t border-border/50">
-                      <p className="text-xs text-primary font-medium">
-                        {feature.stat}
-                      </p>
-                    </div>
                   </div>
                 </div>
               );

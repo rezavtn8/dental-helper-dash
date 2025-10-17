@@ -42,15 +42,15 @@ export function HeroSection() {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <AnimatedLogo size={70} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px] mx-auto" />
+          <AnimatedLogo size={80} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px] mx-auto" />
           <div className="text-center -mt-1 sm:-mt-2">
-            <h2 className="text-3xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground break-words px-4">DentaLeague</h2>
+            <h2 className="text-4xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground break-words px-4">DentaLeague</h2>
           </div>
         </div>
 
         {/* Headline */}
         <h1 
-          className={`text-xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold mb-3 sm:mb-5 leading-tight sm:leading-normal bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-4 max-w-5xl mx-auto transition-all duration-1000 ease-out ${
+          className={`text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold mb-3 sm:mb-5 leading-tight sm:leading-normal bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-4 max-w-5xl mx-auto transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
           style={{ transitionDelay: '200ms' }}
@@ -64,7 +64,7 @@ export function HeroSection() {
 
         {/* Subtext */}
         <p 
-          className={`text-sm sm:text-sm lg:text-base text-muted-foreground mb-4 sm:mb-6 max-w-lg lg:max-w-2xl mx-auto leading-relaxed px-4 transition-all duration-1000 ease-out ${
+          className={`text-base sm:text-sm lg:text-base text-muted-foreground mb-4 sm:mb-6 max-w-lg lg:max-w-2xl mx-auto leading-relaxed px-4 transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
           style={{ transitionDelay: '400ms' }}

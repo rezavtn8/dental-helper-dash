@@ -223,7 +223,7 @@ export function ThreeRoles() {
                   <div className="lg:hidden relative h-[500px] py-6">
                     {section.floatingCards.map((card, cardIndex) => {
                       const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                      const shouldShow = cardProgress > (cardIndex * 0.15);
+                      const shouldShow = cardProgress > (cardIndex * 0.25);
                       
                       // Mobile-optimized scattered positions
                       const mobilePositions = [
@@ -239,12 +239,12 @@ export function ThreeRoles() {
                         <div
                           key={cardIndex}
                           className={`absolute transition-all duration-700 ease-out w-[240px] ${
-                            shouldShow ? 'opacity-100' : 'opacity-0 translate-y-12'
+                            shouldShow ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-90'
                           }`}
                           style={{
                             top: `${position.top}px`,
                             left: `${position.left}px`,
-                            transitionDelay: `${shouldShow ? cardIndex * 150 : 0}ms`,
+                            transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
                             animation: shouldShow 
                               ? `floatMobile ${4 + cardIndex * 0.3}s ease-in-out ${cardIndex * 0.2}s infinite, 
                                  slideHorizontal ${6 + cardIndex * 0.5}s ease-in-out ${cardIndex * 0.3}s infinite,

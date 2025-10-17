@@ -182,18 +182,18 @@ export default function OwnerTaskCalendarTab({ clinicId }: OwnerTaskCalendarTabP
           <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
             {/* View Mode Toggle */}
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-semibold text-foreground uppercase tracking-wide">View Mode</label>
-              <div className="flex gap-2 p-2 bg-muted rounded-xl border-2 border-border">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">View Mode</label>
+              <div className="flex gap-2 p-2 bg-muted/50 rounded-xl border border-border/50">
                 {(['daily', 'weekly', 'monthly'] as ViewMode[]).map((mode) => (
                   <Button
                     key={mode}
                     variant={viewMode === mode ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode(mode)}
-                    className={`capitalize px-4 py-2 rounded-lg transition-all duration-200 font-semibold ${
+                    className={`capitalize px-4 py-2 rounded-lg transition-all duration-200 ${
                       viewMode === mode 
-                        ? 'bg-primary text-primary-foreground shadow-lg border-2 border-primary' 
-                        : 'hover:bg-muted-foreground/20 text-foreground'
+                        ? 'bg-primary text-primary-foreground shadow-md font-semibold' 
+                        : 'hover:bg-background/50'
                     }`}
                   >
                     {mode === 'daily' && '📅'}
@@ -207,19 +207,19 @@ export default function OwnerTaskCalendarTab({ clinicId }: OwnerTaskCalendarTabP
 
             {/* Status Filter */}
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-semibold text-foreground uppercase tracking-wide">Filter by Status</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Filter by Status</label>
               <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
-                <SelectTrigger className="min-w-[160px] h-11 bg-background border-2 border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 font-medium">
+                <SelectTrigger className="min-w-[160px] h-11 bg-background/80 border-border/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
                   <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-primary" />
                     <SelectValue />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-2 border-border bg-popover shadow-xl z-50">
-                  <SelectItem value="all" className="rounded-lg font-medium">🔍 All Tasks</SelectItem>
-                  <SelectItem value="pending" className="rounded-lg font-medium">📋 To Do</SelectItem>
-                  <SelectItem value="in-progress" className="rounded-lg font-medium">⚡ In Progress</SelectItem>
-                  <SelectItem value="completed" className="rounded-lg font-medium">✅ Completed</SelectItem>
+                <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                  <SelectItem value="all" className="rounded-lg">🔍 All Tasks</SelectItem>
+                  <SelectItem value="pending" className="rounded-lg">📋 To Do</SelectItem>
+                  <SelectItem value="in-progress" className="rounded-lg">⚡ In Progress</SelectItem>
+                  <SelectItem value="completed" className="rounded-lg">✅ Completed</SelectItem>
                 </SelectContent>
               </Select>
             </div>

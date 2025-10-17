@@ -134,43 +134,41 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-background border-2">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Create New Task</DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogTitle>Create New Task</DialogTitle>
+          <DialogDescription>
             Add a new task for your team
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={createTask} className="space-y-3">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-foreground font-medium">Task Title</Label>
+            <Label htmlFor="title">Task Title</Label>
             <Input
               id="title"
               value={newTask.title}
               onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
               required
-              className="bg-background border-input"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-foreground font-medium">Description</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={newTask.description}
               onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-              className="bg-background border-input"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-foreground font-medium">Target Role</Label>
+              <Label>Target Role</Label>
               <Select value={newTask.target_role} onValueChange={(value: any) => setNewTask({ ...newTask, target_role: value })}>
-                <SelectTrigger className="bg-background border-input">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-2 z-50">
+                <SelectContent>
                   <SelectItem value="assistant">Assistant</SelectItem>
                   <SelectItem value="front_desk">Front Desk</SelectItem>
                   <SelectItem value="shared">Shared (Both)</SelectItem>
@@ -179,12 +177,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-foreground font-medium">Priority</Label>
+              <Label>Priority</Label>
               <Select value={newTask.priority} onValueChange={(value: any) => setNewTask({ ...newTask, priority: value })}>
-                <SelectTrigger className="bg-background border-input">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-2 z-50">
+                <SelectContent>
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
@@ -194,12 +192,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground font-medium">Due Time</Label>
+            <Label>Due Time</Label>
             <Select value={newTask['due-type']} onValueChange={(value) => setNewTask({ ...newTask, 'due-type': value })}>
-              <SelectTrigger className="bg-background border-input">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-2 z-50">
+              <SelectContent>
                 <SelectItem value="Before Opening">Before Opening</SelectItem>
                 <SelectItem value="Before 1PM">Before 1PM</SelectItem>
                 <SelectItem value="EoD">End of Day</SelectItem>
@@ -210,23 +208,22 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-foreground font-medium">Category</Label>
+            <Label htmlFor="category">Category</Label>
             <Input
               id="category"
               value={newTask.category}
               onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
               placeholder="e.g., Patient Care, Cleaning, Administrative"
-              className="bg-background border-input"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground font-medium">Assign To</Label>
+            <Label>Assign To</Label>
             <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask({ ...newTask, assigned_to: value })}>
-              <SelectTrigger className="bg-background border-input">
+              <SelectTrigger>
                 <SelectValue placeholder="Leave unassigned" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-2 z-50">
+              <SelectContent>
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {assistants.map((assistant) => (
                   <SelectItem key={assistant.id} value={assistant.id}>
@@ -238,12 +235,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground font-medium">Recurrence</Label>
+            <Label>Recurrence</Label>
             <Select value={newTask.recurrence} onValueChange={(value) => setNewTask({ ...newTask, recurrence: value })}>
-              <SelectTrigger className="bg-background border-input">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-2 z-50">
+              <SelectContent>
                 <SelectItem value="none">No recurrence</SelectItem>
                 <SelectItem value="daily">Daily</SelectItem>
                 <SelectItem value="weekly">Weekly</SelectItem>
@@ -258,7 +255,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           {/* Checklist Section */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-foreground font-medium">Checklist (Optional)</Label>
+              <Label>Checklist (Optional)</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -272,9 +269,9 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </div>
             
             {checklist.length > 0 && (
-              <div className="space-y-3 max-h-64 overflow-y-auto border-2 rounded-md p-3 bg-muted/30">
+              <div className="space-y-3 max-h-64 overflow-y-auto border rounded-md p-3">
                 {checklist.map((item, index) => (
-                  <div key={index} className="space-y-2 p-2 border rounded-md bg-background">
+                  <div key={index} className="space-y-2 p-2 border rounded-md bg-muted/30">
                     <div className="flex items-center gap-2">
                       <Input
                         value={item.title}
@@ -284,7 +281,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                           setChecklist(updated);
                         }}
                         placeholder="Checklist item title (required)..."
-                        className="flex-1 h-8 text-sm bg-background border-input"
+                        className="flex-1 h-8 text-sm"
                         required
                       />
                       <Button
@@ -305,7 +302,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                         setChecklist(updated);
                       }}
                       placeholder="Optional description..."
-                      className="text-sm resize-none bg-background border-input"
+                      className="text-sm resize-none"
                       rows={2}
                     />
                   </div>

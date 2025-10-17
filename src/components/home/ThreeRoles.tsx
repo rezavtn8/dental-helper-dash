@@ -65,6 +65,7 @@ export function ThreeRoles() {
       <div className="max-w-7xl mx-auto">
         {sections.map((section, index) => {
           const isVisible = visibleSections.has(index);
+          const textOnLeft = index % 2 === 0; // Train & Analyze: text left, Track: text right
           
           return (
             <div
@@ -83,13 +84,13 @@ export function ThreeRoles() {
 
               {/* Content Container */}
               <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start pt-8 lg:pt-0">
-                {/* Text Content - Always on left */}
+                {/* Text Content */}
                 <div
                   className={`transition-all duration-700 ease-out ${
                     isVisible
                       ? 'opacity-100 translate-x-0'
-                      : 'opacity-0 -translate-x-12'
-                  }`}
+                      : textOnLeft ? 'opacity-0 -translate-x-12' : 'opacity-0 translate-x-12'
+                  } ${textOnLeft ? 'lg:order-1' : 'lg:order-2'}`}
                 >
                   <h3 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 text-foreground">
                     {section.title}
@@ -99,13 +100,13 @@ export function ThreeRoles() {
                   </p>
                 </div>
 
-                {/* Floating Cards - Always on right */}
+                {/* Floating Cards */}
                 <div 
                   className={`relative min-h-[400px] transition-all duration-700 ease-out ${
                     isVisible
                       ? 'opacity-100 translate-x-0'
-                      : 'opacity-0 translate-x-12'
-                  }`}
+                      : textOnLeft ? 'opacity-0 translate-x-12' : 'opacity-0 -translate-x-12'
+                  } ${textOnLeft ? 'lg:order-2' : 'lg:order-1'}`}
                 >
                   {index === 0 && <TrainCards isVisible={isVisible} />}
                   {index === 1 && <TrackCards isVisible={isVisible} />}

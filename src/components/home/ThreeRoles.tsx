@@ -219,45 +219,29 @@ export function ThreeRoles() {
                 <div 
                   className={`relative ${isLeft ? 'lg:order-2' : 'lg:order-1'}`}
                 >
-                  {/* Mobile Layout - Floating cards with tile movement */}
-                  <div className="lg:hidden relative h-[500px] py-6">
-                    {section.floatingCards.map((card, cardIndex) => {
-                      const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                      const shouldShow = cardProgress > (cardIndex * 0.25);
-                      
-                      // Mobile-optimized scattered positions
-                      const mobilePositions = [
-                        { top: 10, left: 10, scale: 0.95 },
-                        { top: 120, left: 160, scale: 1 },
-                        { top: 240, left: 20, scale: 0.9 },
-                        { top: 360, left: 140, scale: 0.95 },
-                      ];
-                      
-                      const position = mobilePositions[cardIndex] || mobilePositions[0];
-                      
-                      return (
-                        <div
-                          key={cardIndex}
-                          className={`absolute transition-all duration-700 ease-out w-[240px] ${
-                            shouldShow ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-90'
-                          }`}
-                          style={{
-                            top: `${position.top}px`,
-                            left: `${position.left}px`,
-                            transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
-                            animation: shouldShow 
-                              ? `floatMobile ${4 + cardIndex * 0.3}s ease-in-out ${cardIndex * 0.2}s infinite, 
-                                 slideHorizontal ${6 + cardIndex * 0.5}s ease-in-out ${cardIndex * 0.3}s infinite,
-                                 tiltCard ${7 + cardIndex * 0.4}s ease-in-out ${cardIndex * 0.4}s infinite` 
-                              : 'none',
-                            transformOrigin: 'center center',
-                            zIndex: Math.floor(position.scale * 10)
-                          }}
-                        >
-                          {renderFloatingCard(card, true)}
-                        </div>
-                      );
-                    })}
+                  {/* Mobile Layout - Clean horizontal cards */}
+                  <div className="lg:hidden relative py-6">
+                    <div className="flex flex-col gap-4 px-2">
+                      {section.floatingCards.map((card, cardIndex) => {
+                        const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
+                        const shouldShow = cardProgress > (cardIndex * 0.15);
+                        
+                        return (
+                          <div
+                            key={cardIndex}
+                            className={`transition-all duration-500 ease-out ${
+                              shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                            }`}
+                            style={{
+                              transitionDelay: `${shouldShow ? cardIndex * 150 : 0}ms`,
+                              animation: shouldShow ? `floatMobile ${5 + cardIndex * 0.5}s ease-in-out ${cardIndex * 0.4}s infinite` : 'none'
+                            }}
+                          >
+                            {renderFloatingCard(card, true)}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Desktop Layout - Original scattered cards */}
@@ -321,34 +305,7 @@ export function ThreeRoles() {
             transform: translateY(0px);
           }
           50% {
-            transform: translateY(-15px);
-          }
-        }
-        
-        @keyframes slideHorizontal {
-          0%, 100% {
-            transform: translateX(0px);
-          }
-          25% {
-            transform: translateX(25px);
-          }
-          75% {
-            transform: translateX(-15px);
-          }
-        }
-        
-        @keyframes tiltCard {
-          0%, 100% {
-            transform: rotate(0deg) scale(1);
-          }
-          25% {
-            transform: rotate(2deg) scale(1.02);
-          }
-          50% {
-            transform: rotate(0deg) scale(1);
-          }
-          75% {
-            transform: rotate(-2deg) scale(0.98);
+            transform: translateY(-6px);
           }
         }
         

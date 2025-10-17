@@ -244,8 +244,8 @@ export function ThreeRoles() {
                             }`}
                             style={{
                               top: `${position.top}px`,
-                              left: isLeft ? `${position.left}px` : 'auto',
-                              right: isLeft ? 'auto' : `${position.left}px`,
+                              left: isLeft ? 'auto' : `${position.left}px`,
+                              right: isLeft ? `${position.left}px` : 'auto',
                               transitionDelay: `${cardIndex * 150}ms`,
                               animation: shouldShow ? `float ${4 + cardIndex * 0.5}s ease-in-out ${cardIndex * 0.5}s infinite` : 'none',
                               willChange: 'transform'

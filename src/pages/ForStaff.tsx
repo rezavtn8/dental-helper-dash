@@ -48,57 +48,57 @@ export default function ForStaff() {
         </div>
       </section>
 
-      {/* Key Challenges Section */}
+      {/* Key Benefits Section */}
       <section className="py-12 px-4 bg-muted/30">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <p className="text-muted-foreground text-lg">
-              Industry data reveals significant challenges facing dental staff today
+              What you gain with structured support and clear guidance
             </p>
           </div>
 
-          {/* 4 Challenge Stats */}
+          {/* 4 Benefit Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {[
               {
-                number: "68%",
-                label: "of dental offices have no structured onboarding",
-                icon: AlertCircle,
+                number: "100%",
+                label: "clear daily tasks so you know exactly what to do",
+                icon: CheckCircle,
                 bgColor: "bg-card",
                 borderColor: "border-border",
                 iconBg: "bg-muted",
-                iconColor: "text-orange-600 dark:text-orange-400",
-                source: "DentalPost 2023"
+                iconColor: "text-accent",
+                source: "Built-in Feature"
               },
               {
-                number: "$5K-$10K",
-                label: "cost per staff replacement",
-                icon: DollarSign,
+                number: "24/7",
+                label: "access to training and skill development",
+                icon: Award,
                 bgColor: "bg-card",
                 borderColor: "border-border",
                 iconBg: "bg-muted",
-                iconColor: "text-red-600 dark:text-red-400",
-                source: "DentalPost 2023"
+                iconColor: "text-accent",
+                source: "Learning Hub"
               },
               {
-                number: "40%",
-                label: "of daily tasks delayed without tracking",
-                icon: Clock,
+                number: "Real-time",
+                label: "recognition and feedback for your work",
+                icon: Target,
                 bgColor: "bg-card",
                 borderColor: "border-border",
                 iconBg: "bg-muted",
-                iconColor: "text-amber-600 dark:text-amber-400",
-                source: "AAOSH 2023"
+                iconColor: "text-accent",
+                source: "Achievement System"
               },
               {
-                number: "1 in 3",
-                label: "employees quit within first year",
-                icon: UserX,
+                number: "Career",
+                label: "growth tracking and development path",
+                icon: TrendingUp,
                 bgColor: "bg-card",
                 borderColor: "border-border",
                 iconBg: "bg-muted",
-                iconColor: "text-rose-600 dark:text-rose-400",
-                source: "DentalPost 2023"
+                iconColor: "text-accent",
+                source: "Progress Dashboard"
               }
             ].map((stat, index) => {
               const IconComponent = stat.icon;
@@ -120,7 +120,7 @@ export default function ForStaff() {
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Source: {stat.source}
+                      {stat.source}
                     </p>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export default function ForStaff() {
             })}
           </div>
 
-          {/* Impact Card - Lack of Support */}
+          {/* Your Success Platform Card */}
           <div className="max-w-4xl mx-auto">
             <div className="relative bg-card border-2 border-border rounded-3xl p-8 md:p-10 transition-all duration-300 hover:shadow-2xl hover:border-accent/20">
               <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-transparent rounded-3xl opacity-50" />
@@ -136,36 +136,33 @@ export default function ForStaff() {
               <div className="relative">
                 <div className="flex items-start gap-6 mb-8">
                   <div className="w-16 h-16 rounded-2xl bg-accent/20 flex items-center justify-center flex-shrink-0">
-                    <AlertCircle className="w-8 h-8 text-accent" />
+                    <Sparkles className="w-8 h-8 text-accent" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-foreground mb-2">
-                      The Impact of Unclear Expectations
+                      Your Complete Success Platform
                     </h3>
                     <p className="text-muted-foreground">
-                      What happens when staff don't have clear guidance and support
+                      Everything you need to excel in your role and grow your career
                     </p>
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
-                  {/* Key Issues */}
+                  {/* Key Features */}
                   <div className="space-y-4">
                     <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">
-                      Common Challenges
+                      What You Get
                     </h4>
                     
                     <div className="space-y-3">
                       <div className="bg-muted/30 rounded-xl p-4 border border-border">
                         <div className="flex items-start gap-3 mb-2">
-                          <AlertCircle className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
-                            <h5 className="font-semibold text-foreground mb-1">No Structured Onboarding</h5>
+                            <h5 className="font-semibold text-foreground mb-1">Clear Task Management</h5>
                             <p className="text-sm text-muted-foreground">
-                              68% of offices rely only on shadowing, leading to confusion and mistakes
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Source: DentalPost 2023
+                              Daily tasks assigned with clear priorities—no more guessing what to do next
                             </p>
                           </div>
                         </div>
@@ -173,14 +170,11 @@ export default function ForStaff() {
 
                       <div className="bg-muted/30 rounded-xl p-4 border border-border">
                         <div className="flex items-start gap-3 mb-2">
-                          <Clock className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
+                          <Award className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
-                            <h5 className="font-semibold text-foreground mb-1">Task Management Issues</h5>
+                            <h5 className="font-semibold text-foreground mb-1">Continuous Learning</h5>
                             <p className="text-sm text-muted-foreground">
-                              The #1 complaint from owners: staff not following through on delegated tasks
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Source: Dental Economics 2024
+                              Access training courses, certifications, and skill development at your own pace
                             </p>
                           </div>
                         </div>
@@ -188,14 +182,11 @@ export default function ForStaff() {
 
                       <div className="bg-muted/30 rounded-xl p-4 border border-border">
                         <div className="flex items-start gap-3 mb-2">
-                          <UserX className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
+                          <Target className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
-                            <h5 className="font-semibold text-foreground mb-1">High Turnover</h5>
+                            <h5 className="font-semibold text-foreground mb-1">Recognition System</h5>
                             <p className="text-sm text-muted-foreground">
-                              1 in 3 employees quit within first year due to lack of clarity or feedback
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Source: DentalPost 2023
+                              Earn badges and achievements as you complete tasks and hit milestones
                             </p>
                           </div>
                         </div>
@@ -203,37 +194,37 @@ export default function ForStaff() {
                     </div>
                   </div>
 
-                  {/* Impact Stats */}
+                  {/* Impact Summary */}
                   <div>
                     <div className="bg-muted/40 rounded-2xl p-8 border-2 border-border mb-6">
                       <p className="text-sm text-muted-foreground uppercase tracking-wide mb-3">
-                        Staff Turnover Rate
+                        Your Growth
                       </p>
                       <div className="text-6xl md:text-7xl font-bold text-accent mb-2 leading-none">
-                        25-30<span className="text-4xl">%</span>
+                        Track<span className="text-4xl">able</span>
                       </div>
                       <p className="text-sm text-foreground font-medium">
-                        annually for front-office staff
+                        See your progress and celebrate wins
                       </p>
                     </div>
 
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
-                        <AlertCircle className="w-5 h-5 text-accent flex-shrink-0" />
+                        <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
                         <p className="text-sm text-foreground">
-                          <span className="font-semibold">40%</span> of tasks delayed without tracking
+                          <span className="font-semibold">Never miss</span> important tasks
                         </p>
                       </div>
                       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
-                        <DollarSign className="w-5 h-5 text-accent flex-shrink-0" />
+                        <Award className="w-5 h-5 text-accent flex-shrink-0" />
                         <p className="text-sm text-foreground">
-                          <span className="font-semibold">$5K-$10K</span> to replace each team member
+                          <span className="font-semibold">Build skills</span> that advance your career
                         </p>
                       </div>
                       <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
-                        <Clock className="w-5 h-5 text-accent flex-shrink-0" />
+                        <TrendingUp className="w-5 h-5 text-accent flex-shrink-0" />
                         <p className="text-sm text-foreground">
-                          Weeks of <span className="font-semibold">lost productivity</span> during transitions
+                          <span className="font-semibold">Get recognized</span> for your contributions
                         </p>
                       </div>
                     </div>

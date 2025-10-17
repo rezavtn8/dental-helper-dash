@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import SchedulingSettings from './SchedulingSettings';
+import JoinRequestHistory from './JoinRequestHistory';
 import { 
   Settings, 
   Building2, 
@@ -143,7 +144,7 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             General
@@ -151,6 +152,10 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
           <TabsTrigger value="scheduling" className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             Scheduling
+          </TabsTrigger>
+          <TabsTrigger value="requests" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Join Requests
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="w-4 h-4" />
@@ -284,6 +289,21 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
 
         <TabsContent value="scheduling">
           <SchedulingSettings />
+        </TabsContent>
+
+        <TabsContent value="requests" className="space-y-4">
+          {/* Join Requests History */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-lg">
+                <Users className="w-4 h-4 mr-2" />
+                Join Request History
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <JoinRequestHistory clinicId={clinicId} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-4">

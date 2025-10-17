@@ -100,6 +100,7 @@ const App = () => (
                 <Route path="/for-staff" element={<ForStaff />} />
                 <Route path="/hub" element={<ProtectedRoute><TeamHub /></ProtectedRoute>} />
                 <Route path="/join" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
+                <Route path="/join-clinic" element={<ProtectedRoute><JoinClinic /></ProtectedRoute>} />
                 <Route path="/assistant" element={
                   <ProtectedRoute>
                     <ClinicRequiredRoute requiredRole="assistant">

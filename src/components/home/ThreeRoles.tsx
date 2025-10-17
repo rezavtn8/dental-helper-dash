@@ -220,17 +220,17 @@ export function ThreeRoles() {
                   className={`relative ${isLeft ? 'lg:order-2' : 'lg:order-1'}`}
                 >
                   {/* Mobile Layout - Floating cards with tile movement */}
-                  <div className="lg:hidden relative h-[380px] py-6">
+                  <div className="lg:hidden relative h-[500px] py-6">
                     {section.floatingCards.map((card, cardIndex) => {
                       const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
                       const shouldShow = cardProgress > (cardIndex * 0.25);
                       
-                      // Mobile-optimized compact scattered positions
+                      // Mobile-optimized scattered positions
                       const mobilePositions = [
-                        { top: 5, left: 10, scale: 0.75 },
-                        { top: 95, left: 150, scale: 0.72 },
-                        { top: 185, left: 15, scale: 0.7 },
-                        { top: 275, left: 145, scale: 0.72 },
+                        { top: 10, left: 10, scale: 0.95 },
+                        { top: 120, left: 160, scale: 1 },
+                        { top: 240, left: 20, scale: 0.9 },
+                        { top: 360, left: 140, scale: 0.95 },
                       ];
                       
                       const position = mobilePositions[cardIndex] || mobilePositions[0];
@@ -238,7 +238,7 @@ export function ThreeRoles() {
                       return (
                         <div
                           key={cardIndex}
-                          className={`absolute transition-all duration-700 ease-out w-[200px] ${
+                          className={`absolute transition-all duration-700 ease-out w-[240px] ${
                             shouldShow ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-90'
                           }`}
                           style={{
@@ -251,7 +251,6 @@ export function ThreeRoles() {
                                  tiltCard ${7 + cardIndex * 0.4}s ease-in-out ${cardIndex * 0.4}s infinite` 
                               : 'none',
                             transformOrigin: 'center center',
-                            transform: `scale(${position.scale})`,
                             zIndex: Math.floor(position.scale * 10)
                           }}
                         >

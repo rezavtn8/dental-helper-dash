@@ -67,7 +67,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12 max-w-4xl mx-auto">
           {plans.map(plan => {
           const IconComponent = plan.icon;
           return <div key={plan.name} className={cn("relative group transition-all duration-300", plan.popular && "lg:scale-105")}>
@@ -78,20 +78,20 @@ export default function Pricing() {
                     </Badge>
                   </div>}
                 
-                <div className={cn("relative backdrop-blur-xl bg-card/95 border-2 rounded-xl p-6 h-full flex flex-col transition-all duration-300 shadow-xl", plan.popular ? "border-primary/60 shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:border-primary/80" : "border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10")}>
+                <div className={cn("relative backdrop-blur-xl bg-card/95 border-2 rounded-xl p-4 h-full flex flex-col transition-all duration-300 shadow-xl", plan.popular ? "border-primary/60 shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:border-primary/80" : "border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10")}>
                   {/* Icon and Title */}
-                  <div className="mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center mb-3">
-                      <IconComponent className="w-5 h-5 text-primary" />
+                  <div className="mb-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center mb-2">
+                      <IconComponent className="w-4 h-4 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
+                    <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
                   </div>
 
                   {/* Price */}
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-foreground">${plan.price}</span>
-                      <span className="text-sm text-muted-foreground">/mo</span>
+                      <span className="text-2xl font-bold text-foreground">${plan.price}</span>
+                      <span className="text-xs text-muted-foreground">/mo</span>
                     </div>
                     {isAnnual && <p className="text-xs text-muted-foreground mt-1">
                         ${plan.price * 12} billed annually
@@ -99,29 +99,29 @@ export default function Pricing() {
                   </div>
 
                   {/* Assistants Info */}
-                  <div className="mb-4 pb-4 border-b border-border/50">
-                    <p className="text-xs font-medium text-foreground mb-0.5">
+                  <div className="mb-3 pb-3 border-b border-border/50">
+                    <p className="text-[11px] font-medium text-foreground mb-0.5">
                       {plan.assistants}
                     </p>
-                    {plan.addOnPrice > 0 && <p className="text-xs text-muted-foreground">
+                    {plan.addOnPrice > 0 && <p className="text-[10px] text-muted-foreground">
                         +${plan.addOnPrice}/mo per extra assistant
                       </p>}
                   </div>
                   
                   {/* Features */}
-                  <ul className="space-y-2.5 mb-6 flex-grow">
-                    {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-start gap-2.5">
-                        <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="w-2.5 h-2.5 text-primary" />
+                  <ul className="space-y-2 mb-4 flex-grow">
+                    {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-start gap-2">
+                        <div className="w-3.5 h-3.5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-2 h-2 text-primary" />
                         </div>
-                        <span className="text-xs text-foreground/90 leading-relaxed">{feature}</span>
+                        <span className="text-[11px] text-foreground/90 leading-relaxed">{feature}</span>
                       </li>)}
                   </ul>
                   
                   {/* CTA Button */}
-                  <Button variant={plan.popular ? "default" : "outline"} className="w-full font-semibold text-sm" onClick={() => navigate('/signup/owner')}>
+                  <Button variant={plan.popular ? "default" : "outline"} size="sm" className="w-full font-semibold" onClick={() => navigate('/signup/owner')}>
                     Get Started
-                    <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                    <ArrowRight className="w-3 h-3 ml-1.5" />
                   </Button>
                 </div>
               </div>;

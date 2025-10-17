@@ -73,7 +73,8 @@ export default function ForOwners() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {/* 4 Challenge Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {[
               {
                 number: "68%",
@@ -141,34 +142,126 @@ export default function ForOwners() {
                 </div>
               );
             })}
+          </div>
 
-            {/* Total Cost Card - Standout Design */}
-            <div className="md:col-span-2 lg:col-span-1 relative bg-gradient-to-br from-destructive/10 via-destructive/5 to-background border-2 border-destructive/30 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-destructive/50">
-              <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 to-transparent rounded-2xl opacity-50" />
+          {/* Total Cost Card - Large Standalone Calculator */}
+          <div className="max-w-4xl mx-auto">
+            <div className="relative bg-gradient-to-br from-destructive/10 via-destructive/5 to-background border-2 border-destructive/30 rounded-3xl p-8 md:p-10 transition-all duration-300 hover:shadow-2xl hover:border-destructive/50">
+              <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 to-transparent rounded-3xl opacity-50" />
+              
               <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-destructive/20 flex items-center justify-center mb-4">
-                  <DollarSign className="w-6 h-6 text-destructive" />
+                <div className="flex items-start gap-6 mb-8">
+                  <div className="w-16 h-16 rounded-2xl bg-destructive/20 flex items-center justify-center flex-shrink-0">
+                    <DollarSign className="w-8 h-8 text-destructive" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                      The Hidden Cost of Manual Management
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Average annual cost per practice without structured systems
+                    </p>
+                  </div>
                 </div>
-                <div className="mb-3">
-                  <div className="text-5xl sm:text-6xl font-bold text-destructive mb-2 leading-none">
-                    $49K+
+
+                <div className="grid md:grid-cols-2 gap-8">
+                  {/* Cost Breakdown */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">
+                      Cost Breakdown
+                    </h4>
+                    
+                    <div className="space-y-3">
+                      <div className="bg-card/50 rounded-xl p-4 border border-destructive/10">
+                        <div className="flex items-start gap-3 mb-2">
+                          <UserX className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start mb-1">
+                              <h5 className="font-semibold text-foreground">Staff Turnover</h5>
+                              <span className="text-lg font-bold text-destructive">$15,000</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              2 replacements × $7,500 average cost (recruiting, training, lost productivity)
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Source: DentalPost 2023
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-card/50 rounded-xl p-4 border border-destructive/10">
+                        <div className="flex items-start gap-3 mb-2">
+                          <Clock className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start mb-1">
+                              <h5 className="font-semibold text-foreground">Lost Productivity</h5>
+                              <span className="text-lg font-bold text-destructive">$26,000</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              10 hours/week × $50/hour × 52 weeks in delays, missed tasks, and inefficiency
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Source: AAOSH 2023
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-card/50 rounded-xl p-4 border border-destructive/10">
+                        <div className="flex items-start gap-3 mb-2">
+                          <AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start mb-1">
+                              <h5 className="font-semibold text-foreground">Compliance & Errors</h5>
+                              <span className="text-lg font-bold text-destructive">$8,000</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              Administrative errors, compliance gaps, and quality issues from lack of training
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Source: All-Star Dental Academy 2024
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-foreground font-semibold leading-snug">
-                    Total Annual Cost of Manual Management
-                  </p>
-                </div>
-                <div className="space-y-1.5 text-xs text-muted-foreground mt-4 pt-4 border-t border-destructive/20">
-                  <div className="flex justify-between">
-                    <span>Staff turnover</span>
-                    <span className="font-medium text-foreground">$15K</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Lost productivity</span>
-                    <span className="font-medium text-foreground">$26K</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Errors & gaps</span>
-                    <span className="font-medium text-foreground">$8K</span>
+
+                  {/* Total & Impact */}
+                  <div>
+                    <div className="bg-gradient-to-br from-destructive/20 to-destructive/10 rounded-2xl p-8 border-2 border-destructive/40 mb-6">
+                      <p className="text-sm text-muted-foreground uppercase tracking-wide mb-3">
+                        Total Annual Cost
+                      </p>
+                      <div className="text-6xl md:text-7xl font-bold text-destructive mb-2 leading-none">
+                        $49,000<span className="text-4xl">+</span>
+                      </div>
+                      <p className="text-sm text-foreground font-medium">
+                        per practice, per year
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 p-3 bg-card/30 rounded-lg border border-border">
+                        <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+                        <p className="text-sm text-foreground">
+                          <span className="font-semibold">25-30%</span> annual staff turnover rate
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 bg-card/30 rounded-lg border border-border">
+                        <Clock className="w-5 h-5 text-destructive flex-shrink-0" />
+                        <p className="text-sm text-foreground">
+                          <span className="font-semibold">40%</span> of tasks delayed without tracking
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 bg-card/30 rounded-lg border border-border">
+                        <UserX className="w-5 h-5 text-destructive flex-shrink-0" />
+                        <p className="text-sm text-foreground">
+                          <span className="font-semibold">68%</span> have no structured onboarding
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

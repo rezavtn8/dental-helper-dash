@@ -15,7 +15,7 @@ export function HeroSection() {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (sectionRef.current) {
@@ -26,7 +26,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section 
+    <section
       ref={sectionRef}
       className="relative overflow-x-hidden overflow-y-visible bg-background py-10 sm:py-16 lg:py-24 px-4"
     >
@@ -37,23 +37,25 @@ export function HeroSection() {
 
       <div className="container mx-auto text-center relative z-10 max-w-6xl overflow-x-hidden">
         {/* Large Animated Logo */}
-        <div 
+        <div
           className={`mb-3 sm:mb-6 flex flex-col items-center gap-0 transition-all duration-1000 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
           <AnimatedLogo size={80} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px] mx-auto" />
           <div className="text-center -mt-1 sm:-mt-2">
-            <h2 className="text-4xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground break-words px-4">DentaLeague</h2>
+            <h2 className="text-4xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground break-words px-4">
+              DentaLeague
+            </h2>
           </div>
         </div>
 
         {/* Headline */}
-        <h1 
+        <h1
           className={`text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold mb-3 sm:mb-5 leading-tight sm:leading-normal bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-4 max-w-5xl mx-auto transition-all duration-1000 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
-          style={{ transitionDelay: '200ms' }}
+          style={{ transitionDelay: "200ms" }}
         >
           Onboard. Train. Track.
           <br />
@@ -63,22 +65,22 @@ export function HeroSection() {
         </h1>
 
         {/* Subtext */}
-        <p 
+        <p
           className={`text-base sm:text-sm lg:text-base text-muted-foreground mb-4 sm:mb-6 max-w-lg lg:max-w-2xl mx-auto leading-relaxed px-4 transition-all duration-1000 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
-          style={{ transitionDelay: '400ms' }}
+          style={{ transitionDelay: "400ms" }}
         >
           Whether it's a new assistant, front desk hire, or floating staff, Dentaleague makes sure they know exactly
-          what to do — from day 1 to day 100.
+          what to do.
         </p>
 
         {/* CTA Buttons */}
-        <div 
+        <div
           className={`flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center px-4 max-w-2xl mx-auto transition-all duration-1000 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
-          style={{ transitionDelay: '600ms' }}
+          style={{ transitionDelay: "600ms" }}
         >
           <Button
             onClick={() => navigate("/signin")}

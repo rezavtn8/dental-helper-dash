@@ -38,33 +38,33 @@ export function HeroSection() {
       <div className="container mx-auto text-center relative z-10 max-w-6xl overflow-x-hidden">
         {/* Large Animated Logo */}
         <div 
-          className={`mb-3 sm:mb-6 flex flex-col items-center gap-0 transition-all duration-1000 ease-out ${
+          className={`mb-6 sm:mb-8 flex flex-col items-center gap-0 transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <AnimatedLogo size={80} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px] mx-auto" />
-          <div className="text-center -mt-1 sm:-mt-2">
-            <h2 className="text-4xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground break-words px-4">DentaLeague</h2>
+          <AnimatedLogo size={80} className="sm:w-[100px] sm:h-[100px] lg:w-[120px] lg:h-[120px] mx-auto" />
+          <div className="text-center -mt-1">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">DentaLeague</h2>
           </div>
         </div>
 
         {/* Headline */}
         <h1 
-          className={`text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold mb-3 sm:mb-5 leading-tight sm:leading-normal bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent px-4 max-w-5xl mx-auto transition-all duration-1000 ease-out ${
+          className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold mb-4 sm:mb-6 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent max-w-4xl mx-auto transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
           style={{ transitionDelay: '200ms' }}
         >
           Onboard. Train. Track.
           <br />
-          <span className="font-handwritten bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">
+          <span className="font-handwritten bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
             All in One Place.
           </span>
         </h1>
 
         {/* Subtext */}
         <p 
-          className={`text-base sm:text-sm lg:text-base text-muted-foreground mb-4 sm:mb-6 max-w-lg lg:max-w-2xl mx-auto leading-relaxed px-4 transition-all duration-1000 ease-out ${
+          className={`text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
           style={{ transitionDelay: '400ms' }}
@@ -75,32 +75,32 @@ export function HeroSection() {
 
         {/* CTA Buttons */}
         <div 
-          className={`flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center px-4 max-w-2xl mx-auto transition-all duration-1000 ease-out ${
+          className={`flex flex-col sm:flex-row gap-3 justify-center items-center max-w-2xl mx-auto transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
           style={{ transitionDelay: '600ms' }}
         >
           <Button
             onClick={() => navigate("/signin")}
-            variant="clean"
-            size="sm"
-            className="w-full sm:w-auto text-sm sm:text-base font-semibold px-6 sm:px-8 py-2.5 sm:py-3 h-auto"
+            variant="default"
+            size="lg"
+            className="w-full sm:w-auto"
           >
             Sign In
           </Button>
           <Button
             onClick={() => navigate("/signup/owner")}
-            variant="clean-outline"
-            size="sm"
-            className="w-full sm:w-auto text-xs sm:text-sm font-medium px-5 sm:px-6 py-2.5 sm:py-3 h-auto"
+            variant="outline"
+            size="lg"
+            className="w-full sm:w-auto"
           >
             Owner Sign Up
           </Button>
           <Button
             onClick={() => navigate("/signup/staff")}
-            variant="clean-outline"
-            size="sm"
-            className="w-full sm:w-auto text-xs sm:text-sm font-medium px-5 sm:px-6 py-2.5 sm:py-3 h-auto"
+            variant="outline"
+            size="lg"
+            className="w-full sm:w-auto"
           >
             Staff Sign Up
           </Button>

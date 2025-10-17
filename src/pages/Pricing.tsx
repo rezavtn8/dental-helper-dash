@@ -105,10 +105,10 @@ export default function Pricing() {
                 
                 <div 
                   className={cn(
-                    "relative backdrop-blur-md bg-background/60 border rounded-xl p-6 h-full flex flex-col transition-all duration-300",
+                    "relative backdrop-blur-xl bg-card/95 border-2 rounded-xl p-6 h-full flex flex-col transition-all duration-300 shadow-xl",
                     plan.popular 
-                      ? "border-primary/50 shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/20" 
-                      : "border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+                      ? "border-primary/60 shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:border-primary/80" 
+                      : "border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10"
                   )}
                 >
                   {/* Icon and Title */}

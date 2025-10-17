@@ -18,11 +18,8 @@ import {
 export function ThreeRoles() {
   const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set());
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [animationDuration, setAnimationDuration] = useState(700);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastScrollTime = useRef<number>(Date.now());
-  const lastProgress = useRef<number>(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,32 +34,13 @@ export function ThreeRoles() {
         (windowHeight - rect.top) / (windowHeight + rect.height)
       ));
       
-      // Calculate scroll velocity
-      const now = Date.now();
-      const timeDelta = now - lastScrollTime.current;
-      const progressDelta = Math.abs(progress - lastProgress.current);
-      const velocity = timeDelta > 0 ? progressDelta / timeDelta : 0;
-      
-      // Adjust animation duration based on velocity
-      // Higher velocity = shorter duration (faster animations)
-      // velocity > 0.001 is fast scrolling
-      const baseDuration = 700;
-      const minDuration = 150;
-      const duration = velocity > 0.001 
-        ? Math.max(minDuration, baseDuration * (1 - Math.min(velocity * 500, 0.8)))
-        : baseDuration;
-      
-      setAnimationDuration(duration);
       setScrollProgress(progress);
       
-      lastScrollTime.current = now;
-      lastProgress.current = progress;
-      
-      // Trigger section visibility based on scroll position - adjusted for compact layout
+      // Trigger section visibility based on scroll position
       const newVisible = new Set<number>();
-      if (progress > 0.05) newVisible.add(0);
-      if (progress > 0.25) newVisible.add(1);
-      if (progress > 0.45) newVisible.add(2);
+      if (progress > 0.1) newVisible.add(0);
+      if (progress > 0.35) newVisible.add(1);
+      if (progress > 0.6) newVisible.add(2);
       
       setVisibleSections(newVisible);
     };
@@ -115,14 +93,15 @@ export function ThreeRoles() {
       className="relative bg-background py-10 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       {/* Vertical connecting line - background */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
+      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-transparent via-primary/20 to-transparent hidden lg:block" />
       
       {/* Animated progress line */}
       <div 
-        className="absolute left-1/2 top-0 w-px bg-gradient-to-b from-primary/0 via-primary to-primary/0 hidden lg:block transition-all duration-300"
+        className="absolute left-1/2 top-0 w-0.5 bg-gradient-to-b from-primary/0 via-primary to-primary/0 hidden lg:block transition-all duration-500"
         style={{ 
           height: `${scrollProgress * 100}%`,
-          opacity: scrollProgress > 0.1 ? 1 : 0
+          opacity: scrollProgress > 0.1 ? 1 : 0,
+          boxShadow: scrollProgress > 0.1 ? '0 0 20px hsl(var(--primary) / 0.5)' : 'none'
         }}
       />
       
@@ -138,20 +117,19 @@ export function ThreeRoles() {
               className="relative mb-16 sm:mb-24 lg:mb-32 last:mb-0"
             >
               {/* Connecting dot with glow */}
-              <div className="absolute left-1/2 top-8 -translate-x-1/2 hidden lg:block z-10">
+              <div className="absolute left-1/2 top-12 -translate-x-1/2 hidden lg:block z-10">
                 <div 
-                  className={`relative w-4 h-4 rounded-full bg-primary transition-all ${
+                  className={`relative w-5 h-5 rounded-full bg-primary transition-all duration-500 ${
                     isVisible ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
                   }`}
                   style={{
-                    boxShadow: isVisible ? '0 0 20px hsl(var(--primary) / 0.6)' : 'none',
-                    transitionDuration: `${animationDuration}ms`
+                    boxShadow: isVisible ? '0 0 30px hsl(var(--primary) / 0.8), 0 0 60px hsl(var(--primary) / 0.4)' : 'none'
                   }}
                 >
                   {isVisible && (
                     <>
-                      <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-40" />
-                      <div className="absolute inset-0 rounded-full bg-primary/20 blur-md animate-pulse" />
+                      <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-50" />
+                      <div className="absolute inset-0 rounded-full bg-primary/30 blur-lg animate-pulse" />
                     </>
                   )}
                 </div>
@@ -161,50 +139,48 @@ export function ThreeRoles() {
               <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 {/* Text Content */}
                 <div
-                  className={`relative transition-all ease-out ${
+                  className={`relative transition-all duration-700 ease-out ${
                     isVisible
-                      ? 'opacity-100 translate-x-0 translate-y-0 blur-0'
-                      : `opacity-0 ${isLeft ? '-translate-x-16' : 'translate-x-16'} translate-y-12 blur-sm`
+                      ? 'opacity-100 translate-x-0 translate-y-0'
+                      : `opacity-0 ${isLeft ? '-translate-x-12' : 'translate-x-12'} translate-y-8`
                   } ${isLeft ? 'lg:order-1' : 'lg:order-2'}`}
                   style={{
-                    transitionDuration: `${animationDuration}ms`,
-                    transitionDelay: isVisible ? `${Math.min(index * 200, animationDuration * 0.3)}ms` : '0ms'
+                    transitionDelay: isVisible ? '200ms' : '0ms'
                   }}
                 >
-                {/* Enhanced motion lines */}
-                <div className={`absolute top-12 ${isLeft ? '-right-8 lg:-right-20' : '-left-8 lg:-left-20'} hidden lg:block`}>
-                  <div 
-                    className={`h-px bg-gradient-to-r ${
-                      isLeft ? 'from-primary/60 via-primary/30 to-transparent' : 'from-transparent via-primary/30 to-primary/60'
-                    } transition-all ${
-                      isVisible ? 'w-16 opacity-100' : 'w-0 opacity-0'
-                    }`}
-                    style={{ 
-                      transformOrigin: isLeft ? 'left' : 'right',
-                      transitionDuration: `${animationDuration}ms`,
-                      transitionDelay: isVisible ? `${Math.min(index * 200 + 400, animationDuration * 0.6)}ms` : '0ms'
-                    }}
-                  />
-                </div>
+                  {/* Enhanced motion lines */}
+                  <div className={`absolute top-12 ${isLeft ? '-right-8 lg:-right-20' : '-left-8 lg:-left-20'} hidden lg:block`}>
+                    <div 
+                      className={`h-0.5 bg-gradient-to-r ${
+                        isLeft ? 'from-primary/70 via-primary/40 to-transparent' : 'from-transparent via-primary/40 to-primary/70'
+                      } transition-all duration-700 ${
+                        isVisible ? 'w-16 opacity-100' : 'w-0 opacity-0'
+                      }`}
+                      style={{ 
+                        transformOrigin: isLeft ? 'left' : 'right',
+                        transitionDelay: isVisible ? '400ms' : '0ms',
+                        boxShadow: isVisible ? '0 0 10px hsl(var(--primary) / 0.3)' : 'none'
+                      }}
+                    />
+                  </div>
 
                   <h3 
-                    className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground tracking-tight transition-all ${
-                      isVisible ? 'translate-y-0' : 'translate-y-4'
+                    className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-foreground tracking-tight transition-all duration-700 ${
+                      isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                     }`}
                     style={{
-                      transitionDuration: `${animationDuration}ms`,
-                      transitionDelay: isVisible ? `${Math.min(index * 200 + 200, animationDuration * 0.3)}ms` : '0ms'
+                      transitionDelay: isVisible ? '300ms' : '0ms'
                     }}
                   >
                     {section.title}
                   </h3>
                   <p 
-                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl transition-all ${
+                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl transition-all duration-700 ${
                       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                     }`}
                     style={{
-                      transitionDuration: `${animationDuration}ms`,
-                      transitionDelay: isVisible ? `${Math.min(index * 200 + 400, animationDuration * 0.6)}ms` : '0ms'
+                      transitionDelay: isVisible ? '500ms' : '0ms',
+                      lineHeight: '1.75'
                     }}
                   >
                     {section.description}
@@ -215,21 +191,25 @@ export function ThreeRoles() {
                 <div 
                   className={`relative ${isLeft ? 'lg:order-2' : 'lg:order-1'}`}
                 >
-                  {/* Mobile Layout - Simplified 2-card horizontal scroll */}
-                  <div className="lg:hidden relative py-6">
-                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-                      {section.floatingCards.slice(0, 2).map((card, cardIndex) => {
-                        const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                        const shouldShow = cardProgress > (cardIndex * 0.4);
+                  {/* Mobile Layout - Simple horizontal scroll */}
+                  <div className="lg:hidden relative py-8">
+                    {/* Gradient fade hints */}
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+                    
+                    <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 scroll-smooth">
+                      {section.floatingCards.map((card, cardIndex) => {
+                        const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.1 + index * 0.25)) / 0.25));
+                        const shouldShow = cardProgress > (cardIndex * 0.2);
                         
                         return (
                           <div
                             key={cardIndex}
                             className={`flex-shrink-0 w-[280px] snap-center transition-all duration-700 ease-out ${
-                              shouldShow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                              shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                             }`}
                             style={{
-                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
+                              transitionDelay: `${cardIndex * 150}ms`
                             }}
                           >
                             {renderFloatingCard(card, true)}
@@ -237,26 +217,21 @@ export function ThreeRoles() {
                         );
                       })}
                     </div>
-                    {/* Scroll indicator dots */}
-                    <div className="flex justify-center gap-1.5 mt-2">
-                      {section.floatingCards.slice(0, 2).map((_, idx) => (
-                        <div key={idx} className="w-1.5 h-1.5 rounded-full bg-primary/30" />
-                      ))}
-                    </div>
                   </div>
 
-                  {/* Desktop Layout - Original scattered cards */}
-                  <div className="hidden lg:block relative h-[400px]">
+                  {/* Desktop Layout - Floating cards around center line */}
+                  <div className="hidden lg:block relative h-[600px]">
                     <div className="relative h-full">
                       {section.floatingCards.map((card, cardIndex) => {
-                        const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                        const shouldShow = cardProgress > (cardIndex * 0.25);
+                        const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.1 + index * 0.25)) / 0.25));
+                        const shouldShow = cardProgress > (cardIndex * 0.2);
                         
+                        // Better positioned cards with more vertical spacing
                         const positions = [
-                          { top: 20, left: 40, scale: 1 },
-                          { top: 100, left: 280, scale: 0.95 },
-                          { top: 220, left: 10, scale: 1.05 },
-                          { top: 320, left: 250, scale: 0.9 },
+                          { top: 0, left: 50, scale: 1 },
+                          { top: 150, left: 300, scale: 0.95 },
+                          { top: 300, left: 30, scale: 1.05 },
+                          { top: 450, left: 280, scale: 0.92 },
                         ];
                         
                         const position = positions[cardIndex] || positions[0];
@@ -265,17 +240,15 @@ export function ThreeRoles() {
                           <div
                             key={cardIndex}
                             className={`absolute transition-all duration-700 ease-out ${
-                              shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                              shouldShow ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-20 scale-95'
                             }`}
                             style={{
                               top: `${position.top}px`,
                               left: isLeft ? `${position.left}px` : 'auto',
                               right: isLeft ? 'auto' : `${position.left}px`,
-                              transitionDelay: `${shouldShow ? cardIndex * 300 : 0}ms`,
-                              animation: shouldShow ? `float ${3 + cardIndex * 0.5}s ease-in-out infinite` : 'none',
-                              animationDelay: `${cardIndex * 0.3}s`,
-                              transform: `scale(${position.scale})`,
-                              zIndex: Math.floor(position.scale * 10)
+                              transitionDelay: `${cardIndex * 150}ms`,
+                              animation: shouldShow ? `float ${4 + cardIndex * 0.5}s ease-in-out ${cardIndex * 0.5}s infinite` : 'none',
+                              willChange: 'transform'
                             }}
                           >
                             {renderFloatingCard(card, false)}
@@ -294,10 +267,16 @@ export function ThreeRoles() {
       <style>{`
         @keyframes float {
           0%, 100% {
-            transform: translateY(0px);
+            transform: translateY(0px) rotate(0deg);
+          }
+          25% {
+            transform: translateY(-10px) rotate(1deg);
           }
           50% {
-            transform: translateY(-10px);
+            transform: translateY(-20px) rotate(0deg);
+          }
+          75% {
+            transform: translateY(-10px) rotate(-1deg);
           }
         }
         
@@ -336,6 +315,11 @@ export function ThreeRoles() {
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
+        }
+        
+        .scroll-smooth {
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
         }
       `}</style>
     </section>

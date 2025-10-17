@@ -2,12 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Navigation } from '@/components/home/Navigation';
 import { ArrowRight, Users, TrendingUp, CheckCircle, AlertCircle, DollarSign, Clock, UserX, Target, Award, Zap, ShieldCheck, Sparkles } from 'lucide-react';
-
 export default function ForStaff() {
   const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
 
       {/* Hero Section */}
@@ -16,18 +13,15 @@ export default function ForStaff() {
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-72 h-72 bg-accent/5 rounded-full blur-3xl animate-float" />
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float" style={{
-            animationDelay: '2s'
-          }} />
+          animationDelay: '2s'
+        }} />
           <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-accent/3 rounded-full blur-3xl animate-float" style={{
-            animationDelay: '4s'
-          }} />
+          animationDelay: '4s'
+        }} />
         </div>
         
         <div className="container mx-auto text-center relative z-10 max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-8">
-            <Sparkles className="w-4 h-4 text-accent" />
-            <span className="text-sm font-medium text-accent">For Dental Staff</span>
-          </div>
+          
           
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 leading-tight">
             Excel in Your Role with{" "}
@@ -59,54 +53,45 @@ export default function ForStaff() {
 
           {/* 4 Benefit Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[
-              {
-                number: "100%",
-                label: "clear daily tasks so you know exactly what to do",
-                icon: CheckCircle,
-                bgColor: "bg-card",
-                borderColor: "border-border",
-                iconBg: "bg-muted",
-                iconColor: "text-accent",
-                source: "Built-in Feature"
-              },
-              {
-                number: "24/7",
-                label: "access to training and skill development",
-                icon: Award,
-                bgColor: "bg-card",
-                borderColor: "border-border",
-                iconBg: "bg-muted",
-                iconColor: "text-accent",
-                source: "Learning Hub"
-              },
-              {
-                number: "Real-time",
-                label: "recognition and feedback for your work",
-                icon: Target,
-                bgColor: "bg-card",
-                borderColor: "border-border",
-                iconBg: "bg-muted",
-                iconColor: "text-accent",
-                source: "Achievement System"
-              },
-              {
-                number: "Career",
-                label: "growth tracking and development path",
-                icon: TrendingUp,
-                bgColor: "bg-card",
-                borderColor: "border-border",
-                iconBg: "bg-muted",
-                iconColor: "text-accent",
-                source: "Progress Dashboard"
-              }
-            ].map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
-                <div
-                  key={index}
-                  className={`group relative ${stat.bgColor} border-2 ${stat.borderColor} rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1`}
-                >
+            {[{
+            number: "100%",
+            label: "clear daily tasks so you know exactly what to do",
+            icon: CheckCircle,
+            bgColor: "bg-card",
+            borderColor: "border-border",
+            iconBg: "bg-muted",
+            iconColor: "text-accent",
+            source: "Built-in Feature"
+          }, {
+            number: "24/7",
+            label: "access to training and skill development",
+            icon: Award,
+            bgColor: "bg-card",
+            borderColor: "border-border",
+            iconBg: "bg-muted",
+            iconColor: "text-accent",
+            source: "Learning Hub"
+          }, {
+            number: "Real-time",
+            label: "recognition and feedback for your work",
+            icon: Target,
+            bgColor: "bg-card",
+            borderColor: "border-border",
+            iconBg: "bg-muted",
+            iconColor: "text-accent",
+            source: "Achievement System"
+          }, {
+            number: "Career",
+            label: "growth tracking and development path",
+            icon: TrendingUp,
+            bgColor: "bg-card",
+            borderColor: "border-border",
+            iconBg: "bg-muted",
+            iconColor: "text-accent",
+            source: "Progress Dashboard"
+          }].map((stat, index) => {
+            const IconComponent = stat.icon;
+            return <div key={index} className={`group relative ${stat.bgColor} border-2 ${stat.borderColor} rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1`}>
                   <div className="relative">
                     <div className={`w-12 h-12 rounded-xl ${stat.iconBg} flex items-center justify-center mb-4`}>
                       <IconComponent className={`w-6 h-6 ${stat.iconColor}`} />
@@ -123,9 +108,8 @@ export default function ForStaff() {
                       {stat.source}
                     </p>
                   </div>
-                </div>
-              );
-            })}
+                </div>;
+          })}
           </div>
 
           {/* Your Success Platform Card */}
@@ -319,35 +303,27 @@ export default function ForStaff() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: ShieldCheck,
-                number: "40%",
-                label: "Error Reduction",
-                description: "Ongoing training cuts clinical and administrative errors",
-                source: "All-Star Dental Academy 2024"
-              },
-              {
-                icon: Award,
-                number: "35%",
-                label: "Higher Patient Satisfaction",
-                description: "Better training helps you deliver superior care",
-                source: "All-Star Dental Academy 2024"
-              },
-              {
-                icon: Target,
-                number: "Less",
-                label: "Task Confusion",
-                description: "Clear daily tasks mean you know exactly what to do",
-                source: "Practice Management Studies"
-              }
-            ].map((result, index) => {
-              const IconComponent = result.icon;
-              return (
-                <div
-                  key={index}
-                  className="bg-card border border-border rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:border-accent/50 hover:-translate-y-1"
-                >
+            {[{
+            icon: ShieldCheck,
+            number: "40%",
+            label: "Error Reduction",
+            description: "Ongoing training cuts clinical and administrative errors",
+            source: "All-Star Dental Academy 2024"
+          }, {
+            icon: Award,
+            number: "35%",
+            label: "Higher Patient Satisfaction",
+            description: "Better training helps you deliver superior care",
+            source: "All-Star Dental Academy 2024"
+          }, {
+            icon: Target,
+            number: "Less",
+            label: "Task Confusion",
+            description: "Clear daily tasks mean you know exactly what to do",
+            source: "Practice Management Studies"
+          }].map((result, index) => {
+            const IconComponent = result.icon;
+            return <div key={index} className="bg-card border border-border rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:border-accent/50 hover:-translate-y-1">
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
                       <IconComponent className="w-6 h-6 text-accent" />
@@ -367,9 +343,8 @@ export default function ForStaff() {
                   <p className="text-xs text-muted-foreground">
                     Source: {result.source}
                   </p>
-                </div>
-              );
-            })}
+                </div>;
+          })}
           </div>
         </div>
       </section>
@@ -392,17 +367,10 @@ export default function ForStaff() {
           </p>
 
           <div className="flex flex-wrap justify-center gap-6 mb-10">
-            {[
-              "Clear daily tasks",
-              "Structured onboarding",
-              "Continuous learning",
-              "Career growth tracking"
-            ].map((benefit, index) => (
-              <div key={index} className="flex items-center gap-2">
+            {["Clear daily tasks", "Structured onboarding", "Continuous learning", "Career growth tracking"].map((benefit, index) => <div key={index} className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-accent" />
                 <span className="text-sm font-medium text-foreground">{benefit}</span>
-              </div>
-            ))}
+              </div>)}
           </div>
           
           <Button size="lg" onClick={() => navigate('/signup/staff')} className="font-semibold text-lg px-8">
@@ -430,6 +398,5 @@ export default function ForStaff() {
           animation: float 6s ease-in-out infinite;
         }
       `}</style>
-    </div>
-  );
+    </div>;
 }

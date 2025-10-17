@@ -2104,6 +2104,17 @@ export type Database = {
           status: string
         }[]
       }
+      get_team_members_no_email: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          id: string
+          is_active: boolean
+          last_login: string
+          name: string
+          role: string
+        }[]
+      }
       get_team_members_safe: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2152,6 +2163,18 @@ export type Database = {
         }[]
       }
       get_user_profile_secure: {
+        Args: { target_user_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          last_login: string
+          name: string
+          role: string
+        }[]
+      }
+      get_user_profile_with_email: {
         Args: { target_user_id: string }
         Returns: {
           created_at: string
@@ -2292,6 +2315,10 @@ export type Database = {
           is_valid: boolean
           user_id: string
         }[]
+      }
+      verify_user_has_role: {
+        Args: { required_role: string }
+        Returns: Json
       }
     }
     Enums: {

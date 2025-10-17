@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 
 import { Navigation } from '@/components/home/Navigation';
 import { HeroSection } from '@/components/home/HeroSection';
+import { ScrollSequence } from '@/components/home/ScrollSequence';
 import { Footer } from '@/components/home/Footer';
 export default function Home() {
   const navigate = useNavigate();
@@ -50,6 +51,9 @@ export default function Home() {
 
       {/* Hero Section */}
       <HeroSection />
+
+      {/* Scroll Sequence - Train, Track, Analyze */}
+      <ScrollSequence />
 
       {/* Footer */}
       <Footer />

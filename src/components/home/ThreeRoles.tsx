@@ -1,5 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { CheckCircle, TrendingUp, BarChart3, Calendar, Clock, Award } from 'lucide-react';
+import { 
+  CheckCircle, 
+  TrendingUp, 
+  BarChart3, 
+  Calendar, 
+  Clock, 
+  Award,
+  Trophy,
+  Target,
+  Flame,
+  Star,
+  Users,
+  Activity,
+  Zap
+} from 'lucide-react';
 
 export function ThreeRoles() {
   const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set());
@@ -65,10 +79,10 @@ export function ThreeRoles() {
       description: 'Equip your team with structured, clinic-specific learning. From HIPAA and infection control to patient communication, marketing, and insurance skills—Dentaleague turns everyday staff training into engaging, trackable progress.',
       align: 'left' as const,
       floatingCards: [
-        { text: 'HIPAA Course', icon: CheckCircle, complete: true, delay: 0 },
-        { text: 'Patient Communication', icon: null, complete: false, delay: 200 },
-        { text: 'Insurance Billing 101', icon: null, complete: false, delay: 400 },
-        { text: 'Marketing Basics', icon: null, complete: false, delay: 600 },
+        { type: 'course-progress', title: 'HIPAA Compliance', progress: 75, level: 'Intermediate', delay: 0 },
+        { type: 'quiz', title: 'Patient Communication', questions: '8/10', passing: 80, delay: 200 },
+        { type: 'certificate', title: 'Infection Control', date: 'Dec 2024', delay: 400 },
+        { type: 'achievement', title: 'Learning Streak', value: '5 Days', points: 50, delay: 600 },
       ]
     },
     {
@@ -76,10 +90,10 @@ export function ThreeRoles() {
       description: 'Run your clinic with precision. Use ready-to-go daily, weekly, and monthly task templates tailored to your practice—or create your own recurring workflows. Track who\'s done what, when, and how well, all in one clean dashboard.',
       align: 'right' as const,
       floatingCards: [
-        { text: 'Daily Sterilization Log', icon: CheckCircle, complete: true, delay: 0, type: 'task' },
-        { text: '92%', icon: null, complete: false, delay: 200, type: 'progress' },
-        { text: 'Weekly Cleaning Template', icon: Calendar, complete: false, delay: 400, type: 'template' },
-        { text: '8 tasks today', icon: Clock, complete: false, delay: 600, type: 'count' },
+        { type: 'live-task', title: 'Morning Equipment Check', priority: 'high', status: 'completed', assignee: 'Sarah', delay: 0 },
+        { type: 'circular-progress', progress: 92, label: 'Team Progress', delay: 200 },
+        { type: 'template', title: 'Weekly Sterilization', tasks: 8, category: 'Compliance', delay: 400 },
+        { type: 'assignment', count: 3, text: 'tasks assigned', avatar: true, delay: 600 },
       ]
     },
     {
@@ -87,9 +101,10 @@ export function ThreeRoles() {
       description: 'See performance at a glance. Dentaleague automatically compiles team analytics, completion rates, and compliance reports so you can identify gaps, reward progress, and keep your operations running at peak efficiency.',
       align: 'left' as const,
       floatingCards: [
-        { text: 'Team Completion: 92%', icon: TrendingUp, complete: false, delay: 0, type: 'stat' },
-        { text: 'Performance', icon: BarChart3, complete: false, delay: 200, type: 'chart' },
-        { text: 'Top Performer: Hafsa', icon: Award, complete: false, delay: 400, type: 'badge' },
+        { type: 'completion-rate', value: 92, trend: 'up', label: 'Team Completion', delay: 0 },
+        { type: 'performance-chart', data: [40, 60, 75, 90], delay: 200 },
+        { type: 'top-performer', name: 'Hafsa', score: 98, delay: 400 },
+        { type: 'live-metrics', count: 15, label: 'Tasks Completed', time: '2.3 days avg', delay: 600 },
       ]
     },
   ];
@@ -205,12 +220,12 @@ export function ThreeRoles() {
                       const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.1 + index * 0.25)) / 0.25));
                       const shouldShow = cardProgress > (cardIndex * 0.2);
                       
-                      // Scattered positioning patterns
+                      // Scattered, organic positioning with varied depths
                       const positions = [
-                        { top: 20, left: 40, right: 'auto' },
-                        { top: 110, left: 120, right: 'auto' },
-                        { top: 200, left: 20, right: 'auto' },
-                        { top: 300, left: 100, right: 'auto' },
+                        { top: 10, left: 60, scale: 1 },
+                        { top: 130, left: 180, scale: 0.95 },
+                        { top: 240, left: 30, scale: 1.05 },
+                        { top: 330, left: 140, scale: 0.9 },
                       ];
                       
                       const position = positions[cardIndex] || positions[0];
@@ -227,10 +242,12 @@ export function ThreeRoles() {
                             right: isLeft ? 'auto' : `${position.left}px`,
                             transitionDelay: `${card.delay}ms`,
                             animation: shouldShow ? `float ${3 + cardIndex * 0.5}s ease-in-out infinite` : 'none',
-                            animationDelay: `${cardIndex * 0.3}s`
+                            animationDelay: `${cardIndex * 0.3}s`,
+                            transform: `scale(${position.scale})`,
+                            zIndex: Math.floor(position.scale * 10)
                           }}
                         >
-                          {renderFloatingCard(card, section.title)}
+                          {renderFloatingCard(card)}
                         </div>
                       );
                     })}
@@ -251,137 +268,322 @@ export function ThreeRoles() {
             transform: translateY(-10px);
           }
         }
+        
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+          }
+          50% {
+            box-shadow: 0 4px 30px rgba(59, 130, 246, 0.5);
+          }
+        }
+        
+        @keyframes progress-fill {
+          from {
+            stroke-dashoffset: 200;
+          }
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+        
+        @keyframes sparkle {
+          0%, 100% {
+            opacity: 0;
+            transform: scale(0);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
       `}</style>
     </section>
   );
 }
 
-function renderFloatingCard(card: any, sectionTitle: string) {
-  const Icon = card.icon;
-  
-  // Training cards - varied pill and card styles
-  if (sectionTitle === 'Train') {
-    if (card.complete) {
-      return (
-        <div className="bg-primary/10 border border-primary/30 rounded-full px-4 py-2 flex items-center gap-2 backdrop-blur-sm shadow-lg">
-          <CheckCircle className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-primary">{card.text}</span>
-        </div>
-      );
-    }
+function renderFloatingCard(card: any) {
+  // TRAIN SECTION CARDS
+  if (card.type === 'course-progress') {
     return (
-      <div className="bg-card border border-border rounded-lg px-4 py-3 shadow-lg backdrop-blur-sm">
-        <span className="text-sm font-medium text-foreground">{card.text}</span>
+      <div className="bg-gradient-to-br from-learning-quiz/10 to-learning-primary/10 border border-learning-quiz/30 rounded-xl p-4 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-shadow min-w-[260px]">
+        <div className="flex items-center gap-2 mb-3">
+          <Target className="w-5 h-5 text-learning-quiz" />
+          <span className="text-sm font-semibold text-foreground">{card.title}</span>
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-muted-foreground">{card.progress}% Complete</span>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-learning-quiz/20 text-learning-quiz">{card.level}</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-learning-quiz to-learning-primary rounded-full transition-all duration-1000"
+              style={{ width: `${card.progress}%` }}
+            />
+          </div>
+        </div>
       </div>
     );
   }
   
-  // Track cards - varied dashboard-style widgets
-  if (sectionTitle === 'Track') {
-    if (card.type === 'task') {
-      return (
-        <div className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3 flex items-center gap-2 backdrop-blur-sm shadow-lg min-w-[240px]">
-          <CheckCircle className="w-5 h-5 text-green-600" />
-          <span className="text-sm font-medium text-green-700">{card.text}</span>
-        </div>
-      );
-    }
-    if (card.type === 'progress') {
-      return (
-        <div className="bg-card border border-border rounded-xl p-4 shadow-lg backdrop-blur-sm">
-          <div className="flex items-center justify-center">
-            <div className="relative w-20 h-20">
-              <svg className="transform -rotate-90 w-20 h-20">
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="32"
-                  stroke="currentColor"
-                  strokeWidth="6"
-                  fill="transparent"
-                  className="text-muted"
-                />
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="32"
-                  stroke="currentColor"
-                  strokeWidth="6"
-                  fill="transparent"
-                  strokeDasharray={`${2 * Math.PI * 32}`}
-                  strokeDashoffset={`${2 * Math.PI * 32 * (1 - 0.92)}`}
-                  className="text-primary"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-lg font-bold text-foreground">{card.text}</span>
-              </div>
-            </div>
+  if (card.type === 'quiz') {
+    return (
+      <div className="bg-card border-2 border-learning-primary/40 rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[240px] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-learning-primary/10 rounded-bl-full" />
+        <div className="relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-learning-primary flex items-center gap-1">
+              <Zap className="w-3 h-3" />
+              ACTIVE QUIZ
+            </span>
+            <Clock className="w-4 h-4 text-muted-foreground" />
           </div>
-        </div>
-      );
-    }
-    if (card.type === 'template') {
-      return (
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg px-4 py-3 flex items-center gap-2 backdrop-blur-sm shadow-lg">
-          <Calendar className="w-5 h-5 text-blue-600" />
-          <span className="text-sm font-medium text-blue-700">{card.text}</span>
-        </div>
-      );
-    }
-    if (card.type === 'count') {
-      return (
-        <div className="bg-card border border-border rounded-full px-4 py-2 flex items-center gap-2 backdrop-blur-sm shadow-lg">
-          <Clock className="w-4 h-4 text-orange-600" />
-          <span className="text-sm font-semibold text-foreground">{card.text}</span>
-        </div>
-      );
-    }
-  }
-  
-  // Analyze cards - varied analytics styles
-  if (sectionTitle === 'Analyze') {
-    if (card.type === 'stat') {
-      return (
-        <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl px-5 py-4 backdrop-blur-sm shadow-lg">
+          <h4 className="text-sm font-bold text-foreground mb-2">{card.title}</h4>
           <div className="flex items-center gap-3">
-            <TrendingUp className="w-6 h-6 text-green-600" />
-            <div>
-              <span className="text-lg font-bold text-green-700 block">{card.text}</span>
+            <span className="text-lg font-bold text-learning-primary">{card.questions}</span>
+            <span className="text-xs text-muted-foreground">Pass: {card.passing}%</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (card.type === 'certificate') {
+    return (
+      <div className="bg-gradient-to-br from-learning-achievement/20 to-amber-500/10 border-2 border-learning-achievement/50 rounded-xl p-4 backdrop-blur-sm shadow-2xl min-w-[220px] relative">
+        <div className="absolute top-2 right-2">
+          <div className="w-8 h-8 bg-learning-achievement/20 rounded-full flex items-center justify-center">
+            <Trophy className="w-4 h-4 text-learning-achievement" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-1 text-learning-achievement">
+            <Award className="w-5 h-5" />
+            <span className="text-xs font-bold">CERTIFIED</span>
+          </div>
+          <h4 className="text-sm font-bold text-foreground">{card.title}</h4>
+          <p className="text-xs text-muted-foreground">{card.date}</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (card.type === 'achievement') {
+    return (
+      <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-full px-5 py-3 backdrop-blur-sm shadow-xl flex items-center gap-3 min-w-[200px] relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 animate-pulse" />
+        <div className="relative flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center">
+            <Flame className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-orange-600">{card.title}</p>
+            <p className="text-lg font-bold text-foreground">{card.value}</p>
+          </div>
+          <span className="absolute -top-1 -right-1 text-xs font-bold text-learning-achievement">+{card.points}</span>
+        </div>
+      </div>
+    );
+  }
+  
+  // TRACK SECTION CARDS
+  if (card.type === 'live-task') {
+    const priorityColors = {
+      high: 'border-red-500/40 bg-red-500/5',
+      medium: 'border-orange-500/40 bg-orange-500/5',
+      low: 'border-blue-500/40 bg-blue-500/5'
+    };
+    
+    return (
+      <div className={`${priorityColors[card.priority as keyof typeof priorityColors]} border-2 rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[280px]`}>
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`w-2 h-2 rounded-full ${card.status === 'completed' ? 'bg-learning-success' : 'bg-orange-500'}`} />
+              <span className="text-xs font-semibold text-muted-foreground uppercase">{card.status}</span>
+            </div>
+            <h4 className="text-sm font-bold text-foreground">{card.title}</h4>
+          </div>
+          <CheckCircle className="w-5 h-5 text-learning-success" />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+            <span className="text-xs font-bold text-primary">{card.assignee[0]}</span>
+          </div>
+          <span className="text-xs text-muted-foreground">{card.assignee}</span>
+        </div>
+      </div>
+    );
+  }
+  
+  if (card.type === 'circular-progress') {
+    const percentage = card.progress;
+    const circumference = 2 * Math.PI * 40;
+    const offset = circumference - (percentage / 100) * circumference;
+    
+    return (
+      <div className="bg-card border border-border rounded-2xl p-6 backdrop-blur-sm shadow-xl">
+        <div className="flex flex-col items-center">
+          <div className="relative w-28 h-28">
+            <svg className="transform -rotate-90 w-28 h-28">
+              <circle
+                cx="56"
+                cy="56"
+                r="40"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
+                className="text-muted/30"
+              />
+              <circle
+                cx="56"
+                cy="56"
+                r="40"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
+                strokeDasharray={circumference}
+                strokeDashoffset={offset}
+                className="text-primary transition-all duration-1000"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center flex-col">
+              <span className="text-2xl font-bold text-foreground">{percentage}%</span>
+              <Activity className="w-4 h-4 text-primary mt-1" />
+            </div>
+          </div>
+          <span className="text-xs font-semibold text-muted-foreground mt-3">{card.label}</span>
+        </div>
+      </div>
+    );
+  }
+  
+  if (card.type === 'template') {
+    return (
+      <div className="bg-card border border-primary/30 rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[240px] hover:border-primary/50 transition-colors">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Calendar className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-bold text-foreground mb-1">{card.title}</h4>
+            <div className="flex items-center gap-2">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{card.tasks} tasks</span>
+              <span className="text-xs text-muted-foreground">{card.category}</span>
             </div>
           </div>
         </div>
-      );
-    }
-    if (card.type === 'chart') {
-      return (
-        <div className="bg-card border border-border rounded-lg p-4 backdrop-blur-sm shadow-lg">
-          <div className="flex items-end gap-1 h-16">
-            <div className="w-3 bg-primary/40 rounded-t" style={{ height: '40%' }}></div>
-            <div className="w-3 bg-primary/50 rounded-t" style={{ height: '60%' }}></div>
-            <div className="w-3 bg-primary/70 rounded-t" style={{ height: '75%' }}></div>
-            <div className="w-3 bg-primary rounded-t" style={{ height: '90%' }}></div>
-          </div>
-          <span className="text-xs font-medium text-muted-foreground mt-2 block">{card.text}</span>
-        </div>
-      );
-    }
-    if (card.type === 'badge') {
-      return (
-        <div className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30 rounded-full px-4 py-2 flex items-center gap-2 backdrop-blur-sm shadow-lg">
-          <Award className="w-5 h-5 text-amber-600" />
-          <span className="text-sm font-semibold text-amber-700">{card.text}</span>
-        </div>
-      );
-    }
+      </div>
+    );
   }
   
-  // Default card
-  return (
-    <div className="bg-card border border-border rounded-lg px-4 py-3 shadow-lg backdrop-blur-sm">
-      {Icon && <Icon className="w-5 h-5 text-primary mb-1" />}
-      <span className="text-sm font-medium text-foreground">{card.text}</span>
-    </div>
-  );
+  if (card.type === 'assignment') {
+    return (
+      <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30 rounded-full px-5 py-3 backdrop-blur-sm shadow-lg flex items-center gap-3 min-w-[180px]">
+        <div className="flex -space-x-2">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 border-2 border-background flex items-center justify-center">
+            <Users className="w-4 h-4 text-white" />
+          </div>
+        </div>
+        <div>
+          <p className="text-lg font-bold text-foreground">{card.count}</p>
+          <p className="text-xs text-muted-foreground">{card.text}</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // ANALYZE SECTION CARDS
+  if (card.type === 'completion-rate') {
+    return (
+      <div className="bg-gradient-to-br from-learning-success/10 to-emerald-500/10 border-2 border-learning-success/40 rounded-2xl p-5 backdrop-blur-sm shadow-2xl min-w-[220px]">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <p className="text-xs font-semibold text-learning-success mb-1">{card.label}</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-foreground">{card.value}%</span>
+              <TrendingUp className="w-5 h-5 text-learning-success" />
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-1 h-1">
+          <div className="flex-1 bg-learning-success/30 rounded-full overflow-hidden">
+            <div className="h-full bg-learning-success w-full animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (card.type === 'performance-chart') {
+    return (
+      <div className="bg-card border border-border rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[200px]">
+        <div className="flex items-end justify-between gap-2 h-20 mb-2">
+          {card.data.map((value: number, i: number) => (
+            <div 
+              key={i}
+              className="flex-1 bg-gradient-to-t from-primary to-primary/50 rounded-t-lg transition-all duration-1000 hover:from-primary/80"
+              style={{ 
+                height: `${value}%`,
+                animationDelay: `${i * 100}ms`
+              }}
+            />
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-primary" />
+          <span className="text-xs font-semibold text-muted-foreground">Performance Trend</span>
+        </div>
+      </div>
+    );
+  }
+  
+  if (card.type === 'top-performer') {
+    return (
+      <div className="bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 border-2 border-amber-500/40 rounded-2xl p-4 backdrop-blur-sm shadow-2xl min-w-[220px] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-bl-full" />
+        <div className="absolute top-2 right-2">
+          <Star className="w-6 h-6 text-amber-500 fill-amber-500 animate-pulse" />
+        </div>
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-2">
+            <Trophy className="w-5 h-5 text-amber-600" />
+            <span className="text-xs font-bold text-amber-600 uppercase">Top Performer</span>
+          </div>
+          <h4 className="text-lg font-bold text-foreground mb-1">{card.name}</h4>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-muted rounded-full h-2">
+              <div className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full" style={{ width: `${card.score}%` }} />
+            </div>
+            <span className="text-sm font-bold text-amber-600">{card.score}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (card.type === 'live-metrics') {
+    return (
+      <div className="bg-card border border-border rounded-xl p-4 backdrop-blur-sm shadow-xl min-w-[220px]">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Activity className="w-5 h-5 text-primary animate-pulse" />
+            <span className="text-xs font-semibold text-primary uppercase">Live</span>
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-foreground mb-1">{card.count}</p>
+            <p className="text-xs font-medium text-muted-foreground">{card.label}</p>
+          </div>
+          <div className="flex items-center gap-2 pt-2 border-t border-border">
+            <Clock className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">{card.time}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  return null;
 }

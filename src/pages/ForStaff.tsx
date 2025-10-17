@@ -134,18 +134,26 @@ export default function ForStaff() {
                       <CheckSquare className="w-5 h-5 text-accent" />
                     </div>
                     <div className="flex-1">
-                      <div className="h-2 bg-muted rounded w-20 mb-2" />
-                      <div className="h-2 bg-muted rounded w-16" />
+                      <p className="text-xs text-muted-foreground">Today's Tasks</p>
+                      <p className="text-2xl font-bold text-foreground">5/7</p>
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-accent/20" />
-                      <div className="h-2 bg-muted rounded flex-1" />
+                      <div className="w-4 h-4 rounded bg-accent flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
+                      <p className="text-xs text-foreground flex-1">Sterilization check</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-accent/20" />
-                      <div className="h-2 bg-muted rounded flex-1" />
+                      <div className="w-4 h-4 rounded bg-accent flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
+                      <p className="text-xs text-foreground flex-1">Patient chart prep</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded border-2 border-muted" />
+                      <p className="text-xs text-muted-foreground flex-1">Inventory check</p>
                     </div>
                   </div>
                 </div>
@@ -156,22 +164,42 @@ export default function ForStaff() {
                       <GraduationCap className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <div className="h-2 bg-muted rounded w-16 mb-2" />
-                      <div className="h-2 bg-muted rounded w-12" />
+                      <p className="text-[10px] text-muted-foreground">In Progress</p>
+                      <p className="text-sm font-semibold text-foreground">HIPAA Training</p>
                     </div>
                   </div>
-                  <div className="h-2 bg-accent/20 rounded w-3/4" />
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="text-primary font-medium">75%</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div className="bg-primary rounded-full h-2" style={{ width: '75%' }} />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="absolute bottom-0 right-12 w-60 bg-card border border-border rounded-xl p-5 shadow-lg animate-float" style={{ animationDelay: '2s' }}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                      <Award className="w-5 h-5 text-accent" />
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center">
+                      <Award className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="h-2 bg-muted rounded w-24 mb-2" />
-                      <div className="h-2 bg-accent/20 rounded w-full" />
+                      <p className="text-xs font-semibold text-foreground">Achievement Unlocked!</p>
+                      <p className="text-[10px] text-muted-foreground">5-Day Streak</p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2 pt-2 border-t border-border">
+                    <div className="flex-1">
+                      <div className="flex gap-1">
+                        <div className="w-1.5 h-4 rounded-full bg-accent" />
+                        <div className="w-1.5 h-4 rounded-full bg-accent" />
+                        <div className="w-1.5 h-4 rounded-full bg-accent" />
+                        <div className="w-1.5 h-4 rounded-full bg-accent" />
+                        <div className="w-1.5 h-4 rounded-full bg-accent" />
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-accent">+50 pts</span>
                   </div>
                 </div>
               </div>

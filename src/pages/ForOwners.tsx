@@ -159,39 +159,67 @@ export default function ForOwners() {
                       <Users className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <div className="h-2 bg-muted rounded w-20 mb-2" />
-                      <div className="h-2 bg-muted rounded w-16" />
+                      <p className="text-xs text-muted-foreground">Team Members</p>
+                      <p className="text-2xl font-bold text-foreground">8</p>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <div className="h-2 bg-muted rounded" />
-                    <div className="h-2 bg-muted rounded w-4/5" />
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-semibold text-primary">JD</div>
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-foreground">Jessica Davis</p>
+                        <p className="text-[10px] text-muted-foreground">Assistant</p>
+                      </div>
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-[10px] font-semibold text-accent">MR</div>
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-foreground">Mike Rodriguez</p>
+                        <p className="text-[10px] text-muted-foreground">Front Desk</p>
+                      </div>
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                    </div>
                   </div>
                 </div>
 
                 <div className="absolute top-20 right-0 w-56 bg-card border border-border rounded-xl p-5 shadow-lg animate-float" style={{ animationDelay: '1s' }}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                      <BarChart3 className="w-4 h-4 text-accent" />
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <BarChart3 className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <div className="h-2 bg-muted rounded w-16 mb-2" />
-                      <div className="h-2 bg-muted rounded w-12" />
+                      <p className="text-[10px] text-muted-foreground">Completion Rate</p>
+                      <p className="text-xl font-bold text-foreground">94%</p>
                     </div>
                   </div>
-                  <div className="h-16 bg-gradient-to-t from-primary/10 to-transparent rounded" />
+                  <div className="relative h-16 bg-muted rounded overflow-hidden">
+                    <div className="absolute bottom-0 left-0 right-0 flex items-end gap-1 px-2 pb-2">
+                      <div className="w-full h-8 bg-primary/30 rounded-sm" />
+                      <div className="w-full h-12 bg-primary/50 rounded-sm" />
+                      <div className="w-full h-10 bg-primary/40 rounded-sm" />
+                      <div className="w-full h-14 bg-primary rounded-sm" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="absolute bottom-0 left-12 w-60 bg-card border border-border rounded-xl p-5 shadow-lg animate-float" style={{ animationDelay: '2s' }}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-primary" />
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <CheckCircle className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-foreground">Morning Setup</p>
+                        <p className="text-[10px] text-muted-foreground">Completed</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="h-2 bg-muted rounded w-24 mb-2" />
-                      <div className="h-2 bg-primary/20 rounded w-full" />
-                    </div>
+                    <span className="text-xs text-green-600 font-medium">✓</span>
                   </div>
+                  <div className="w-full bg-muted rounded-full h-1.5">
+                    <div className="bg-primary rounded-full h-1.5" style={{ width: '100%' }} />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-2">Assigned to: Sarah M.</p>
                 </div>
               </div>
             </div>

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/ui/animated-logo';
 import { Menu, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 export function Navigation() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
@@ -55,7 +56,15 @@ export function Navigation() {
   
   const handleNavClick = (href: string) => {
     if (href.startsWith('#')) {
-      scrollToSection(href.slice(1));
+      const sectionId = href.slice(1);
+      // If we're on the home page, scroll to section
+      if (location.pathname === '/') {
+        scrollToSection(sectionId);
+      } else {
+        // Navigate to home with state to scroll after navigation
+        navigate('/', { state: { scrollTo: sectionId } });
+        setIsMobileMenuOpen(false);
+      }
     } else {
       navigate(href);
       setIsMobileMenuOpen(false);
@@ -69,10 +78,13 @@ export function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <button 
+            onClick={() => navigate('/')} 
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <AnimatedLogo size={24} animated={false} className="text-primary" />
             <span className="text-base sm:text-lg font-bold text-foreground">DentaLeague</span>
-          </div>
+          </button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">

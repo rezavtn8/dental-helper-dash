@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
@@ -9,6 +9,7 @@ import { ThreeRoles } from '@/components/home/ThreeRoles';
 import { Footer } from '@/components/home/Footer';
 export default function Home() {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     user,
     userProfile,
@@ -36,6 +37,22 @@ export default function Home() {
       }
     }
   }, [user, userProfile, navigate, loading]);
+
+  // Handle scroll to section from navigation state
+  useEffect(() => {
+    const state = location.state as { scrollTo?: string };
+    if (state?.scrollTo) {
+      // Clear the state
+      navigate(location.pathname, { replace: true, state: {} });
+      // Scroll to the section after a brief delay to ensure content is rendered
+      setTimeout(() => {
+        const element = document.getElementById(state.scrollTo);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [location.state, location.pathname, navigate]);
   return <div className="min-h-screen bg-background">
       
       {/* Loading State */}

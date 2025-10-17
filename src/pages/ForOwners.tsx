@@ -4,7 +4,7 @@ import { Navigation } from '@/components/home/Navigation';
 import { ArrowRight, Users, TrendingUp, CheckCircle, AlertCircle, DollarSign, Clock, UserX, Target, Award, Zap, ShieldCheck } from 'lucide-react';
 export default function ForOwners() {
   const navigate = useNavigate();
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background animate-fade-in">
       <Navigation />
 
       {/* Hero Section */}

@@ -33,7 +33,7 @@ export default function Pricing() {
     icon: Zap,
     popular: false
   }];
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background animate-fade-in">
       {/* Navigation Header */}
       <Navigation />
 

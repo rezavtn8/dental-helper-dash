@@ -80,9 +80,9 @@ export default function ForOwners() {
                 number: "68%",
                 label: "of dental offices have no structured onboarding",
                 icon: AlertCircle,
-                bgColor: "bg-orange-50 dark:bg-orange-950/20",
-                borderColor: "border-orange-200 dark:border-orange-900/30",
-                iconBg: "bg-orange-100 dark:bg-orange-900/30",
+                bgColor: "bg-card",
+                borderColor: "border-border",
+                iconBg: "bg-muted",
                 iconColor: "text-orange-600 dark:text-orange-400",
                 source: "DentalPost 2023"
               },
@@ -90,9 +90,9 @@ export default function ForOwners() {
                 number: "$5K-$10K",
                 label: "cost per staff replacement",
                 icon: DollarSign,
-                bgColor: "bg-red-50 dark:bg-red-950/20",
-                borderColor: "border-red-200 dark:border-red-900/30",
-                iconBg: "bg-red-100 dark:bg-red-900/30",
+                bgColor: "bg-card",
+                borderColor: "border-border",
+                iconBg: "bg-muted",
                 iconColor: "text-red-600 dark:text-red-400",
                 source: "DentalPost 2023"
               },
@@ -100,9 +100,9 @@ export default function ForOwners() {
                 number: "40%",
                 label: "of daily tasks delayed without tracking",
                 icon: Clock,
-                bgColor: "bg-amber-50 dark:bg-amber-950/20",
-                borderColor: "border-amber-200 dark:border-amber-900/30",
-                iconBg: "bg-amber-100 dark:bg-amber-900/30",
+                bgColor: "bg-card",
+                borderColor: "border-border",
+                iconBg: "bg-muted",
                 iconColor: "text-amber-600 dark:text-amber-400",
                 source: "AAOSH 2023"
               },
@@ -110,9 +110,9 @@ export default function ForOwners() {
                 number: "1 in 3",
                 label: "employees quit within first year",
                 icon: UserX,
-                bgColor: "bg-rose-50 dark:bg-rose-950/20",
-                borderColor: "border-rose-200 dark:border-rose-900/30",
-                iconBg: "bg-rose-100 dark:bg-rose-900/30",
+                bgColor: "bg-card",
+                borderColor: "border-border",
+                iconBg: "bg-muted",
                 iconColor: "text-rose-600 dark:text-rose-400",
                 source: "DentalPost 2023"
               }
@@ -146,8 +146,8 @@ export default function ForOwners() {
 
           {/* Total Cost Card - Large Standalone Calculator */}
           <div className="max-w-4xl mx-auto">
-            <div className="relative bg-gradient-to-br from-destructive/10 via-destructive/5 to-background border-2 border-destructive/30 rounded-3xl p-8 md:p-10 transition-all duration-300 hover:shadow-2xl hover:border-destructive/50">
-              <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 to-transparent rounded-3xl opacity-50" />
+            <div className="relative bg-card border-2 border-border rounded-3xl p-8 md:p-10 transition-all duration-300 hover:shadow-2xl hover:border-destructive/20">
+              <div className="absolute inset-0 bg-gradient-to-br from-muted/30 to-transparent rounded-3xl opacity-50" />
               
               <div className="relative">
                 <div className="flex items-start gap-6 mb-8">
@@ -172,7 +172,7 @@ export default function ForOwners() {
                     </h4>
                     
                     <div className="space-y-3">
-                      <div className="bg-card/50 rounded-xl p-4 border border-destructive/10">
+                      <div className="bg-muted/30 rounded-xl p-4 border border-border">
                         <div className="flex items-start gap-3 mb-2">
                           <UserX className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
@@ -190,7 +190,7 @@ export default function ForOwners() {
                         </div>
                       </div>
 
-                      <div className="bg-card/50 rounded-xl p-4 border border-destructive/10">
+                      <div className="bg-muted/30 rounded-xl p-4 border border-border">
                         <div className="flex items-start gap-3 mb-2">
                           <Clock className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
@@ -208,7 +208,7 @@ export default function ForOwners() {
                         </div>
                       </div>
 
-                      <div className="bg-card/50 rounded-xl p-4 border border-destructive/10">
+                      <div className="bg-muted/30 rounded-xl p-4 border border-border">
                         <div className="flex items-start gap-3 mb-2">
                           <AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
@@ -230,7 +230,7 @@ export default function ForOwners() {
 
                   {/* Total & Impact */}
                   <div>
-                    <div className="bg-gradient-to-br from-destructive/20 to-destructive/10 rounded-2xl p-8 border-2 border-destructive/40 mb-6">
+                    <div className="bg-muted/40 rounded-2xl p-8 border-2 border-border mb-6">
                       <p className="text-sm text-muted-foreground uppercase tracking-wide mb-3">
                         Total Annual Cost
                       </p>
@@ -243,19 +243,19 @@ export default function ForOwners() {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-3 bg-card/30 rounded-lg border border-border">
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
                         <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
                         <p className="text-sm text-foreground">
                           <span className="font-semibold">25-30%</span> annual staff turnover rate
                         </p>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-card/30 rounded-lg border border-border">
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
                         <Clock className="w-5 h-5 text-destructive flex-shrink-0" />
                         <p className="text-sm text-foreground">
                           <span className="font-semibold">40%</span> of tasks delayed without tracking
                         </p>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-card/30 rounded-lg border border-border">
+                      <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
                         <UserX className="w-5 h-5 text-destructive flex-shrink-0" />
                         <p className="text-sm text-foreground">
                           <span className="font-semibold">68%</span> have no structured onboarding

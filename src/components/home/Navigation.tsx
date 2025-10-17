@@ -13,7 +13,7 @@ export function Navigation() {
       setIsScrolled(window.scrollY > 10);
 
       // Update active section based on scroll position
-      const sections = ['platform', 'for-owners', 'for-staff', 'pricing'];
+      const sections = ['features', 'how-it-works', 'testimonials', 'pricing'];
       for (const sectionId of sections) {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -29,28 +29,16 @@ export function Navigation() {
     handleScroll(); // Initial check
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  const navItems = [
-    {
-      name: 'Platform',
-      href: '#platform',
-      description: 'See what DentaLeague can do'
-    },
-    {
-      name: 'For Owners',
-      href: '#for-owners',
-      description: 'Train and manage your team'
-    },
-    {
-      name: 'For Staff',
-      href: '#for-staff',
-      description: 'Learn and grow your skills'
-    },
-    {
-      name: 'Pricing',
-      href: '/pricing',
-      description: 'Simple, transparent pricing'
-    }
-  ];
+  const navItems = [{
+    name: 'Features',
+    href: '#features'
+  }, {
+    name: 'How It Works',
+    href: '/how-it-works'
+  }, {
+    name: 'Pricing',
+    href: '/pricing'
+  }];
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -90,24 +78,20 @@ export function Navigation() {
                 <button 
                   key={item.name} 
                   onClick={() => handleNavClick(item.href)} 
-                  className={`text-sm font-medium transition-all duration-200 relative group ${
+                  className={`text-sm font-medium transition-colors ${
                     isActive(item.href) 
                       ? 'text-foreground' 
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {item.name}
-                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-200 ${
-                    isActive(item.href) ? 'w-full' : 'w-0 group-hover:w-full'
-                  }`} />
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Button 
                 variant="ghost" 
                 onClick={() => navigate('/signin')} 
-                size="sm"
                 className="font-medium"
               >
                 Sign In
@@ -117,7 +101,15 @@ export function Navigation() {
                 size="sm"
                 className="font-medium"
               >
-                Get Started
+                Owner Sign Up
+              </Button>
+              <Button 
+                onClick={() => navigate('/signup/staff')} 
+                variant="outline" 
+                size="sm"
+                className="font-medium"
+              >
+                Staff Sign Up
               </Button>
             </div>
           </div>
@@ -134,23 +126,22 @@ export function Navigation() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-border py-4 animate-fade-in">
-            <div className="flex flex-col gap-1">
+          <div className="md:hidden border-t border-border py-4">
+            <div className="flex flex-col gap-2">
               {navItems.map(item => (
                 <button 
                   key={item.name} 
                   onClick={() => handleNavClick(item.href)} 
-                  className={`text-left py-3 px-3 rounded-lg transition-all duration-200 ${
+                  className={`text-left py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
                     isActive(item.href) 
-                      ? 'bg-primary/10 text-foreground' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-muted text-foreground' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  <div className="font-medium text-sm">{item.name}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
+                  {item.name}
                 </button>
               ))}
-              <div className="pt-3 mt-3 border-t border-border flex flex-col gap-2">
+              <div className="pt-2 flex flex-col gap-2">
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate('/signin')} 
@@ -163,7 +154,15 @@ export function Navigation() {
                   size="sm"
                   className="w-full font-medium"
                 >
-                  Get Started
+                  Owner Sign Up
+                </Button>
+                <Button 
+                  onClick={() => navigate('/signup/staff')} 
+                  variant="outline" 
+                  size="sm"
+                  className="w-full font-medium"
+                >
+                  Staff Sign Up
                 </Button>
               </div>
             </div>

@@ -312,17 +312,17 @@ export function ThreeRoles() {
                   </div>
 
                   {/* Desktop Layout - Original scattered cards */}
-                  <div className="hidden lg:block relative h-[400px]">
+                  <div className="hidden lg:block relative h-[500px]">
                     <div className="relative h-full">
                       {section.floatingCards.map((card, cardIndex) => {
                         const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                        const shouldShow = cardProgress > (cardIndex * 0.25);
+                        const shouldShow = cardProgress > (cardIndex * 0.15);
                         
                         const positions = [
-                          { top: 20, left: 40, scale: 1 },
-                          { top: 100, left: 280, scale: 0.95 },
-                          { top: 220, left: 10, scale: 1.05 },
-                          { top: 320, left: 250, scale: 0.9 },
+                          { top: 10, left: 40, scale: 1 },
+                          { top: 120, left: 280, scale: 0.95 },
+                          { top: 240, left: 10, scale: 1.05 },
+                          { top: 360, left: 250, scale: 0.9 },
                         ];
                         
                         const position = positions[cardIndex] || positions[0];
@@ -331,15 +331,15 @@ export function ThreeRoles() {
                           <div
                             key={cardIndex}
                             className={`absolute transition-all duration-700 ease-out ${
-                              shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                              shouldShow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
                             }`}
                             style={{
                               top: `${position.top}px`,
                               left: isLeft ? `${position.left}px` : 'auto',
                               right: isLeft ? 'auto' : `${position.left}px`,
-                              transitionDelay: `${shouldShow ? cardIndex * 300 : 0}ms`,
-                              animation: shouldShow ? `float ${3 + cardIndex * 0.5}s ease-in-out infinite` : 'none',
-                              animationDelay: `${cardIndex * 0.3}s`,
+                              transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
+                              animation: shouldShow ? `float ${3.5 + cardIndex * 0.5}s ease-in-out infinite` : 'none',
+                              animationDelay: `${cardIndex * 0.4}s`,
                               transform: `scale(${position.scale})`,
                               zIndex: Math.floor(position.scale * 10)
                             }}
@@ -363,7 +363,7 @@ export function ThreeRoles() {
             transform: translateY(0px);
           }
           50% {
-            transform: translateY(-10px);
+            transform: translateY(-15px);
           }
         }
         

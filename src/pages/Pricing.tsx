@@ -176,10 +176,10 @@ export default function Pricing() {
         <div className="text-center max-w-3xl mx-auto space-y-8">
           <div className="bg-muted/50 rounded-2xl p-8 border border-border">
             <h3 className="text-xl font-semibold text-foreground mb-4">
-              Try DentaLeague Risk-Free
+              Get Started with DentaLeague
             </h3>
             <p className="text-muted-foreground mb-6">
-              Start with a 14-day free trial. No credit card required. Cancel anytime.
+              Join dental practices using DentaLeague to streamline operations and train their teams.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button 
@@ -187,7 +187,7 @@ export default function Pricing() {
                 onClick={() => navigate('/signup/owner')}
                 className="font-semibold"
               >
-                Start Free Trial
+                Get Started
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
               <Button 

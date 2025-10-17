@@ -84,7 +84,7 @@ export default function ForOwners() {
             onClick={() => navigate('/signup/owner')}
             className="font-semibold"
           >
-            Start Free Trial
+            Get Started
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
@@ -213,7 +213,7 @@ export default function ForOwners() {
             onClick={() => navigate('/signup/owner')}
             className="font-semibold"
           >
-            Start Free Trial
+            Get Started
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>

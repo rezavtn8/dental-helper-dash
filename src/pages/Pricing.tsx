@@ -83,7 +83,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
           {plans.map((plan) => {
             const IconComponent = plan.icon;
             return (
@@ -95,9 +95,9 @@ export default function Pricing() {
                 )}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                    <Badge className="bg-primary text-primary-foreground px-4 py-1.5 flex items-center gap-1.5 shadow-lg text-xs font-semibold">
-                      <Star className="w-3.5 h-3.5 fill-current" />
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                    <Badge className="bg-primary text-primary-foreground px-3 py-1 flex items-center gap-1.5 shadow-lg text-xs font-semibold">
+                      <Star className="w-3 h-3 fill-current" />
                       Most Popular
                     </Badge>
                   </div>
@@ -105,53 +105,53 @@ export default function Pricing() {
                 
                 <div 
                   className={cn(
-                    "relative bg-card border rounded-2xl p-8 h-full flex flex-col transition-all duration-300",
+                    "relative backdrop-blur-md bg-background/60 border rounded-xl p-6 h-full flex flex-col transition-all duration-300",
                     plan.popular 
-                      ? "border-primary shadow-lg hover:shadow-xl" 
-                      : "border-border hover:border-primary/50 hover:shadow-lg"
+                      ? "border-primary/50 shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/20" 
+                      : "border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
                   )}
                 >
                   {/* Icon and Title */}
-                  <div className="mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                      <IconComponent className="w-6 h-6 text-primary" />
+                  <div className="mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center mb-3">
+                      <IconComponent className="w-5 h-5 text-primary" />
                     </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
+                    <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
                   </div>
 
                   {/* Price */}
-                  <div className="mb-6">
+                  <div className="mb-4">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-foreground">${plan.price}</span>
-                      <span className="text-muted-foreground">/month</span>
+                      <span className="text-3xl font-bold text-foreground">${plan.price}</span>
+                      <span className="text-sm text-muted-foreground">/mo</span>
                     </div>
                     {isAnnual && (
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         ${plan.price * 12} billed annually
                       </p>
                     )}
                   </div>
 
                   {/* Assistants Info */}
-                  <div className="mb-6 pb-6 border-b border-border">
-                    <p className="text-sm font-medium text-foreground mb-1">
+                  <div className="mb-4 pb-4 border-b border-border/50">
+                    <p className="text-xs font-medium text-foreground mb-0.5">
                       {plan.assistants}
                     </p>
                     {plan.addOnPrice > 0 && (
                       <p className="text-xs text-muted-foreground">
-                        Additional assistants: +${plan.addOnPrice}/month each
+                        +${plan.addOnPrice}/mo per extra assistant
                       </p>
                     )}
                   </div>
                   
                   {/* Features */}
-                  <ul className="space-y-3 mb-8 flex-grow">
+                  <ul className="space-y-2.5 mb-6 flex-grow">
                     {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="w-3 h-3 text-primary" />
+                      <li key={featureIndex} className="flex items-start gap-2.5">
+                        <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-2.5 h-2.5 text-primary" />
                         </div>
-                        <span className="text-sm text-foreground leading-relaxed">{feature}</span>
+                        <span className="text-xs text-foreground/90 leading-relaxed">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -159,12 +159,11 @@ export default function Pricing() {
                   {/* CTA Button */}
                   <Button 
                     variant={plan.popular ? "default" : "outline"}
-                    size="lg"
-                    className="w-full font-semibold"
+                    className="w-full font-semibold text-sm"
                     onClick={() => navigate('/signup/owner')}
                   >
                     Get Started
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-3.5 h-3.5 ml-2" />
                   </Button>
                 </div>
               </div>

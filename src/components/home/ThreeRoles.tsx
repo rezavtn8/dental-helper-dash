@@ -262,17 +262,17 @@ export function ThreeRoles() {
                   </div>
 
                   {/* Desktop Layout - Original scattered cards */}
-                  <div className="hidden lg:block relative h-[400px]">
+                  <div className="hidden lg:block relative h-[500px]">
                     <div className="relative h-full">
                       {section.floatingCards.map((card, cardIndex) => {
                         const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                        const shouldShow = cardProgress > (cardIndex * 0.25);
+                        const shouldShow = cardProgress > (cardIndex * 0.15);
                         
                         const positions = [
-                          { top: 20, left: 40, scale: 1 },
-                          { top: 100, left: 280, scale: 0.95 },
-                          { top: 220, left: 10, scale: 1.05 },
-                          { top: 320, left: 250, scale: 0.9 },
+                          { top: 10, left: 40, scale: 1 },
+                          { top: 120, left: 280, scale: 0.95 },
+                          { top: 240, left: 10, scale: 1.05 },
+                          { top: 360, left: 250, scale: 0.9 },
                         ];
                         
                         const position = positions[cardIndex] || positions[0];

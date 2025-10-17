@@ -227,10 +227,10 @@ export function ThreeRoles() {
                       
                       // Mobile-optimized compact scattered positions
                       const mobilePositions = [
-                        { top: 5, left: 10, scale: 0.9 },
-                        { top: 95, left: 150, scale: 0.88 },
-                        { top: 185, left: 15, scale: 0.85 },
-                        { top: 275, left: 145, scale: 0.88 },
+                        { top: 5, left: 10, scale: 0.75 },
+                        { top: 95, left: 150, scale: 0.72 },
+                        { top: 185, left: 15, scale: 0.7 },
+                        { top: 275, left: 145, scale: 0.72 },
                       ];
                       
                       const position = mobilePositions[cardIndex] || mobilePositions[0];
@@ -238,7 +238,7 @@ export function ThreeRoles() {
                       return (
                         <div
                           key={cardIndex}
-                          className={`absolute transition-all duration-700 ease-out w-[220px] ${
+                          className={`absolute transition-all duration-700 ease-out w-[200px] ${
                             shouldShow ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-90'
                           }`}
                           style={{
@@ -251,6 +251,7 @@ export function ThreeRoles() {
                                  tiltCard ${7 + cardIndex * 0.4}s ease-in-out ${cardIndex * 0.4}s infinite` 
                               : 'none',
                             transformOrigin: 'center center',
+                            transform: `scale(${position.scale})`,
                             zIndex: Math.floor(position.scale * 10)
                           }}
                         >

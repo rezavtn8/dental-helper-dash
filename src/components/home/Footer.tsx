@@ -60,16 +60,16 @@ export function Footer() {
   }];
   return <footer ref={footerRef} className="bg-background border-t border-border">
       <div 
-        className={`container mx-auto py-12 sm:py-16 transition-all duration-1000 ease-out ${
+        className={`container mx-auto py-6 sm:py-10 transition-all duration-1000 ease-out ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8">
           {/* Logo and Info */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <AnimatedLogo size={24} animated={false} className="text-primary" />
-              <span className="text-base font-semibold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="flex items-center space-x-2">
+              <AnimatedLogo size={20} animated={false} className="text-primary" />
+              <span className="text-sm font-semibold bg-gradient-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">
                 DentaLeague
               </span>
             </div>
@@ -80,8 +80,8 @@ export function Footer() {
           </div>
 
           {/* Footer Links */}
-          {footerSections.map(section => <div key={section.title} className="space-y-3">
-              <h4 className="text-sm font-semibold text-foreground">
+          {footerSections.map(section => <div key={section.title} className="space-y-2">
+              <h4 className="text-xs sm:text-sm font-semibold text-foreground">
                 {section.title}
               </h4>
               <ul className="space-y-2">
@@ -101,8 +101,8 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-border mt-8 pt-8 text-center">
-          <p className="text-xs text-muted-foreground leading-[1.125rem]">
+        <div className="border-t border-border mt-4 sm:mt-6 pt-4 sm:pt-6 text-center">
+          <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} DentaLeague. All rights reserved.
           </p>
         </div>

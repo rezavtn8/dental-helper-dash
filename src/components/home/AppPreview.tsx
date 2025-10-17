@@ -3,12 +3,38 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, CheckCircle, CheckSquare, Clock, User, Building2, BarChart3, Users, ClipboardList, Star, ChevronRight, LayoutDashboard, FileText, CalendarDays, MessageSquare, Settings, BookOpen, Award, TrendingUp, ScrollText, Crown, ChevronDown } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
 export const AppPreview = () => {
-  return <section className="relative overflow-hidden bg-background py-20 sm:py-24 lg:py-32 px-4">
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return <section ref={sectionRef} className="relative overflow-hidden bg-background py-20 sm:py-24 lg:py-32 px-4">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/3 to-transparent" />
       
       <div className="container mx-auto relative">
-        <div className="text-center mb-8 sm:mb-12">
+        <div 
+          className={`text-center mb-8 sm:mb-12 transition-all duration-1000 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             See DentaLeague in Action
           </h2>
@@ -18,7 +44,12 @@ export const AppPreview = () => {
         </div>
 
         {/* Role Selector */}
-        <div className="max-w-6xl mx-auto mb-6 sm:mb-8">
+        <div 
+          className={`max-w-6xl mx-auto mb-6 sm:mb-8 transition-all duration-1000 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+          style={{ transitionDelay: '200ms' }}
+        >
           <Tabs defaultValue="owner" className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 max-w-xs sm:max-w-md mx-auto mb-6 sm:mb-8">
               <TabsTrigger value="owner" className="flex items-center gap-2 text-xs sm:text-sm">

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { getUserInitials } from '@/lib/taskUtils';
 import { useNavigate } from 'react-router-dom';
-import { StaticLogo } from '@/components/ui/static-logo';
+import { AnimatedLogo } from '@/components/ui/animated-logo';
 import {
   Sidebar,
   SidebarContent,
@@ -78,18 +78,18 @@ export default function NewAssistantSidebar({
         <div className="p-2 sm:p-3 border-b border-slate-100/80">
           <Button 
             variant="ghost" 
-            className="flex items-center gap-2 h-auto p-0 hover:bg-transparent w-full justify-start"
+            className="flex items-center gap-2 h-auto p-0 hover:bg-transparent hover:opacity-80 w-full justify-start transition-opacity"
             onClick={() => navigate('/')}
             aria-label="DentaLeague home"
           >
             {open && !isCollapsed ? (
               <>
-                <StaticLogo size={60} className="text-primary sm:w-[72px] sm:h-[72px]" />
-                <span className="text-xl font-bold text-foreground">DentaLeague</span>
+                <AnimatedLogo size={24} animated={false} className="text-primary" />
+                <span className="text-base sm:text-lg font-bold text-foreground">DentaLeague</span>
               </>
             ) : (
               <div className="mx-auto">
-                <StaticLogo size={60} className="text-primary sm:w-[72px] sm:h-[72px]" />
+                <AnimatedLogo size={24} animated={false} className="text-primary" />
               </div>
             )}
           </Button>

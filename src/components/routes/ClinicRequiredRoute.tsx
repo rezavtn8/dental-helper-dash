@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ClinicRequiredRouteProps {
   children: React.ReactNode;
@@ -13,42 +12,8 @@ export const ClinicRequiredRoute: React.FC<ClinicRequiredRouteProps> = ({
   requiredRole 
 }) => {
   const { userProfile, loading } = useAuth();
-  const [roleVerified, setRoleVerified] = useState<boolean | null>(null);
-  const [verifying, setVerifying] = useState(false);
 
-  useEffect(() => {
-    // Server-side role verification when role is required
-    if (requiredRole && userProfile?.clinic_id && !loading) {
-      const verifyRole = async () => {
-        setVerifying(true);
-        try {
-          const { data, error } = await supabase.rpc('verify_user_has_role', {
-            required_role: requiredRole
-          });
-
-          if (error) {
-            console.error('Role verification error:', error);
-            setRoleVerified(false);
-          } else {
-            const result = data as { hasRole: boolean; userId: string; clinicId: string };
-            setRoleVerified(result?.hasRole || false);
-          }
-        } catch (error) {
-          console.error('Role verification failed:', error);
-          setRoleVerified(false);
-        } finally {
-          setVerifying(false);
-        }
-      };
-
-      verifyRole();
-    } else if (!requiredRole || !userProfile?.clinic_id) {
-      // No role required or no clinic, allow access
-      setRoleVerified(true);
-    }
-  }, [requiredRole, userProfile?.clinic_id, loading]);
-
-  if (loading || verifying) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -59,9 +24,15 @@ export const ClinicRequiredRoute: React.FC<ClinicRequiredRouteProps> = ({
     );
   }
 
-  // Server-side verification failed
-  if (requiredRole && roleVerified === false) {
-    return <Navigate to="/hub" replace />;
+  // Allow exploration even without clinic - components will handle the no-clinic state
+  // Check role if specified and user has a clinic
+  if (requiredRole && userProfile?.clinic_id) {
+    const hasRequiredRole = userProfile.role === requiredRole || 
+      userProfile.roles?.includes(requiredRole);
+    
+    if (!hasRequiredRole) {
+      return <Navigate to="/hub" replace />;
+    }
   }
 
   return <>{children}</>;

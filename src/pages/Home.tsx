@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { Navigation } from '@/components/home/Navigation';
 import { HeroSection } from '@/components/home/HeroSection';
 import { ThreeRoles } from '@/components/home/ThreeRoles';
+import { AppPreview } from '@/components/home/AppPreview';
 import { Footer } from '@/components/home/Footer';
 export default function Home() {
   const navigate = useNavigate();
@@ -53,8 +54,11 @@ export default function Home() {
       <HeroSection />
 
       {/* Three Roles Section */}
-      <section id="features">
-        <ThreeRoles />
+      <ThreeRoles />
+
+      {/* App Preview Section */}
+      <section id="how-it-works">
+        <AppPreview />
       </section>
 
       {/* Footer */}

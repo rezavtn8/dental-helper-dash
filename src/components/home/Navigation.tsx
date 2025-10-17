@@ -33,8 +33,11 @@ export function Navigation() {
     name: 'Features',
     href: '#features'
   }, {
-    name: 'How It Works',
-    href: '/how-it-works'
+    name: 'For Owners',
+    href: '#for-owners'
+  }, {
+    name: 'For Staff',
+    href: '#for-staff'
   }, {
     name: 'Pricing',
     href: '/pricing'
@@ -90,14 +93,16 @@ export function Navigation() {
             </div>
             <div className="flex items-center gap-3">
               <Button 
-                variant="ghost" 
+                variant="default" 
                 onClick={() => navigate('/signin')} 
+                size="sm"
                 className="font-medium"
               >
                 Sign In
               </Button>
               <Button 
                 onClick={() => navigate('/signup/owner')} 
+                variant="secondary"
                 size="sm"
                 className="font-medium"
               >
@@ -105,7 +110,7 @@ export function Navigation() {
               </Button>
               <Button 
                 onClick={() => navigate('/signup/staff')} 
-                variant="outline" 
+                variant="secondary"
                 size="sm"
                 className="font-medium"
               >
@@ -143,14 +148,16 @@ export function Navigation() {
               ))}
               <div className="pt-2 flex flex-col gap-2">
                 <Button 
-                  variant="ghost" 
+                  variant="default" 
                   onClick={() => navigate('/signin')} 
-                  className="w-full justify-start font-medium"
+                  size="sm"
+                  className="w-full font-medium"
                 >
                   Sign In
                 </Button>
                 <Button 
                   onClick={() => navigate('/signup/owner')} 
+                  variant="secondary"
                   size="sm"
                   className="w-full font-medium"
                 >
@@ -158,7 +165,7 @@ export function Navigation() {
                 </Button>
                 <Button 
                   onClick={() => navigate('/signup/staff')} 
-                  variant="outline" 
+                  variant="secondary"
                   size="sm"
                   className="w-full font-medium"
                 >

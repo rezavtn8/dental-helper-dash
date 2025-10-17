@@ -5,11 +5,9 @@ import { Navigation } from '@/components/home/Navigation';
 import { Check, ArrowRight, Star, Users, TrendingUp, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-
 export default function Pricing() {
   const navigate = useNavigate();
   const [isAnnual, setIsAnnual] = useState(false);
-
   const plans = [{
     name: "Starter",
     price: isAnnual ? 79 : 99,
@@ -35,9 +33,7 @@ export default function Pricing() {
     icon: Zap,
     popular: false
   }];
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Navigation Header */}
       <Navigation />
 
@@ -57,60 +53,32 @@ export default function Pricing() {
             <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
               Monthly
             </span>
-            <button 
-              onClick={() => setIsAnnual(!isAnnual)} 
-              className={`relative inline-flex w-14 h-7 items-center rounded-full transition-all duration-200 ${
-                isAnnual ? 'bg-primary' : 'bg-muted'
-              }`}
-              aria-label="Toggle pricing period"
-            >
-              <span 
-                className={`inline-block w-5 h-5 transform rounded-full bg-white shadow-sm transition-transform ${
-                  isAnnual ? 'translate-x-8' : 'translate-x-1'
-                }`} 
-              />
+            <button onClick={() => setIsAnnual(!isAnnual)} className={`relative inline-flex w-14 h-7 items-center rounded-full transition-all duration-200 ${isAnnual ? 'bg-primary' : 'bg-muted'}`} aria-label="Toggle pricing period">
+              <span className={`inline-block w-5 h-5 transform rounded-full bg-white shadow-sm transition-transform ${isAnnual ? 'translate-x-8' : 'translate-x-1'}`} />
             </button>
             <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
               Annual
             </span>
           </div>
-          {isAnnual && (
-            <p className="text-sm text-primary font-medium flex items-center justify-center gap-1 animate-fade-in">
+          {isAnnual && <p className="text-sm text-primary font-medium flex items-center justify-center gap-1 animate-fade-in">
               <Star className="w-4 h-4" />
               Save 20% with annual billing
-            </p>
-          )}
+            </p>}
         </div>
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
-          {plans.map((plan) => {
-            const IconComponent = plan.icon;
-            return (
-              <div 
-                key={plan.name} 
-                className={cn(
-                  "relative group transition-all duration-300",
-                  plan.popular && "lg:scale-105"
-                )}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+          {plans.map(plan => {
+          const IconComponent = plan.icon;
+          return <div key={plan.name} className={cn("relative group transition-all duration-300", plan.popular && "lg:scale-105")}>
+                {plan.popular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                     <Badge className="bg-primary text-primary-foreground px-3 py-1 flex items-center gap-1.5 shadow-lg text-xs font-semibold">
                       <Star className="w-3 h-3 fill-current" />
                       Most Popular
                     </Badge>
-                  </div>
-                )}
+                  </div>}
                 
-                <div 
-                  className={cn(
-                    "relative backdrop-blur-xl bg-card/95 border-2 rounded-xl p-6 h-full flex flex-col transition-all duration-300 shadow-xl",
-                    plan.popular 
-                      ? "border-primary/60 shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:border-primary/80" 
-                      : "border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10"
-                  )}
-                >
+                <div className={cn("relative backdrop-blur-xl bg-card/95 border-2 rounded-xl p-6 h-full flex flex-col transition-all duration-300 shadow-xl", plan.popular ? "border-primary/60 shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:border-primary/80" : "border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10")}>
                   {/* Icon and Title */}
                   <div className="mb-4">
                     <div className="w-10 h-10 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center mb-3">
@@ -125,11 +93,9 @@ export default function Pricing() {
                       <span className="text-3xl font-bold text-foreground">${plan.price}</span>
                       <span className="text-sm text-muted-foreground">/mo</span>
                     </div>
-                    {isAnnual && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                    {isAnnual && <p className="text-xs text-muted-foreground mt-1">
                         ${plan.price * 12} billed annually
-                      </p>
-                    )}
+                      </p>}
                   </div>
 
                   {/* Assistants Info */}
@@ -137,68 +103,34 @@ export default function Pricing() {
                     <p className="text-xs font-medium text-foreground mb-0.5">
                       {plan.assistants}
                     </p>
-                    {plan.addOnPrice > 0 && (
-                      <p className="text-xs text-muted-foreground">
+                    {plan.addOnPrice > 0 && <p className="text-xs text-muted-foreground">
                         +${plan.addOnPrice}/mo per extra assistant
-                      </p>
-                    )}
+                      </p>}
                   </div>
                   
                   {/* Features */}
                   <ul className="space-y-2.5 mb-6 flex-grow">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start gap-2.5">
+                    {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-start gap-2.5">
                         <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Check className="w-2.5 h-2.5 text-primary" />
                         </div>
                         <span className="text-xs text-foreground/90 leading-relaxed">{feature}</span>
-                      </li>
-                    ))}
+                      </li>)}
                   </ul>
                   
                   {/* CTA Button */}
-                  <Button 
-                    variant={plan.popular ? "default" : "outline"}
-                    className="w-full font-semibold text-sm"
-                    onClick={() => navigate('/signup/owner')}
-                  >
+                  <Button variant={plan.popular ? "default" : "outline"} className="w-full font-semibold text-sm" onClick={() => navigate('/signup/owner')}>
                     Get Started
                     <ArrowRight className="w-3.5 h-3.5 ml-2" />
                   </Button>
                 </div>
-              </div>
-            );
-          })}
+              </div>;
+        })}
         </div>
 
         {/* Additional Info */}
         <div className="text-center max-w-3xl mx-auto space-y-8">
-          <div className="bg-muted/50 rounded-2xl p-8 border border-border">
-            <h3 className="text-xl font-semibold text-foreground mb-4">
-              Get Started with DentaLeague
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Join dental practices using DentaLeague to streamline operations and train their teams.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button 
-                size="lg"
-                onClick={() => navigate('/signup/owner')}
-                className="font-semibold"
-              >
-                Get Started
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                onClick={() => navigate('/signin')}
-                className="font-semibold"
-              >
-                Sign In
-              </Button>
-            </div>
-          </div>
+          
 
           {/* Trust Elements */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8">
@@ -226,6 +158,5 @@ export default function Pricing() {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 }

@@ -129,34 +129,7 @@ export default function Pricing() {
         </div>
 
         {/* Additional Info */}
-        <div className="text-center max-w-3xl mx-auto space-y-8">
-          
-
-          {/* Trust Elements */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8">
-            <div className="text-center">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <Users className="w-6 h-6 text-primary" />
-              </div>
-              <p className="text-sm font-medium text-foreground">Easy Setup</p>
-              <p className="text-xs text-muted-foreground mt-1">Get started in minutes</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <Check className="w-6 h-6 text-primary" />
-              </div>
-              <p className="text-sm font-medium text-foreground">No Lock-in</p>
-              <p className="text-xs text-muted-foreground mt-1">Cancel anytime, no questions</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <Star className="w-6 h-6 text-primary" />
-              </div>
-              <p className="text-sm font-medium text-foreground">Support Included</p>
-              <p className="text-xs text-muted-foreground mt-1">Expert help when you need it</p>
-            </div>
-          </div>
-        </div>
+        
       </section>
     </div>;
 }

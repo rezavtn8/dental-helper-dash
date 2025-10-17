@@ -34,7 +34,7 @@ export function Navigation() {
     href: '#features'
   }, {
     name: 'How It Works',
-    href: '/how-it-works'
+    href: '#how-it-works'
   }, {
     name: 'Pricing',
     href: '/pricing'
@@ -62,52 +62,48 @@ export function Navigation() {
     const sectionId = href.replace('#', '');
     return activeSection === sectionId;
   };
-  return <nav className={`sticky top-0 z-50 w-full transition-all duration-200 ${isScrolled ? 'bg-background/95 backdrop-blur-md border-b border-border' : 'bg-background/50'}`}>
-      <div className="container mx-auto px-4">
+  return <nav className={`sticky top-0 z-50 w-full transition-all duration-200 ${isScrolled ? 'bg-background/80 backdrop-blur-md border-b border-border/50' : 'bg-transparent'}`}>
+      <div className="container mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <AnimatedLogo size={24} animated={false} className="text-primary" />
-            <span className="text-base sm:text-lg font-bold text-foreground">DentaLeague</span>
+          <div className="flex items-center space-x-3">
+            <AnimatedLogo size={28} animated={false} className="text-primary" />
+            <div className="flex flex-col">
+              <span className="font-display text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                DentaLeague
+              </span>
+              
+            </div>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            <div className="flex items-center gap-6">
-              {navItems.map(item => (
-                <button 
-                  key={item.name} 
-                  onClick={() => handleNavClick(item.href)} 
-                  className={`text-sm font-medium transition-colors ${
-                    isActive(item.href) 
-                      ? 'text-foreground' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
+          <div className="hidden md:flex items-center">
+            <div className="flex items-center bg-slate-50/80 backdrop-blur-sm rounded-full p-1.5 mr-6 border border-slate-200/60">
+              {navItems.map(item => <button key={item.name} onClick={() => handleNavClick(item.href)} className={`relative px-4 py-2.5 text-sm font-semibold rounded-full transition-all duration-300 whitespace-nowrap ${isActive(item.href) ? 'bg-white text-slate-900 shadow-lg shadow-slate-200/50 border border-slate-200/60' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'}`}>
                   {item.name}
-                </button>
-              ))}
+                </button>)}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center space-x-3">
               <Button 
                 variant="ghost" 
                 onClick={() => navigate('/signin')} 
-                className="font-medium"
+                className="text-base font-semibold text-slate-700 hover:text-slate-900 px-5 py-2.5"
               >
                 Sign In
               </Button>
               <Button 
                 onClick={() => navigate('/signup/owner')} 
-                size="sm"
-                className="font-medium"
+                variant="default" 
+                size="default" 
+                className="rounded-full h-10 px-5 font-semibold shadow-md"
               >
                 Owner Sign Up
               </Button>
               <Button 
                 onClick={() => navigate('/signup/staff')} 
                 variant="outline" 
-                size="sm"
-                className="font-medium"
+                size="default" 
+                className="rounded-full h-10 px-5 font-semibold"
               >
                 Staff Sign Up
               </Button>
@@ -115,59 +111,46 @@ export function Navigation() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors" 
-            aria-label="Toggle menu"
-          >
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors" aria-label="Toggle menu">
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-border py-4">
-            <div className="flex flex-col gap-2">
-              {navItems.map(item => (
-                <button 
-                  key={item.name} 
-                  onClick={() => handleNavClick(item.href)} 
-                  className={`text-left py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
-                    isActive(item.href) 
-                      ? 'bg-muted text-foreground' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {item.name}
-                </button>
-              ))}
-              <div className="pt-2 flex flex-col gap-2">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => navigate('/signin')} 
-                  className="w-full justify-start font-medium"
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  onClick={() => navigate('/signup/owner')} 
-                  size="sm"
-                  className="w-full font-medium"
-                >
-                  Owner Sign Up
-                </Button>
-                <Button 
-                  onClick={() => navigate('/signup/staff')} 
-                  variant="outline" 
-                  size="sm"
-                  className="w-full font-medium"
-                >
-                  Staff Sign Up
-                </Button>
+        {isMobileMenuOpen && <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-xl rounded-b-2xl">
+            <div className="container mx-auto py-6">
+              <div className="space-y-3">
+                 {navItems.map(item => <button key={item.name} onClick={() => handleNavClick(item.href)} className={`block w-full text-left py-3 px-4 text-base font-semibold transition-colors duration-200 rounded-xl ${isActive(item.href) ? 'bg-blue-50 text-blue-700 border border-blue-200/60' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-50'}`}>
+                     {item.name}
+                   </button>)}
+                <div className="pt-4 space-y-3">
+                  <Button 
+                    variant="default" 
+                    onClick={() => navigate('/signin')} 
+                    className="w-full text-base font-semibold h-12"
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/signup/owner')} 
+                    variant="default" 
+                    size="lg" 
+                    className="w-full rounded-xl h-12 text-base font-semibold"
+                  >
+                    Owner Sign Up
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/signup/staff')} 
+                    variant="outline" 
+                    size="lg" 
+                    className="w-full rounded-xl h-12 text-base font-semibold"
+                  >
+                    Staff Sign Up
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
     </nav>;
 }

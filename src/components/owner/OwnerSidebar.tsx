@@ -96,7 +96,7 @@ export default function OwnerSidebar({
               <div className="flex items-start space-x-3">
                 <StaticLogo size={48} className="text-primary flex-shrink-0" />
                 <div className="flex flex-col">
-                  <span className="text-xl font-bold text-foreground">DentaLeague</span>
+                  <span className="font-semibold text-base text-foreground">DentaLeague</span>
                   <span className="text-xs text-muted-foreground uppercase tracking-wide">dental teamwork, simplified</span>
                 </div>
               </div>

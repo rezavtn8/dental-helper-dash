@@ -3,53 +3,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, CheckCircle, CheckSquare, Clock, User, Building2, BarChart3, Users, ClipboardList, Star, ChevronRight, LayoutDashboard, FileText, CalendarDays, MessageSquare, Settings, BookOpen, Award, TrendingUp, ScrollText, Crown, ChevronDown } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-
 export const AppPreview = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  return <section ref={sectionRef} className="relative overflow-hidden bg-background py-10 sm:py-16 lg:py-24 px-4">
+  return <section className="relative overflow-hidden bg-background py-20 sm:py-24 lg:py-32 px-4">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/3 to-transparent" />
       
       <div className="container mx-auto relative">
-        <div 
-          className={`text-center mb-6 sm:mb-10 transition-all duration-1000 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             See DentaLeague in Action
           </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto px-4">
-            Explore the dashboards your team will use daily
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-4">
+            Explore the full-featured dashboards your team will use daily
           </p>
         </div>
 
         {/* Role Selector */}
-        <div 
-          className={`max-w-6xl mx-auto mb-6 sm:mb-8 transition-all duration-1000 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-          style={{ transitionDelay: '200ms' }}
-        >
+        <div className="max-w-6xl mx-auto mb-6 sm:mb-8">
           <Tabs defaultValue="owner" className="w-full">
             <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 max-w-xs sm:max-w-md mx-auto mb-6 sm:mb-8">
               <TabsTrigger value="owner" className="flex items-center gap-2 text-xs sm:text-sm">
@@ -138,7 +107,7 @@ const OwnerDashboardPreview = () => {
       </div>
 
       {/* App Interface */}
-      <div className="bg-background min-h-[300px] sm:min-h-[400px] lg:min-h-[600px] flex">
+      <div className="bg-background min-h-[400px] sm:min-h-[500px] lg:min-h-[700px] flex">
         {/* Sidebar Preview */}
         <div className="w-48 sm:w-60 lg:w-72 bg-card border-r p-2 sm:p-3 lg:p-4 hidden md:block">
           <div className="space-y-6">
@@ -189,7 +158,7 @@ const OwnerDashboardPreview = () => {
         </div>
 
         {/* Main Dashboard */}
-        <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[600px]">
+        <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto max-h-[400px] sm:max-h-[500px] lg:max-h-[700px]">
           <OwnerDashboardContent />
         </div>
       </div>
@@ -300,60 +269,60 @@ const AssistantDashboardPreview = () => {
       </div>
     </div>;
 };
-const OwnerDashboardContent = () => <div className="space-y-3 sm:space-y-5">
+const OwnerDashboardContent = () => <div className="space-y-6">
     {/* Overview Stats */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex flex-col gap-2">
-            <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center self-start">
-              <User className="w-4 h-4 text-blue-600" />
-            </div>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Active Assistants</p>
-              <p className="text-xl sm:text-2xl font-bold">8</p>
+              <p className="text-sm font-medium text-muted-foreground">Active Assistants</p>
+              <p className="text-2xl font-bold">8</p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+              <User className="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </CardContent>
       </Card>
       
       <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex flex-col gap-2">
-            <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center self-start">
-              <Clock className="w-4 h-4 text-orange-600" />
-            </div>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Pending</p>
-              <p className="text-xl sm:text-2xl font-bold">3</p>
+              <p className="text-sm font-medium text-muted-foreground">Pending Requests</p>
+              <p className="text-2xl font-bold">3</p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
+              <Clock className="w-6 h-6 text-orange-600" />
             </div>
           </div>
         </CardContent>
       </Card>
       
       <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex flex-col gap-2">
-            <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center self-start">
-              <CheckCircle className="w-4 h-4 text-green-600" />
-            </div>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Tasks</p>
-              <p className="text-xl sm:text-2xl font-bold">87</p>
+              <p className="text-sm font-medium text-muted-foreground">Tasks Completed (This Week)</p>
+              <p className="text-2xl font-bold">87</p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </CardContent>
       </Card>
 
       <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex flex-col gap-2">
-            <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center self-start">
-              <TrendingUp className="w-4 h-4 text-purple-600" />
-            </div>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Patients</p>
-              <p className="text-xl sm:text-2xl font-bold">342</p>
+              <p className="text-sm font-medium text-muted-foreground">Patients Assisted (This Month)</p>
+              <p className="text-2xl font-bold">342</p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </CardContent>

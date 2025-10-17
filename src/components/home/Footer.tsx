@@ -1,5 +1,26 @@
 import { AnimatedLogo } from '@/components/ui/animated-logo';
+import { useEffect, useRef, useState } from 'react';
+
 export function Footer() {
+  const [isVisible, setIsVisible] = useState(false);
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
   const footerSections = [{
     title: "Product",
     links: [{
@@ -37,8 +58,12 @@ export function Footer() {
       href: "#"
     }]
   }];
-  return <footer className="bg-background border-t border-border">
-      <div className="container mx-auto py-12 sm:py-16">
+  return <footer ref={footerRef} className="bg-background border-t border-border">
+      <div 
+        className={`container mx-auto py-12 sm:py-16 transition-all duration-1000 ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Info */}
           <div className="space-y-4">

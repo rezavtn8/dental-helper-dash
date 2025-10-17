@@ -44,9 +44,7 @@ export default function Auth() {
             <div className="flex items-center space-x-3">
               <AnimatedLogo size={32} animated={false} className="text-primary" />
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-foreground">
-                  DentaLeague
-                </span>
+              <span className="text-xl font-bold text-foreground">DentaLeague</span>
               </div>
             </div>
 

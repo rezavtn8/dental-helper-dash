@@ -38,13 +38,15 @@ export function HeroSection() {
       <div className="container mx-auto text-center relative z-10 max-w-6xl">
         {/* Large Animated Logo */}
         <div 
-          className={`mb-3 sm:mb-6 flex flex-col items-center gap-0.5 sm:gap-1 transition-all duration-1000 ease-out ${
+          className={`mb-3 sm:mb-6 flex flex-col items-center gap-0 transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <AnimatedLogo size={50} className="sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px]" />
-          <div className="text-center">
-            <h2 className="text-lg sm:text-2xl lg:text-3xl font-bold text-foreground">DentaLeague</h2>
+          <div className="inline-flex">
+            <AnimatedLogo size={70} className="sm:w-[120px] sm:h-[120px] lg:w-[140px] lg:h-[140px]" />
+          </div>
+          <div className="text-center -mt-1 sm:-mt-2">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground">DentaLeague</h2>
           </div>
         </div>
 

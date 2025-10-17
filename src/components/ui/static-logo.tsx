@@ -8,7 +8,7 @@ export const StaticLogo = ({ size = 120, className = "" }: StaticLogoProps) => {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 1024 1024"
+      viewBox="0 100 1024 850"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >

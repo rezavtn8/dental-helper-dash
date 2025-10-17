@@ -111,15 +111,6 @@ export function ScrollSequence() {
                 <Card className="border-2 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 bg-card/50 backdrop-blur-sm">
                   <CardContent className="p-6 md:p-8">
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                          <div className="h-6 w-6 rounded-lg bg-primary/20" />
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground">Module {index + 1}</p>
-                          <p className="text-lg font-bold text-foreground">{section.title}</p>
-                        </div>
-                      </div>
                       
                       <div className="space-y-3 pt-2">
                         {[1, 2, 3].map((item) => (

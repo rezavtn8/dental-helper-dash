@@ -73,6 +73,7 @@ export function ThreeRoles() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+
   const sections = [
     {
       title: 'Train',
@@ -199,12 +200,15 @@ export function ThreeRoles() {
                     {section.title}
                   </h3>
                   <p 
-                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl transition-all ${
+                    className={`text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-full px-4 lg:px-0 lg:max-w-xl transition-all break-words whitespace-normal overflow-hidden ${
                       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                     }`}
                     style={{
                       transitionDuration: `${animationDuration}ms`,
-                      transitionDelay: isVisible ? `${Math.min(index * 200 + 400, animationDuration * 0.6)}ms` : '0ms'
+                      transitionDelay: isVisible ? `${Math.min(index * 200 + 400, animationDuration * 0.6)}ms` : '0ms',
+                      hyphens: 'auto',
+                      overflowWrap: 'anywhere',
+                      wordBreak: 'break-word'
                     }}
                   >
                     {section.description}
@@ -215,34 +219,46 @@ export function ThreeRoles() {
                 <div 
                   className={`relative ${isLeft ? 'lg:order-2' : 'lg:order-1'}`}
                 >
-                  {/* Mobile Layout - All cards in horizontal scroll */}
-                  <div className="lg:hidden relative py-8">
-                    <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-                      {section.floatingCards.map((card, cardIndex) => {
-                        const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
-                        const shouldShow = cardProgress > (cardIndex * 0.2);
-                        
-                        return (
-                          <div
-                            key={cardIndex}
-                            className={`flex-shrink-0 w-[260px] snap-center transition-all duration-700 ease-out ${
-                              shouldShow ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-                            }`}
-                            style={{
-                              transitionDelay: `${shouldShow ? cardIndex * 150 : 0}ms`,
-                            }}
-                          >
-                            {renderFloatingCard(card, true)}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {/* Scroll indicator dots */}
-                    <div className="flex justify-center gap-1.5 mt-3">
-                      {section.floatingCards.map((_, idx) => (
-                        <div key={idx} className="w-1.5 h-1.5 rounded-full bg-primary/30" />
-                      ))}
-                    </div>
+                  {/* Mobile Layout - Floating cards with tile movement */}
+                  <div className="lg:hidden relative h-[380px] py-6">
+                    {section.floatingCards.map((card, cardIndex) => {
+                      const cardProgress = Math.max(0, Math.min(1, (scrollProgress - (0.05 + index * 0.20)) / 0.20));
+                      const shouldShow = cardProgress > (cardIndex * 0.25);
+                      
+                      // Mobile-optimized compact scattered positions
+                      const mobilePositions = [
+                        { top: 5, left: 10, scale: 0.75 },
+                        { top: 95, left: 150, scale: 0.72 },
+                        { top: 185, left: 15, scale: 0.7 },
+                        { top: 275, left: 145, scale: 0.72 },
+                      ];
+                      
+                      const position = mobilePositions[cardIndex] || mobilePositions[0];
+                      
+                      return (
+                        <div
+                          key={cardIndex}
+                          className={`absolute transition-all duration-700 ease-out w-[200px] ${
+                            shouldShow ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-90'
+                          }`}
+                          style={{
+                            top: `${position.top}px`,
+                            left: `${position.left}px`,
+                            transitionDelay: `${shouldShow ? cardIndex * 200 : 0}ms`,
+                            animation: shouldShow 
+                              ? `floatMobile ${4 + cardIndex * 0.3}s ease-in-out ${cardIndex * 0.2}s infinite, 
+                                 slideHorizontal ${6 + cardIndex * 0.5}s ease-in-out ${cardIndex * 0.3}s infinite,
+                                 tiltCard ${7 + cardIndex * 0.4}s ease-in-out ${cardIndex * 0.4}s infinite` 
+                              : 'none',
+                            transformOrigin: 'center center',
+                            transform: `scale(${position.scale})`,
+                            zIndex: Math.floor(position.scale * 10)
+                          }}
+                        >
+                          {renderFloatingCard(card, true)}
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Desktop Layout - Original scattered cards */}
@@ -301,6 +317,42 @@ export function ThreeRoles() {
           }
         }
         
+        @keyframes floatMobile {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-15px);
+          }
+        }
+        
+        @keyframes slideHorizontal {
+          0%, 100% {
+            transform: translateX(0px);
+          }
+          25% {
+            transform: translateX(25px);
+          }
+          75% {
+            transform: translateX(-15px);
+          }
+        }
+        
+        @keyframes tiltCard {
+          0%, 100% {
+            transform: rotate(0deg) scale(1);
+          }
+          25% {
+            transform: rotate(2deg) scale(1.02);
+          }
+          50% {
+            transform: rotate(0deg) scale(1);
+          }
+          75% {
+            transform: rotate(-2deg) scale(0.98);
+          }
+        }
+        
         @keyframes pulse-glow {
           0%, 100% {
             box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
@@ -337,6 +389,11 @@ export function ThreeRoles() {
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
+        
+        .scroll-smooth {
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
+        }
       `}</style>
     </section>
   );
@@ -350,8 +407,8 @@ function renderFloatingCard(card: any, isMobile: boolean = false) {
     return (
       <div className={`bg-gradient-to-br from-learning-quiz/10 to-learning-primary/10 border border-learning-quiz/30 rounded-xl p-4 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-shadow ${cardClasses}`}>
         <div className="flex items-center gap-2 mb-3">
-          <Target className="w-5 h-5 text-learning-quiz" />
-          <span className="text-sm font-semibold text-foreground">{card.title}</span>
+          <Target className="w-5 h-5 text-learning-quiz flex-shrink-0" />
+          <span className="text-sm font-semibold text-foreground break-words overflow-hidden">{card.title}</span>
         </div>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
@@ -381,7 +438,7 @@ function renderFloatingCard(card: any, isMobile: boolean = false) {
             </span>
             <Clock className="w-4 h-4 text-muted-foreground" />
           </div>
-          <h4 className="text-sm font-bold text-foreground mb-2">{card.title}</h4>
+          <h4 className="text-sm font-bold text-foreground mb-2 break-words overflow-hidden">{card.title}</h4>
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-learning-primary">{card.questions}</span>
             <span className="text-xs text-muted-foreground">Pass: {card.passing}%</span>
@@ -404,7 +461,7 @@ function renderFloatingCard(card: any, isMobile: boolean = false) {
             <Award className="w-5 h-5" />
             <span className="text-xs font-bold">CERTIFIED</span>
           </div>
-          <h4 className="text-sm font-bold text-foreground">{card.title}</h4>
+          <h4 className="text-sm font-bold text-foreground break-words overflow-hidden">{card.title}</h4>
           <p className="text-xs text-muted-foreground">{card.date}</p>
         </div>
       </div>
@@ -445,7 +502,7 @@ function renderFloatingCard(card: any, isMobile: boolean = false) {
               <div className={`w-2 h-2 rounded-full ${card.status === 'completed' ? 'bg-learning-success' : 'bg-orange-500'}`} />
               <span className="text-xs font-semibold text-muted-foreground uppercase">{card.status}</span>
             </div>
-            <h4 className="text-sm font-bold text-foreground">{card.title}</h4>
+          <h4 className="text-sm font-bold text-foreground break-words overflow-hidden">{card.title}</h4>
           </div>
           <CheckCircle className="w-5 h-5 text-learning-success" />
         </div>
@@ -510,7 +567,7 @@ function renderFloatingCard(card: any, isMobile: boolean = false) {
             <Calendar className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
-            <h4 className="text-sm font-bold text-foreground mb-1">{card.title}</h4>
+            <h4 className="text-sm font-bold text-foreground mb-1 break-words overflow-hidden">{card.title}</h4>
             <div className="flex items-center gap-2">
               <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{card.tasks} tasks</span>
               <span className="text-xs text-muted-foreground">{card.category}</span>
@@ -594,7 +651,7 @@ function renderFloatingCard(card: any, isMobile: boolean = false) {
             <Trophy className="w-5 h-5 text-amber-600" />
             <span className="text-xs font-bold text-amber-600 uppercase">Top Performer</span>
           </div>
-          <h4 className="text-lg font-bold text-foreground mb-1">{card.name}</h4>
+          <h4 className="text-lg font-bold text-foreground mb-1 break-words overflow-hidden">{card.name}</h4>
           <div className="flex items-center gap-2">
             <div className="flex-1 bg-muted rounded-full h-2">
               <div className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full" style={{ width: `${card.score}%` }} />

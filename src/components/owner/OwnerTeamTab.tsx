@@ -166,6 +166,22 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
       const result = data[0];
       if (result.success) {
+        // Send approval email
+        const { data: clinicData } = await supabase
+          .from('clinics')
+          .select('name')
+          .eq('id', clinicId)
+          .single();
+
+        await supabase.functions.invoke('send-join-request-email', {
+          body: {
+            type: 'approved',
+            userName: request.user_name,
+            userEmail: request.user_email,
+            clinicName: clinicData?.name || 'the clinic'
+          }
+        });
+
         toast.success(`${request.user_name} has been approved and added to your team`);
         fetchData();
       } else {
@@ -193,6 +209,23 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
       const result = data[0];
       if (result.success) {
+        // Send denial email
+        const { data: clinicData } = await supabase
+          .from('clinics')
+          .select('name')
+          .eq('id', clinicId)
+          .single();
+
+        await supabase.functions.invoke('send-join-request-email', {
+          body: {
+            type: 'denied',
+            userName: request.user_name,
+            userEmail: request.user_email,
+            clinicName: clinicData?.name || 'the clinic',
+            denialReason: 'Request denied by clinic owner'
+          }
+        });
+
         toast.success(`Request from ${request.user_name} has been denied`);
         fetchData();
       } else {

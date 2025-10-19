@@ -42,6 +42,28 @@ export default function JoinClinic() {
       return;
     }
     fetchJoinRequests();
+
+    // Set up real-time subscription for join request updates
+    const channel = supabase
+      .channel('join-requests-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'join_requests',
+          filter: `user_id=eq.${session.user.id}`
+        },
+        (payload) => {
+          console.log('Join request updated:', payload);
+          fetchJoinRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [session, navigate]);
 
   const fetchJoinRequests = async () => {
@@ -49,14 +71,18 @@ export default function JoinClinic() {
     
     try {
       setLoadingRequests(true);
+      console.log('Fetching join requests for user:', session.user.id);
+      
       const { data, error } = await supabase
         .from('join_requests')
         .select(`
           id,
           status,
           requested_at,
+          reviewed_at,
+          denial_reason,
           clinic_id,
-          clinics!inner (
+          clinics (
             name,
             clinic_code
           )
@@ -64,7 +90,12 @@ export default function JoinClinic() {
         .eq('user_id', session.user.id)
         .order('requested_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Query error:', error);
+        throw error;
+      }
+      
+      console.log('Fetched join requests:', data);
       setJoinRequests(data as JoinRequest[]);
     } catch (error: any) {
       console.error('Error fetching join requests:', error);
@@ -225,10 +256,26 @@ export default function JoinClinic() {
           {/* Request History */}
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Your Join Requests</CardTitle>
-              <CardDescription>
-                Track the status of your clinic join requests
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Your Join Requests</CardTitle>
+                  <CardDescription>
+                    Track the status of your clinic join requests
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fetchJoinRequests()}
+                  disabled={loadingRequests}
+                >
+                  {loadingRequests ? (
+                    <div className="w-3 h-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    'Refresh'
+                  )}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               {loadingRequests ? (

@@ -2150,6 +2150,19 @@ export type Database = {
         Args: { _user_id: string }
         Returns: string
       }
+      get_user_join_requests: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          clinic_code: string
+          clinic_id: string
+          clinic_name: string
+          denial_reason: string
+          id: string
+          requested_at: string
+          reviewed_at: string
+          status: string
+        }[]
+      }
       get_user_profile_safe: {
         Args: { target_user_id: string }
         Returns: {

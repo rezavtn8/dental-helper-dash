@@ -71,47 +71,25 @@ export default function JoinClinic() {
     
     try {
       setLoadingRequests(true);
-      console.log('Fetching join requests for user:', session.user.id);
-      
-      // 1) Fetch user's join requests (no joins)
-      const { data: requests, error: reqErr } = await supabase
-        .from('join_requests')
-        .select('id, status, requested_at, reviewed_at, denial_reason, clinic_id')
-        .eq('user_id', session.user.id)
-        .order('requested_at', { ascending: false });
+      console.log('Fetching join requests via RPC for user:', session.user.id);
 
-      if (reqErr) throw reqErr;
+      const { data, error } = await supabase.rpc('get_user_join_requests');
+      if (error) throw error;
 
-      // 2) Fetch basic clinic info separately (RLS policy added to allow this path)
-      const clinicIds = Array.from(new Set((requests || []).map((r: any) => r.clinic_id).filter(Boolean)));
-
-      let clinicsById: Record<string, { name: string; clinic_code: string }> = {};
-      if (clinicIds.length) {
-        const { data: clinics, error: clinicErr } = await supabase
-          .from('clinics')
-          .select('id, name, clinic_code')
-          .in('id', clinicIds);
-
-        if (clinicErr) {
-          console.error('Clinics fetch error:', clinicErr);
-        } else if (clinics) {
-          clinicsById = Object.fromEntries(
-            clinics.map((c: any) => [c.id, { name: c.name, clinic_code: c.clinic_code }])
-          );
-        }
-      }
-
-      // 3) Enrich requests with clinic info for rendering
-      const enriched = (requests || []).map((r: any) => ({
-        ...r,
-        clinics: clinicsById[r.clinic_id] || null,
+      const enriched = (data || []).map((r: any) => ({
+        id: r.id,
+        status: r.status,
+        requested_at: r.requested_at,
+        reviewed_at: r.reviewed_at,
+        denial_reason: r.denial_reason,
+        clinic_id: r.clinic_id,
+        clinics: r.clinic_name || r.clinic_code ? { name: r.clinic_name, clinic_code: r.clinic_code } : null,
       })) as unknown as JoinRequest[];
 
-      console.log('Enriched join requests:', enriched);
+      console.log('RPC enriched join requests:', enriched);
       setJoinRequests(enriched);
     } catch (error: any) {
-      console.error('Error fetching join requests:', error);
-      
+      console.error('Error fetching join requests (RPC):', error);
       if (error?.message?.includes('JWT')) {
         toast.error('Session expired. Please sign in again.');
       } else {

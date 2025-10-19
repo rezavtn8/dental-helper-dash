@@ -73,26 +73,42 @@ export default function JoinClinic() {
       setLoadingRequests(true);
       console.log('Fetching join requests for user:', session.user.id);
       
-      const { data, error } = await supabase
+      // 1) Fetch user's join requests (no joins)
+      const { data: requests, error: reqErr } = await supabase
         .from('join_requests')
-        .select(`
-          *,
-          clinics!join_requests_clinic_id_fkey (
-            id,
-            name,
-            clinic_code
-          )
-        `)
+        .select('id, status, requested_at, reviewed_at, denial_reason, clinic_id')
         .eq('user_id', session.user.id)
         .order('requested_at', { ascending: false });
 
-      if (error) {
-        console.error('Query error:', error);
-        throw error;
+      if (reqErr) throw reqErr;
+
+      // 2) Fetch basic clinic info separately (RLS policy added to allow this path)
+      const clinicIds = Array.from(new Set((requests || []).map((r: any) => r.clinic_id).filter(Boolean)));
+
+      let clinicsById: Record<string, { name: string; clinic_code: string }> = {};
+      if (clinicIds.length) {
+        const { data: clinics, error: clinicErr } = await supabase
+          .from('clinics')
+          .select('id, name, clinic_code')
+          .in('id', clinicIds);
+
+        if (clinicErr) {
+          console.error('Clinics fetch error:', clinicErr);
+        } else if (clinics) {
+          clinicsById = Object.fromEntries(
+            clinics.map((c: any) => [c.id, { name: c.name, clinic_code: c.clinic_code }])
+          );
+        }
       }
-      
-      console.log('Fetched join requests with clinics:', data);
-      setJoinRequests(data as JoinRequest[]);
+
+      // 3) Enrich requests with clinic info for rendering
+      const enriched = (requests || []).map((r: any) => ({
+        ...r,
+        clinics: clinicsById[r.clinic_id] || null,
+      })) as unknown as JoinRequest[];
+
+      console.log('Enriched join requests:', enriched);
+      setJoinRequests(enriched);
     } catch (error: any) {
       console.error('Error fetching join requests:', error);
       

@@ -76,13 +76,9 @@ export default function JoinClinic() {
       const { data, error } = await supabase
         .from('join_requests')
         .select(`
-          id,
-          status,
-          requested_at,
-          reviewed_at,
-          denial_reason,
-          clinic_id,
-          clinics (
+          *,
+          clinics!join_requests_clinic_id_fkey (
+            id,
             name,
             clinic_code
           )
@@ -95,7 +91,7 @@ export default function JoinClinic() {
         throw error;
       }
       
-      console.log('Fetched join requests:', data);
+      console.log('Fetched join requests with clinics:', data);
       setJoinRequests(data as JoinRequest[]);
     } catch (error: any) {
       console.error('Error fetching join requests:', error);
@@ -299,11 +295,13 @@ export default function JoinClinic() {
                        <div className="space-y-1">
                           <div className="flex items-center space-x-2">
                             <span className="font-medium">
-                              {request.clinics?.name || 'Loading clinic...'}
+                              {request.clinics?.name || 'Unknown Clinic'}
                             </span>
-                            <Badge variant="outline" className="font-mono text-xs">
-                              {request.clinics?.clinic_code || 'N/A'}
-                            </Badge>
+                            {request.clinics?.clinic_code && (
+                              <Badge variant="outline" className="font-mono text-xs">
+                                {request.clinics.clinic_code}
+                              </Badge>
+                            )}
                           </div>
                         <p className="text-sm text-muted-foreground">
                           Requested {new Date(request.requested_at).toLocaleDateString()}

@@ -35,43 +35,55 @@ export default function JoinRequestHistory({ clinicId }: JoinRequestHistoryProps
   const fetchRequests = async () => {
     try {
       setLoading(true);
+      console.log('Fetching join requests for clinic:', clinicId);
       
+      // Use a single query with a join to get user data directly
       const { data: joinRequestsData, error: joinRequestsError } = await supabase
         .from('join_requests')
-        .select('*')
+        .select(`
+          *,
+          users:user_id (
+            id,
+            name,
+            email
+          )
+        `)
         .eq('clinic_id', clinicId)
         .order('requested_at', { ascending: false });
 
-      if (joinRequestsError) throw joinRequestsError;
+      if (joinRequestsError) {
+        console.error('Error fetching join requests:', joinRequestsError);
+        throw joinRequestsError;
+      }
+
+      console.log('Fetched join requests:', joinRequestsData);
 
       if (!joinRequestsData || joinRequestsData.length === 0) {
         setRequests([]);
         return;
       }
-
-      // Get user info for each request
-      const userIds = joinRequestsData.map(req => req.user_id);
-      const { data: usersData, error: usersError } = await supabase
-        .from('users')
-        .select('id, name, email')
-        .in('id', userIds);
-
-      if (usersError) throw usersError;
       
       const formattedRequests = joinRequestsData.map(request => {
-        const user = usersData?.find(u => u.id === request.user_id);
+        const user = request.users as any;
         let userName = user?.name || 'Unknown User';
         if (userName === 'User' || !userName || userName.trim() === '') {
           userName = user?.email ? user.email.split('@')[0] : 'Unknown User';
         }
         
         return {
-          ...request,
+          id: request.id,
+          user_id: request.user_id,
+          clinic_id: request.clinic_id,
+          requested_at: request.requested_at,
+          reviewed_at: request.reviewed_at,
+          status: request.status,
+          denial_reason: request.denial_reason,
           user_email: user?.email || 'Unknown',
           user_name: userName
         } as JoinRequest;
       });
 
+      console.log('Formatted requests:', formattedRequests);
       setRequests(formattedRequests);
     } catch (error) {
       console.error('Error fetching join requests:', error);

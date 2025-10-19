@@ -119,6 +119,23 @@ export default function PendingRequestsTab({ clinicId }: PendingRequestsTabProps
 
       const result = data[0];
       if (result.success) {
+        // Send denial email
+        const { data: clinicData } = await supabase
+          .from('clinics')
+          .select('name')
+          .eq('id', clinicId)
+          .single();
+
+        await supabase.functions.invoke('send-join-request-email', {
+          body: {
+            type: 'denied',
+            userName: denyDialog.request.user_name,
+            userEmail: denyDialog.request.user_email,
+            clinicName: clinicData?.name || 'the clinic',
+            denialReason: denialReason.trim() || 'Request denied by clinic owner'
+          }
+        });
+
         toast.success(`Request from ${denyDialog.request.user_name} has been denied`);
         fetchRequests();
         setDenyDialog({ open: false, request: null });

@@ -116,6 +116,39 @@ export default function JoinClinic() {
       const responseData = result[0];
       if (responseData.success) {
         toast.success(responseData.message);
+        
+        // Send notification email to clinic owner
+        const { data: clinicData } = await supabase
+          .from('clinics')
+          .select(`
+            id,
+            name,
+            users!inner(id, name, email)
+          `)
+          .eq('clinic_code', sanitizedClinicCode)
+          .eq('users.role', 'owner')
+          .single();
+
+        if (clinicData && session?.user) {
+          const owner = (clinicData as any).users;
+          const { data: userData } = await supabase
+            .from('users')
+            .select('name, email')
+            .eq('id', session.user.id)
+            .single();
+
+          await supabase.functions.invoke('send-join-request-email', {
+            body: {
+              type: 'new_request',
+              userName: userData?.name || session.user.email?.split('@')[0] || 'User',
+              userEmail: session.user.email,
+              clinicName: clinicData.name,
+              ownerName: owner.name,
+              ownerEmail: owner.email
+            }
+          });
+        }
+        
         form.reset();
         // Refresh the join requests immediately with optimistic update
         await fetchJoinRequests();

@@ -103,6 +103,22 @@ export default function JoinRequestApprovalDialog({ open, onOpenChange, request,
         if (rolesError) throw rolesError;
       }
 
+      // Send approval email
+      const { data: clinicData } = await supabase
+        .from('clinics')
+        .select('name')
+        .eq('id', request.clinic_id)
+        .single();
+
+      await supabase.functions.invoke('send-join-request-email', {
+        body: {
+          type: 'approved',
+          userName: request.user_name,
+          userEmail: request.user_email,
+          clinicName: clinicData?.name || 'the clinic'
+        }
+      });
+
       toast.success(`${request.user_name} has been approved with ${selectedRoles.length > 1 ? 'multiple roles' : `${selectedRoles[0]} role`}`);
       onUpdate();
       onOpenChange(false);

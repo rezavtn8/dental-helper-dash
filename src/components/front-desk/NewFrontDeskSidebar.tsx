@@ -21,11 +21,7 @@ import {
 import { 
   Home,
   CheckSquare, 
-  Calendar, 
-  BarChart3, 
   Settings, 
-  Phone,
-  MessageSquare,
   BookOpen,
   Users
 } from 'lucide-react';
@@ -42,11 +38,7 @@ interface NewFrontDeskSidebarProps {
 const navigationItems = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'tasks', label: 'My Tasks', icon: CheckSquare },
-  { id: 'schedule', label: 'Schedule', icon: Calendar },
-  { id: 'stats', label: 'My Stats', icon: BarChart3 },
   { id: 'learning', label: 'Learning', icon: BookOpen },
-  { id: 'calls', label: 'Phone Calls', icon: Phone },
-  { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 

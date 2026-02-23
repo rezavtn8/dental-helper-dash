@@ -360,12 +360,12 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
               className="w-full justify-start"
               onClick={() => {
                 if (onTabChange) {
-                  onTabChange('schedule');
+                  onTabChange('team');
                 }
               }}
             >
               <Calendar className="w-4 h-4 mr-2" />
-              Manage Schedule
+              View Team
             </Button>
           </CardContent>
         </Card>
@@ -412,9 +412,9 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={() => onTabChange?.('task-calendar')}
+                onClick={() => onTabChange?.('tasks')}
               >
-                View Full Calendar <ArrowRight className="w-4 h-4 ml-1" />
+                View Tasks <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </CardTitle>
             <CardDescription>

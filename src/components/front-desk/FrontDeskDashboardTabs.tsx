@@ -1,52 +1,38 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen } from 'lucide-react';
 import { FrontDeskHomeTab } from './FrontDeskHomeTab';
 import { FrontDeskTasksTab } from './FrontDeskTasksTab';
-import { FrontDeskStatsTab } from './FrontDeskStatsTab';
 import { LearningHub } from '@/components/learning/LearningHub';
 
-export function FrontDeskDashboardTabs() {
-  const [activeTab, setActiveTab] = useState('home');
+interface FrontDeskDashboardTabsProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
 
+export function FrontDeskDashboardTabs({ activeTab = 'home', onTabChange }: FrontDeskDashboardTabsProps) {
   return (
-    <div className="h-full flex flex-col">
-      <div className="border-b border-border px-6 py-4">
-        <h2 className="text-2xl font-semibold">Front Desk Dashboard</h2>
-        <p className="text-muted-foreground">Manage your front desk tasks and operations</p>
+    <Tabs value={activeTab} onValueChange={onTabChange} className="h-full">
+      <div className="hidden">
+        <TabsList />
       </div>
 
-      <div className="flex-1 p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-lg">
-            <TabsTrigger value="home">Home</TabsTrigger>
-            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-            <TabsTrigger value="stats">Stats</TabsTrigger>
-            <TabsTrigger value="learning" className="flex items-center gap-1">
-              <BookOpen className="w-3 h-3" />
-              Learning
-            </TabsTrigger>
-          </TabsList>
+      <TabsContent value="home" className="h-full">
+        <FrontDeskHomeTab />
+      </TabsContent>
 
-          <div className="mt-6 h-full">
-            <TabsContent value="home" className="h-full">
-              <FrontDeskHomeTab />
-            </TabsContent>
+      <TabsContent value="tasks" className="h-full">
+        <FrontDeskTasksTab />
+      </TabsContent>
 
-            <TabsContent value="tasks" className="h-full">
-              <FrontDeskTasksTab />
-            </TabsContent>
+      <TabsContent value="learning" className="h-full">
+        <LearningHub />
+      </TabsContent>
 
-            <TabsContent value="stats" className="h-full">
-              <FrontDeskStatsTab />
-            </TabsContent>
-
-            <TabsContent value="learning" className="h-full">
-              <LearningHub />
-            </TabsContent>
-          </div>
-        </Tabs>
-      </div>
-    </div>
+      <TabsContent value="settings" className="h-full">
+        <div className="text-center py-12 text-muted-foreground">
+          <p>Settings coming soon</p>
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }

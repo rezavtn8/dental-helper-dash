@@ -22,14 +22,8 @@ import {
   Home,
   CheckSquare, 
   Calendar, 
-  BarChart3, 
   Settings, 
-  LogOut, 
-  Building2, 
-  ChevronDown,
   BookOpen,
-  Award,
-  MessageSquare,
   Users
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,10 +39,7 @@ const navigationItems = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'tasks', label: 'My Tasks', icon: CheckSquare },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
-  { id: 'stats', label: 'My Stats', icon: BarChart3 },
   { id: 'learning', label: 'Learning', icon: BookOpen },
-  { id: 'certifications', label: 'Certifications', icon: Award },
-  { id: 'feedback', label: 'Feedback', icon: MessageSquare },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 

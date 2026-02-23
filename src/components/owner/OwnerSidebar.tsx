@@ -49,7 +49,6 @@ interface OwnerSidebarProps {
 
 const navigationItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'task-calendar', label: 'Task Calendar', icon: Calendar },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare },
   { id: 'templates', label: 'Templates', icon: FileText },
   { id: 'courses', label: 'Learning Courses', icon: BookOpen },

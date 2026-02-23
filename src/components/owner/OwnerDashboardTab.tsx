@@ -490,7 +490,7 @@ export default function OwnerDashboardTab({ clinicId, onTabChange }: OwnerDashbo
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={() => onTabChange?.('analytics')}
+                onClick={() => onTabChange?.('dashboard')}
               >
                 View Details <ArrowRight className="w-4 h-4 ml-1" />
               </Button>

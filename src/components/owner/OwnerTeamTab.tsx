@@ -7,12 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
   Users, 
   Search, 
-  Filter,
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -23,9 +23,12 @@ import {
   Clock,
   UserX,
   UserCheck,
-  Settings
+  Settings,
+  MessageSquare
 } from 'lucide-react';
 import RoleManagementDialog from './RoleManagementDialog';
+import OwnerScheduleTab from './OwnerScheduleTab';
+import OwnerFeedbackTab from './OwnerFeedbackTab';
 
 interface TeamMember {
   id: string;
@@ -80,7 +83,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     try {
       setLoading(true);
 
-      // Fetch team members directly with email included (both active and removed)
       const { data: membersData, error: membersError } = await supabase
         .from('users')
         .select('id, name, email, role, is_active, created_at, last_login, clinic_id, clinic_membership_status')
@@ -89,7 +91,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
       if (membersError) throw membersError;
       
-      // Fetch user roles for each member
       const memberIds = membersData?.map(m => m.id) || [];
       const { data: userRoles } = await supabase
         .from('user_roles')
@@ -97,7 +98,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
         .in('user_id', memberIds)
         .eq('is_active', true);
 
-      // Combine members with their additional roles
       const membersWithRoles = (membersData || []).map(member => {
         const additionalRoles = userRoles?.filter(ur => ur.user_id === member.id).map(ur => ur.role) || [];
         const allRoles = member.role ? [member.role, ...additionalRoles.filter(r => r !== member.role)] : additionalRoles;
@@ -111,7 +111,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
       
       setTeamMembers(membersWithRoles);
 
-      // Fetch pending join requests
       const { data: requestsData, error: requestsError } = await supabase
         .from('join_requests')
         .select('*')
@@ -122,7 +121,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
       if (requestsError) throw requestsError;
 
       if (requestsData && requestsData.length > 0) {
-        // Get user info for each request
         const userIds = requestsData.map(req => req.user_id);
         const { data: usersData, error: usersError } = await supabase
           .from('users')
@@ -131,7 +129,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
         if (usersError) throw usersError;
 
-        // Combine data
         const formattedRequests = requestsData.map(request => {
           const user = usersData?.find(u => u.id === request.user_id);
           return {
@@ -166,7 +163,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
       const result = data[0];
       if (result.success) {
-        // Send approval email
         const { data: clinicData } = await supabase
           .from('clinics')
           .select('name')
@@ -209,7 +205,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
       const result = data[0];
       if (result.success) {
-        // Send denial email
         const { data: clinicData } = await supabase
           .from('clinics')
           .select('name')
@@ -241,7 +236,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
   const handleDeactivateMember = async (member: TeamMember) => {
     try {
-      // Mark as removed from clinic but keep clinic_id so they appear in the list
       const { error } = await supabase
         .from('users')
         .update({ clinic_membership_status: 'removed' })
@@ -259,7 +253,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
   const handleReactivateMember = async (member: TeamMember) => {
     try {
-      // Add back to clinic
       const { error } = await supabase
         .from('users')
         .update({ clinic_membership_status: 'active' })
@@ -279,7 +272,6 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
     if (!removeDialog.member) return;
 
     try {
-      // Permanently delete the user account
       const { error } = await supabase
         .from('users')
         .delete()
@@ -329,262 +321,286 @@ export default function OwnerTeamTab({ clinicId }: OwnerTeamTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Pending Requests Alert */}
-      {joinRequests.length > 0 && (
-        <Alert className="border-orange-200 bg-orange-50">
-          <Clock className="h-4 w-4 text-orange-600" />
-          <AlertDescription className="text-orange-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="font-medium">
-                  {joinRequests.length} pending join request{joinRequests.length !== 1 ? 's' : ''}
-                </span>
-                <span className="ml-2">
-                  Review and approve assistants wanting to join your clinic.
-                </span>
-              </div>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
+      <Tabs defaultValue="members" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="members" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Members
+          </TabsTrigger>
+          <TabsTrigger value="schedule" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Schedule
+          </TabsTrigger>
+          <TabsTrigger value="feedback" className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4" />
+            Feedback
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Pending Requests Section */}
-      {joinRequests.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-orange-600" />
-              Pending Join Requests
-              <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-                {joinRequests.length}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {joinRequests.map((request) => (
-                <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium text-ellipsis overflow-hidden" title={request.user_name}>{request.user_name || 'Unknown User'}</div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Mail className="w-3 h-3" />
-                        {request.user_email}
-                        <span>•</span>
-                        <Calendar className="w-3 h-3" />
-                        {new Date(request.requested_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleApproveRequest(request)}
-                      disabled={processingRequest === request.id}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      {processingRequest === request.id ? (
-                        <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      ) : (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Approve
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDenyRequest(request)}
-                      disabled={processingRequest === request.id}
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                    >
-                      <XCircle className="w-4 h-4 mr-1" />
-                      Deny
-                    </Button>
+        <TabsContent value="members" className="space-y-6">
+          {/* Pending Requests Alert */}
+          {joinRequests.length > 0 && (
+            <Alert className="border-orange-200 bg-orange-50">
+              <Clock className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-800">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-medium">
+                      {joinRequests.length} pending join request{joinRequests.length !== 1 ? 's' : ''}
+                    </span>
+                    <span className="ml-2">
+                      Review and approve assistants wanting to join your clinic.
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              </AlertDescription>
+            </Alert>
+          )}
 
-      {/* Team Management */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between gap-4">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-blue-600" />
-                Team Members
-                <Badge variant="secondary">{filteredMembers.length}</Badge>
-              </CardTitle>
-            </div>
-            
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search members..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full sm:w-64"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined On</TableHead>
-                  <TableHead>Last Login</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMembers.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      <div className="flex flex-col items-center">
-                        <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                        <h3 className="text-lg font-semibold mb-2">No Team Members Found</h3>
-                        <p className="text-muted-foreground">
-                          {searchTerm || statusFilter !== 'all' 
-                            ? 'Try adjusting your filters or search term.'
-                            : 'Share your clinic code with assistants to have them join your team.'
-                          }
-                        </p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-                {filteredMembers.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-primary" />
+          {/* Pending Requests Section */}
+          {joinRequests.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-orange-600" />
+                  Pending Join Requests
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                    {joinRequests.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {joinRequests.map((request) => (
+                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <span className="font-medium block text-ellipsis overflow-hidden" title={member.name}>{member.name || 'Unknown Member'}</span>
-                          <div className="text-sm text-muted-foreground">{member.role}</div>
+                          <div className="font-medium text-ellipsis overflow-hidden" title={request.user_name}>{request.user_name || 'Unknown User'}</div>
+                          <div className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Mail className="w-3 h-3" />
+                            {request.user_email}
+                            <span>•</span>
+                            <Calendar className="w-3 h-3" />
+                            {new Date(request.requested_at).toLocaleDateString()}
+                          </div>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {(member.roles || [member.role]).filter(Boolean).map(role => (
-                          <Badge 
-                            key={role}
-                            variant={getRoleBadge(role).variant}
-                            className="capitalize text-xs"
-                          >
-                            {role === 'front_desk' ? 'Front Desk' : role}
-                          </Badge>
-                        ))}
-                        {(member.roles || []).length > 1 && (
-                          <Badge variant="secondary" className="text-xs bg-yellow-50 text-yellow-700">
-                            Multi-role
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={member.clinic_membership_status === 'active' ? 'default' : 'secondary'}>
-                        {member.clinic_membership_status === 'active' ? 'Active' : 'Removed'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        {new Date(member.created_at).toLocaleDateString()}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {member.last_login ? (
-                        new Date(member.last_login).toLocaleDateString()
-                      ) : (
-                        <span className="text-muted-foreground">Never</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {member.role !== 'owner' && (
-                        <div className="flex items-center gap-1 justify-end">
-                          {member.clinic_membership_status === 'active' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setRoleDialog({ open: true, member })}
-                              className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                            >
-                              <Settings className="w-4 h-4" />
-                            </Button>
-                          )}
-                          {member.clinic_membership_status === 'active' ? (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeactivateMember(member)}
-                                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                                title="Remove from clinic (they can join another clinic)"
-                              >
-                                <UserX className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setRemoveDialog({ open: true, member })}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                title="Permanently delete account"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </>
+                        <Button
+                          size="sm"
+                          onClick={() => handleApproveRequest(request)}
+                          disabled={processingRequest === request.id}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          {processingRequest === request.id ? (
+                            <div className="w-4 h-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                           ) : (
                             <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleReactivateMember(member)}
-                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                title="Add back to clinic"
-                              >
-                                <UserCheck className="w-4 h-4" />
-                              </Button>
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Approve
                             </>
                           )}
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDenyRequest(request)}
+                          disabled={processingRequest === request.id}
+                          className="border-red-200 text-red-600 hover:bg-red-50"
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Deny
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Team Management */}
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    Team Members
+                    <Badge variant="secondary">{filteredMembers.length}</Badge>
+                  </CardTitle>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Search members..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 w-full sm:w-64"
+                    />
+                  </div>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full sm:w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Joined On</TableHead>
+                      <TableHead>Last Login</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredMembers.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8">
+                          <div className="flex flex-col items-center">
+                            <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                            <h3 className="text-lg font-semibold mb-2">No Team Members Found</h3>
+                            <p className="text-muted-foreground">
+                              {searchTerm || statusFilter !== 'all' 
+                                ? 'Try adjusting your filters or search term.'
+                                : 'Share your clinic code with assistants to have them join your team.'
+                              }
+                            </p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {filteredMembers.map((member) => (
+                      <TableRow key={member.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gradient-to-r from-primary/10 to-primary/20 rounded-full flex items-center justify-center">
+                              <User className="w-4 h-4 text-primary" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="font-medium block text-ellipsis overflow-hidden" title={member.name}>{member.name || 'Unknown Member'}</span>
+                              <div className="text-sm text-muted-foreground">{member.role}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {(member.roles || [member.role]).filter(Boolean).map(role => (
+                              <Badge 
+                                key={role}
+                                variant={getRoleBadge(role).variant}
+                                className="capitalize text-xs"
+                              >
+                                {role === 'front_desk' ? 'Front Desk' : role}
+                              </Badge>
+                            ))}
+                            {(member.roles || []).length > 1 && (
+                              <Badge variant="secondary" className="text-xs bg-yellow-50 text-yellow-700">
+                                Multi-role
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={member.clinic_membership_status === 'active' ? 'default' : 'secondary'}>
+                            {member.clinic_membership_status === 'active' ? 'Active' : 'Removed'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-muted-foreground" />
+                            {new Date(member.created_at).toLocaleDateString()}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {member.last_login ? (
+                            new Date(member.last_login).toLocaleDateString()
+                          ) : (
+                            <span className="text-muted-foreground">Never</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {member.role !== 'owner' && (
+                            <div className="flex items-center gap-1 justify-end">
+                              {member.clinic_membership_status === 'active' && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setRoleDialog({ open: true, member })}
+                                  className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                                >
+                                  <Settings className="w-4 h-4" />
+                                </Button>
+                              )}
+                              {member.clinic_membership_status === 'active' ? (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeactivateMember(member)}
+                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                    title="Remove from clinic (they can join another clinic)"
+                                  >
+                                    <UserX className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setRemoveDialog({ open: true, member })}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    title="Permanently delete account"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleReactivateMember(member)}
+                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                  title="Add back to clinic"
+                                >
+                                  <UserCheck className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="schedule">
+          <OwnerScheduleTab clinicId={clinicId} />
+        </TabsContent>
+
+        <TabsContent value="feedback">
+          <OwnerFeedbackTab clinicId={clinicId} />
+        </TabsContent>
+      </Tabs>
 
       {/* Remove Member Dialog */}
       <Dialog open={removeDialog.open} onOpenChange={(open) => {

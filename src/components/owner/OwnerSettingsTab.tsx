@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import SchedulingSettings from './SchedulingSettings';
 import JoinRequestHistory from './JoinRequestHistory';
+import OwnerLogTab from './OwnerLogTab';
 import { 
   Settings, 
   Building2, 
@@ -27,7 +28,8 @@ import {
   Phone,
   MapPin,
   Calendar,
-  Clock
+  Clock,
+  FileText
 } from 'lucide-react';
 
 interface ClinicSettings {
@@ -144,7 +146,7 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             General
@@ -160,6 +162,10 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="w-4 h-4" />
             Notifications
+          </TabsTrigger>
+          <TabsTrigger value="logs" className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Logs
           </TabsTrigger>
         </TabsList>
 
@@ -361,6 +367,10 @@ export default function OwnerSettingsTab({ clinicId }: OwnerSettingsTabProps) {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="logs">
+          <OwnerLogTab clinicId={clinicId} />
         </TabsContent>
       </Tabs>
     </div>

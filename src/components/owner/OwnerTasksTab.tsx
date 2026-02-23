@@ -23,6 +23,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import CreateTaskDialog from './CreateTaskDialog';
 import EditTaskDialog from './EditTaskDialog';
 import TaskCalendar from './TaskCalendar';
+import { TemplateManager } from '@/components/templates/TemplateManager';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { FileText } from 'lucide-react';
 import { Task, Assistant } from '@/types/task';
 import { TaskStatus } from '@/lib/taskStatus';
 import { RecurringTaskInstance, isRecurringInstance } from '@/lib/taskUtils';
@@ -320,6 +323,20 @@ export default function OwnerTasksTab({ clinicId }: OwnerTasksTabProps) {
               Delete ({selectedTasks.length})
             </Button>
           )}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Templates
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Task Templates</DialogTitle>
+              </DialogHeader>
+              <TemplateManager clinicId={clinicId} />
+            </DialogContent>
+          </Dialog>
           <CreateTaskDialog 
             assistants={assistants}
             onTaskCreated={fetchData}

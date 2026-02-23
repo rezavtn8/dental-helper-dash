@@ -1245,21 +1245,21 @@ export type Database = {
           attempted_at: string | null
           email: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           success: boolean | null
         }
         Insert: {
           attempted_at?: string | null
           email: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           success?: boolean | null
         }
         Update: {
           attempted_at?: string | null
           email?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           success?: boolean | null
         }
         Relationships: []
@@ -1340,7 +1340,7 @@ export type Database = {
           attempts: number | null
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           operation: string
           user_id: string | null
           window_start: string | null
@@ -1349,7 +1349,7 @@ export type Database = {
           attempts?: number | null
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           operation: string
           user_id?: string | null
           window_start?: string | null
@@ -1358,7 +1358,7 @@ export type Database = {
           attempts?: number | null
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           operation?: string
           user_id?: string | null
           window_start?: string | null
@@ -1874,10 +1874,7 @@ export type Database = {
         }
         Returns: string
       }
-      can_create_user: {
-        Args: { target_role: string }
-        Returns: boolean
-      }
+      can_create_user: { Args: { target_role: string }; Returns: boolean }
       can_owner_view_user: {
         Args: { target_user_id: string }
         Returns: boolean
@@ -1894,18 +1891,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      cleanup_expired_data: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_expired_invitations: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_expired_sessions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_expired_data: { Args: never; Returns: undefined }
+      cleanup_expired_invitations: { Args: never; Returns: undefined }
+      cleanup_expired_sessions: { Args: never; Returns: undefined }
       create_assistant_invitation: {
         Args: { p_clinic_id: string; p_email: string; p_name: string }
         Returns: {
@@ -1991,10 +1979,7 @@ export type Database = {
         Args: { event_details?: Json; event_type: string; severity?: string }
         Returns: undefined
       }
-      generate_clinic_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_clinic_code: { Args: never; Returns: string }
       generate_tasks_from_templates: {
         Args: { target_date?: string }
         Returns: {
@@ -2009,22 +1994,10 @@ export type Database = {
           weekends_are_workdays: boolean
         }[]
       }
-      get_current_timestamp: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_current_user_clinic_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_current_user_roles: {
-        Args: Record<PropertyKey, never>
-        Returns: string[]
-      }
+      get_current_timestamp: { Args: never; Returns: string }
+      get_current_user_clinic_id: { Args: never; Returns: string }
+      get_current_user_role: { Args: never; Returns: string }
+      get_current_user_roles: { Args: never; Returns: string[] }
       get_individual_user_secure: {
         Args: { target_user_id: string }
         Returns: {
@@ -2072,7 +2045,7 @@ export type Database = {
         }[]
       }
       get_secure_session_metrics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           metric: string
           period: string
@@ -2080,7 +2053,7 @@ export type Database = {
         }[]
       }
       get_security_metrics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           metric: string
           period: string
@@ -2088,7 +2061,7 @@ export type Database = {
         }[]
       }
       get_security_status: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           check_name: string
           details: string
@@ -2096,7 +2069,7 @@ export type Database = {
         }[]
       }
       get_security_status_enhanced: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           check_name: string
           details: string
@@ -2105,7 +2078,7 @@ export type Database = {
         }[]
       }
       get_team_members_no_email: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           id: string
@@ -2116,7 +2089,7 @@ export type Database = {
         }[]
       }
       get_team_members_safe: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           id: string
@@ -2127,7 +2100,7 @@ export type Database = {
         }[]
       }
       get_team_members_secure: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           id: string
@@ -2138,7 +2111,7 @@ export type Database = {
         }[]
       }
       get_ultimate_security_status: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           check_name: string
           details: string
@@ -2146,12 +2119,9 @@ export type Database = {
           status: string
         }[]
       }
-      get_user_email: {
-        Args: { _user_id: string }
-        Returns: string
-      }
+      get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_join_requests: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           clinic_code: string
           clinic_id: string
@@ -2273,10 +2243,7 @@ export type Database = {
         Args: { input_type: string; input_value: string }
         Returns: string
       }
-      sanitize_text_input: {
-        Args: { input_text: string }
-        Returns: string
-      }
+      sanitize_text_input: { Args: { input_text: string }; Returns: string }
       submit_join_request: {
         Args: { p_clinic_code: string }
         Returns: {
@@ -2305,22 +2272,13 @@ export type Database = {
         Args: { check_role: string; user_id_param?: string }
         Returns: boolean
       }
-      user_has_role_check: {
-        Args: { check_role: string }
-        Returns: boolean
-      }
-      validate_clinic_code: {
-        Args: { code_input: string }
-        Returns: boolean
-      }
+      user_has_role_check: { Args: { check_role: string }; Returns: boolean }
+      validate_clinic_code: { Args: { code_input: string }; Returns: boolean }
       validate_clinic_membership: {
         Args: { p_clinic_id: string }
         Returns: boolean
       }
-      validate_email: {
-        Args: { email_input: string }
-        Returns: boolean
-      }
+      validate_email: { Args: { email_input: string }; Returns: boolean }
       validate_user_session: {
         Args: { p_session_token: string }
         Returns: {
@@ -2329,10 +2287,7 @@ export type Database = {
           user_id: string
         }[]
       }
-      verify_user_has_role: {
-        Args: { required_role: string }
-        Returns: Json
-      }
+      verify_user_has_role: { Args: { required_role: string }; Returns: Json }
     }
     Enums: {
       invitation_type: "email_signup" | "magic_link"

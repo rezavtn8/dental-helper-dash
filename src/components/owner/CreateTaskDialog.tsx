@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { sanitizeText } from '@/utils/sanitize';
 
 interface Assistant {
@@ -48,18 +48,8 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     'due-type': 'EoD',
     category: '',
     assigned_to: 'unassigned',
-    recurrence: 'none',
     target_role: 'assistant' as const
   });
-
-  // Set custom due date when initialDate is provided
-  useEffect(() => {
-    if (initialDate && isOpen) {
-      // Task will use the initialDate as custom_due_date
-    }
-  }, [initialDate, isOpen]);
-
-  const [checklist, setChecklist] = useState<{ title: string; description?: string; completed: boolean }[]>([]);
 
   const createTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +62,6 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       category: sanitizeText(newTask.category),
       priority: newTask.priority,
       'due-type': newTask['due-type'],
-      recurrence: newTask.recurrence,
       assigned_to: newTask.assigned_to,
       target_role: newTask.target_role
     };
@@ -94,8 +83,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           created_by: user?.id,
           status: 'pending',
           created_at: new Date().toISOString(),
-          custom_due_date: initialDate?.toISOString() || null,
-          checklist: checklist.length > 0 ? checklist : null
+          custom_due_date: initialDate?.toISOString() || null
         });
 
       if (error) throw error;
@@ -109,10 +97,9 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         'due-type': 'EoD',
         category: '',
         assigned_to: 'unassigned',
-        recurrence: 'none',
         target_role: 'assistant'
       });
-      setChecklist([]);
+      
       
       setIsOpen(false);
       onTaskCreated();
@@ -237,82 +224,6 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-foreground font-medium">Recurrence</Label>
-            <Select value={newTask.recurrence} onValueChange={(value) => setNewTask({ ...newTask, recurrence: value })}>
-              <SelectTrigger className="bg-background border-input">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-2 z-50">
-                <SelectItem value="none">No recurrence</SelectItem>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="biweekly">Biweekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
-                <SelectItem value="yearly">Yearly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Checklist Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-foreground font-medium">Checklist (Optional)</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setChecklist([...checklist, { title: '', description: '', completed: false }])}
-                className="h-6 px-2"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Add Item
-              </Button>
-            </div>
-            
-            {checklist.length > 0 && (
-              <div className="space-y-3 max-h-64 overflow-y-auto border-2 rounded-md p-3 bg-muted/30">
-                {checklist.map((item, index) => (
-                  <div key={index} className="space-y-2 p-2 border rounded-md bg-background">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={item.title}
-                        onChange={(e) => {
-                          const updated = [...checklist];
-                          updated[index].title = e.target.value;
-                          setChecklist(updated);
-                        }}
-                        placeholder="Checklist item title (required)..."
-                        className="flex-1 h-8 text-sm bg-background border-input"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setChecklist(checklist.filter((_, i) => i !== index))}
-                        className="h-8 w-8 p-0"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    <Textarea
-                      value={item.description || ''}
-                      onChange={(e) => {
-                        const updated = [...checklist];
-                        updated[index].description = e.target.value;
-                        setChecklist(updated);
-                      }}
-                      placeholder="Optional description..."
-                      className="text-sm resize-none bg-background border-input"
-                      rows={2}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Creating...' : 'Create Task'}

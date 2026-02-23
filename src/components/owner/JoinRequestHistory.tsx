@@ -37,17 +37,10 @@ export default function JoinRequestHistory({ clinicId }: JoinRequestHistoryProps
       setLoading(true);
       console.log('Fetching join requests for clinic:', clinicId);
       
-      // Use a single query with a join to get user data directly
+      // Fetch join requests first
       const { data: joinRequestsData, error: joinRequestsError } = await supabase
         .from('join_requests')
-        .select(`
-          *,
-          users:user_id (
-            id,
-            name,
-            email
-          )
-        `)
+        .select('*')
         .eq('clinic_id', clinicId)
         .order('requested_at', { ascending: false });
 
@@ -56,15 +49,24 @@ export default function JoinRequestHistory({ clinicId }: JoinRequestHistoryProps
         throw joinRequestsError;
       }
 
-      console.log('Fetched join requests:', joinRequestsData);
-
       if (!joinRequestsData || joinRequestsData.length === 0) {
         setRequests([]);
         return;
       }
-      
+
+      // Fetch user data separately
+      const userIds = joinRequestsData.map(req => req.user_id);
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('id, name, email')
+        .in('id', userIds);
+
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
+      }
+
       const formattedRequests = joinRequestsData.map(request => {
-        const user = request.users as any;
+        const user = usersData?.find(u => u.id === request.user_id);
         let userName = user?.name || 'Unknown User';
         if (userName === 'User' || !userName || userName.trim() === '') {
           userName = user?.email ? user.email.split('@')[0] : 'Unknown User';
@@ -83,7 +85,6 @@ export default function JoinRequestHistory({ clinicId }: JoinRequestHistoryProps
         } as JoinRequest;
       });
 
-      console.log('Formatted requests:', formattedRequests);
       setRequests(formattedRequests);
     } catch (error) {
       console.error('Error fetching join requests:', error);

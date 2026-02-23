@@ -1,96 +1,134 @@
 
 
-# Task Management Overhaul
+# Dashboard Simplification & UX Overhaul
 
-## Problems Identified
+## The Problem
 
-1. **Duplicate/Dead Components**: Several task components exist that are never imported or used:
-   - `TasksTab.tsx` (old version, 527 lines - not imported anywhere)
-   - `OwnerTasks.tsx` (311 lines - not imported anywhere)
-   - `BulkImportTasksDialog.tsx` (not imported anywhere)
-   - `InsightsTab.tsx` (not imported anywhere)
+The app has too many sidebar tabs across all three roles, making it feel scattered and overwhelming. Many tabs overlap in content or show barely-used features.
 
-2. **Redundant Functionality**: The owner has 3 separate places to manage tasks:
-   - "Task Calendar" tab (calendar view with daily/weekly/monthly)
-   - "Tasks" tab (table view with search/filters/bulk actions)
-   - Dashboard tab also shows task summaries
-   
-   The Task Calendar and Tasks tab both independently fetch the same data, have their own filter systems, and own Create/Edit/Delete dialogs.
+**Current tab counts:**
+- Owner: 11 sidebar items
+- Assistant: 8 sidebar items
+- Front Desk: 8 sidebar items (some with no actual content like Phone Calls, Messages)
 
-3. **Overly Complex Recurring Task Logic**: `taskUtils.ts` is 1,094 lines with complex recurring instance generation (EOW, MidM, EOM patterns) that generates virtual task instances client-side - adding complexity and console log noise.
+## The Solution
 
-4. **Too Many Task-Related Dialogs**: There are 5 separate dialogs for task operations:
-   - `CreateTaskDialog` - create tasks
-   - `EditTaskDialog` - edit tasks  
-   - `ReassignTaskDialog` - reassign (could be in edit)
-   - `DeleteTaskDialog` - delete confirmation
-   - `TaskDetailModal` - view/edit task details (duplicates EditTaskDialog functionality)
+Consolidate tabs by merging related features together, removing low-value standalone tabs, and creating a cleaner navigation structure.
 
-5. **Inconsistent Status Values**: `OwnerTasks.tsx` uses "To Do" / "In Progress" / "Done" while the database uses "pending" / "in-progress" / "completed".
+---
 
-6. **Excessive Console Logging**: The assistant task tab has ~20+ console.log statements for debugging task categorization.
+## Owner Dashboard: 11 tabs → 6 tabs
 
-## Plan
+| Before | After | What happens |
+|--------|-------|-------------|
+| Dashboard | **Dashboard** | Merge Analytics charts directly into Dashboard. Remove the separate Analytics tab. |
+| Tasks | **Tasks** | Keep as-is (already has list + calendar toggle) |
+| Templates | *(merged into Tasks)* | Add a "Templates" button/section within the Tasks tab instead of a separate nav item |
+| Learning Courses | **Courses** | Keep (distinct enough) |
+| Team | **Team** | Merge Schedule + Feedback into Team. Team tab gets sub-sections: Members, Schedule, Feedback |
+| Team Schedule | *(merged into Team)* | Becomes a sub-view within Team |
+| Logs | *(merged into Settings)* | Move activity log into Settings as a sub-tab |
+| Feedback | *(merged into Team)* | Feedback is about team members, belongs in Team |
+| Analytics | *(merged into Dashboard)* | Key charts move into Dashboard |
+| AI Assistant | **AI Assistant** | Keep |
+| Settings | **Settings** | Add Logs as a sub-tab here |
 
-### Phase 1: Remove Dead Code
-- Delete `src/components/owner/TasksTab.tsx` (unused, 527 lines)
-- Delete `src/components/owner/OwnerTasks.tsx` (unused, 311 lines)
-- Delete `src/components/owner/BulkImportTasksDialog.tsx` (unused)
-- Delete `src/components/owner/InsightsTab.tsx` (unused)
+**New Owner sidebar (6 items):**
+1. Dashboard (with analytics)
+2. Tasks (with templates access)
+3. Team (members + schedule + feedback)
+4. Courses
+5. AI Assistant
+6. Settings (with logs)
 
-### Phase 2: Consolidate Task Dialogs
-- Merge `ReassignTaskDialog` functionality into `EditTaskDialog` (reassign is just changing the assigned_to field, which EditTaskDialog already has)
-- Remove `TaskDetailModal` - merge its view-mode display into `EditTaskDialog` (it already shows the same fields)
-- Keep `DeleteTaskDialog` (it's small and focused)
-- Keep `CreateTaskDialog` (it's well-structured)
-- Update `EditTaskDialog` to show a cleaner view/edit mode with task timeline info
+## Assistant Dashboard: 8 tabs → 5 tabs
 
-### Phase 3: Merge Task Calendar + Tasks into One Tab
-- Combine the "Task Calendar" and "Tasks" tabs into a single unified "Tasks" tab
-- Add a toggle between "List View" and "Calendar View" within the same tab
-- Single data fetch, shared filters, one set of dialogs
-- Remove `OwnerTaskCalendarTab.tsx` as a separate component
-- Update `OwnerTasksTab.tsx` to include both views
-- Update sidebar: remove "Task Calendar" nav item, keep "Tasks"
-- Update `OwnerDashboardTabs.tsx` to remove the task-calendar tab content
+| Before | After | What happens |
+|--------|-------|-------------|
+| Home | **Home** | Keep as-is |
+| My Tasks | **Tasks** | Keep as-is |
+| Schedule | **Schedule** | Keep as-is |
+| My Stats | *(merged into Home)* | Move key stats cards into the Home tab |
+| Learning | **Learning** | Merge Certifications into Learning as a sub-section |
+| Certifications | *(merged into Learning)* | Becomes a section within Learning |
+| Feedback | *(merged into Home)* | Show recent feedback on Home tab |
+| Settings | **Settings** | Keep as-is |
 
-### Phase 4: Clean Up Task Utilities
-- Remove excessive console.log statements from `AssistantTasksTab.tsx` categorization logic
-- Remove debug logging from `taskUtils.ts` recurring generation
-- Keep the recurring logic functional but quieter
+**New Assistant sidebar (5 items):**
+1. Home (with stats + recent feedback)
+2. Tasks
+3. Schedule
+4. Learning (with certifications)
+5. Settings
 
-### Phase 5: Simplify Create Task Form
-- Remove the "Recurrence" field from `CreateTaskDialog` (recurrence is better handled via templates)
-- Remove the checklist builder from `CreateTaskDialog` (rarely used, adds clutter - checklists come from templates)
-- Keep: title, description, target role, priority, due time, category, assign to
+## Front Desk Dashboard: 8 tabs → 4 tabs
+
+| Before | After | What happens |
+|--------|-------|-------------|
+| Home | **Home** | Keep |
+| My Tasks | **Tasks** | Keep |
+| Schedule | *(merged into Home)* | Show schedule summary on Home |
+| My Stats | *(merged into Home)* | Show key stats on Home |
+| Learning | **Learning** | Keep |
+| Phone Calls | *(removed)* | No actual content exists for this tab |
+| Messages | *(removed)* | No actual content exists for this tab |
+| Settings | **Settings** | Keep |
+
+**New Front Desk sidebar (4 items):**
+1. Home (with schedule + stats)
+2. Tasks
+3. Learning
+4. Settings
+
+---
 
 ## Technical Details
 
-### Files to Delete
-- `src/components/owner/TasksTab.tsx`
-- `src/components/owner/OwnerTasks.tsx`
-- `src/components/owner/BulkImportTasksDialog.tsx`
-- `src/components/owner/InsightsTab.tsx`
-- `src/components/owner/ReassignTaskDialog.tsx`
-- `src/components/owner/TaskDetailModal.tsx`
-
 ### Files to Modify
-- `src/components/owner/OwnerTasksTab.tsx` - Add calendar/list view toggle, integrate TaskCalendar
-- `src/components/owner/EditTaskDialog.tsx` - Add view mode with timeline info, remove need for TaskDetailModal
-- `src/components/owner/OwnerDashboardTabs.tsx` - Remove task-calendar tab
-- `src/components/owner/OwnerSidebar.tsx` - Remove "Task Calendar" nav item
-- `src/components/owner/CreateTaskDialog.tsx` - Remove recurrence and checklist sections
-- `src/components/assistant/AssistantTasksTab.tsx` - Remove console.log statements
-- `src/lib/taskUtils.ts` - Remove debug console.log statements
+
+**Owner Dashboard:**
+- `src/components/owner/OwnerSidebar.tsx` -- Reduce navigation items from 11 to 6
+- `src/components/owner/OwnerDashboardTabs.tsx` -- Remove deleted tab contents, update remaining
+- `src/components/owner/OwnerDashboardTab.tsx` -- Merge analytics charts (from OwnerAnalyticsTab) into this component
+- `src/components/owner/OwnerTeamTab.tsx` -- Add sub-tabs for Members, Schedule, Feedback (embed OwnerScheduleTab and OwnerFeedbackTab content)
+- `src/components/owner/OwnerTasksTab.tsx` -- Add a "Templates" button that opens templates inline or as a dialog
+- `src/components/owner/OwnerSettingsTab.tsx` -- Add a "Logs" sub-tab embedding OwnerLogTab content
+
+**Assistant Dashboard:**
+- `src/components/assistant/NewAssistantSidebar.tsx` -- Reduce from 8 to 5 items
+- `src/components/assistant/AssistantDashboardTabs.tsx` -- Remove deleted tab contents
+- `src/components/assistant/AssistantHomeTab.tsx` -- Add stats summary cards and recent feedback section
+- `src/components/assistant/AssistantLearningTab.tsx` -- Merge certifications section into learning (or use LearningHub with certs section)
+
+**Front Desk Dashboard:**
+- `src/components/front-desk/NewFrontDeskSidebar.tsx` -- Reduce from 8 to 4 items (remove calls, messages, schedule, stats)
+- `src/components/front-desk/FrontDeskDashboardTabs.tsx` -- Update to match new tab structure
+- `src/pages/FrontDeskDashboard.tsx` -- Clean up learning tab special-case logic
+
+### Files to Delete (content merged elsewhere)
+- `src/components/owner/OwnerAnalyticsTab.tsx` -- merged into Dashboard
+- `src/components/owner/OwnerLogTab.tsx` -- merged into Settings
+- `src/components/owner/OwnerFeedbackTab.tsx` -- merged into Team
+- `src/components/owner/OwnerScheduleTab.tsx` -- merged into Team
+- `src/components/owner/OwnerTemplatesTab.tsx` -- templates accessed from Tasks tab
+- `src/components/assistant/AssistantStatsTab.tsx` -- merged into Home
+- `src/components/assistant/AssistantFeedbackTab.tsx` -- merged into Home
+- `src/components/assistant/AssistantCertificationsTab.tsx` -- merged into Learning
 
 ### Files to Keep As-Is
-- `src/components/owner/DeleteTaskDialog.tsx` - Clean and focused
-- `src/components/owner/TaskNotesView.tsx` - Only used in TasksTab.tsx (dead code), will be removed
-- `src/components/owner/TaskBlock.tsx` - Used by TaskCalendar
-- `src/components/owner/TaskCalendar.tsx` - Will be embedded in unified Tasks tab
-- `src/components/front-desk/FrontDeskTasksTab.tsx` - Separate role, keep as-is
-- `src/components/assistant/AssistantTasksTab.tsx` - Separate role, just clean logs
+- `src/components/owner/AIAssistantTab.tsx`
+- `src/components/owner/CourseManagementTab.tsx`
+- `src/components/assistant/AssistantTasksTab.tsx`
+- `src/components/assistant/AssistantScheduleTab.tsx`
+- `src/components/assistant/AssistantSettingsTab.tsx`
+- `src/components/front-desk/FrontDeskHomeTab.tsx`
+- `src/components/front-desk/FrontDeskTasksTab.tsx`
+- `src/components/learning/LearningHub.tsx`
 
-### Navigation Change
-The owner sidebar goes from 12 items to 11 (removing "Task Calendar" as separate entry). Tasks tab becomes the single place for all task management with a view toggle.
+### Implementation Order
+1. Owner sidebar + tabs consolidation (biggest impact)
+2. Assistant sidebar + tabs consolidation
+3. Front Desk sidebar + tabs consolidation
+4. Delete orphaned files
+5. Test all navigation flows
 
